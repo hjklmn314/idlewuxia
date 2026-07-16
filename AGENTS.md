@@ -72,6 +72,10 @@ evidence and config contracts before code or UI work.
   entry, runtime configuration closure, development-only reference files,
   tracked path categories, and exact web shipping allowlist. Any new tracked
   path category or shipping file must be declared there in the same change.
+- `npm run wuxia:validate:first-session:runtime` is the portable repository
+  gate and must not require ignored competitor files. The existing
+  `npm run wuxia:validate:first-session` remains the stronger development
+  evidence gate on machines that hold the local evidence archive.
 - Before a release push, run `npm run baseline:verify` on a clean tree. The
   generated baseline artifacts remain under ignored
   `outputs\project_baseline`; do not commit them.

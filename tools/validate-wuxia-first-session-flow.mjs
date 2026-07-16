@@ -4,6 +4,7 @@ import path from "node:path";
 const root = process.cwd();
 const configPath = path.join(root, "config", "wuxia_first_session_flow.json");
 const outputDir = path.join(root, "outputs", "idlewuxia_migration");
+const requireLocalEvidenceFiles = !process.argv.includes("--runtime-only");
 fs.mkdirSync(outputDir, { recursive: true });
 
 function finding(severity, message, where = "") {
@@ -66,7 +67,7 @@ for (const state of states) {
     findings.push(finding("error", `State ${state.stateId} points to missing screen ${state.screenId}.`, state.stateId));
   }
   if (!state.evidence?.level) findings.push(finding("error", `State ${state.stateId} missing evidence level.`, state.stateId));
-  if (!state.evidence?.source || !existsRel(state.evidence.source)) {
+  if (!state.evidence?.source || (requireLocalEvidenceFiles && !existsRel(state.evidence.source))) {
     findings.push(finding("error", `State ${state.stateId} source file is missing.`, state.evidence?.source || state.stateId));
   }
 }
@@ -166,7 +167,7 @@ for (const node of nodes) {
     }
   }
   if (!node.evidence?.level) findings.push(finding("error", `Node ${node.nodeId} missing evidence level.`, node.nodeId));
-  if (!node.evidence?.source || !existsRel(node.evidence.source)) {
+  if (!node.evidence?.source || (requireLocalEvidenceFiles && !existsRel(node.evidence.source))) {
     findings.push(finding("error", `Node ${node.nodeId} source file is missing.`, node.evidence?.source || node.nodeId));
   }
 }
@@ -183,7 +184,7 @@ for (const room of rooms) {
     }
   }
   if (!room.evidence?.level) findings.push(finding("error", `Room ${room.roomId} missing evidence level.`, room.roomId));
-  if (!room.evidence?.source || !existsRel(room.evidence.source)) {
+  if (!room.evidence?.source || (requireLocalEvidenceFiles && !existsRel(room.evidence.source))) {
     findings.push(finding("error", `Room ${room.roomId} source file is missing.`, room.evidence?.source || room.roomId));
   }
 }
@@ -207,6 +208,7 @@ if (gates.length === 0) findings.push(finding("warning", "No chapter1 gates were
 const report = {
   generatedAt: new Date().toISOString(),
   configPath: "config/wuxia_first_session_flow.json",
+  validationMode: requireLocalEvidenceFiles ? "full-local-evidence" : "portable-runtime",
   summary: {
     states: states.length,
     actions: actions.length,

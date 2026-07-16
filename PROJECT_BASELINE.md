@@ -41,6 +41,8 @@ git pull --ff-only origin main
 npm run task:preflight
 ```
 
+`task:preflight` 使用可移植的 `wuxia:validate:first-session:runtime`，校验运行时结构和证据字段，但不要求 CI 机器持有被 Git 排除的竞品证据文件。研发机仍使用 `wuxia:validate:first-session` 执行完整本地证据存在性门禁；两者不能相互冒充。
+
 开发中：
 
 ```bash
