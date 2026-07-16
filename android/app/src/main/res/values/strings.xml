@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Idle Dot Shooter</string>
-    <string name="title_activity_main">Idle Dot Shooter</string>
-    <string name="package_name">com.infinitygames.dotcollect</string>
-    <string name="custom_url_scheme">com.infinitygames.dotcollect</string>
+    <string name="app_name">Idle Wuxia</string>
+    <string name="title_activity_main">Idle Wuxia</string>
+    <string name="package_name">com.idlewuxia.app</string>
+    <string name="custom_url_scheme">com.idlewuxia.app</string>
 </resources>

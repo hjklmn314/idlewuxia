@@ -72,6 +72,10 @@ evidence and config contracts before code or UI work.
   entry, runtime configuration closure, development-only reference files,
   tracked path categories, and exact web shipping allowlist. Any new tracked
   path category or shipping file must be declared there in the same change.
+- `config\android_identity_contract.json` is the only Android identity source
+  of truth. Capacitor, Gradle, Java/test packages, Android string resources,
+  mobile-shell validation, and APK audit must match it. Run
+  `npm run android:identity` after any Android identity or path change.
 - `npm run wuxia:validate:first-session:runtime` is the portable repository
   gate and must not require ignored competitor files. The existing
   `npm run wuxia:validate:first-session` remains the stronger development

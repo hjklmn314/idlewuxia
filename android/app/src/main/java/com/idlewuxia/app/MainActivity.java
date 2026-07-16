@@ -1,4 +1,4 @@
-package com.infinitygames.dotcollect;
+package com.idlewuxia.app;
 
 import android.graphics.Color;
 import android.os.Build;

@@ -4,12 +4,13 @@ import path from "node:path";
 const root = path.resolve(".");
 const outputDir = path.join(root, "outputs");
 fs.mkdirSync(outputDir, { recursive: true });
+const identity = JSON.parse(
+  fs.readFileSync(path.join(root, "config", "android_identity_contract.json"), "utf8").replace(/^\uFEFF/, ""),
+);
+const mainActivityPath = path.join(root, ...identity.paths.mainActivity.split("/"));
 
 const files = {
-  mainActivity: fs.readFileSync(
-    path.join(root, "android", "app", "src", "main", "java", "com", "infinitygames", "dotcollect", "MainActivity.java"),
-    "utf8",
-  ),
+  mainActivity: fs.readFileSync(mainActivityPath, "utf8"),
   styles: fs.readFileSync(path.join(root, "android", "app", "src", "main", "res", "values", "styles.xml"), "utf8"),
   manifest: fs.readFileSync(path.join(root, "android", "app", "src", "main", "AndroidManifest.xml"), "utf8"),
   index: fs.readFileSync(path.join(root, "index.html"), "utf8"),
@@ -61,19 +62,19 @@ check(
   "android activity applies immersive mode",
   has("mainActivity", ["applyImmersiveMode()", "WindowInsets.Type.statusBars()", "WindowInsets.Type.navigationBars()"]),
   "MainActivity must hide status/navigation bars on Android 11+.",
-  { file: "android/app/src/main/java/com/infinitygames/dotcollect/MainActivity.java" },
+  { file: identity.paths.mainActivity },
 );
 check(
   "android activity supports legacy immersive flags",
   has("mainActivity", ["SYSTEM_UI_FLAG_IMMERSIVE_STICKY", "SYSTEM_UI_FLAG_FULLSCREEN", "SYSTEM_UI_FLAG_HIDE_NAVIGATION"]),
   "MainActivity must hide system bars on older Android devices.",
-  { file: "android/app/src/main/java/com/infinitygames/dotcollect/MainActivity.java" },
+  { file: identity.paths.mainActivity },
 );
 check(
   "android activity reapplies on focus",
   has("mainActivity", ["onWindowFocusChanged", "if (hasFocus)", "applyImmersiveMode();"]),
   "System bars can reappear after gestures; focus regain must reapply immersive mode.",
-  { file: "android/app/src/main/java/com/infinitygames/dotcollect/MainActivity.java" },
+  { file: identity.paths.mainActivity },
 );
 check(
   "android theme is fullscreen transparent",

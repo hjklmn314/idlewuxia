@@ -1,4 +1,4 @@
-package com.getcapacitor.myapp;
+package com.idlewuxia.app;
 
 import static org.junit.Assert.*;
 

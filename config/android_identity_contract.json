@@ -1,0 +1,49 @@
+{
+  "$schema": "idlewuxia.android_identity.v1",
+  "applicationId": "com.idlewuxia.app",
+  "debugApplicationIdSuffix": ".debug",
+  "debugApplicationId": "com.idlewuxia.app.debug",
+  "namespace": "com.idlewuxia.app",
+  "javaPackage": "com.idlewuxia.app",
+  "launcherClass": "com.idlewuxia.app.MainActivity",
+  "appName": "Idle Wuxia",
+  "versionCode": 1,
+  "versionName": "0.1.0",
+  "debugVersionNameSuffix": "-p0-debug",
+  "paths": {
+    "capacitor": "capacitor.config.json",
+    "gradle": "android/app/build.gradle",
+    "manifest": "android/app/src/main/AndroidManifest.xml",
+    "strings": "android/app/src/main/res/values/strings.xml",
+    "mainActivity": "android/app/src/main/java/com/idlewuxia/app/MainActivity.java",
+    "unitTest": "android/app/src/test/java/com/idlewuxia/app/ExampleUnitTest.java",
+    "instrumentedTest": "android/app/src/androidTest/java/com/idlewuxia/app/ExampleInstrumentedTest.java",
+    "apkAudit": "tools/audit-android-debug.mjs",
+    "mobileShellAudit": "tools/validate-mobile-shell.mjs"
+  },
+  "deprecatedTrackedPaths": [
+    "android/app/src/main/java/com/infinitygames/dotcollect/MainActivity.java",
+    "android/app/src/test/java/com/getcapacitor/myapp/ExampleUnitTest.java",
+    "android/app/src/androidTest/java/com/getcapacitor/myapp/ExampleInstrumentedTest.java"
+  ],
+  "runtimeScanExact": [
+    "capacitor.config.json",
+    "tools/audit-android-debug.mjs",
+    "tools/validate-mobile-shell.mjs",
+    "tools/build-android-debug.ps1"
+  ],
+  "runtimeScanPrefixes": [
+    "android/"
+  ],
+  "forbiddenRuntimeTokens": [
+    "com.infinitygames.dotcollect",
+    "com.getcapacitor.myapp",
+    "com.getcapacitor.app",
+    "Idle Dot Shooter",
+    "idle-dot-shooter",
+    "NovaLite"
+  ],
+  "evidenceOnlyIdentityFiles": [
+    "config/iap_product_catalog.json"
+  ]
+}

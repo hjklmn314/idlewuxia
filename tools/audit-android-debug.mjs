@@ -5,10 +5,17 @@ import zlib from "node:zlib";
 
 const root = path.resolve(".");
 const outputDir = path.join(root, "outputs");
+const identity = JSON.parse(
+  fs.readFileSync(path.join(root, "config", "android_identity_contract.json"), "utf8").replace(/^\uFEFF/, ""),
+);
+const projectScope = JSON.parse(
+  fs.readFileSync(path.join(root, "config", "project_scope.json"), "utf8").replace(/^\uFEFF/, ""),
+);
 const sourceApk = path.join(root, "android", "app", "build", "outputs", "apk", "debug", "app-debug.apk");
-const deliveryApk = path.join(outputDir, "idle-dot-shooter-p0-debug.apk");
-const extractDir = path.join(outputDir, "apk-p0-debug-audit-extract");
+const deliveryApk = path.join(outputDir, "idlewuxia-debug.apk");
+const extractDir = path.join(outputDir, "idlewuxia-debug-audit-extract");
 const forbiddenTerms = [
+  ...identity.forbiddenRuntimeTokens,
   ["game", "killer"].join(""),
   ["splash", "activity", "king"].join(""),
   ["games", "activity"].join(""),
@@ -16,10 +23,7 @@ const forbiddenTerms = [
   ["com", "aimobilestudio", "king"].join("."),
 ];
 const requiredEntries = [
-  "assets/public/index.html",
-  "assets/public/src/main.js",
-  "assets/public/src/runtimeCombatAudit.js",
-  "assets/public/config/ads_iap_guardrails.json",
+  ...projectScope.shippingFiles.map((file) => `assets/public/${file}`),
   "classes.dex",
 ];
 
@@ -118,9 +122,9 @@ const manifestBuffer = fs.readFileSync(manifestPath);
 const resourcesBuffer = fs.readFileSync(path.join(extractDir, "resources.arsc"));
 const manifestSearch = `${manifestBuffer.toString("latin1")}\n${manifestBuffer.toString("utf16le")}`;
 const packageMetadataSearch = `${manifestSearch}\n${resourcesBuffer.toString("latin1")}\n${resourcesBuffer.toString("utf16le")}`;
-const packageLine = "com.infinitygames.dotcollect.debug";
-const launchableLine = "com.infinitygames.dotcollect.MainActivity";
-const versionName = "0.1.0-p0-debug";
+const packageLine = identity.debugApplicationId;
+const launchableLine = identity.launcherClass;
+const versionName = `${identity.versionName}${identity.debugVersionNameSuffix}`;
 const permissions = ["android.permission.INTERNET"];
 const sha256 = crypto.createHash("sha256").update(fs.readFileSync(deliveryApk)).digest("hex");
 const findings = [];
@@ -159,7 +163,7 @@ const report = {
     forbiddenHits: termHits,
   },
   commercialStatus: {
-    mode: "P0_DEBUG_STUBS",
+    mode: "DEVELOPMENT_DEBUG",
     liveAdMobSdk: false,
     livePlayBillingSdk: false,
     backendReceiptVerification: false,
@@ -168,25 +172,25 @@ const report = {
 };
 
 fs.writeFileSync(
-  path.join(outputDir, "android_p0_debug_apk_audit.json"),
+  path.join(outputDir, "android_debug_apk_audit.json"),
   JSON.stringify(report, null, 2),
   "utf8",
 );
 fs.writeFileSync(
-  path.join(outputDir, "novalite_android_p0_debug_build_20260701.md"),
+  path.join(outputDir, "idlewuxia_android_debug_build.md"),
   [
-    "# NovaLite Android P0 Debug Build",
+    "# Idle Wuxia Android Debug Build",
     "",
     `- APK: \`${path.basename(deliveryApk)}\``,
     `- Size: ${report.apk.bytes} bytes`,
     `- SHA-256: \`${sha256}\``,
-    `- Package: \`com.infinitygames.dotcollect.debug\``,
-    `- Launcher: \`com.infinitygames.dotcollect.MainActivity\``,
+    `- Package: \`${packageLine}\``,
+    `- Launcher: \`${launchableLine}\``,
     `- Required game entries: ${missingEntries.length ? "FAIL" : "PASS"}`,
     `- Excluded wrapper scan: ${termHits.length ? "FAIL" : "PASS"}`,
     `- Findings: ${findings.length}`,
     "",
-    "P0 uses local IAA/IAP contracts and test stubs only. Live AdMob, Play Billing, and receipt verification are intentionally not enabled.",
+    "This development build does not certify store signing, live billing, backend receipt verification, or device acceptance.",
     "",
   ].join("\n"),
   "utf8",

@@ -9,6 +9,7 @@ npm run start
 npm run task:preflight
 npm run baseline:build
 npm run build:web
+npm run android:identity
 npm run wuxia:check:fast
 ```
 
@@ -16,6 +17,10 @@ npm run wuxia:check:fast
 active entry, runtime configs, development-only evidence, tracked path
 categories, and exact web shipping closure. See `PROJECT_BASELINE.md` for the
 R0 gate and release procedure.
+
+`config/android_identity_contract.json` is the single source of truth for the
+Capacitor and Android application identity. See `ANDROID_IDENTITY.md` before
+changing the package name, Java path, app label, launcher, or debug suffix.
 
 ## Repository scope
 
