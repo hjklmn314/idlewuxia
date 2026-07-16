@@ -18,6 +18,7 @@ const scope = {
 };
 const contract = {
   maxTrackedFileBytes: 1024 * 1024,
+  textLineEndingCanonicalization: "lf",
   fatalFindingCodes: [
     "MISSING_REQUIRED_FILE",
     "FORBIDDEN_TRACKED_PATH",
@@ -97,4 +98,12 @@ const firstDigest = evaluate({ trackedFiles: [...validTracked].reverse() }).base
 const secondDigest = evaluate({ trackedFiles: validTracked }).baselineDigest;
 assert.equal(firstDigest, secondDigest, "baseline digest must not depend on Git listing order");
 
-console.log("project baseline contract tests: PASS (9 cases)");
+const lfDigest = evaluate({
+  files: { ...validFiles, "src/wuxia-main.js": 'fetch("./config/flow.json");\n' },
+}).baselineDigest;
+const crlfDigest = evaluate({
+  files: { ...validFiles, "src/wuxia-main.js": 'fetch("./config/flow.json");\r\n' },
+}).baselineDigest;
+assert.equal(lfDigest, crlfDigest, "baseline digest must be stable across LF and CRLF checkouts");
+
+console.log("project baseline contract tests: PASS (10 cases)");

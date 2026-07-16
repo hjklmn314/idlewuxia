@@ -81,7 +81,7 @@ npm run baseline:verify:remote
 - `scope_gate.json`：范围阻断项；
 - `baseline_report.md`：人工复核摘要。
 
-生成时间不参与摘要。摘要只由按路径排序的文件路径、分类、字节数和文件哈希组成，因此相同提交重复执行得到相同 `baselineDigest`。
+生成时间不参与摘要。摘要只由按路径排序的文件路径、分类、规范化字节数和文件哈希组成。UTF-8 文本在哈希前统一为 LF，二进制保持原始字节，因此相同提交在 Windows 与 Linux 检出后得到相同 `baselineDigest`。
 
 ## R0 上线级完成定义
 

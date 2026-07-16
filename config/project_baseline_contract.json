@@ -1,6 +1,7 @@
 {
   "$schema": "idlewuxia.project_baseline_contract.v1",
   "hashAlgorithm": "sha256",
+  "textLineEndingCanonicalization": "lf",
   "manifestColumns": [
     "path",
     "category",

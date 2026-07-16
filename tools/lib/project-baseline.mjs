@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { isUtf8 } from "node:buffer";
 
 function normalizePath(value) {
   return String(value || "")
@@ -32,6 +33,11 @@ function finding(code, subject, message) {
 function bufferFrom(fileSystem, file) {
   const value = fileSystem.readFile(file);
   return Buffer.isBuffer(value) ? value : Buffer.from(value);
+}
+
+function canonicalBuffer(bytes, contract) {
+  if (contract.textLineEndingCanonicalization !== "lf" || bytes.includes(0) || !isUtf8(bytes)) return bytes;
+  return Buffer.from(bytes.toString("utf8").replace(/\r\n?/g, "\n"), "utf8");
 }
 
 function parseModuleScripts(html) {
@@ -85,16 +91,17 @@ export function evaluateProjectBaseline({
       continue;
     }
 
-    const bytes = bufferFrom(fileSystem, file);
-    if (bytes.byteLength > contract.maxTrackedFileBytes) {
+    const worktreeBytes = bufferFrom(fileSystem, file);
+    if (worktreeBytes.byteLength > contract.maxTrackedFileBytes) {
       findings.push(
         finding(
           "TRACKED_FILE_TOO_LARGE",
           file,
-          `Tracked file is ${bytes.byteLength} bytes; limit is ${contract.maxTrackedFileBytes}.`,
+          `Tracked file is ${worktreeBytes.byteLength} bytes; limit is ${contract.maxTrackedFileBytes}.`,
         ),
       );
     }
+    const bytes = canonicalBuffer(worktreeBytes, contract);
     manifest.push({
       path: file,
       category,
