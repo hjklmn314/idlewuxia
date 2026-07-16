@@ -1,0 +1,61 @@
+{
+  "waveTemplates": [
+    {
+      "id": "scatter_basic",
+      "minWorld": 1,
+      "weight": 100,
+      "formation": "scatter",
+      "enemyPool": ["dot_basic"],
+      "quantityRange": [6, 16],
+      "budgetMultiplier": 1.0
+    },
+    {
+      "id": "cluster_swarm",
+      "minWorld": 2,
+      "weight": 80,
+      "formation": "cluster",
+      "enemyPool": ["dot_basic", "swarm_dot"],
+      "quantityRange": [12, 35],
+      "budgetMultiplier": 0.85,
+      "swipeFriendly": true
+    },
+    {
+      "id": "trail_chain",
+      "minWorld": 3,
+      "weight": 55,
+      "formation": "trail",
+      "enemyPool": ["swarm_dot", "splitter_dot"],
+      "quantityRange": [8, 22],
+      "budgetMultiplier": 0.95,
+      "swipeFriendly": true
+    },
+    {
+      "id": "orbit_nodes",
+      "minWorld": 4,
+      "weight": 35,
+      "formation": "orbit",
+      "enemyPool": ["dot_basic", "swarm_dot"],
+      "quantityRange": [8, 20],
+      "budgetMultiplier": 1.05
+    },
+    {
+      "id": "v_flow",
+      "minWorld": 5,
+      "weight": 30,
+      "formation": "v",
+      "enemyPool": ["swarm_dot", "dot_basic"],
+      "quantityRange": [14, 28],
+      "budgetMultiplier": 1.0,
+      "uaFriendly": true
+    },
+    {
+      "id": "pincer_lite",
+      "minWorld": 7,
+      "weight": 18,
+      "formation": "pincer",
+      "enemyPool": ["dot_basic", "splitter_dot"],
+      "quantityRange": [10, 24],
+      "budgetMultiplier": 1.15
+    }
+  ]
+}

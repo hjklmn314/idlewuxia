@@ -1,0 +1,34 @@
+{
+  "ads": {
+    "noForcedInterstitialBeforeSeconds": 300,
+    "forcedInterstitialPer10MinMax": 1,
+    "rewardedSkillCooldownSeconds": 60,
+    "samePlacementCooldownSeconds": 180,
+    "rewardedPlacements": [
+      "daily_free_gift_2x",
+      "daily_streak_2x",
+      "storm_skill",
+      "dot_rain_skill",
+      "golden_dot_skill",
+      "frenzy_skill",
+      "galaxy_boost_optional",
+      "galaxy_travel",
+      "drone_unlock",
+      "vacuum_unlock",
+      "premium_cosmetic_unlock",
+      "boss_retry_optional"
+    ],
+    "disallowed": [
+      "mandatory_ad_for_core_upgrade",
+      "ad_on_game_launch_before_interaction",
+      "ad_mid_swipe_or_mid_boss_without_pause"
+    ]
+  },
+  "iap": {
+    "firstPurchaseOffers": ["starter_pack", "no_forced_ads", "pocket_cash"],
+    "serverVerificationRequired": true,
+    "clientEntitlementCacheTTLMinutes": 15,
+    "noAdsRemoves": ["forced_interstitial", "banner"],
+    "vipIncludes": ["no_forced_ads", "no_banner", "auto_2x_optional", "skip_upgrade_gates"]
+  }
+}

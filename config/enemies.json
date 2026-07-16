@@ -1,0 +1,60 @@
+{
+  "enemyTypes": [
+    {
+      "id": "dot_basic",
+      "role": "baseline_income",
+      "hpRatio": 1.0,
+      "valueRatio": 1.0,
+      "entityCost": 1,
+      "minWorld": 1,
+      "spawnWeight": 100
+    },
+    {
+      "id": "swarm_dot",
+      "role": "clear_satisfaction",
+      "hpRatio": 0.28,
+      "valueRatio": 0.18,
+      "entityCost": 0.5,
+      "minWorld": 2,
+      "spawnWeight": 80,
+      "budgetCapRatio": 0.35
+    },
+    {
+      "id": "splitter_dot",
+      "role": "chain_reaction",
+      "hpRatio": 1.25,
+      "valueRatio": 0.75,
+      "entityCost": 1.5,
+      "minWorld": 3,
+      "spawnWeight": 45,
+      "split": {
+        "children": "swarm_dot",
+        "countMin": 2,
+        "countMax": 4,
+        "maxDepth": 1,
+        "childValueRatio": 0.15
+      }
+    },
+    {
+      "id": "shield_node",
+      "role": "boss_protection",
+      "hpRatio": 0.85,
+      "valueRatio": 0.25,
+      "entityCost": 1.2,
+      "minWorld": 4,
+      "spawnWeight": 25,
+      "bossOnly": true
+    },
+    {
+      "id": "charger_dot",
+      "role": "interrupt_target",
+      "hpRatio": 0.65,
+      "valueRatio": 0.4,
+      "entityCost": 1.0,
+      "minWorld": 5,
+      "spawnWeight": 20,
+      "bossOnly": true,
+      "chargeSeconds": 8
+    }
+  ]
+}

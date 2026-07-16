@@ -1,0 +1,124 @@
+{
+  "skins": [
+    {
+      "id": "black_hole_vacuum",
+      "displayName": "Black Hole Vacuum",
+      "positioning": "Cosmic vacuum and singularity cleaner",
+      "primaryColor": "purple",
+      "secondaryColor": "blue",
+      "entityNames": {
+        "dot": "Star Dust",
+        "swarmDot": "Dust Swarm",
+        "splitter": "Fragment Cluster",
+        "shieldNode": "Gravity Node",
+        "charger": "Nova Charge",
+        "bossNovaReactor": "Nova Reactor",
+        "cash": "Star Energy",
+        "gems": "Dark Crystals"
+      },
+      "vfx": {
+        "death": "gravity_collapse",
+        "swipe": "gravity_slice",
+        "vacuum": "accretion_spiral",
+        "bossCharge": "supernova_red_purple"
+      },
+      "uaHook": "吸入一整屏星尘，打断超新星激射"
+    },
+    {
+      "id": "clean_the_dots",
+      "displayName": "Clean the Dots",
+      "positioning": "Satisfying clean-up idle shooter",
+      "primaryColor": "blue",
+      "secondaryColor": "green",
+      "entityNames": {
+        "dot": "Dirt Spot",
+        "swarmDot": "Dust Swarm",
+        "splitter": "Mold Cluster",
+        "shieldNode": "Stain Shield",
+        "charger": "Grease Bubble",
+        "bossNovaReactor": "Clogged Stain Core",
+        "cash": "Clean Cash",
+        "gems": "Shine Gems"
+      },
+      "vfx": {
+        "death": "bubble_pop_clean",
+        "swipe": "finger_wipe",
+        "vacuum": "dust_suction",
+        "bossCharge": "dirty_burst_warning"
+      },
+      "uaHook": "手指一划清掉脏点，喷枪升级后自动清屏"
+    },
+    {
+      "id": "paint_bloom",
+      "displayName": "Paint Bloom",
+      "positioning": "Color ink and watercolor bloom shooter",
+      "primaryColor": "cyan_magenta",
+      "secondaryColor": "gold",
+      "entityNames": {
+        "dot": "Ink Drop",
+        "swarmDot": "Ink Splatter",
+        "splitter": "Bloom Drop",
+        "shieldNode": "Ink Seal",
+        "charger": "Color Core",
+        "bossNovaReactor": "Supernova Ink Core",
+        "cash": "Inspiration",
+        "gems": "Color Gems"
+      },
+      "vfx": {
+        "death": "watercolor_bloom",
+        "swipe": "brush_stroke",
+        "vacuum": "color_vortex",
+        "bossCharge": "ink_supernova"
+      },
+      "uaHook": "墨点被击中后绽放成彩色水花"
+    },
+    {
+      "id": "cash_vacuum",
+      "displayName": "Cash Vacuum",
+      "positioning": "Readable money vacuum skin for lower CPI tests",
+      "primaryColor": "gold",
+      "secondaryColor": "green",
+      "entityNames": {
+        "dot": "Cash Dot",
+        "swarmDot": "Coin Swarm",
+        "splitter": "Bonus Cluster",
+        "shieldNode": "Vault Node",
+        "charger": "Jackpot Charge",
+        "bossNovaReactor": "Cash Reactor",
+        "cash": "Cash",
+        "gems": "Prize Gems"
+      },
+      "vfx": {
+        "death": "coin_pop_absorb",
+        "swipe": "cash_slice",
+        "vacuum": "money_magnet",
+        "bossCharge": "jackpot_warning"
+      },
+      "uaHook": "Coins pop, cash flies into the wallet, and upgrades feel instantly richer."
+    },
+    {
+      "id": "space_glass_ui",
+      "displayName": "Space Glass UI",
+      "positioning": "Premium futuristic iPhone-style space interface skin",
+      "primaryColor": "cyan",
+      "secondaryColor": "violet",
+      "entityNames": {
+        "dot": "Orbit Dot",
+        "swarmDot": "Comet Swarm",
+        "splitter": "Shard Cluster",
+        "shieldNode": "Glass Node",
+        "charger": "Ion Charge",
+        "bossNovaReactor": "Glass Reactor",
+        "cash": "Flux",
+        "gems": "Prism Shards"
+      },
+      "vfx": {
+        "death": "glass_orbit_absorb",
+        "swipe": "prismatic_slice",
+        "vacuum": "liquid_glass_gravity",
+        "bossCharge": "ion_supernova"
+      },
+      "uaHook": "A premium glassy space UI skin unlocked through rewarded ad progress."
+    }
+  ]
+}

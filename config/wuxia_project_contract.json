@@ -1,0 +1,36 @@
+{
+  "schema": "idlewuxia.project_contract.v1",
+  "project": "idlewuxia",
+  "activePrototypeRoot": "H:/MyProjectBack/idlewuxia",
+  "competitorArchiveRoot": "fangzhijianghu",
+  "runtime": {
+    "client": "Web + Capacitor",
+    "serverPrototype": "local deterministic command adapter",
+    "futureServerScope": [
+      "login",
+      "sync",
+      "purchase_verification"
+    ]
+  },
+  "dataPolicy": {
+    "contentInConfig": true,
+    "noHardcodedChapterNodeSkillBuffReward": true,
+    "evidenceLevels": [
+      "lua_confirmed",
+      "config_confirmed",
+      "cross_source_confirmed",
+      "reverse_tested",
+      "design_proposal",
+      "unknown"
+    ]
+  },
+  "nextFlow": [
+    "opening",
+    "character_create_or_confirm",
+    "idle_task",
+    "chapter1_map",
+    "node_interaction",
+    "early_combat",
+    "reward_return"
+  ]
+}

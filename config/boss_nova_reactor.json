@@ -1,0 +1,53 @@
+{
+  "id": "boss_nova_reactor",
+  "displayName": "Nova Reactor",
+  "firstWorld": 8,
+  "themeAliases": {
+    "black_hole_vacuum": "Nova Reactor",
+    "clean_the_dots": "Clogged Stain Core",
+    "paint_bloom": "Supernova Ink Core"
+  },
+  "targetTTKSeconds": {
+    "firstEncounter": [30, 45],
+    "normal": [45, 75],
+    "hard": [75, 120]
+  },
+  "phaseComplexityMultiplier": 1.35,
+  "phases": [
+    {
+      "id": "core_warmup",
+      "hpRange": [1.0, 0.75],
+      "durationHint": 10,
+      "actions": [
+        { "type": "spawn_wave", "template": "scatter_basic", "interval": 5, "budgetRatio": 0.35 }
+      ]
+    },
+    {
+      "id": "shield_ring",
+      "hpRange": [0.75, 0.45],
+      "actions": [
+        { "type": "spawn_orbit_nodes", "enemy": "shield_node", "count": [4, 6], "radius": [90, 140], "angularSpeed": [0.45, 0.85] },
+        { "type": "damage_reduction_while_nodes_alive", "multiplier": 0.5 },
+        { "type": "vulnerability_on_nodes_destroyed", "seconds": 5, "damageMultiplier": 1.5 }
+      ]
+    },
+    {
+      "id": "supernova_charge",
+      "hpRange": [0.45, 0.15],
+      "actions": [
+        { "type": "start_charge", "seconds": 8, "warningVfx": "charge_ring" },
+        { "type": "spawn_chargers", "enemy": "charger_dot", "count": [4, 8], "interruptRequiredRatio": 0.75 },
+        { "type": "on_interrupt", "effect": "boss_stun", "seconds": 4, "damageMultiplier": 1.75 },
+        { "type": "on_fail", "effect": "nova_pulse", "bossHealRatio": 0.06, "qaLegacySpawnWave": "cluster_swarm", "runtimeScope": "qa_legacy" }
+      ]
+    },
+    {
+      "id": "collapse_reward",
+      "hpRange": [0.15, 0.0],
+      "actions": [
+        { "type": "final_swarm", "template": "v_flow", "budgetRatio": 0.45 },
+        { "type": "on_death", "effect": "screen_collapse_reward", "cashRewardMinutes": [2.5, 5.0], "gemChance": 0.25, "cosmeticFragmentChance": 0.05 }
+      ]
+    }
+  ]
+}

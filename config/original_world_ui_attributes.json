@@ -1,0 +1,17 @@
+[
+  { "level": 1, "name": "Void", "dotColor": "#000000", "bgColor": "#ffffff", "mobilityMultiplier": 1, "sizeMultiplier": 1, "shape": "CIRCLE", "unlocksFeature": "Tutorial Complete" },
+  { "level": 2, "name": "Crimson", "dotColor": "#ef4444", "bgColor": "#fef2f2", "mobilityMultiplier": 1.1, "sizeMultiplier": 0.98, "shape": "CIRCLE", "unlocksFeature": "Swipe Mechanic" },
+  { "level": 3, "name": "Amber", "dotColor": "#f59e0b", "bgColor": "#fffbeb", "mobilityMultiplier": 1.3, "sizeMultiplier": 0.85, "shape": "TRIANGLE", "unlocksFeature": "Splitter Dots" },
+  { "level": 4, "name": "Forest", "dotColor": "#10b981", "bgColor": "#ecfdf5", "mobilityMultiplier": 1.3, "sizeMultiplier": 0.92, "shape": "SQUARE", "unlocksFeature": "Mortar Bombers" },
+  { "level": 5, "name": "Azure", "dotColor": "#3b82f6", "bgColor": "#eff6ff", "mobilityMultiplier": 1.4, "sizeMultiplier": 0.9, "shape": "HEXAGON", "unlocksFeature": "Space Marines" },
+  { "level": 6, "name": "Indigo", "dotColor": "#6366f1", "bgColor": "#eef2ff", "mobilityMultiplier": 1.5, "sizeMultiplier": 0.88, "shape": "DIAMOND", "unlocksFeature": "Armored Dots" },
+  { "level": 7, "name": "Violet", "dotColor": "#8b5cf6", "bgColor": "#f5f3ff", "mobilityMultiplier": 1.6, "sizeMultiplier": 0.86, "shape": "CIRCLE", "unlocksFeature": "Tesla Coils" },
+  { "level": 8, "name": "Fuchsia", "dotColor": "#d946ef", "bgColor": "#fdf4ff", "mobilityMultiplier": 1.7, "sizeMultiplier": 0.84, "shape": "TRIANGLE", "unlocksFeature": "Teleporter Dots" },
+  { "level": 9, "name": "Rose", "dotColor": "#f43f5e", "bgColor": "#fff1f2", "mobilityMultiplier": 1.8, "sizeMultiplier": 0.82, "shape": "SQUARE", "unlocksFeature": "Laser Turret" },
+  { "level": 10, "name": "Obsidian", "dotColor": "#1f2937", "bgColor": "#f3f4f6", "mobilityMultiplier": 1.9, "sizeMultiplier": 0.8, "shape": "HEXAGON", "unlocksFeature": "Shield Generator" },
+  { "level": 11, "name": "Emerald", "dotColor": "#10b981", "bgColor": "#ecfdf5", "mobilityMultiplier": 2, "sizeMultiplier": 0.78, "shape": "DIAMOND", "unlocksFeature": "Explosive Dots" },
+  { "level": 12, "name": "Cyan", "dotColor": "#06b6d4", "bgColor": "#ecfeff", "mobilityMultiplier": 2.1, "sizeMultiplier": 0.76, "shape": "CIRCLE", "unlocksFeature": "Security Beams" },
+  { "level": 13, "name": "Lime", "dotColor": "#84cc16", "bgColor": "#f7fee7", "mobilityMultiplier": 2.2, "sizeMultiplier": 0.74, "shape": "TRIANGLE", "unlocksFeature": "Missile Launcher" },
+  { "level": 14, "name": "Teal", "dotColor": "#14b8a6", "bgColor": "#f0fdfa", "mobilityMultiplier": 2.3, "sizeMultiplier": 0.72, "shape": "SQUARE", "unlocksFeature": "Magnetic Dots" },
+  { "level": 15, "name": "Sky", "dotColor": "#0ea5e9", "bgColor": "#f0f9ff", "mobilityMultiplier": 2.4, "sizeMultiplier": 0.7, "shape": "HEXAGON", "unlocksFeature": "Repair Drone" }
+]

@@ -1,0 +1,112 @@
+{
+  "version": "P0D",
+  "normalDotShowHpBar": false,
+  "eliteDotShowHpMode": "ring_or_flash_only",
+  "themes": {
+    "blackhole": {
+      "sourceSkinId": "black_hole_vacuum",
+      "displayName": "Black Vacuum",
+      "primaryAction": "absorb",
+      "background": {
+        "type": "dark_space",
+        "colors": [
+          "#05070d",
+          "#071322",
+          "#02040a"
+        ],
+        "gridOpacity": 0.08
+      },
+      "entitySemantics": {
+        "dot": "stardust",
+        "elite": "asteroid shard",
+        "boss": "Nova Reactor",
+        "turret": "singularity core",
+        "projectile": "gravity pulse",
+        "currency": "stardust cash"
+      },
+      "vfx": {
+        "dotDeath": "spiral_absorb",
+        "swipe": "gravity_cut",
+        "ultimate": "void_collapse",
+        "bossInterrupt": "supernova_interrupt",
+        "reward": "stardust_burst"
+      },
+      "rightSkillLabels": {
+        "storm": "Gravity Storm",
+        "dotRain": "Meteor Rain",
+        "goldenDot": "Golden Star"
+      },
+      "rewardText": "VOID COLLAPSE"
+    },
+    "clean": {
+      "sourceSkinId": "clean_the_dots",
+      "displayName": "Clean the Dots",
+      "primaryAction": "wipe",
+      "background": {
+        "type": "clean_surface",
+        "colors": [
+          "#ffffff",
+          "#eff9ff",
+          "#f7fbff"
+        ],
+        "gridOpacity": 0.03
+      },
+      "entitySemantics": {
+        "dot": "stain",
+        "elite": "stubborn stain",
+        "boss": "stain core",
+        "turret": "cleaning nozzle",
+        "projectile": "soap bubble",
+        "currency": "clean cash"
+      },
+      "vfx": {
+        "dotDeath": "foam_pop_fade",
+        "swipe": "sponge_wipe",
+        "ultimate": "mega_clean",
+        "bossInterrupt": "stain_break",
+        "reward": "clean_sparkle"
+      },
+      "rightSkillLabels": {
+        "storm": "Foam Blast",
+        "dotRain": "Dust Rain",
+        "goldenDot": "Golden Spot"
+      },
+      "rewardText": "100% CLEAN"
+    },
+    "paint": {
+      "sourceSkinId": "paint_bloom",
+      "displayName": "Paint Bloom",
+      "primaryAction": "bloom",
+      "background": {
+        "type": "paper_canvas",
+        "colors": [
+          "#fff8ed",
+          "#fff4e6",
+          "#fef9f0"
+        ],
+        "gridOpacity": 0.02
+      },
+      "entitySemantics": {
+        "dot": "ink drop",
+        "elite": "ink blot",
+        "boss": "ink core",
+        "turret": "brush tip",
+        "projectile": "color droplet",
+        "currency": "inspiration cash"
+      },
+      "vfx": {
+        "dotDeath": "watercolor_bloom",
+        "swipe": "brush_stroke",
+        "ultimate": "color_bloom",
+        "bossInterrupt": "ink_core_break",
+        "reward": "canvas_bloom"
+      },
+      "rightSkillLabels": {
+        "storm": "Ink Splash",
+        "dotRain": "Color Rain",
+        "goldenDot": "Golden Ink"
+      },
+      "rewardText": "COLOR BLOOM"
+    }
+  }
+}

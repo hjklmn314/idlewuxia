@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "2026-07-01.reference",
+  "sourceEvidence": {
+    "originalJs": "../apk_contents/focused_game_monetization/game_web/index-DINbkGXA.linebreak.js",
+    "bossConfigLines": "4576-4621",
+    "rewardFormulaLines": "6130-6133",
+    "notes": [
+      "Original boss money reward is world.dotBaseValue * boss.config.rewards.moneyMultiplier, with 50% refight handling after rebirth.",
+      "Prototype normal Galaxy travel does not expose a boss button; these values are used for QA boss flow only until original boss worlds are fully restored."
+    ]
+  },
+  "defaults": {
+    "moneyMultiplier": 10,
+    "permanentDamageBoost": 5
+  },
+  "bosses": {
+    "warden": { "moneyMultiplier": 10, "permanentDamageBoost": 5, "gems": 5 },
+    "hivemind": { "moneyMultiplier": 10, "permanentDamageBoost": 5, "gems": 10 },
+    "chronolord": { "moneyMultiplier": 10, "permanentDamageBoost": 5, "gems": 15 },
+    "voidtitan": { "moneyMultiplier": 10, "permanentDamageBoost": 5, "gems": 20 },
+    "splitsovereign": { "moneyMultiplier": 10, "permanentDamageBoost": 5, "gems": 25 },
+    "stormbringer": { "moneyMultiplier": 10, "permanentDamageBoost": 5, "gems": 30 },
+    "mirrormaster": { "moneyMultiplier": 10, "permanentDamageBoost": 5, "gems": 35 },
+    "gravityking": { "moneyMultiplier": 10, "permanentDamageBoost": 5, "gems": 40 },
+    "quantumghost": { "moneyMultiplier": 10, "permanentDamageBoost": 5, "gems": 45 },
+    "architect": { "moneyMultiplier": 100, "permanentDamageBoost": 10, "gems": 50 }
+  }
+}

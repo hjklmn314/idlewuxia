@@ -1,0 +1,416 @@
+{
+  "schema": "idlewuxia.first_session_screen_contract.v1",
+  "defaultStartState": "STATE_FS_001_OPENING_STORY",
+  "policy": {
+    "hideInternalIds": true,
+    "sourceReference": "config/wuxia_competitor_first_session_reference.json",
+    "flowOrder": "lua_config_confirmed_with_recording_layout_reference"
+  },
+  "mobileLayout": {
+    "schema": "idlewuxia.mobile_portrait_layout.v1",
+    "orientation": "portrait",
+    "referenceViewport": {
+      "width": 540,
+      "height": 960
+    },
+    "contentMaxWidthPx": 600,
+    "minimumTouchTargetPx": 44,
+    "safeArea": {
+      "enabled": true,
+      "top": "env(safe-area-inset-top, 0px)",
+      "right": "env(safe-area-inset-right, 0px)",
+      "bottom": "env(safe-area-inset-bottom, 0px)",
+      "left": "env(safe-area-inset-left, 0px)"
+    },
+    "evidence": {
+      "level": "project_mobile_platform_requirement",
+      "source": "index.html",
+      "record": "viewport-fit=cover; iOS and Android portrait shell"
+    }
+  },
+  "player": {
+    "identity": "普通百姓",
+    "name": "无名少女",
+    "displayName": "无名少女",
+    "portraitLabel": "少侠",
+    "stats": [
+      {
+        "label": "精力",
+        "field": "spirit",
+        "maxField": "spiritMax"
+      },
+      {
+        "label": "气血",
+        "field": "hp",
+        "maxField": "hpMax",
+        "showPercent": true
+      },
+      {
+        "label": "内力",
+        "field": "mp",
+        "maxField": "mpMax"
+      },
+      {
+        "label": "经验",
+        "field": "experience"
+      },
+      {
+        "label": "等级",
+        "field": "level"
+      },
+      {
+        "label": "金钱",
+        "field": "money"
+      },
+      {
+        "label": "潜能",
+        "field": "potential"
+      }
+    ],
+    "bottomHint": "初来乍到，你决定先打些零工维生。"
+  },
+  "screens": {
+    "UI_OpeningStory": {
+      "mode": "narrative",
+      "title": "",
+      "nav": {
+        "left": "",
+        "center": "",
+        "right": ""
+      },
+      "body": [
+        {
+          "type": "story",
+          "lines": [
+            "某年某日，",
+            "一个宁静的小镇，",
+            "有一位无名少女诞生了。",
+            "江湖的风雨从未刮到这里。",
+            "但为这个人的未来铺下了一条布满荆棘的未知道路。",
+            "这位无名少女出生在："
+          ]
+        },
+        {
+          "type": "choiceList",
+          "choices": [
+            {
+              "label": "武学世家",
+              "actionId": "ACTION_FS_001_ORIGIN_WUXUE"
+            },
+            {
+              "label": "书香门第",
+              "actionId": "ACTION_FS_001_ORIGIN_SCHOLAR"
+            },
+            {
+              "label": "商贾之家",
+              "actionId": "ACTION_FS_001_ORIGIN_MERCHANT"
+            },
+            {
+              "label": "孤儿",
+              "actionId": "ACTION_FS_001_ORIGIN_ORPHAN"
+            }
+          ]
+        }
+      ]
+    },
+    "UI_TitleStart": {
+      "mode": "title",
+      "title": "放置江湖",
+      "nav": {
+        "left": "",
+        "center": "",
+        "right": "设置"
+      },
+      "body": [
+        {
+          "type": "titleStart",
+          "title": "放置江湖",
+          "subtitle": "点击开始游戏"
+        }
+      ],
+      "primaryText": "点击开始游戏",
+      "primaryActionId": "ACTION_FS_002_TITLE_START"
+    },
+    "UI_CharacterStatus": {
+      "mode": "status",
+      "title": "状态",
+      "nav": {
+        "left": "活动",
+        "center": "",
+        "right": "设置"
+      },
+      "body": [
+        {
+          "type": "characterStatus",
+          "attributeButtonText": "属性"
+        },
+        {
+          "type": "taskBanner",
+          "left": "任务",
+          "right": "啥事没有",
+          "actionId": "ACTION_FS_003_CHARACTER_STATUS"
+        }
+      ],
+      "primaryText": "",
+      "primaryActionId": "ACTION_FS_003_CHARACTER_STATUS"
+    },
+    "UI_IdleConfirm": {
+      "mode": "modal",
+      "title": "任务",
+      "nav": {
+        "left": "返回",
+        "center": "任务",
+        "right": ""
+      },
+      "body": [
+        {
+          "type": "idleConfirm",
+          "rows": [
+            [
+              "当前任务",
+              "池边打鱼"
+            ],
+            [
+              "任务奖励",
+              "经验 200 / 潜能 200"
+            ],
+            [
+              "状态",
+              "点击开始后进入当前可进行的任务列表"
+            ]
+          ]
+        }
+      ],
+      "primaryText": "开始任务",
+      "primaryActionId": "ACTION_FS_004_IDLE_CONFIRM",
+      "secondaryText": "取消",
+      "secondaryActionId": "ACTION_FS_004_IDLE_CANCEL",
+      "navActions": {
+        "left": "ACTION_FS_004_IDLE_CANCEL"
+      }
+    },
+    "UI_IdleTaskList": {
+      "mode": "taskList",
+      "title": "任务",
+      "nav": {
+        "left": "返回",
+        "center": "任务",
+        "right": ""
+      },
+      "body": [
+        {
+          "type": "taskRows",
+          "presentation": {
+            "repeatCountFormat": "已完成 {count} 次",
+            "progressFormat": "经验 {current}/{target}",
+            "progressAriaFormat": "经验进度 {current}/{target}"
+          },
+          "rows": [
+            {
+              "name": "池边打鱼",
+              "status": "当前可进行的任务",
+              "reward": "经验 200 / 潜能 200",
+              "state": "available",
+              "actionId": "ACTION_FS_005_IDLE_TASK_CLICK_POOL_FISH"
+            },
+            {
+              "name": "经验值 > 1000",
+              "status": "未解锁",
+              "reward": "未解锁",
+              "state": "locked",
+              "actionId": "ACTION_FS_005_LOCKED_EXP_1000"
+            },
+            {
+              "name": "经验值 > 2000",
+              "status": "未解锁",
+              "reward": "未解锁",
+              "state": "locked",
+              "actionId": "ACTION_FS_005_LOCKED_EXP_2000"
+            },
+            {
+              "name": "需通关章节金牛武馆",
+              "status": "经验值 > 5000",
+              "reward": "未解锁",
+              "state": "locked"
+            }
+          ]
+        }
+      ],
+      "primaryText": "返回江湖",
+      "primaryActionId": "ACTION_FS_005_IDLE_TASK_LIST_CONTINUE",
+      "navActions": {
+        "left": "ACTION_FS_005_IDLE_TASK_LIST_BACK"
+      }
+    },
+    "UI_ChapterCardEntry": {
+      "mode": "chapterCards",
+      "title": "我的江湖",
+      "nav": {
+        "left": "返回",
+        "center": "我的江湖",
+        "right": ""
+      },
+      "body": [
+        {
+          "type": "chapterCards",
+          "cards": [
+            {
+              "title": "江湖往事",
+              "subtitle": "第一章 金牛武馆",
+              "actionId": "ACTION_FS_007_CHAPTER_CARD_ENTRY"
+            },
+            {
+              "title": "江湖轶闻",
+              "subtitle": "暂未开启"
+            }
+          ]
+        }
+      ],
+      "navActions": {
+        "left": "ACTION_FS_007_CHAPTER_CARD_ENTRY_BACK"
+      }
+    },
+    "UI_MapExplore": {
+      "mode": "mapExplore",
+      "title": "石路",
+      "nav": {
+        "left": "状态",
+        "center": "石路",
+        "right": "离开"
+      },
+      "body": [
+        {
+          "type": "roomExplore",
+          "defaultRoomId": "fb01_01a",
+          "presenceLabel": "这里有：",
+          "emptyPresenceText": "啥也没有",
+          "roomHint": "选择出口移动，选择人物交互。",
+          "missingRoomText": "房间配置缺失",
+          "directionLabels": {
+            "up": "上",
+            "down": "下",
+            "left": "左",
+            "right": "右"
+          },
+          "logLines": [
+            "你进入了{roomName}。"
+          ]
+        }
+      ],
+      "primaryText": "",
+      "primaryActionId": "",
+      "navActions": {
+        "left": "ACTION_FS_008_MAP_EXPLORE_BACK_TO_CHAPTER",
+        "right": "ACTION_FS_008_MAP_EXPLORE_LEAVE"
+      }
+    },
+    "UI_EarlyCombat": {
+      "mode": "combat",
+      "title": "",
+      "nav": {
+        "left": "",
+        "center": "",
+        "right": ""
+      },
+      "body": [
+        {
+          "type": "combatRuntime",
+          "previewId": "first_session_old_steward",
+          "source": "flow.combatPreviews",
+          "waitingText": "战斗开始……",
+          "autoResolve": true,
+          "resolutionPolicy": "configured_timeline_then_pending_combat_resolve",
+          "evidence": {
+            "level": "lua_confirmed",
+            "source": "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/06_effective_lua/effective_plain_best/src/app/models/map/MapHandle/Modules/CommonModule/FightResult.lua",
+            "record": "主动切磋:436-517",
+            "claim": "切磋战斗结束后由战斗结果回调执行对应条件结果，不要求玩家点击继续。"
+          }
+        }
+      ]
+    },
+    "UI_NpcInteraction": {
+      "mode": "npc",
+      "title": "人物",
+      "nav": {
+        "left": "返回",
+        "center": "武馆老管家",
+        "right": ""
+      },
+      "body": [
+        {
+          "type": "entryButtons",
+          "buttons": [
+            {
+              "label": "交谈",
+              "actionId": "ACTION_FS_010_NPC_INTERACTION"
+            },
+            "切磋",
+            "讨教",
+            "送礼"
+          ]
+        }
+      ],
+      "primaryText": "交谈",
+      "primaryActionId": "ACTION_FS_010_NPC_INTERACTION",
+      "navActions": {
+        "left": "ACTION_FS_010_NPC_INTERACTION_BACK_TO_MAP"
+      }
+    },
+    "UI_ChapterLoop": {
+      "mode": "mapExplore",
+      "title": "石路",
+      "nav": {
+        "left": "状态",
+        "center": "石路",
+        "right": "离开"
+      },
+      "body": [
+        {
+          "type": "roomExplore",
+          "defaultRoomId": "fb01_01a",
+          "presenceLabel": "这里有：",
+          "emptyPresenceText": "啥也没有",
+          "roomHint": "选择出口移动，选择人物交互。",
+          "missingRoomText": "房间配置缺失",
+          "directionLabels": {
+            "up": "上",
+            "down": "下",
+            "left": "左",
+            "right": "右"
+          },
+          "logLines": [
+            "你继续在{roomName}附近探索。"
+          ]
+        }
+      ],
+      "primaryText": "",
+      "primaryActionId": "",
+      "navActions": {
+        "left": "ACTION_FS_011_CHAPTER_LOOP_STATUS",
+        "right": "ACTION_FS_011_CHAPTER_LOOP_LEAVE"
+      }
+    },
+    "UI_OpeningOriginResult": {
+      "mode": "narrative",
+      "title": "",
+      "nav": {
+        "left": "",
+        "center": "",
+        "right": ""
+      },
+      "body": [
+        {
+          "type": "storyDynamic",
+          "field": "originFeedback",
+          "fallback": "英雄不问出生，这位无名少女的江湖路开始了。"
+        }
+      ],
+      "primaryText": "继续",
+      "primaryActionId": "ACTION_FS_001_ORIGIN_RESULT_CONTINUE"
+    }
+  },
+  "defaultStartFlags": [
+    "new_install_or_new_save"
+  ]
+}

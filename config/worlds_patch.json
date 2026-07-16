@@ -1,0 +1,17 @@
+{
+  "worldProgression": [
+    { "world": 1, "name": "Void", "unlock": ["turret", "rate", "swipe"], "waveTypes": ["scatter_basic"], "boss": null },
+    { "world": 2, "name": "Pull", "unlock": ["vacuum", "cluster_swarm"], "waveTypes": ["scatter_basic", "cluster_swarm"], "boss": null },
+    { "world": 3, "name": "Bloom", "unlock": ["splitter_dot", "trail_chain"], "waveTypes": ["scatter_basic", "cluster_swarm", "trail_chain"], "boss": null },
+    { "world": 4, "name": "Orbit", "unlock": ["orbit_nodes", "mortar_preview"], "waveTypes": ["orbit_nodes", "cluster_swarm"], "boss": "gravity_core" },
+    { "world": 5, "name": "Crimson", "unlock": ["swarm_mother", "formation_v"], "waveTypes": ["v_flow", "cluster_swarm", "trail_chain"], "boss": "swarm_mother" },
+    { "world": 8, "name": "Nova", "unlock": ["nova_reactor", "charger_interrupt"], "waveTypes": ["orbit_nodes", "v_flow", "pincer_lite"], "boss": "nova_reactor" },
+    { "world": 10, "name": "Rebirth Gate", "unlock": ["rebirth", "nova_reactor_hard"], "waveTypes": ["cluster_swarm", "orbit_nodes", "v_flow", "pincer_lite"], "boss": "nova_reactor", "bossDifficulty": "hard" }
+  ],
+  "growthGuardrails": {
+    "valueHpRatioMaxGrowthPerWorld": 1.08,
+    "upgradeWaitP50Seconds": [30, 75],
+    "bossTtkP90SecondsMaxBeforeWorld10": 120,
+    "newMechanicEveryNWorlds": 2
+  }
+}

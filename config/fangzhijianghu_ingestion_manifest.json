@@ -1,0 +1,26 @@
+{
+  "schema": "idlewuxia.fangzhijianghu_ingestion_manifest.v1",
+  "sourceRoot": "fangzhijianghu",
+  "priorityInputs": [
+    "fangzhijianghu/outputs",
+    "fangzhijianghu/data",
+    "fangzhijianghu/analysis_docs",
+    "fangzhijianghu/竞品资料/放置江湖apk",
+    "fangzhijianghu/竞品资料/放置江湖_全量抓取"
+  ],
+  "priorityMechanics": [
+    "first_session",
+    "fb01_chapter1",
+    "map_task_story",
+    "combat_formula",
+    "active_skill",
+    "buff_effect",
+    "attribute_curve",
+    "reward_idle_task"
+  ],
+  "outputs": {
+    "sourceAudit": "outputs/idlewuxia_migration/fangzhijianghu_source_audit.json",
+    "sourceAuditMarkdown": "outputs/idlewuxia_migration/fangzhijianghu_source_audit.md",
+    "nextFlowContract": "config/wuxia_first_session_flow.json"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "bossTemplates": [
+    {
+      "id": "swarm_mother",
+      "firstWorld": 5,
+      "role": "teaches_swarm_clear",
+      "mechanics": ["summon_swarm", "splitter_burst"],
+      "targetTTK": [25, 45]
+    },
+    {
+      "id": "gravity_core",
+      "firstWorld": 6,
+      "role": "teaches_orbit_and_vacuum",
+      "mechanics": ["orbit_nodes", "vacuum_tug"],
+      "targetTTK": [35, 60]
+    },
+    {
+      "id": "nova_reactor",
+      "firstWorld": 8,
+      "role": "teaches_interrupt",
+      "mechanics": ["shield_ring", "charger_interrupt", "collapse_reward"],
+      "targetTTK": [45, 75]
+    }
+  ]
+}

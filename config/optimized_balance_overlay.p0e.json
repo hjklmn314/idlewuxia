@@ -1,0 +1,151 @@
+{
+  "id": "p0e-low-cpi-balance-overlay",
+  "sourceBaseline": "original_config_baseline",
+  "version": "2026-06-28.p0e",
+  "status": "draft-for-simulation",
+  "principles": {
+    "preserveOriginalConfigText": true,
+    "applyAsOverlayOnly": true,
+    "modelSpace": "log_cost_roi_rotation",
+    "primaryGoal": "clean idle pacing with higher hit/reward satisfaction and lower CPI skin readability"
+  },
+  "economy": {
+    "logCostModel": {
+      "formula": "log(cost_i(level)) = log(base_i) + level * log(growth_i) + log(worldCost) - log(discount)",
+      "worldCostMultiplierPerWorld": 0.24,
+      "softCapAfterLevel": 42,
+      "softCapExtraGrowth": 0.018,
+      "incomeScale": 1.15,
+      "bossRewardIncomeSecondsBase": 0.5,
+      "bossRewardIncomeSecondsPerWorld": 0.15
+    },
+    "upgradeFamilies": {
+      "damage": {
+        "baseCost": 8,
+        "growth": 3,
+        "incomeElasticity": 0.34,
+        "targetRoiShare": 0.28
+      },
+      "rate": {
+        "baseCost": 14,
+        "growth": 2.85,
+        "incomeElasticity": 0.32,
+        "targetRoiShare": 0.24
+      },
+      "value": {
+        "baseCost": 20,
+        "growth": 2.9,
+        "incomeElasticity": 0.38,
+        "targetRoiShare": 0.26
+      },
+      "systems": {
+        "baseCostRange": [60, 280],
+        "growthRange": [2.9, 3.2],
+        "incomeElasticity": 0.24,
+        "targetRoiShare": 0.22
+      }
+    },
+    "pacingTargetsSeconds": {
+      "firstUpgrade": [3, 8],
+      "earlyMedian": [12, 24],
+      "midMedian": [22, 45],
+      "lateMedian": [55, 160],
+      "hardDeadZoneWarning": 240,
+      "meaningfulWaitFloor": 3,
+      "earlyPurchaseCount": 18,
+      "midPurchaseCount": 48
+    },
+    "roiRotation": {
+      "formula": "ROI_i = delta_log_income_i / cost_i",
+      "maxBestChoiceShareOverWindow": 0.42,
+      "windowSizePurchases": 12,
+      "dominancePenaltyWeight": 0.85
+    },
+    "offline": {
+      "capHoursEarly": 2,
+      "capHoursMid": 6,
+      "capHoursLate": 12,
+      "returnCardAdMultiplier": 2
+    }
+  },
+  "combat": {
+    "targetTtkSeconds": {
+      "normalDot": [0.25, 1.2],
+      "eliteDot": [2.5, 6],
+      "shieldNode": [3, 8],
+      "bossP50": [45, 75],
+      "bossP90Max": 105
+    },
+    "feedbackBudget": {
+      "normalHitParticlesMax": 3,
+      "killParticlesMax": 18,
+      "skillBurstParticlesMax": 60,
+      "screenShakeMaxMs": 90,
+      "persistentDecalSecondsMax": 1.6
+    },
+    "bossReadability": {
+      "shieldPhaseHpRatio": 0.75,
+      "chargerPhaseHpRatio": 0.45,
+      "interruptRequiredChargerShare": 0.75,
+      "vulnerabilityRewardMultiplier": 1.65
+    }
+  },
+  "iaa": {
+    "skillEntries": {
+      "storm": {
+        "cooldownSeconds": 22,
+        "boostSeconds": 18,
+        "rewardFeeling": "fire-rate-and-burst"
+      },
+      "dotRain": {
+        "cooldownSeconds": 18,
+        "rewardFeeling": "more-targets-now"
+      },
+      "goldenDot": {
+        "cooldownSeconds": 24,
+        "rewardFeeling": "instant-cash-pop"
+      }
+    },
+    "guardrails": {
+      "noForcedInterstitialBeforeSeconds": 300,
+      "rewardMustBePreviewed": true,
+      "serverSideRewardVerification": true
+    }
+  },
+  "skins": {
+    "lowCpiCandidates": [
+      {
+        "id": "clean_the_dots",
+        "hypothesis": "cleaning fantasy improves instant comprehension",
+        "risk": "can become too soft if hit feedback is weak"
+      },
+      {
+        "id": "cash_vacuum",
+        "hypothesis": "cash and coin reward stream improves ad creative readability",
+        "risk": "must avoid casino framing and brown-heavy palette"
+      },
+      {
+        "id": "paint_bloom",
+        "hypothesis": "color burst improves screenshot novelty",
+        "risk": "higher visual noise and weaker idle calm"
+      }
+    ],
+    "winnerCriteria": {
+      "twoSecondComprehension": true,
+      "rewardCausalityVisible": true,
+      "thumbnailReadability": true,
+      "uiClutterBelowOriginal": true
+    }
+  },
+  "objective": {
+    "formula": "score = -pacingLoss - roiDominancePenalty - deadZonePenalty - clutterPenalty + noveltyReward + rewardCausalityReward",
+    "weights": {
+      "pacingLoss": 1,
+      "roiDominancePenalty": 0.85,
+      "deadZonePenalty": 1.1,
+      "clutterPenalty": 0.75,
+      "noveltyReward": 0.35,
+      "rewardCausalityReward": 0.55
+    }
+  }
+}

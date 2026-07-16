@@ -1,0 +1,51 @@
+{
+  "version": "2026-06-28",
+  "targetProviders": {
+    "iaa": {
+      "primary": "admob",
+      "formats": ["rewarded", "interstitial", "banner"],
+      "serverSideVerificationRequiredForRewarded": true,
+      "adUnitSource": "remote_config",
+      "disallowedLegacyNetworks": ["mod_shell", "repack_launcher"]
+    },
+    "iap": {
+      "android": {
+        "store": "google_play_billing",
+        "backendVerification": "google_play_developer_api",
+        "clientTrust": "never_grant_without_backend_receipt"
+      },
+      "ios": {
+        "store": "apple_storekit",
+        "backendVerification": "app_store_server_api",
+        "clientTrust": "never_grant_without_backend_transaction"
+      },
+      "productCatalog": {
+        "source": "config/iap_product_catalog.json",
+        "minimumMappedProducts": 24,
+        "status": "backend_pending"
+      }
+    }
+  },
+  "rewardGrantFlow": [
+    "client_requests_offer",
+    "backend_returns_placement_or_product",
+    "client_completes_ad_or_purchase",
+    "client_sends_receipt_or_ssv_context",
+    "backend_verifies_with_platform",
+    "backend_grants_entitlement",
+    "client_refreshes_entitlement_snapshot"
+  ],
+  "entitlementRules": {
+    "noAds": ["forced_interstitial", "banner"],
+    "rewardedAdsRemainOptional": true,
+    "iapReceiptReplayProtection": true,
+    "rewardedAdReplayProtection": true,
+    "clientEntitlementCacheTTLMinutes": 15
+  },
+  "nonProductLauncherPolicy": {
+    "allowExternalLauncher": false,
+    "allowExternalAdSdkHooks": false,
+    "allowExternalPurchaseHooks": false,
+    "stripFromDeliverables": true
+  }
+}

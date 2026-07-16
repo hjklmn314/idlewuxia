@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "2026-07-01.runtime-overlay",
+  "sourceEvidence": {
+    "originalJs": "../apk_contents/focused_game_monetization/game_web/index-DINbkGXA.linebreak.js",
+    "weaponEnumLine": 4768,
+    "costBaseLine": 4766,
+    "costGrowthLine": 4767,
+    "notes": [
+      "Cost keys are authoritative in original_economy_constants.json.",
+      "These runtime cooldown and dps factors are an explicit combat-presentation overlay until the full minified weapon runtime formulas are decomposed.",
+      "Keeping them in config prevents gameplay tuning from living as hidden code literals."
+    ]
+  },
+  "runtimeOverlay": {
+    "status": "intentional_runtime_overlay",
+    "referenceDerivedFields": ["baseCost", "growth"],
+    "overlayFields": ["cooldown", "dpsFactor"],
+    "reason": "Original weapon cost keys are mapped, but the minified runtime cooldown/damage presentation formulas are not fully decomposed yet.",
+    "graduationGate": "Replace cooldown and dpsFactor with reference-derived formulas after weapon runtime formula extraction is complete.",
+    "normalRuntimeAllowed": true
+  },
+  "weapons": {
+    "mortar": { "baseCost": 850, "growth": 1.8, "cooldown": 2.6, "dpsFactor": 0.78 },
+    "marines": { "baseCost": 1600, "growth": 1.72, "cooldown": 1.55, "dpsFactor": 0.58 },
+    "tesla": { "baseCost": 5200, "growth": 1.82, "cooldown": 1.8, "dpsFactor": 0.86 },
+    "laser": { "baseCost": 24000, "growth": 1.9, "cooldown": 2.95, "dpsFactor": 1.2 },
+    "security_beam": { "baseCost": 140000, "growth": 1.84, "cooldown": 1.2, "dpsFactor": 0.78 },
+    "missile": { "baseCost": 310000, "growth": 1.88, "cooldown": 3.4, "dpsFactor": 1.45 },
+    "railgun": { "baseCost": 4200000, "growth": 1.94, "cooldown": 4.2, "dpsFactor": 2.35 },
+    "flame": { "baseCost": 22000000, "growth": 1.92, "cooldown": 1.05, "dpsFactor": 0.74 },
+    "cryo": { "baseCost": 640000000, "growth": 1.95, "cooldown": 2.8, "dpsFactor": 1.1 },
+    "plasma": { "baseCost": 18000000000, "growth": 1.98, "cooldown": 3.1, "dpsFactor": 1.85 }
+  }
+}

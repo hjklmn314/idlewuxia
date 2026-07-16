@@ -1,0 +1,55 @@
+{
+  "contractId": "nova_lite_visual_style_v1",
+  "targetAspect": "9:16",
+  "readabilityViewport": "390x844 mobile",
+  "globalRules": {
+    "debugTextPlayerFacing": false,
+    "rawIdsPlayerFacing": false,
+    "entitySilhouetteFirst": true,
+    "themeChangesDoNotAffectNumbers": true
+  },
+  "themes": [
+    {
+      "skinId": "black_hole_vacuum",
+      "mood": ["cosmic", "gravity", "charged"],
+      "tokens": {
+        "background": "#061121",
+        "primary": "#8b5cf6",
+        "secondary": "#38bdf8",
+        "boss": "#fb7185"
+      },
+      "shapeLanguage": "circles, rings, singularity pulses",
+      "fxBudget": "medium-high"
+    },
+    {
+      "skinId": "clean_the_dots",
+      "mood": ["clean", "satisfying", "fresh"],
+      "tokens": {
+        "background": "#eef8ff",
+        "primary": "#22c55e",
+        "secondary": "#38bdf8",
+        "boss": "#ef4444"
+      },
+      "shapeLanguage": "bubbles, wipes, clean reveal",
+      "fxBudget": "medium"
+    },
+    {
+      "skinId": "paint_bloom",
+      "mood": ["ink", "watercolor", "bloom"],
+      "tokens": {
+        "background": "#fff7ed",
+        "primary": "#ec4899",
+        "secondary": "#06b6d4",
+        "boss": "#f59e0b"
+      },
+      "shapeLanguage": "soft splashes, bloom rings, ink cores",
+      "fxBudget": "medium"
+    }
+  ],
+  "cueFamilies": [
+    { "cueId": "dot_death", "layer": "entity", "acceptance": "reward and hit feedback appears at destroyed dot" },
+    { "cueId": "swipe_cut", "layer": "input", "acceptance": "swipe trail is visible without hiding enemies" },
+    { "cueId": "boss_charge", "layer": "boss", "acceptance": "charge warning is readable within 3 seconds" },
+    { "cueId": "boss_interrupt", "layer": "boss", "acceptance": "successful interrupt gives color shift and burst" }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "1.0",
+  "policy": {
+    "execution": "sequential_real_browser_only",
+    "forbiddenEvidence": [
+      "static_html_render",
+      "runtime_state_injection",
+      "offline_screenshot",
+      "feedback_only_without_click"
+    ],
+    "requiredEvidence": [
+      "visible_dom_click",
+      "resulting_runtime_state",
+      "540x960_browser_screenshot",
+      "role_report"
+    ]
+  },
+  "roles": [
+    {
+      "roleId": "functional_qa",
+      "title": "功能测试智能体",
+      "skills": ["diagnosing-bugs", "tdd", "wuxia-project-automation"],
+      "responsibility": "按配置主线验证启动、创角、挂机、地图、NPC、战斗自动结算、物件、章节返回。",
+      "browserScenario": "chapter1-deep",
+      "runnerArgs": [],
+      "outputDir": "outputs/role_browser_acceptance/functional_qa",
+      "passRule": "Every recorded step has a visible DOM click or a deliberate capture-only assertion, reaches its expected state, and writes a screenshot."
+    },
+    {
+      "roleId": "interaction_condition_qa",
+      "title": "交互与条件测试智能体",
+      "skills": ["wuxia-system-design", "wuxia-game-planning", "diagnosing-bugs"],
+      "responsibility": "验证门禁、角色替换、切磋前后分支、重复挂机和返回路径；禁止用前端假放行代替条件结果。",
+      "browserScenario": "interaction-contract",
+      "runnerArgs": [],
+      "outputDir": "outputs/role_browser_acceptance/interaction_condition_qa",
+      "passRule": "All condition assertions pass and no action is marked accepted without a configuration-backed result."
+    },
+    {
+      "roleId": "combat_presentation_qa",
+      "title": "战斗表现测试智能体",
+      "skills": ["wuxia-combat-presentation", "wuxia-game-planning", "wuxia-art-direction"],
+      "responsibility": "验证切磋进入、自动战斗、自动结算、血量、伤害、日志和禁止手动继续按钮；同时记录视觉差距。",
+      "browserScenario": "all-key-screens",
+      "runnerArgs": [],
+      "outputDir": "outputs/role_browser_acceptance/combat_presentation_qa",
+      "passRule": "Combat starts from a visible NPC action, exposes no manual continue/settlement control, returns through configured resolution, and records screenshots."
+    },
+    {
+      "roleId": "ux_ui_qa",
+      "title": "移动端UX/UI验收智能体",
+      "skills": ["wuxia-ux-ui-design", "wuxia-packaging-design", "wuxia-art-direction"],
+      "responsibility": "以真实540x960页面核查信息层级、文字可读性、触点、地图重叠、任务反馈、NPC和物件界面；只记录与竞品参考有证据的差异。",
+      "browserScenario": "chapter1-deep",
+      "runnerArgs": [],
+      "outputDir": "outputs/role_browser_acceptance/ux_ui_qa",
+      "passRule": "The agent produces a screenshot-backed finding for every inspected surface; visual parity requires explicit human/product signoff and cannot auto-pass."
+    },
+    {
+      "roleId": "art_direction_qa",
+      "title": "美术与包装验收智能体",
+      "skills": ["wuxia-art-direction", "wuxia-packaging-design", "imagegen"],
+      "responsibility": "逐张核查真实浏览器画面中的场景、角色、物件、图标、特效、色彩和视觉层级；明确区分竞品内部研究资源、可用占位和需要自制的正式资产。",
+      "browserScenario": "chapter1-deep",
+      "runnerArgs": [],
+      "outputDir": "outputs/role_browser_acceptance/art_direction_qa",
+      "passRule": "Every real-browser screenshot receives an asset/presentation verdict. Placeholder art, missing unit feedback, and unproven competitor asset use block product visual acceptance."
+    },
+    {
+      "roleId": "competitor_evidence_qa",
+      "title": "竞品证据与配置验收智能体",
+      "skills": ["wuxia-game-planning", "domain-modeling", "wuxia-system-design"],
+      "responsibility": "把网页动作映射回放置江湖 Lua、地图角色、条件与结果记录；无法确认的动作必须保持未知或隐藏。",
+      "browserScenario": "entity-actions",
+      "runnerArgs": ["--room-id", "fb01_01", "--entity-id", "fb01r01_1", "--entity-kind", "npc", "--interaction-actions", "talk", "--expected-state", "STATE_FS_008_MAP_EXPLORE", "--route-room-ids", "fb01_01"],
+      "outputDir": "outputs/role_browser_acceptance/competitor_evidence_qa",
+      "passRule": "Each sampled visible action has a source evidence path and a real-browser result; unsupported actions are reported rather than simulated."
+    },
+    {
+      "roleId": "release_auditor",
+      "title": "发布门禁智能体",
+      "skills": ["review", "codebase-design", "wuxia-project-automation", "wuxia-packaging-design"],
+      "responsibility": "汇总其他角色的浏览器证据，分离产品失败、未覆盖、基础设施失败与视觉未达标，给出阻断结论。",
+      "browserScenario": "chapter1-deep",
+      "runnerArgs": [],
+      "outputDir": "outputs/role_browser_acceptance/release_auditor",
+      "passRule": "Release can pass only when all visible actions are covered or intentionally hidden, no executor gaps remain, and UX/UI has explicit signoff."
+    }
+  ]
+}

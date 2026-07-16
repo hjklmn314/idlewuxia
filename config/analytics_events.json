@@ -1,0 +1,35 @@
+{
+  "events": [
+    "session_start",
+    "theme_selected",
+    "wave_spawned",
+    "wave_cleared",
+    "swipe_used",
+    "upgrade_purchased",
+    "boss_spawned",
+    "boss_phase_entered",
+    "boss_interrupt_succeeded",
+    "boss_interrupt_failed",
+    "boss_defeated",
+    "rewarded_ad_offered",
+    "rewarded_ad_started",
+    "rewarded_ad_completed",
+    "iap_offer_shown",
+    "iap_purchase_started",
+    "iap_purchase_verified",
+    "iap_purchase_granted",
+    "cosmetic_previewed",
+    "cosmetic_purchased"
+  ],
+  "keyMetrics": [
+    "upgrade_wait_seconds",
+    "boss_ttk_seconds",
+    "active_entity_count",
+    "fps_p10",
+    "income_per_minute",
+    "ad_offers_per_session",
+    "rewarded_accept_rate",
+    "skin_creative_cpi",
+    "d1_retention_by_skin"
+  ]
+}

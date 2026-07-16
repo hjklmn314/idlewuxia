@@ -1,0 +1,187 @@
+{
+  "schemaVersion": "2026-06-28.p0g",
+  "sourceEvidence": {
+    "originalJs": "../apk_contents/focused_game_monetization/game_web/index-DINbkGXA.linebreak.js",
+    "notes": [
+      "Original APK bottom UI is driven by React/Vite + Canvas, with five bottom tabs: Defense, Drone, Vacuum, Economy, Galaxy.",
+      "The original product content is used as first-party reference. Repacked external shell content is excluded."
+    ],
+    "lines": {
+      "upgradeEnum": 4406,
+      "baseCosts": 4766,
+      "growthRates": 4767,
+      "droneSlotRequirements": 4784,
+      "vacuumSlotRequirements": 4785,
+      "bottomTabs": 17980,
+      "droneTab": 18264,
+      "vacuumTab": 18307,
+      "economyTab": 18350,
+      "galaxyTab": 18383
+    }
+  },
+  "bottomTabs": [
+    { "id": "defense", "label": "DEFENSE", "visibleFromGalaxy": 1 },
+    { "id": "drone", "label": "DRONE", "visibleFromGalaxy": 1 },
+    { "id": "vacuum", "label": "VACUUM", "visibleFromGalaxy": 1 },
+    { "id": "economy", "label": "ECONOMY", "visibleFromGalaxy": 1 },
+    { "id": "galaxy", "label": "GALAXY", "visibleFromGalaxy": 1 }
+  ],
+  "drone": {
+    "slotSystemKey": "droneWing",
+    "slotRequirementsGalaxy": [1, 3, 5, 8, 20, 30],
+    "maxSlots": 6,
+    "lockedPlaceholder": "UNLOCK DRONE",
+    "upgradeKeys": ["droneFocus", "droneLoop", "droneSize"],
+    "originalUpgradeMapping": {
+      "slotSystemKey": "unlockedDroneSlots",
+      "droneFocus": "COLLECTOR_HULL",
+      "droneLoop": "COLLECTOR_AGILITY",
+      "droneSize": "COLLECTOR_SIZE"
+    }
+  },
+  "vacuum": {
+    "slotSystemKey": "vacuumPull",
+    "slotRequirementsGalaxy": [2, 4, 6, 8],
+    "maxSlots": 4,
+    "lockedPlaceholder": "UNLOCK VACUUM",
+    "upgradeKeys": ["vacuumChain", "vacuumSurge", "vacuumAgility"],
+    "originalUpgradeMapping": {
+      "slotSystemKey": "unlockedVacuumSlots",
+      "vacuumChain": "VACUUM_SPEED",
+      "vacuumSurge": "VACUUM_SUCTION",
+      "vacuumAgility": "VACUUM_AGILITY"
+    }
+  },
+  "defenseWeapons": [
+    {
+      "id": "mortar",
+      "label": "MORTAR",
+      "unlockGalaxy": 4,
+      "originalKeys": ["BOMBER_COUNT", "BOMBER_DAMAGE"],
+      "parts": [
+        { "id": "count", "label": "Mortar", "originalKey": "BOMBER_COUNT", "costScale": 1, "growth": 1.8 },
+        { "id": "damage", "label": "Blast", "originalKey": "BOMBER_DAMAGE", "costScale": 0.72, "growth": 1.7 }
+      ]
+    },
+    {
+      "id": "marines",
+      "label": "MARINES",
+      "unlockGalaxy": 5,
+      "originalKeys": ["MARINE_COUNT", "MARINE_DAMAGE"],
+      "parts": [
+        { "id": "count", "label": "Marine", "originalKey": "MARINE_COUNT", "costScale": 1, "growth": 1.72 },
+        { "id": "damage", "label": "Volley", "originalKey": "MARINE_DAMAGE", "costScale": 0.7, "growth": 1.66 }
+      ]
+    },
+    {
+      "id": "tesla",
+      "label": "TESLA",
+      "unlockGalaxy": 7,
+      "originalKeys": ["TESLA_COUNT", "TESLA_DAMAGE"],
+      "parts": [
+        { "id": "count", "label": "Tesla", "originalKey": "TESLA_COUNT", "costScale": 1, "growth": 1.82 },
+        { "id": "damage", "label": "Chain", "originalKey": "TESLA_DAMAGE", "costScale": 0.78, "growth": 1.72 }
+      ]
+    },
+    {
+      "id": "laser",
+      "label": "LASER",
+      "unlockGalaxy": 9,
+      "originalKeys": ["LASER_COUNT", "LASER_DAMAGE", "LASER_DURATION"],
+      "parts": [
+        { "id": "count", "label": "Laser", "originalKey": "LASER_COUNT", "costScale": 1, "growth": 1.9 },
+        { "id": "damage", "label": "Beam", "originalKey": "LASER_DAMAGE", "costScale": 0.74, "growth": 1.76 },
+        { "id": "duration", "label": "Duration", "originalKey": "LASER_DURATION", "costScale": 0.62, "growth": 1.58 }
+      ]
+    },
+    {
+      "id": "security_beam",
+      "label": "S-BEAM",
+      "unlockGalaxy": 12,
+      "originalKeys": ["SECURITY_BEAM_COUNT", "SECURITY_BEAM_RANGE", "SECURITY_BEAM_COOLDOWN"],
+      "parts": [
+        { "id": "count", "label": "Beam", "originalKey": "SECURITY_BEAM_COUNT", "costScale": 1, "growth": 1.84 },
+        { "id": "range", "label": "Range", "originalKey": "SECURITY_BEAM_RANGE", "costScale": 0.58, "growth": 1.62 },
+        { "id": "cooldown", "label": "Cooldown", "originalKey": "SECURITY_BEAM_COOLDOWN", "costScale": 0.82, "growth": 1.68 }
+      ]
+    },
+    {
+      "id": "missile",
+      "label": "MISSILE",
+      "unlockGalaxy": 13,
+      "originalKeys": ["MISSILE_COUNT", "MISSILE_DAMAGE"],
+      "parts": [
+        { "id": "count", "label": "Missile", "originalKey": "MISSILE_COUNT", "costScale": 1, "growth": 1.88 },
+        { "id": "damage", "label": "Payload", "originalKey": "MISSILE_DAMAGE", "costScale": 0.76, "growth": 1.74 }
+      ]
+    },
+    {
+      "id": "railgun",
+      "label": "RAILGUN",
+      "unlockGalaxy": 18,
+      "originalKeys": ["RAILGUN_COUNT", "RAILGUN_DAMAGE", "RAILGUN_PIERCE"],
+      "parts": [
+        { "id": "count", "label": "Railgun", "originalKey": "RAILGUN_COUNT", "costScale": 1, "growth": 4 },
+        { "id": "charge", "label": "Charge", "originalKey": "RAILGUN_DAMAGE", "costScale": 0.86, "growth": 1.8 },
+        { "id": "pierce", "label": "Pierce", "originalKey": "RAILGUN_PIERCE", "costScale": 0.74, "growth": 2 }
+      ]
+    },
+    {
+      "id": "flame",
+      "label": "FLAME",
+      "unlockGalaxy": 23,
+      "originalKeys": ["FLAME_COUNT", "FLAME_BURN", "FLAME_RANGE"],
+      "parts": [
+        { "id": "count", "label": "Flame", "originalKey": "FLAME_COUNT", "costScale": 1, "growth": 3 },
+        { "id": "burn", "label": "Burn", "originalKey": "FLAME_BURN", "costScale": 0.72, "growth": 1.5 },
+        { "id": "range", "label": "Range", "originalKey": "FLAME_RANGE", "costScale": 0.62, "growth": 1.6 }
+      ]
+    },
+    {
+      "id": "cryo",
+      "label": "CRYO",
+      "unlockGalaxy": 29,
+      "originalKeys": ["CRYO_COUNT", "CRYO_SLOW", "CRYO_FREEZE"],
+      "parts": [
+        { "id": "count", "label": "Cryo", "originalKey": "CRYO_COUNT", "costScale": 1, "growth": 3.5 },
+        { "id": "slow", "label": "Slow", "originalKey": "CRYO_SLOW", "costScale": 0.72, "growth": 1.4 },
+        { "id": "freeze", "label": "Freeze", "originalKey": "CRYO_FREEZE", "costScale": 1.1, "growth": 1.8 }
+      ]
+    },
+    {
+      "id": "plasma",
+      "label": "PLASMA",
+      "unlockGalaxy": 36,
+      "originalKeys": ["PLASMA_COUNT", "PLASMA_CHARGE", "PLASMA_DAMAGE"],
+      "parts": [
+        { "id": "count", "label": "Plasma", "originalKey": "PLASMA_COUNT", "costScale": 1, "growth": 4.5 },
+        { "id": "charge", "label": "Charge", "originalKey": "PLASMA_CHARGE", "costScale": 0.84, "growth": 1.5 },
+        { "id": "damage", "label": "Damage", "originalKey": "PLASMA_DAMAGE", "costScale": 0.78, "growth": 1.7 }
+      ]
+    }
+  ],
+  "sideEntrances": {
+    "settings": { "visibleFromGalaxy": 1, "enabledFromGalaxy": 1, "original": true },
+    "command": {
+      "visibleFromGalaxy": 1,
+      "enabledFromGalaxy": 1,
+      "original": true,
+      "reason": "Reference build exposes Command Center / live statistics on the left rail from galaxy 1."
+    },
+    "rankings": { "visibleFromGalaxy": 1, "enabledFromGalaxy": 1, "original": true },
+    "achievements": { "visibleFromGalaxy": 1, "enabledFromGalaxy": 1, "original": true },
+    "store": { "visibleFromGalaxy": 1, "enabledFromGalaxy": 1, "original": true },
+    "missions": { "visibleFromGalaxy": 1, "enabledFromGalaxy": 1, "original": true },
+    "latePower": { "visibleFromGalaxy": 9, "enabledFromGalaxy": 9, "originalCondition": "K>=9||la>0" },
+    "nextGalaxyShortcut": { "visibleFromGalaxy": 2, "enabledFromGalaxy": 2, "originalCondition": "next galaxy ready and not in boss" }
+  },
+  "rightAdSkills": {
+    "visibleFromGalaxy": 1,
+    "buttons": [
+      { "id": "storm", "label": "STORM", "visibleFromGalaxy": 1, "enabledFromGalaxy": 1 },
+      { "id": "dotRain", "label": "DOT RAIN", "visibleFromGalaxy": 2, "enabledFromGalaxy": 2 },
+      { "id": "goldenDot", "label": "GOLDEN DOT", "visibleFromGalaxy": 3, "enabledFromGalaxy": 3 }
+    ],
+    "originalPattern": "rewarded-ad bonus cards with cooldown/ad badge"
+  }
+}

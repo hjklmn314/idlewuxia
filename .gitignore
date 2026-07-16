@@ -1,0 +1,40 @@
+﻿node_modules/
+www/
+outputs/
+fangzhijianghu/
+archive/
+
+# Generated native/web build state.
+android/.gradle/
+android/build/
+android/app/build/
+android/app/src/main/assets/public/
+
+# Reference captures, generated artwork, packages, databases, and media are
+# intentionally excluded from the public source repository.
+public/competitor-reference/
+public/generated-ui/
+*.apk
+*.aab
+*.jar
+*.db
+*.sqlite
+*.db-*
+*.ldb
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.mp3
+*.wav
+*.ogg
+
+# Local/generated evidence and caches.
+.DS_Store
+Thumbs.db
+*.log
+*.pyc
+__pycache__/
+.cache/
+tmp/

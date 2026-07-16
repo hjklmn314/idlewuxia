@@ -1,0 +1,72 @@
+{
+  "version": "P0D",
+  "keepOriginalShell": true,
+  "mainLayout": {
+    "topLeft": "gem pill",
+    "topCenter": "world/galaxy label + large money",
+    "leftRail": [
+      "settings",
+      "stats",
+      "achievements",
+      "shop",
+      "missions"
+    ],
+    "rightRail": [
+      "Storm/Theme skill",
+      "Dot Rain/Theme skill",
+      "Golden Dot/Theme skill"
+    ],
+    "bottomTabs": [
+      "Defense",
+      "Drone",
+      "Vacuum",
+      "Economy",
+      "Galaxy"
+    ],
+    "bottomCards": "horizontal upgrade cards"
+  },
+  "mobileLayout": {
+    "targetAspectRatios": ["9:16", "9:19.5", "9:20"],
+    "bottomPanel": {
+      "minHeightPx": 158,
+      "maxViewportShare": 0.3,
+      "tabHeightMinPx": 48,
+      "tabHeightMaxPx": 56,
+      "cardHeightMinPx": 82,
+      "cardHeightMaxPx": 96,
+      "cardWidthMinPx": 72,
+      "cardWidthMaxPx": 86,
+      "tabPageExtraPx": 16,
+      "safeAreaBottomMinPx": 8
+    },
+    "playfield": {
+      "minViewportShare": 0.58,
+      "canvasLogicalWidth": 720,
+      "canvasLogicalHeight": 1080
+    }
+  },
+  "adModeHidden": [
+    "themeRow",
+    "debugBtn",
+    "debugPanel",
+    "fxBtn",
+    "dbgBtn",
+    "configHash",
+    "devLabels"
+  ],
+  "adModeVisible": [
+    "worldLabel",
+    "moneyLabel",
+    "primaryUpgrade",
+    "boostButton",
+    "bossPrompt",
+    "rewardCaption"
+  ],
+  "modalSystemsToKeep": [
+    "Store",
+    "Cosmetics",
+    "Daily Missions",
+    "Achievements",
+    "Command Center"
+  ]
+}

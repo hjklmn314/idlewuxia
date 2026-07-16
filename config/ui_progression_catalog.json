@@ -1,0 +1,234 @@
+{
+  "strategy": {
+    "productStrategyVersion": "p0f-low-cpi-default",
+    "defaultCosmeticId": "cash",
+    "defaultThemeId": "cash_vacuum",
+    "premiumCosmeticId": "space_glass",
+    "premiumUnlock": {
+      "action": "watch-ad-unlock",
+      "requiredAds": 3,
+      "rewardedPlacement": "premium_cosmetic_unlock",
+      "copy": "Watch 3 rewarded ads to unlock the premium space UI skin."
+    }
+  },
+  "missions": [
+    {
+      "id": "clear_100",
+      "title": "Clear Dots",
+      "detail": "Destroy 100 dots today",
+      "metric": "totalKills",
+      "target": 100,
+      "reward": { "moneyScale": 180, "gems": 0 }
+    },
+    {
+      "id": "upgrade_3",
+      "title": "Upgrade Systems",
+      "detail": "Buy any 3 upgrades",
+      "metric": "totalUpgradeLevels",
+      "target": 3,
+      "reward": { "moneyScale": 120, "gems": 1 }
+    },
+    {
+      "id": "skill_1",
+      "title": "Use Skill",
+      "detail": "Trigger one right-rail skill",
+      "metric": "skillUses",
+      "target": 1,
+      "reward": { "moneyScale": 140, "gems": 1 }
+    },
+    {
+      "id": "boss_try",
+      "title": "Open Boss Gate",
+      "detail": "Reach the current galaxy boss gate",
+      "metric": "bossGateProgress",
+      "target": 1,
+      "reward": { "moneyScale": 220, "gems": 1 }
+    }
+  ],
+  "achievements": [
+    {
+      "id": "dots_500",
+      "tab": "dots",
+      "title": "Dot Breaker",
+      "detail": "Clear 500 dots",
+      "metric": "totalKills",
+      "target": 500,
+      "reward": { "moneyScale": 260, "gems": 1 }
+    },
+    {
+      "id": "dots_2500",
+      "tab": "dots",
+      "title": "Dust Storm",
+      "detail": "Clear 2,500 dots",
+      "metric": "totalKills",
+      "target": 2500,
+      "reward": { "moneyScale": 820, "gems": 3 }
+    },
+    {
+      "id": "galaxy_5",
+      "tab": "galaxy",
+      "title": "Galaxy Explorer",
+      "detail": "Reach Galaxy 5",
+      "metric": "galaxy",
+      "target": 5,
+      "reward": { "moneyScale": 520, "gems": 2 }
+    },
+    {
+      "id": "boss_3",
+      "tab": "galaxy",
+      "title": "Reactor Hunter",
+      "detail": "Defeat 3 boss gates",
+      "metric": "bossWins",
+      "target": 3,
+      "reward": { "moneyScale": 680, "gems": 3 }
+    },
+    {
+      "id": "systems_12",
+      "tab": "systems",
+      "title": "System Engineer",
+      "detail": "Reach 12 total system levels",
+      "metric": "systemLevels",
+      "target": 12,
+      "reward": { "moneyScale": 460, "gems": 2 }
+    },
+    {
+      "id": "drone_6",
+      "tab": "systems",
+      "title": "Drone Commander",
+      "detail": "Reach 6 drone levels",
+      "metric": "droneLevels",
+      "target": 6,
+      "reward": { "moneyScale": 360, "gems": 2 }
+    }
+  ],
+  "storeProducts": [
+    {
+      "id": "daily_gift",
+      "title": "Daily Free Gift",
+      "detail": "Scaled cash, no purchase",
+      "tag": "READY",
+      "action": "claim-gift",
+      "reward": { "moneyScale": 220, "gems": 0 }
+    },
+    {
+      "id": "starter_pack",
+      "title": "Starter Pack",
+      "detail": "Cash boost + clean ad pacing",
+      "tag": "IAP",
+      "action": "preview-iap",
+      "backendProductId": "bundle_starter",
+      "androidProductId": "TODO_GOOGLE_PLAY_bundle_starter",
+      "iosProductId": "TODO_APP_STORE_bundle_starter",
+      "reward": { "moneyScale": 900, "gems": 8 }
+    },
+    {
+      "id": "cash_pack",
+      "title": "Cash Pack",
+      "detail": "Instant upgrade runway",
+      "tag": "IAP",
+      "action": "preview-iap",
+      "backendProductId": "cash_small",
+      "androidProductId": "TODO_GOOGLE_PLAY_cash_small",
+      "iosProductId": "TODO_APP_STORE_cash_small",
+      "reward": { "moneyScale": 650, "gems": 0 }
+    },
+    {
+      "id": "gem_pack",
+      "title": "Gem Pack",
+      "detail": "Cosmetic currency preview",
+      "tag": "IAP",
+      "action": "preview-iap",
+      "backendProductId": "gems_medium",
+      "androidProductId": "TODO_GOOGLE_PLAY_gems_medium",
+      "iosProductId": "TODO_APP_STORE_gems_medium",
+      "reward": { "moneyScale": 0, "gems": 25 }
+    },
+    {
+      "id": "remove_ads",
+      "title": "Remove Ads",
+      "detail": "Removes forced breaks and banners",
+      "tag": "BACKEND",
+      "action": "preview-iap",
+      "backendProductId": "remove_interstitials",
+      "androidProductId": "TODO_GOOGLE_PLAY_remove_interstitials",
+      "iosProductId": "TODO_APP_STORE_remove_interstitials",
+      "reward": { "moneyScale": 0, "gems": 0 }
+    }
+  ],
+  "cosmetics": [
+    {
+      "id": "classic",
+      "tab": "skins",
+      "title": "Classic Void",
+      "detail": "Original dark shell",
+      "themeId": "black_hole_vacuum",
+      "owned": false
+    },
+    {
+      "id": "clean",
+      "tab": "skins",
+      "title": "Clean Rush",
+      "detail": "Low CPI cleaning read",
+      "themeId": "clean_the_dots",
+      "owned": true
+    },
+    {
+      "id": "paint",
+      "tab": "skins",
+      "title": "Paint Burst",
+      "detail": "Color bloom UA skin",
+      "themeId": "paint_bloom",
+      "owned": true
+    },
+    {
+      "id": "cash",
+      "tab": "skins",
+      "title": "Cash Vacuum",
+      "detail": "Default low-CPI money pop skin",
+      "themeId": "cash_vacuum",
+      "owned": true,
+      "default": true
+    },
+    {
+      "id": "space_glass",
+      "tab": "skins",
+      "title": "Space Glass UI",
+      "detail": "Premium futuristic iPhone-style space skin",
+      "themeId": "space_glass_ui",
+      "owned": false,
+      "unlock": {
+        "action": "watch-ad-unlock",
+        "requiredAds": 3,
+        "rewardedPlacement": "premium_cosmetic_unlock"
+      }
+    },
+    {
+      "id": "thin_white",
+      "tab": "trails",
+      "title": "Thin Beam",
+      "detail": "Original clean projectile",
+      "owned": true
+    },
+    {
+      "id": "gold_tick",
+      "tab": "trails",
+      "title": "Gold Tick",
+      "detail": "Reward-readable shot",
+      "owned": false
+    },
+    {
+      "id": "soft_pop",
+      "tab": "explosions",
+      "title": "Soft Pop",
+      "detail": "Low-noise hit burst",
+      "owned": true
+    },
+    {
+      "id": "coin_ring",
+      "tab": "explosions",
+      "title": "Coin Ring",
+      "detail": "High-satisfaction kill cue",
+      "owned": false
+    }
+  ]
+}

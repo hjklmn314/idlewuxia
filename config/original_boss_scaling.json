@@ -1,0 +1,112 @@
+[
+  {
+    "level": 5,
+    "bossId": "warden",
+    "bossMaxHp": 5000,
+    "bossHpGrowthFromPreviousBoss": "",
+    "worldDotHp": 16,
+    "bossHpToWorldHp": 312.5,
+    "dotBaseValue": 1000,
+    "upgradeCostMultiplier": 5,
+    "bossGems": 5
+  },
+  {
+    "level": 10,
+    "bossId": "hivemind",
+    "bossMaxHp": 15000,
+    "bossHpGrowthFromPreviousBoss": 3,
+    "worldDotHp": 130,
+    "bossHpToWorldHp": 115.3846,
+    "dotBaseValue": 120000,
+    "upgradeCostMultiplier": 28,
+    "bossGems": 10
+  },
+  {
+    "level": 15,
+    "bossId": "chronolord",
+    "bossMaxHp": 50000,
+    "bossHpGrowthFromPreviousBoss": 3.3333,
+    "worldDotHp": 650,
+    "bossHpToWorldHp": 76.9231,
+    "dotBaseValue": 7000000,
+    "upgradeCostMultiplier": 140,
+    "bossGems": 15
+  },
+  {
+    "level": 20,
+    "bossId": "voidtitan",
+    "bossMaxHp": 150000,
+    "bossHpGrowthFromPreviousBoss": 3,
+    "worldDotHp": 1145,
+    "bossHpToWorldHp": 131.0044,
+    "dotBaseValue": 224000000,
+    "upgradeCostMultiplier": 1063.125,
+    "bossGems": 20
+  },
+  {
+    "level": 25,
+    "bossId": "splitsovereign",
+    "bossMaxHp": 400000,
+    "bossHpGrowthFromPreviousBoss": 2.6667,
+    "worldDotHp": 2018,
+    "bossHpToWorldHp": 198.2161,
+    "dotBaseValue": 7168000000,
+    "upgradeCostMultiplier": 8073.1055,
+    "bossGems": 25
+  },
+  {
+    "level": 30,
+    "bossId": "stormbringer",
+    "bossMaxHp": 1000000,
+    "bossHpGrowthFromPreviousBoss": 2.5,
+    "worldDotHp": 3557,
+    "bossHpToWorldHp": 281.1358,
+    "dotBaseValue": 229376000000,
+    "upgradeCostMultiplier": 61305.1447,
+    "bossGems": 30
+  },
+  {
+    "level": 35,
+    "bossId": "mirrormaster",
+    "bossMaxHp": 2500000,
+    "bossHpGrowthFromPreviousBoss": 2.5,
+    "worldDotHp": 6270,
+    "bossHpToWorldHp": 398.7241,
+    "dotBaseValue": 7340032000000,
+    "upgradeCostMultiplier": 465535.9422,
+    "bossGems": 35
+  },
+  {
+    "level": 40,
+    "bossId": "gravityking",
+    "bossMaxHp": 6000000,
+    "bossHpGrowthFromPreviousBoss": 2.4,
+    "worldDotHp": 11050,
+    "bossHpToWorldHp": 542.9864,
+    "dotBaseValue": 234881024000000,
+    "upgradeCostMultiplier": 3535163.5612,
+    "bossGems": 40
+  },
+  {
+    "level": 45,
+    "bossId": "quantumghost",
+    "bossMaxHp": 15000000,
+    "bossHpGrowthFromPreviousBoss": 2.5,
+    "worldDotHp": 19473,
+    "bossHpToWorldHp": 770.2973,
+    "dotBaseValue": 7516192768000000,
+    "upgradeCostMultiplier": 26845148.2926,
+    "bossGems": 45
+  },
+  {
+    "level": 50,
+    "bossId": "architect",
+    "bossMaxHp": 50000000,
+    "bossHpGrowthFromPreviousBoss": 3.3333,
+    "worldDotHp": 34319,
+    "bossHpToWorldHp": 1456.9189,
+    "dotBaseValue": 240518168576000000,
+    "upgradeCostMultiplier": 203855344.847,
+    "bossGems": 50
+  }
+]

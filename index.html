@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#11191d" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>放置江湖首局原型</title>
+    <link rel="icon" href="./public/wuxia-brand/icon.svg" />
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <section id="wuxiaShell" class="wuxia-shell" aria-label="放置江湖首局流程">
+        <div class="wuxia-bg" aria-hidden="true"></div>
+        <header class="wuxia-top">
+          <button class="wuxia-icon-button" type="button" data-wuxia-action="back">返回</button>
+          <div class="wuxia-title-group">
+            <span id="wuxiaFlowStep" class="wuxia-kicker">首局流程</span>
+            <h1 id="wuxiaScreenTitle">放置江湖</h1>
+          </div>
+          <button class="wuxia-icon-button" type="button" data-wuxia-action="home">主页</button>
+        </header>
+
+        <main class="wuxia-stage">
+          <section class="wuxia-story-panel">
+            <p>正在读取首局流程配置...</p>
+          </section>
+        </main>
+      </section>
+    </div>
+
+    <script type="module" src="./src/wuxia-main.js"></script>
+  </body>
+</html>

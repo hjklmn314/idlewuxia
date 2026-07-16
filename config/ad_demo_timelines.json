@@ -1,0 +1,205 @@
+{
+  "version": "P0D",
+  "globalRules": {
+    "durationSeconds": 10,
+    "hideDevUI": true,
+    "hideThemeSwitcher": true,
+    "showNormalDotHpBars": false,
+    "autoUpgrade": true,
+    "bossAppearsBySecond": 6.2,
+    "fullScreenRewardBySecond": 9.2
+  },
+  "demos": {
+    "clean10": [
+      {
+        "t": 0.0,
+        "action": "setTheme",
+        "theme": "clean"
+      },
+      {
+        "t": 0.1,
+        "action": "caption",
+        "text": "Clean all the dots!"
+      },
+      {
+        "t": 0.2,
+        "action": "spawnPattern",
+        "pattern": "dirty_surface",
+        "count": 36
+      },
+      {
+        "t": 1.0,
+        "action": "scriptSwipe",
+        "path": "wide_left_to_right",
+        "effect": "sponge_wipe"
+      },
+      {
+        "t": 2.0,
+        "action": "autoUpgrade",
+        "upgrade": "rate",
+        "levels": 2
+      },
+      {
+        "t": 3.2,
+        "action": "qaLegacySpawnWave",
+        "wave": "dust_cloud",
+        "count": 48
+      },
+      {
+        "t": 5.7,
+        "action": "spawnBoss",
+        "boss": "stain_core",
+        "phase": "shield_ring"
+      },
+      {
+        "t": 7.0,
+        "action": "bossCharge",
+        "visual": "stain_spread_warning"
+      },
+      {
+        "t": 7.8,
+        "action": "scriptSwipe",
+        "path": "zigzag_nodes",
+        "effect": "foam_cut"
+      },
+      {
+        "t": 8.6,
+        "action": "ultimate",
+        "effect": "mega_clean"
+      },
+      {
+        "t": 9.2,
+        "action": "reward",
+        "text": "100% CLEAN",
+        "cashBurst": 4200
+      }
+    ],
+    "blackhole10": [
+      {
+        "t": 0.0,
+        "action": "setTheme",
+        "theme": "blackhole"
+      },
+      {
+        "t": 0.1,
+        "action": "caption",
+        "text": "Absorb everything"
+      },
+      {
+        "t": 0.2,
+        "action": "spawnPattern",
+        "pattern": "stardust_scatter",
+        "count": 24
+      },
+      {
+        "t": 1.2,
+        "action": "autoUpgrade",
+        "upgrade": "damage",
+        "levels": 2
+      },
+      {
+        "t": 2.2,
+        "action": "enableForcePull",
+        "strength": 0.55
+      },
+      {
+        "t": 3.0,
+        "action": "qaLegacySpawnWave",
+        "wave": "spiral_cluster",
+        "count": 52
+      },
+      {
+        "t": 5.8,
+        "action": "spawnBoss",
+        "boss": "nova_reactor",
+        "phase": "shield_ring"
+      },
+      {
+        "t": 7.0,
+        "action": "bossCharge",
+        "visual": "supernova_warning"
+      },
+      {
+        "t": 8.0,
+        "action": "scriptSwipe",
+        "path": "cut_chargers",
+        "effect": "gravity_cut"
+      },
+      {
+        "t": 8.8,
+        "action": "ultimate",
+        "effect": "void_collapse"
+      },
+      {
+        "t": 9.4,
+        "action": "reward",
+        "text": "VOID COLLAPSE",
+        "cashBurst": 5200
+      }
+    ],
+    "paint10": [
+      {
+        "t": 0.0,
+        "action": "setTheme",
+        "theme": "paint"
+      },
+      {
+        "t": 0.1,
+        "action": "caption",
+        "text": "Turn ink into color"
+      },
+      {
+        "t": 0.2,
+        "action": "spawnPattern",
+        "pattern": "ink_drops",
+        "count": 32
+      },
+      {
+        "t": 1.0,
+        "action": "scriptSwipe",
+        "path": "brush_arc",
+        "effect": "brush_stroke"
+      },
+      {
+        "t": 2.4,
+        "action": "autoUpgrade",
+        "upgrade": "value",
+        "levels": 2
+      },
+      {
+        "t": 3.4,
+        "action": "qaLegacySpawnWave",
+        "wave": "ink_rain",
+        "count": 46
+      },
+      {
+        "t": 5.9,
+        "action": "spawnBoss",
+        "boss": "ink_core",
+        "phase": "supernova_charge"
+      },
+      {
+        "t": 7.2,
+        "action": "bossCharge",
+        "visual": "black_ink_spread"
+      },
+      {
+        "t": 8.1,
+        "action": "scriptSwipe",
+        "path": "brush_zigzag",
+        "effect": "color_cut"
+      },
+      {
+        "t": 8.8,
+        "action": "ultimate",
+        "effect": "color_bloom"
+      },
+      {
+        "t": 9.4,
+        "action": "reward",
+        "text": "COLOR BLOOM",
+        "cashBurst": 4800
+      }
+    ]
+  }
+}

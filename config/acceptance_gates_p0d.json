@@ -1,0 +1,15 @@
+{
+  "version": "P0D",
+  "mustPass": [
+    "普通 dot 无 HP 条",
+    "ad mode 隐藏 FX/DBG/themeRow/debugPanel",
+    "Clean 10s demo 出现 foam_pop_fade 与 100% CLEAN",
+    "Blackhole 10s demo 出现 spiral_absorb 与 VOID COLLAPSE",
+    "Paint 10s demo 出现 watercolor_bloom 与 COLOR BLOOM",
+    "Boss 在 6.2 秒前后出现",
+    "Boss charge 可被打断",
+    "full-screen reward 在 9.5 秒前出现",
+    "node --check src/main.js 通过",
+    "validate-config 与 run-sim 通过"
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "combat_feedback_p1",
+  "version": 1,
+  "damageSources": {
+    "turret": { "color": "#ffffff", "impact": 1.0, "sparkBonus": 0, "deathKind": "none" },
+    "drone": { "color": "#60a5fa", "impact": 0.85, "sparkBonus": 0, "deathKind": "micro_shards" },
+    "swipe": { "color": "#ffffff", "impact": 0.75, "sparkBonus": 0, "deathKind": "none" },
+    "vacuum": { "color": "#8b5cf6", "impact": 0.65, "sparkBonus": 1, "deathKind": "spiral" },
+    "burn": { "color": "#fb923c", "impact": 0.75, "sparkBonus": 1, "deathKind": "embers" },
+    "mortar": { "color": "#f97316", "impact": 1.6, "sparkBonus": 3, "deathKind": "blast" },
+    "marines": { "color": "#22c55e", "impact": 0.9, "sparkBonus": 1, "deathKind": "micro_shards" },
+    "tesla": { "color": "#38bdf8", "impact": 1.05, "sparkBonus": 2, "arcCount": 2, "deathKind": "arcs" },
+    "laser": { "color": "#facc15", "impact": 1.15, "sparkBonus": 1, "deathKind": "beam_trace" },
+    "security_beam": { "color": "#2dd4bf", "impact": 0.95, "sparkBonus": 1, "deathKind": "beam_trace" },
+    "missile": { "color": "#fb7185", "impact": 1.35, "sparkBonus": 3, "deathKind": "blast" },
+    "railgun": { "color": "#a78bfa", "impact": 1.8, "sparkBonus": 4, "deathKind": "beam_trace" },
+    "flame": { "color": "#fb923c", "impact": 0.85, "sparkBonus": 2, "deathKind": "embers" },
+    "cryo": { "color": "#7dd3fc", "impact": 1.05, "sparkBonus": 2, "deathKind": "ice_shards" },
+    "plasma": { "color": "#c084fc", "impact": 1.25, "sparkBonus": 2, "arcCount": 3, "deathKind": "arcs" }
+  },
+  "bossPhases": {
+    "core_warmup": {
+      "label": "Core Warmup",
+      "color": "#fb7185",
+      "ringAlpha": 0.22,
+      "hitSparkScale": 1.0,
+      "phaseBurstCount": 20
+    },
+    "shield_ring": {
+      "label": "Shield Ring",
+      "color": "#38bdf8",
+      "ringAlpha": 0.36,
+      "hitSparkScale": 0.72,
+      "shieldHitText": "SHIELD",
+      "phaseBurstCount": 28
+    },
+    "supernova_charge": {
+      "label": "Supernova Charge",
+      "color": "#fb7185",
+      "ringAlpha": 0.44,
+      "hitSparkScale": 1.18,
+      "phaseBurstCount": 36,
+      "warningText": "INTERRUPT"
+    },
+    "collapse_reward": {
+      "label": "Collapse Reward",
+      "color": "#34d399",
+      "ringAlpha": 0.52,
+      "hitSparkScale": 1.45,
+      "phaseBurstCount": 42,
+      "warningText": "VULNERABLE"
+    }
+  },
+  "bossHit": {
+    "minVisibleDamageRatio": 0.003,
+    "heavyHitDamageRatio": 0.035,
+    "hitShake": 2.4,
+    "heavyHitText": "CRACK",
+    "shieldBreakText": "BREAK"
+  }
+}

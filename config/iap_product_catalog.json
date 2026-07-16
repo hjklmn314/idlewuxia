@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "2026-07-01.backend-contract",
+  "sourceEvidence": {
+    "originalJs": "../apk_contents/focused_game_monetization/game_web/index-DINbkGXA.linebreak.js",
+    "productLines": "14025-14072",
+    "packageId": "com.infinitygames.dotcollect",
+    "notes": [
+      "This catalog maps first-party original product semantics to the new backend contract.",
+      "Target Google Play and App Store product ids are placeholders until store backend setup; MOD/repack products are excluded."
+    ]
+  },
+  "modContentPolicy": {
+    "includeModShellProducts": false,
+    "includeExternalLauncherProducts": false
+  },
+  "products": [
+    { "id": "remove_interstitials", "type": "non_consumable", "backendProductId": "remove_interstitials", "androidProductId": "TODO_GOOGLE_PLAY_remove_interstitials", "iosProductId": "TODO_APP_STORE_remove_interstitials", "status": "backend_pending" },
+    { "id": "remove_all_ads", "type": "non_consumable", "backendProductId": "remove_all_ads", "androidProductId": "TODO_GOOGLE_PLAY_remove_all_ads", "iosProductId": "TODO_APP_STORE_remove_all_ads", "status": "backend_pending" },
+    { "id": "cash_tiny", "type": "consumable", "backendProductId": "cash_tiny", "androidProductId": "TODO_GOOGLE_PLAY_cash_tiny", "iosProductId": "TODO_APP_STORE_cash_tiny", "status": "backend_pending" },
+    { "id": "cash_small", "type": "consumable", "backendProductId": "cash_small", "androidProductId": "TODO_GOOGLE_PLAY_cash_small", "iosProductId": "TODO_APP_STORE_cash_small", "status": "backend_pending" },
+    { "id": "cash_medium", "type": "consumable", "backendProductId": "cash_medium", "androidProductId": "TODO_GOOGLE_PLAY_cash_medium", "iosProductId": "TODO_APP_STORE_cash_medium", "status": "backend_pending" },
+    { "id": "cash_large", "type": "consumable", "backendProductId": "cash_large", "androidProductId": "TODO_GOOGLE_PLAY_cash_large", "iosProductId": "TODO_APP_STORE_cash_large", "status": "backend_pending" },
+    { "id": "cash_huge", "type": "consumable", "backendProductId": "cash_huge", "androidProductId": "TODO_GOOGLE_PLAY_cash_huge", "iosProductId": "TODO_APP_STORE_cash_huge", "status": "backend_pending" },
+    { "id": "cash_mega", "type": "consumable", "backendProductId": "cash_mega", "androidProductId": "TODO_GOOGLE_PLAY_cash_mega", "iosProductId": "TODO_APP_STORE_cash_mega", "status": "backend_pending" },
+    { "id": "cash_ultra", "type": "consumable", "backendProductId": "cash_ultra", "androidProductId": "TODO_GOOGLE_PLAY_cash_ultra", "iosProductId": "TODO_APP_STORE_cash_ultra", "status": "backend_pending" },
+    { "id": "cash_supreme", "type": "consumable", "backendProductId": "cash_supreme", "androidProductId": "TODO_GOOGLE_PLAY_cash_supreme", "iosProductId": "TODO_APP_STORE_cash_supreme", "status": "backend_pending" },
+    { "id": "cash_legendary", "type": "consumable", "backendProductId": "cash_legendary", "androidProductId": "TODO_GOOGLE_PLAY_cash_legendary", "iosProductId": "TODO_APP_STORE_cash_legendary", "status": "backend_pending" },
+    { "id": "cash_ultimate", "type": "consumable", "backendProductId": "cash_ultimate", "androidProductId": "TODO_GOOGLE_PLAY_cash_ultimate", "iosProductId": "TODO_APP_STORE_cash_ultimate", "status": "backend_pending" },
+    { "id": "bundle_starter", "type": "non_consumable", "backendProductId": "bundle_starter", "androidProductId": "TODO_GOOGLE_PLAY_bundle_starter", "iosProductId": "TODO_APP_STORE_bundle_starter", "status": "backend_pending" },
+    { "id": "bundle_premium", "type": "non_consumable", "backendProductId": "bundle_premium", "androidProductId": "TODO_GOOGLE_PLAY_bundle_premium", "iosProductId": "TODO_APP_STORE_bundle_premium", "status": "backend_pending" },
+    { "id": "bundle_ultimate", "type": "non_consumable", "backendProductId": "bundle_ultimate", "androidProductId": "TODO_GOOGLE_PLAY_bundle_ultimate", "iosProductId": "TODO_APP_STORE_bundle_ultimate", "status": "backend_pending" },
+    { "id": "bundle_whale", "type": "non_consumable", "backendProductId": "bundle_whale", "androidProductId": "TODO_GOOGLE_PLAY_bundle_whale", "iosProductId": "TODO_APP_STORE_bundle_whale", "status": "backend_pending" },
+    { "id": "gems_small", "type": "consumable", "backendProductId": "gems_small", "androidProductId": "TODO_GOOGLE_PLAY_gems_small", "iosProductId": "TODO_APP_STORE_gems_small", "status": "backend_pending" },
+    { "id": "gems_medium", "type": "consumable", "backendProductId": "gems_medium", "androidProductId": "TODO_GOOGLE_PLAY_gems_medium", "iosProductId": "TODO_APP_STORE_gems_medium", "status": "backend_pending" },
+    { "id": "gems_large", "type": "consumable", "backendProductId": "gems_large", "androidProductId": "TODO_GOOGLE_PLAY_gems_large", "iosProductId": "TODO_APP_STORE_gems_large", "status": "backend_pending" },
+    { "id": "gems_huge", "type": "consumable", "backendProductId": "gems_huge", "androidProductId": "TODO_GOOGLE_PLAY_gems_huge", "iosProductId": "TODO_APP_STORE_gems_huge", "status": "backend_pending" },
+    { "id": "gems_mega", "type": "consumable", "backendProductId": "gems_mega", "androidProductId": "TODO_GOOGLE_PLAY_gems_mega", "iosProductId": "TODO_APP_STORE_gems_mega", "status": "backend_pending" },
+    { "id": "boost_offline", "type": "non_consumable", "backendProductId": "boost_offline", "androidProductId": "TODO_GOOGLE_PLAY_boost_offline", "iosProductId": "TODO_APP_STORE_boost_offline", "status": "backend_pending" },
+    { "id": "boost_golden", "type": "non_consumable", "backendProductId": "boost_golden", "androidProductId": "TODO_GOOGLE_PLAY_boost_golden", "iosProductId": "TODO_APP_STORE_boost_golden", "status": "backend_pending" },
+    { "id": "boost_luck", "type": "non_consumable", "backendProductId": "boost_luck", "androidProductId": "TODO_GOOGLE_PLAY_boost_luck", "iosProductId": "TODO_APP_STORE_boost_luck", "status": "backend_pending" }
+  ]
+}

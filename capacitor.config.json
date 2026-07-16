@@ -1,0 +1,6 @@
+﻿{
+  "appId": "com.idlewuxia.app",
+  "appName": "Idle Wuxia",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}

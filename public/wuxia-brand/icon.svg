@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Idle Wuxia">
+  <rect width="128" height="128" rx="24" fill="#11191d"/>
+  <path d="M20 92c19-31 33-48 44-70 7 21 21 43 44 70H20Z" fill="#202f32"/>
+  <path d="M29 91c14-10 25-22 35-38 10 16 22 28 35 38H29Z" fill="#d8b36b"/>
+  <path d="M38 91c8-7 17-16 26-30 9 14 18 23 26 30H38Z" fill="#f3e2a6"/>
+  <path d="M27 38c21-8 49-9 74 0-20 6-50 6-74 0Z" fill="#f3e2a6"/>
+  <path d="M64 24v79" stroke="#11191d" stroke-width="7" stroke-linecap="round"/>
+  <path d="M39 66h50" stroke="#11191d" stroke-width="7" stroke-linecap="round"/>
+</svg>
