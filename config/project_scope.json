@@ -1,0 +1,93 @@
+{
+  "$schema": "idlewuxia.project_scope.v1",
+  "projectId": "idlewuxia",
+  "activeEntry": "src/wuxia-main.js",
+  "htmlEntry": "index.html",
+  "activeRuntimeFiles": [
+    "index.html",
+    "src/styles.css",
+    "src/wuxia-main.js",
+    "src/wuxiaFirstSessionFlow.js"
+  ],
+  "activeConfigFiles": [
+    "config/wuxia_first_session_flow.json",
+    "config/wuxia_first_session_screen_contract.json"
+  ],
+  "developmentReferenceFiles": [
+    "config/wuxia_competitor_first_session_reference.json"
+  ],
+  "shippingFiles": [
+    "index.html",
+    "src/styles.css",
+    "src/wuxia-main.js",
+    "src/wuxiaFirstSessionFlow.js",
+    "config/wuxia_first_session_flow.json",
+    "config/wuxia_first_session_screen_contract.json",
+    "public/wuxia-brand/icon.svg"
+  ],
+  "shippingSanitization": {
+    "jsonFiles": [
+      "config/wuxia_first_session_flow.json",
+      "config/wuxia_first_session_screen_contract.json"
+    ],
+    "removeObjectKeys": [
+      "sourceFiles"
+    ],
+    "forbiddenStringPatterns": [
+      "fangzhijianghu",
+      "competitor-reference",
+      "competitor_recording",
+      "G:\\codex"
+    ]
+  },
+  "forbiddenTrackedRoots": [
+    "fangzhijianghu/",
+    "outputs/",
+    "www/",
+    "archive/",
+    "node_modules/",
+    "android/app/build/",
+    "android/app/src/main/assets/public/"
+  ],
+  "trackedCategories": [
+    {
+      "id": "repository",
+      "exact": [
+        ".gitignore",
+        "index.html",
+        "package.json",
+        "package-lock.json",
+        "capacitor.config.json"
+      ]
+    },
+    {
+      "id": "documentation",
+      "rootExtensions": [".md"]
+    },
+    {
+      "id": "runtime-source",
+      "prefixes": ["src/"]
+    },
+    {
+      "id": "runtime-config",
+      "prefixes": ["config/"]
+    },
+    {
+      "id": "tooling",
+      "prefixes": ["tools/"]
+    },
+    {
+      "id": "owned-assets",
+      "prefixes": ["public/wuxia-brand/"]
+    },
+    {
+      "id": "android-project",
+      "prefixes": ["android/"]
+    },
+    {
+      "id": "continuous-integration",
+      "prefixes": [".github/workflows/"]
+    }
+  ],
+  "unknownTrackedPathPolicy": "reject"
+}

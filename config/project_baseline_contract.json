@@ -1,0 +1,30 @@
+{
+  "$schema": "idlewuxia.project_baseline_contract.v1",
+  "hashAlgorithm": "sha256",
+  "manifestColumns": [
+    "path",
+    "category",
+    "bytes",
+    "sha256"
+  ],
+  "maxTrackedFileBytes": 5242880,
+  "deterministicOrder": "path-ascending",
+  "fatalFindingCodes": [
+    "MISSING_REQUIRED_FILE",
+    "FORBIDDEN_TRACKED_PATH",
+    "UNKNOWN_TRACKED_PATH",
+    "TRACKED_FILE_TOO_LARGE",
+    "UNTRACKED_NONIGNORED_FILE",
+    "INVALID_HTML_ENTRY",
+    "MISSING_ACTIVE_CONFIG_REFERENCE",
+    "DEVELOPMENT_REFERENCE_IN_ACTIVE_RUNTIME",
+    "DEVELOPMENT_REFERENCE_IN_SHIPPING_SET",
+    "GIT_STATE_UNAVAILABLE",
+    "DIRTY_WORKTREE",
+    "UPSTREAM_DIVERGED"
+  ],
+  "releaseGate": {
+    "requireCleanWorktree": true,
+    "requireHeadEqualsUpstreamWhenConfigured": true
+  }
+}

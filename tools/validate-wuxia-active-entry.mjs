@@ -16,29 +16,35 @@ function exists(rel) {
   return fs.existsSync(path.join(root, rel));
 }
 
-const html = readText("index.html");
-const moduleScripts = [...html.matchAll(/<script[^>]+type=["']module["'][^>]+src=["']([^"']+)["']/gi)]
-  .map((match) => match[1].replace(/^\.\//, ""));
+const scope = JSON.parse(readText("config/project_scope.json"));
+const html = readText(scope.htmlEntry);
+const moduleScripts = [...html.matchAll(/<script[^>]+type=["']module["'][^>]+src=["']([^"']+)["']/gi)].map((match) =>
+  match[1].replace(/^\.\//, ""),
+);
 
 if (moduleScripts.length !== 1) {
-  add("P0", "index.html", `expected exactly one module script, got ${moduleScripts.length}`, "Keep one Wuxia entry module only.");
+  add("P0", scope.htmlEntry, `expected exactly one module script, got ${moduleScripts.length}`, "Keep one Wuxia entry module only.");
 }
 
 const activeEntry = moduleScripts[0] || "";
-if (activeEntry !== "src/wuxia-main.js") {
-  add("P0", "index.html", `active entry is ${activeEntry || "<missing>"}`, "Point index.html to src/wuxia-main.js.");
+if (activeEntry !== scope.activeEntry) {
+  add("P0", scope.htmlEntry, `active entry is ${activeEntry || "<missing>"}`, `Point index.html to ${scope.activeEntry}.`);
 }
 
 if (!activeEntry || !exists(activeEntry)) {
   add("P0", activeEntry || "activeEntry", "active entry file does not exist", "Create or restore the Wuxia first-session entry.");
 }
 
+const activeRuntimeText = scope.activeRuntimeFiles
+  .filter((rel) => exists(rel) && /\.(?:html|js|mjs|ts|css)$/i.test(rel))
+  .map(readText)
+  .join("\n");
 const source = activeEntry && exists(activeEntry) ? readText(activeEntry) : "";
 const forbiddenSignals = [
   ["offline_modal", /Welcome Back|Offline Cap|claim-offline|OFFLINE/i],
   ["nova_galaxy", /GALAXY|Nova Reactor|TURRET|tesla/i],
   ["legacy_canvas", /gameCanvas|fireTesla|applyBurn|bossNovaReactor/i],
-  ["audit_copy", /当前录屏|待验证|暂按|APP备案|隐私政策|用户协议/],
+  ["audit_copy", /褰撳墠褰曞睆|寰呴獙璇亅鏆傛寜|APP澶囨|闅愮鏀跨瓥|鐢ㄦ埛鍗忚/],
 ];
 
 for (const [id, regex] of forbiddenSignals) {
@@ -48,16 +54,19 @@ for (const [id, regex] of forbiddenSignals) {
   }
 }
 
-const requiredConfigRefs = [
-  "config/wuxia_first_session_flow.json",
-  "config/wuxia_first_session_screen_contract.json",
-  "config/wuxia_competitor_first_session_reference.json",
-];
-
-for (const rel of requiredConfigRefs) {
+for (const rel of scope.activeConfigFiles) {
   if (!exists(rel)) add("P0", rel, "required first-session config is missing", "Restore config before running the client.");
-  if (source && !source.includes(rel.replace(/\\/g, "/"))) {
-    add("P1", activeEntry, `active entry does not reference ${rel}`, "Load the first-session config from the isolated entry.");
+  if (!activeRuntimeText.includes(rel)) {
+    add("P0", scope.activeEntry, `active runtime does not reference ${rel}`, "Load every declared runtime config from the isolated entry.");
+  }
+}
+
+for (const rel of scope.developmentReferenceFiles) {
+  if (activeRuntimeText.includes(rel)) {
+    add("P0", rel, "development-only evidence is loaded by active runtime", "Keep competitor evidence outside the shipping runtime closure.");
+  }
+  if (scope.shippingFiles.includes(rel)) {
+    add("P0", rel, "development-only evidence is included in shippingFiles", "Remove it from the shipping whitelist.");
   }
 }
 
@@ -65,6 +74,8 @@ const summary = {
   generatedAt: new Date().toISOString(),
   activeEntry,
   moduleScripts,
+  runtimeConfigs: scope.activeConfigFiles,
+  shippingFiles: scope.shippingFiles.length,
   findings: findings.length,
   bySeverity: findings.reduce((acc, row) => {
     acc[row.severity] = (acc[row.severity] || 0) + 1;

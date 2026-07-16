@@ -3,7 +3,6 @@
 const CONFIG_FILES = {
   wuxiaFirstSessionFlow: "./config/wuxia_first_session_flow.json",
   wuxiaScreenContract: "./config/wuxia_first_session_screen_contract.json",
-  wuxiaCompetitorReference: "./config/wuxia_competitor_first_session_reference.json",
 };
 
 const state = {

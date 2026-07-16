@@ -6,6 +6,12 @@
   "scripts": {
     "start": "node tools/dev-server.mjs",
     "build:web": "node tools/build-web.mjs",
+    "baseline:test": "node tools/test-project-baseline.mjs",
+    "baseline:build": "node tools/project-baseline.mjs --mode baseline",
+    "baseline:verify": "node tools/project-baseline.mjs --mode baseline --require-clean",
+    "baseline:verify:remote": "node tools/project-baseline.mjs --mode baseline --require-clean --require-upstream",
+    "scope:validate": "node tools/project-baseline.mjs --mode scope",
+    "task:preflight": "npm run baseline:test && npm run scope:validate && npm run wuxia:validate:active-entry && npm run wuxia:validate:first-session",
     "validate": "node tools/validate-config.mjs",
     "validate:reference-parity": "node tools/validate-reference-parity.mjs",
     "validate:unlock-gates": "node tools/validate-unlock-gates.mjs",
@@ -66,5 +72,5 @@
   "devDependencies": {
     "@capacitor/cli": "6.2.1"
   },
-  "description": "Data-driven vertical Wuxia idle RPG prototype using restored Fangzhi Jianghu evidence."
+  "description": "Data-driven vertical Wuxia idle RPG with an isolated HTML/Capacitor shipping runtime."
 }

@@ -63,9 +63,20 @@ evidence and config contracts before code or UI work.
   or asset path into runtime code unless the code is a migration shim with an
   explicit audit reason.
 - Mandatory current commands:
+  `npm run task:preflight`,
+  `npm run baseline:build`,
   `npm run wuxia:check:fast`,
   `npm run wuxia:predev:analysis`, and
   `npm run wuxia:tasks:skill-waterfall`.
+- `config\project_scope.json` is the R0 source of truth for the active HTML
+  entry, runtime configuration closure, development-only reference files,
+  tracked path categories, and exact web shipping allowlist. Any new tracked
+  path category or shipping file must be declared there in the same change.
+- Before a release push, run `npm run baseline:verify` on a clean tree. The
+  generated baseline artifacts remain under ignored
+  `outputs\project_baseline`; do not commit them.
+- After pushing, run `npm run baseline:verify:remote` and confirm local HEAD
+  equals the configured upstream commit.
 - Current predev output:
   `outputs\wuxia_predev_analysis_package_20260710`.
 
