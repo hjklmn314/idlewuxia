@@ -12,6 +12,10 @@ function resolveActiveChapter(contract, options = {}) {
   );
 }
 
+function evidenceLevelOrUnknown(...candidates) {
+  return candidates.find((value) => typeof value === "string" && value.trim()) || "unknown";
+}
+
 export function createFirstSessionRuntime(contract, options = {}) {
   const activeChapter = resolveActiveChapter(contract, options);
   const states = new Map((contract?.states || []).map((state) => [state.stateId, state]));
@@ -1081,13 +1085,13 @@ export function createFirstSessionRuntime(contract, options = {}) {
       )));
   }
 
-  function configuredBranchAvailability(candidateBranches, context = {}, emptyEvidenceLevel = "no_explicit_action_condition") {
+  function configuredBranchAvailability(candidateBranches, context = {}, sourceEvidenceLevel = "unknown") {
     if (!candidateBranches.length) {
       return {
         available: true,
         reason: "",
         checks: [],
-        evidenceLevel: emptyEvidenceLevel,
+        evidenceLevel: evidenceLevelOrUnknown(sourceEvidenceLevel),
       };
     }
     const evaluations = candidateBranches.map((branch) => ({
@@ -1101,7 +1105,7 @@ export function createFirstSessionRuntime(contract, options = {}) {
         reason: "",
         checks: clone(accepted.evaluation.checks || []),
         conditionTokens: clone(accepted.branch.conditionTokens || []),
-        evidenceLevel: accepted.branch.evidenceLevel || "config_confirmed",
+        evidenceLevel: evidenceLevelOrUnknown(accepted.branch.evidenceLevel, sourceEvidenceLevel),
       };
     }
     const first = evaluations[0];
@@ -1110,7 +1114,7 @@ export function createFirstSessionRuntime(contract, options = {}) {
       reason: "configured action conditions are not met",
       checks: clone(first?.evaluation?.checks || []),
       conditionTokens: clone(first?.branch?.conditionTokens || []),
-      evidenceLevel: first?.branch?.evidenceLevel || "config_confirmed",
+      evidenceLevel: evidenceLevelOrUnknown(first?.branch?.evidenceLevel, sourceEvidenceLevel),
     };
   }
 
@@ -1127,12 +1131,18 @@ export function createFirstSessionRuntime(contract, options = {}) {
     const combatOutcomeTokens = combatPolicy
       ? [combatPolicy.successConditionToken, combatPolicy.failureConditionToken, combatPolicy.runawayConditionToken].filter(Boolean)
       : [];
+    const sourceEvidenceLevel = evidenceLevelOrUnknown(
+      action.evidenceLevel,
+      action.evidence?.level,
+      npc?.evidence?.level,
+      combatPolicy?.evidence?.level,
+    );
     return {
       actionType,
       ...configuredBranchAvailability(
         candidateBranches,
         { actionType, ignoreConditionTokens: combatOutcomeTokens },
-        combatPolicy ? "config_confirmed_combat_policy" : "no_explicit_action_condition",
+        sourceEvidenceLevel,
       ),
     };
   }
@@ -1232,28 +1242,35 @@ export function createFirstSessionRuntime(contract, options = {}) {
     };
   }
 
-  function branchForInteractableAction(item, actionType) {
+  function interactableBranchesForAction(item, actionType) {
     const branches = (item?.branches || []).filter(branchEnabledInFirstSession);
     const exactBranches = branches.filter((branch) => (branch.actionHints || []).includes(actionType));
-    const exact = exactBranches.find((branch) => branchConditionsMet(branch, { actionType }).accepted);
-    if (exact || exactBranches.length) return exact || null;
-    return branches.find((branch) => (
+    if (exactBranches.length) return exactBranches;
+    return branches.filter((branch) => !(branch.actionHints || []).length);
+  }
+
+  function branchForInteractableAction(item, actionType) {
+    const candidateBranches = interactableBranchesForAction(item, actionType);
+    return candidateBranches.find((branch) => (
       branch.narrativeLines?.length
       && branchConditionsMet(branch, { actionType }).accepted
     ))
-      || branches.find((branch) => branchConditionsMet(branch, { actionType }).accepted)
+      || candidateBranches.find((branch) => branchConditionsMet(branch, { actionType }).accepted)
       || null;
   }
 
   function interactableActionAvailability(item, actionType) {
     const action = (item?.actions || []).find((candidate) => candidate.actionType === actionType);
     if (!action) return { actionType, available: false, reason: "interactable action unavailable", checks: [] };
-    const exactBranches = (item?.branches || [])
-      .filter(branchEnabledInFirstSession)
-      .filter((branch) => (branch.actionHints || []).includes(actionType));
+    const candidateBranches = interactableBranchesForAction(item, actionType);
+    const sourceEvidenceLevel = evidenceLevelOrUnknown(
+      action.evidenceLevel,
+      action.evidence?.level,
+      item?.evidence?.level,
+    );
     return {
       actionType,
-      ...configuredBranchAvailability(exactBranches, { actionType }),
+      ...configuredBranchAvailability(candidateBranches, { actionType }, sourceEvidenceLevel),
     };
   }
 
@@ -1285,7 +1302,7 @@ export function createFirstSessionRuntime(contract, options = {}) {
         feedback: availability.reason,
         conditionTokens: clone(availability.conditionTokens || []),
         conditionChecks: clone(availability.checks || []),
-        evidenceLevel: availability.evidenceLevel || "config_confirmed",
+        evidenceLevel: evidenceLevelOrUnknown(availability.evidenceLevel),
       };
       events.push(event);
       return { accepted: false, event, snapshot: snapshot() };
@@ -1340,7 +1357,13 @@ export function createFirstSessionRuntime(contract, options = {}) {
       resultTokens: clone(branch?.resultTokens || []),
       sideEffects: clone(sideEffects),
       evidence: clone(npc.evidence || {}),
-      evidenceLevel: branch?.evidenceLevel || (branch?.narrativeLines?.length ? "config_confirmed" : fallback.evidenceLevel),
+      evidenceLevel: evidenceLevelOrUnknown(
+        branch?.evidenceLevel,
+        action.evidenceLevel,
+        action.evidence?.level,
+        npc?.evidence?.level,
+        fallback?.evidenceLevel,
+      ),
     };
     events.push(event);
     return { accepted: true, event, snapshot: snapshot() };
@@ -1379,7 +1402,7 @@ export function createFirstSessionRuntime(contract, options = {}) {
         feedback: availability.reason,
         conditionTokens: clone(availability.conditionTokens || []),
         conditionChecks: clone(availability.checks || []),
-        evidenceLevel: availability.evidenceLevel || "config_confirmed",
+        evidenceLevel: evidenceLevelOrUnknown(availability.evidenceLevel),
       };
       events.push(event);
       return { accepted: false, event, snapshot: snapshot() };
@@ -1412,7 +1435,12 @@ export function createFirstSessionRuntime(contract, options = {}) {
       resultTokens: clone(branch?.resultTokens || []),
       sideEffects: clone(sideEffects),
       evidence: clone(item.evidence || {}),
-      evidenceLevel: branch?.narrativeLines?.length ? "config_confirmed" : "lua_confirmed_no_narrative",
+      evidenceLevel: evidenceLevelOrUnknown(
+        branch?.evidenceLevel,
+        action.evidenceLevel,
+        action.evidence?.level,
+        item?.evidence?.level,
+      ),
     };
     events.push(event);
     return { accepted: true, event, snapshot: snapshot() };

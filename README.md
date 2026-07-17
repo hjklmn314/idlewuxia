@@ -8,6 +8,7 @@ Data-driven vertical Wuxia idle RPG prototype. Competitor research and restored 
 npm run start
 npm run task:preflight
 npm run runtime:condition-negative
+npm run runtime:first-session-simulator:test
 npm run baseline:build
 npm run build:web
 npm run android:sync
@@ -44,9 +45,12 @@ exports only mutable first-session state; `src/runtimePersistence.js` owns
 restore, compatibility rejection, storage isolation, and autosave wrapping.
 
 `npm run runtime:condition-negative` is the T02-01 interactable branch gate.
-It proves that an unmet configured condition is explicitly rejected before
-selection or result effects can mutate player, inventory, runtime flags, or map
-markers, while the corresponding satisfied branch still executes.
+It covers exact and unhinted fallback branches, proves that an unmet configured
+condition is explicitly rejected without changing any observable runtime state,
+keeps missing evidence at `unknown`, and verifies that the corresponding
+satisfied branch still executes. `npm run runtime:first-session-simulator:test`
+guards the real first-session action order and distinguishes the intentional
+locked-action rejection from unexpected failures or acceptances.
 
 `config/android_device_acceptance_contract.json` owns the 540x960 reference
 aspect, player action, and lifecycle expectations. See
