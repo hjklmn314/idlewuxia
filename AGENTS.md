@@ -83,6 +83,11 @@ evidence and config contracts before code or UI work.
   Only explicitly declared Capacitor-generated files may exist outside
   `shippingFiles`. Run `npm run android:sync` after any shipping,
   sanitization, Capacitor, or Android asset change.
+- APK acceptance must use the extracted-binary traceability report, not file
+  presence alone. `tools/lib/apk-web-bundle-traceability.mjs` owns commit,
+  timestamp, per-file hash, and unexpected-asset rules. After committing, build
+  from the clean revision and run `npm run android:audit:wuxia`; formal
+  acceptance requires the APK, web manifest, and current Git commit to match.
 - `npm run wuxia:validate:first-session:runtime` is the portable repository
   gate and must not require ignored competitor files. The existing
   `npm run wuxia:validate:first-session` remains the stronger development

@@ -12,6 +12,8 @@ npm run build:web
 npm run android:sync
 npm run web:freshness
 npm run android:identity
+npm run android:debug
+npm run android:audit:wuxia
 npm run wuxia:check:fast
 ```
 
@@ -28,6 +30,11 @@ changing the package name, Java path, app label, launcher, or debug suffix.
 asset roots plus the explicit Capacitor-generated file allowlist. Run
 `npm run android:sync` to rebuild, sync, and SHA-256-check the complete chain.
 See `WEB_BUNDLE_FRESHNESS.md` for the transform and acceptance rules.
+
+`npm run android:audit:wuxia` is the clean-revision APK traceability
+gate. It hashes the seven product assets and two Capacitor-generated assets
+from the real APK and binds them to the current Git commit and Web manifest.
+See `ANDROID_APK_AUDIT.md` for evidence ordering and formal acceptance.
 
 ## Repository scope
 

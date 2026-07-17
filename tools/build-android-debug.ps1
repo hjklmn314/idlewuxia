@@ -20,8 +20,15 @@ try {
   & npm.cmd run android:sync
   if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-  & (Join-Path $root "android\gradlew.bat") -p (Join-Path $root "android") :app:assembleDebug --console=plain
+  # A traceable APK must be produced after the current web bundle manifest.
+  # Gradle's normal UP-TO-DATE result can leave an older APK in place, so this
+  # evidence build intentionally reruns packaging tasks.
+  & (Join-Path $root "android\gradlew.bat") -p (Join-Path $root "android") :app:assembleDebug --rerun-tasks --console=plain
   if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+  $outputDir = Join-Path $root "outputs"
+  New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
+  Copy-Item -LiteralPath (Join-Path $root "android\app\build\outputs\apk\debug\app-debug.apk") -Destination (Join-Path $outputDir "idlewuxia-debug.apk") -Force
 
   & node (Join-Path $root "tools\audit-android-debug.mjs")
   exit $LASTEXITCODE
