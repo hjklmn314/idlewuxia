@@ -27,5 +27,5 @@ jobs:
       - name: Validate R0 scope and active runtime
         run: npm run task:preflight
 
-      - name: Build scoped web closure
-        run: npm run build:web
+      - name: Build, sync, and verify three-layer web freshness
+        run: npm run android:sync

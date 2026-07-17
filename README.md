@@ -9,6 +9,8 @@ npm run start
 npm run task:preflight
 npm run baseline:build
 npm run build:web
+npm run android:sync
+npm run web:freshness
 npm run android:identity
 npm run wuxia:check:fast
 ```
@@ -21,6 +23,11 @@ R0 gate and release procedure.
 `config/android_identity_contract.json` is the single source of truth for the
 Capacitor and Android application identity. See `ANDROID_IDENTITY.md` before
 changing the package name, Java path, app label, launcher, or debug suffix.
+
+`config/web_bundle_contract.json` defines the source, `www`, and Android
+asset roots plus the explicit Capacitor-generated file allowlist. Run
+`npm run android:sync` to rebuild, sync, and SHA-256-check the complete chain.
+See `WEB_BUNDLE_FRESHNESS.md` for the transform and acceptance rules.
 
 ## Repository scope
 

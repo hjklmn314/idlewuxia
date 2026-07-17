@@ -1,0 +1,24 @@
+{
+  "$schema": "idlewuxia.web_bundle_contract.v1",
+  "manifestSchema": "idlewuxia.web_bundle_manifest.v1",
+  "hashAlgorithm": "sha256",
+  "sourceRoot": ".",
+  "webRoot": "www",
+  "androidAssetsRoot": "android/app/src/main/assets/public",
+  "manifestPath": "outputs/web_bundle_freshness/web_bundle_manifest.json",
+  "reportPath": "outputs/web_bundle_freshness/web_bundle_freshness_report.md",
+  "platformGeneratedFiles": [
+    {
+      "path": "cordova.js",
+      "producer": "@capacitor/cli",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "cordova_plugins.js",
+      "producer": "@capacitor/cli",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

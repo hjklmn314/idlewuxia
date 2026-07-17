@@ -76,6 +76,13 @@ evidence and config contracts before code or UI work.
   of truth. Capacitor, Gradle, Java/test packages, Android string resources,
   mobile-shell validation, and APK audit must match it. Run
   `npm run android:identity` after any Android identity or path change.
+- `config\web_bundle_contract.json` and `config\project_scope.json`
+  jointly define the source -> `www` -> Android asset freshness contract.
+  Direct-copy files must retain their source hash; sanitized JSON must match its
+  deterministic transformed hash; `www` and Android bytes must always match.
+  Only explicitly declared Capacitor-generated files may exist outside
+  `shippingFiles`. Run `npm run android:sync` after any shipping,
+  sanitization, Capacitor, or Android asset change.
 - `npm run wuxia:validate:first-session:runtime` is the portable repository
   gate and must not require ignored competitor files. The existing
   `npm run wuxia:validate:first-session` remains the stronger development
