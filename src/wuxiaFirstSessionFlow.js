@@ -741,6 +741,11 @@ export function createFirstSessionRuntime(contract, options = {}) {
         : [],
       selectedInteractableId: selectedChapterInteractableId,
       selectedInteractable: selectedChapterInteractableId ? clone(interactableMap.get(selectedChapterInteractableId) || null) : null,
+      selectedInteractableActionAvailability: selectedChapterInteractableId
+        ? (interactableMap.get(selectedChapterInteractableId)?.actions || []).map((action) => (
+          interactableActionAvailability(interactableMap.get(selectedChapterInteractableId), action.actionType)
+        ))
+        : [],
       hiddenEntityIds: [...hiddenEntityIds].sort(),
       dynamicEntityIdsByRoom: Object.fromEntries([...addedEntityIdsByRoom.entries()].map(([roomId, set]) => [roomId, [...set].sort()])),
       replacementEntityById: Object.fromEntries([...replacementEntityById.entries()].sort(([left], [right]) => left.localeCompare(right))),
@@ -1076,6 +1081,39 @@ export function createFirstSessionRuntime(contract, options = {}) {
       )));
   }
 
+  function configuredBranchAvailability(candidateBranches, context = {}, emptyEvidenceLevel = "no_explicit_action_condition") {
+    if (!candidateBranches.length) {
+      return {
+        available: true,
+        reason: "",
+        checks: [],
+        evidenceLevel: emptyEvidenceLevel,
+      };
+    }
+    const evaluations = candidateBranches.map((branch) => ({
+      branch,
+      evaluation: branchConditionsMet(branch, context),
+    }));
+    const accepted = evaluations.find(({ evaluation }) => evaluation.accepted);
+    if (accepted) {
+      return {
+        available: true,
+        reason: "",
+        checks: clone(accepted.evaluation.checks || []),
+        conditionTokens: clone(accepted.branch.conditionTokens || []),
+        evidenceLevel: accepted.branch.evidenceLevel || "config_confirmed",
+      };
+    }
+    const first = evaluations[0];
+    return {
+      available: false,
+      reason: "configured action conditions are not met",
+      checks: clone(first?.evaluation?.checks || []),
+      conditionTokens: clone(first?.branch?.conditionTokens || []),
+      evidenceLevel: first?.branch?.evidenceLevel || "config_confirmed",
+    };
+  }
+
   function npcActionAvailability(npc, actionType) {
     const action = (npc?.actions || []).find((item) => item.actionType === actionType);
     if (!action) return { actionType, available: false, reason: "npc action unavailable", checks: [] };
@@ -1086,41 +1124,16 @@ export function createFirstSessionRuntime(contract, options = {}) {
     const candidateBranches = exactBranches.length
       ? exactBranches
       : (actionType === "talk" ? talkBranches(npc) : []);
-    if (!candidateBranches.length) {
-      return {
-        actionType,
-        available: true,
-        reason: "",
-        checks: [],
-        evidenceLevel: combatPolicy ? "config_confirmed_combat_policy" : "no_explicit_action_condition",
-      };
-    }
     const combatOutcomeTokens = combatPolicy
       ? [combatPolicy.successConditionToken, combatPolicy.failureConditionToken, combatPolicy.runawayConditionToken].filter(Boolean)
       : [];
-    const evaluations = candidateBranches.map((branch) => ({
-      branch,
-      evaluation: branchConditionsMet(branch, { actionType, ignoreConditionTokens: combatOutcomeTokens }),
-    }));
-    const accepted = evaluations.find(({ evaluation }) => evaluation.accepted);
-    if (accepted) {
-      return {
-        actionType,
-        available: true,
-        reason: "",
-        checks: clone(accepted.evaluation.checks || []),
-        conditionTokens: clone(accepted.branch.conditionTokens || []),
-        evidenceLevel: accepted.branch.evidenceLevel || "config_confirmed",
-      };
-    }
-    const first = evaluations[0];
     return {
       actionType,
-      available: false,
-      reason: "configured action conditions are not met",
-      checks: clone(first?.evaluation?.checks || []),
-      conditionTokens: clone(first?.branch?.conditionTokens || []),
-      evidenceLevel: first?.branch?.evidenceLevel || "config_confirmed",
+      ...configuredBranchAvailability(
+        candidateBranches,
+        { actionType, ignoreConditionTokens: combatOutcomeTokens },
+        combatPolicy ? "config_confirmed_combat_policy" : "no_explicit_action_condition",
+      ),
     };
   }
 
@@ -1222,11 +1235,26 @@ export function createFirstSessionRuntime(contract, options = {}) {
   function branchForInteractableAction(item, actionType) {
     const branches = (item?.branches || []).filter(branchEnabledInFirstSession);
     const exactBranches = branches.filter((branch) => (branch.actionHints || []).includes(actionType));
-    return exactBranches.find((branch) => branchConditionsMet(branch, { actionType }).accepted)
-      || exactBranches[0]
-      || branches.find((branch) => branch.narrativeLines?.length)
-      || branches[0]
+    const exact = exactBranches.find((branch) => branchConditionsMet(branch, { actionType }).accepted);
+    if (exact || exactBranches.length) return exact || null;
+    return branches.find((branch) => (
+      branch.narrativeLines?.length
+      && branchConditionsMet(branch, { actionType }).accepted
+    ))
+      || branches.find((branch) => branchConditionsMet(branch, { actionType }).accepted)
       || null;
+  }
+
+  function interactableActionAvailability(item, actionType) {
+    const action = (item?.actions || []).find((candidate) => candidate.actionType === actionType);
+    if (!action) return { actionType, available: false, reason: "interactable action unavailable", checks: [] };
+    const exactBranches = (item?.branches || [])
+      .filter(branchEnabledInFirstSession)
+      .filter((branch) => (branch.actionHints || []).includes(actionType));
+    return {
+      actionType,
+      ...configuredBranchAvailability(exactBranches, { actionType }),
+    };
   }
 
   function interactWithChapterNpc(roleId, actionType = "talk") {
@@ -1338,6 +1366,21 @@ export function createFirstSessionRuntime(contract, options = {}) {
     const action = (item.actions || []).find((candidate) => candidate.actionType === actionType);
     if (!action) {
       const event = { type: "interactableInteractionRejected", interactableId, actionType, reason: "interactable action unavailable" };
+      events.push(event);
+      return { accepted: false, event, snapshot: snapshot() };
+    }
+    const availability = interactableActionAvailability(item, actionType);
+    if (!availability.available) {
+      const event = {
+        type: "interactableInteractionRejected",
+        interactableId,
+        actionType,
+        reason: availability.reason,
+        feedback: availability.reason,
+        conditionTokens: clone(availability.conditionTokens || []),
+        conditionChecks: clone(availability.checks || []),
+        evidenceLevel: availability.evidenceLevel || "config_confirmed",
+      };
       events.push(event);
       return { accepted: false, event, snapshot: snapshot() };
     }
