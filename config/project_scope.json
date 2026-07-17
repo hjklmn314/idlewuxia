@@ -6,10 +6,13 @@
   "activeRuntimeFiles": [
     "index.html",
     "src/styles.css",
+    "src/dataClone.js",
+    "src/runtimePersistence.js",
     "src/wuxia-main.js",
     "src/wuxiaFirstSessionFlow.js"
   ],
   "activeConfigFiles": [
+    "config/runtime_persistence_contract.json",
     "config/wuxia_first_session_flow.json",
     "config/wuxia_first_session_screen_contract.json"
   ],
@@ -19,14 +22,18 @@
   "shippingFiles": [
     "index.html",
     "src/styles.css",
+    "src/dataClone.js",
+    "src/runtimePersistence.js",
     "src/wuxia-main.js",
     "src/wuxiaFirstSessionFlow.js",
+    "config/runtime_persistence_contract.json",
     "config/wuxia_first_session_flow.json",
     "config/wuxia_first_session_screen_contract.json",
     "public/wuxia-brand/icon.svg"
   ],
   "shippingSanitization": {
     "jsonFiles": [
+      "config/runtime_persistence_contract.json",
       "config/wuxia_first_session_flow.json",
       "config/wuxia_first_session_screen_contract.json"
     ],

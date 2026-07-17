@@ -26,7 +26,7 @@ The formal chain is:
 
 The manifest must belong to the current commit. Its generation time must not be
 later than the APK build time, and the audit generation time must not be earlier
-than the APK. All seven product assets and both declared Capacitor-generated
+than the APK. All scope-declared product assets and both Capacitor-generated
 assets are hashed from the extracted APK. Any undeclared file under
 `assets/public` is blocking.
 
@@ -60,6 +60,6 @@ outputs/idlewuxia-debug.apk
 
 T01-03 is complete only when the JSON report has `status=pass`,
 `formalAudit.ready=true`, the report and manifest revisions match the
-current clean commit, product hashes are `7/7`, platform hashes are
+current clean commit, every product hash matches, platform hashes are
 `2/2`, evidence timestamps are ordered, unexpected assets are zero, and
 findings are zero. This does not replace T01-04 device acceptance.

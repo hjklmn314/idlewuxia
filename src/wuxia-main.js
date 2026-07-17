@@ -1,13 +1,18 @@
 ﻿import { createFirstSessionRuntime, summarizeFirstSessionContract } from "./wuxiaFirstSessionFlow.js";
+import { cloneData } from "./dataClone.js";
+import { createRuntimePersistence } from "./runtimePersistence.js";
 
 const CONFIG_FILES = {
   wuxiaFirstSessionFlow: "./config/wuxia_first_session_flow.json",
   wuxiaScreenContract: "./config/wuxia_first_session_screen_contract.json",
+  wuxiaRuntimePersistence: "./config/runtime_persistence_contract.json",
 };
 
 const state = {
   config: null,
   runtime: null,
+  persistence: null,
+  persistenceLifecycleInstalled: false,
   combatPlayback: {
     key: "",
     startedAt: 0,
@@ -180,8 +185,8 @@ function currentCombatElapsedMs(snapshot, preview) {
 }
 
 function replayCombatUnits(preview, visibleEvents) {
-  const left = structuredClone(preview.units?.left || {});
-  const right = structuredClone(preview.units?.right || {});
+  const left = cloneData(preview.units?.left || {});
+  const right = cloneData(preview.units?.right || {});
   for (const event of visibleEvents) {
     const value = Number(event?.value || 0);
     if (value >= 0) continue;
@@ -224,7 +229,7 @@ function renderCombatRuntime(block, flowContract, snapshot) {
 
 function chapterNodeTypeLabel(nodeType, block) {
   const configured = block?.nodeTypeLabels?.[nodeType];
-  return configured || String(nodeType || "").replaceAll("_", " ");
+  return configured || String(nodeType || "").replace(/_/g, " ");
 }
 
 function isPlayerVisibleChapterNode(node) {
@@ -767,7 +772,8 @@ function renderScreenBody(screen, screenContract, flowContract, snapshot) {
   const available = snapshot?.availableActions || [];
   const primaryActionId = screen.primaryActionId || available[0]?.actionId || "";
   const secondaryActionId = screen.secondaryActionId || available[1]?.actionId || "";
-  const lastEvent = snapshot?.events?.at(-1);
+  const runtimeEvents = snapshot?.events || [];
+  const lastEvent = runtimeEvents[runtimeEvents.length - 1];
   const feedback = lastEvent?.feedback || "";
   const feedbackInScreenLog = (screen.body || []).some((block) => block.type === "roomExplore");
   const primary = screen.primaryText
@@ -952,6 +958,17 @@ function applyMobileLayout(layout = {}) {
   document.body.dataset.wuxiaSafeArea = String(Boolean(layout.safeArea?.enabled));
 }
 
+function installPersistenceLifecycle(contract = {}) {
+  if (state.persistenceLifecycleInstalled) return;
+  state.persistenceLifecycleInstalled = true;
+  for (const eventName of contract.autosave?.lifecycleEvents || []) {
+    window.addEventListener(eventName, () => {
+      if (eventName === "visibilitychange" && document.visibilityState !== "hidden") return;
+      state.persistence?.flush();
+    });
+  }
+}
+
 function syncCombatPlayback(snapshot, screen, flowContract) {
   const block = (screen.body || []).find((entry) => entry.type === "combatRuntime");
   if (!block) {
@@ -1019,6 +1036,12 @@ function installAutomationApi() {
     snapshot() {
       return state.runtime?.snapshot();
     },
+    persistenceStatus() {
+      return state.persistence?.status() || { status: "unavailable" };
+    },
+    clearSave() {
+      return state.persistence?.clear() || { status: "unavailable" };
+    },
   };
 }
 
@@ -1076,10 +1099,25 @@ async function init() {
     document.body.classList.add("wuxia-mode");
     state.config = await loadConfig();
     applyMobileLayout(state.config.wuxiaScreenContract?.mobileLayout || {});
-    state.runtime = createFirstSessionRuntime(state.config.wuxiaFirstSessionFlow, {
+    let storage = null;
+    try {
+      storage = window.localStorage;
+    } catch {
+      storage = null;
+    }
+    const persistenceController = createRuntimePersistence({
+      storage,
+      contract: state.config.wuxiaRuntimePersistence,
+    });
+    const restored = persistenceController.restore(state.config.wuxiaFirstSessionFlow?.schema || "");
+    const attached = persistenceController.attach(createFirstSessionRuntime(state.config.wuxiaFirstSessionFlow, {
       initialState: state.config.wuxiaScreenContract?.defaultStartState,
       initialFlags: state.config.wuxiaScreenContract?.defaultStartFlags,
-    });
+      initialSaveState: restored.state,
+    }));
+    state.persistence = attached;
+    state.runtime = attached.runtime;
+    installPersistenceLifecycle(state.config.wuxiaRuntimePersistence);
     installAutomationApi();
     console.info("Wuxia first-session contract", summarizeFirstSessionContract(state.config.wuxiaFirstSessionFlow));
     render();

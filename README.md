@@ -1,4 +1,4 @@
-﻿# idlewuxia
+# idlewuxia
 
 Data-driven vertical Wuxia idle RPG prototype. Competitor research and restored Fangzhi Jianghu evidence are development evidence only and are excluded from the shipping runtime.
 
@@ -14,6 +14,7 @@ npm run web:freshness
 npm run android:identity
 npm run android:debug
 npm run android:audit:wuxia
+npm run device:validate -- --adb <adb-path> --serial <device-serial>
 npm run wuxia:check:fast
 ```
 
@@ -32,9 +33,18 @@ asset roots plus the explicit Capacitor-generated file allowlist. Run
 See `WEB_BUNDLE_FRESHNESS.md` for the transform and acceptance rules.
 
 `npm run android:audit:wuxia` is the clean-revision APK traceability
-gate. It hashes the seven product assets and two Capacitor-generated assets
+gate. It hashes every scope-declared product asset and both Capacitor-generated assets
 from the real APK and binds them to the current Git commit and Web manifest.
 See `ANDROID_APK_AUDIT.md` for evidence ordering and formal acceptance.
+
+`config/runtime_persistence_contract.json` owns the versioned save envelope,
+storage key, retained event limit, and lifecycle autosave policy. Runtime code
+exports only mutable first-session state; `src/runtimePersistence.js` owns
+restore, compatibility rejection, storage isolation, and autosave wrapping.
+
+`config/android_device_acceptance_contract.json` owns the 540x960 reference
+aspect, player action, and lifecycle expectations. See
+`ANDROID_DEVICE_ACCEPTANCE.md` for the reproducible T01-04 device gate.
 
 ## Repository scope
 
@@ -43,11 +53,11 @@ build tooling, native project text files, and project Markdown. Restored
 competitor evidence, APKs, databases, generated outputs, reference captures,
 and generated media remain local and are intentionally excluded from Git.
 
-The runtime loads only the two active first-session contracts declared in the
-scope file. The web build copies an explicit seven-file allowlist; it does not
+The runtime loads only the active first-session contracts declared in the
+scope file. The web build materializes an explicit shipping allowlist; it does not
 copy the complete `src/`, `config/`, or `public/` trees. Development evidence
 stays in source JSON for auditability; the build recursively removes local and
-competitor evidence paths from the two shipping JSON files.
+competitor evidence paths from all shipping JSON files.
 
 ## Git workflow
 

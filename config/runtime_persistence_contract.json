@@ -1,0 +1,16 @@
+{
+  "$schema": "idlewuxia.runtime_persistence_contract.v1",
+  "envelopeSchema": "idlewuxia.runtime_save_envelope.v1",
+  "stateSchema": "idlewuxia.first_session_runtime_save.v1",
+  "schemaVersion": 1,
+  "storageKey": "idlewuxia.first_session.save.v1",
+  "maxSavedEvents": 64,
+  "autosave": {
+    "afterRuntimeMutation": true,
+    "lifecycleEvents": [
+      "visibilitychange",
+      "pagehide"
+    ]
+  },
+  "recoveryPolicy": "ignore_invalid_or_incompatible_save"
+}

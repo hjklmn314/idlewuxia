@@ -1,4 +1,6 @@
-﻿function resolveActiveChapter(contract, options = {}) {
+﻿import { cloneData } from "./dataClone.js";
+
+function resolveActiveChapter(contract, options = {}) {
   return (
     options.initialChapter
     || contract?.activeChapter
@@ -37,38 +39,54 @@ export function createFirstSessionRuntime(contract, options = {}) {
   const seasonalActivityPolicy = resultEffectPolicies.seasonalActivity || {};
   const chapterClearPolicy = contract?.chapterSystem?.chapterClearPolicy || {};
   const chapterClearChapters = chapterClearPolicy.chapters || {};
-  const flags = new Set(options.initialFlags || ["new_install_or_new_save"]);
-  let currentState = options.initialState || contract?.states?.[0]?.stateId || "";
-  let selectedChapterNodeId = "";
-  let selectedChapterRoomId = "";
-  let selectedChapterNpcId = "";
-  let selectedChapterInteractableId = "";
-  const events = [];
-  const player = structuredClone(options.initialPlayer || contract?.playerSeed || {});
-  player.inventory = structuredClone(player.inventory || {});
-  player.skillExp = structuredClone(player.skillExp || {});
-  player.skillLevels = structuredClone(player.skillLevels || player.skills || {});
-  player.inheritableMarkers = structuredClone(player.inheritableMarkers || {});
-  player.timeMarkers = structuredClone(player.timeMarkers || {});
-  player.timedMarkers = structuredClone(player.timedMarkers || {});
-  player.meritLedger = structuredClone(player.meritLedger || []);
-  player.chapterClearLedger = structuredClone(player.chapterClearLedger || []);
+  const candidateSaveState = options.initialSaveState || null;
+  const saveState = candidateSaveState
+    && candidateSaveState.runtimeSchema === (contract?.schema || "")
+    && (!candidateSaveState.chapterId || candidateSaveState.chapterId === (activeChapter?.chapterId || ""))
+    ? candidateSaveState
+    : {};
+  const initialFlags = Array.isArray(saveState.flags)
+    ? saveState.flags
+    : (options.initialFlags || ["new_install_or_new_save"]);
+  const flags = new Set(initialFlags);
+  const requestedState = saveState.currentState || options.initialState || contract?.states?.[0]?.stateId || "";
+  let currentState = states.has(requestedState) ? requestedState : (options.initialState || contract?.states?.[0]?.stateId || "");
+  let selectedChapterNodeId = nodeMap.has(saveState.selectedChapterNodeId) ? saveState.selectedChapterNodeId : "";
+  let selectedChapterRoomId = roomMap.has(saveState.selectedChapterRoomId) ? saveState.selectedChapterRoomId : "";
+  let selectedChapterNpcId = npcMap.has(saveState.selectedChapterNpcId) ? saveState.selectedChapterNpcId : "";
+  let selectedChapterInteractableId = interactableMap.has(saveState.selectedChapterInteractableId) ? saveState.selectedChapterInteractableId : "";
+  const events = cloneData(Array.isArray(saveState.events) ? saveState.events : []);
+  const player = cloneData(saveState.player || options.initialPlayer || contract?.playerSeed || {});
+  player.inventory = cloneData(player.inventory || {});
+  player.skillExp = cloneData(player.skillExp || {});
+  player.skillLevels = cloneData(player.skillLevels || player.skills || {});
+  player.inheritableMarkers = cloneData(player.inheritableMarkers || {});
+  player.timeMarkers = cloneData(player.timeMarkers || {});
+  player.timedMarkers = cloneData(player.timedMarkers || {});
+  player.meritLedger = cloneData(player.meritLedger || []);
+  player.chapterClearLedger = cloneData(player.chapterClearLedger || []);
   if (player.officialType === undefined) player.officialType = 0;
   if (player.officialAchievement === undefined) player.officialAchievement = 0;
   if (player.yueli === undefined) player.yueli = 0;
   const taskState = {
     activeTaskId: "",
     completedClicks: 0,
-    ...(options.initialTaskState || {}),
+    ...(saveState.taskState || options.initialTaskState || {}),
   };
-  const hiddenEntityIds = new Set(options.initialHiddenEntityIds || []);
+  const hiddenEntityIds = new Set(saveState.hiddenEntityIds || options.initialHiddenEntityIds || []);
   const addedEntityIdsByRoom = new Map();
+  for (const [roomId, entityIds] of Object.entries(saveState.addedEntityIdsByRoom || {})) {
+    addedEntityIdsByRoom.set(roomId, new Set(entityIds || []));
+  }
   const replacementEntityById = new Map();
-  const mapMarkers = { ...(options.initialMapMarkers || {}) };
-  let pendingCombat = null;
+  for (const [entityId, replacementId] of Object.entries(saveState.replacementEntityById || {})) {
+    replacementEntityById.set(entityId, replacementId);
+  }
+  const mapMarkers = { ...(saveState.mapMarkers || options.initialMapMarkers || {}) };
+  let pendingCombat = cloneData(saveState.pendingCombat || null);
 
   function clone(value) {
-    return structuredClone(value);
+    return cloneData(value);
   }
 
   function applyNumericDeltas(target, deltas = {}) {
@@ -744,6 +762,28 @@ export function createFirstSessionRuntime(contract, options = {}) {
     };
   }
 
+  function exportSaveState() {
+    return {
+      $schema: "idlewuxia.first_session_runtime_save.v1",
+      runtimeSchema: contract?.schema || "",
+      chapterId: activeChapter?.chapterId || "",
+      currentState,
+      flags: [...flags].sort(),
+      player: clone(player),
+      taskState: clone(taskState),
+      selectedChapterNodeId,
+      selectedChapterRoomId,
+      selectedChapterNpcId,
+      selectedChapterInteractableId,
+      hiddenEntityIds: [...hiddenEntityIds].sort(),
+      addedEntityIdsByRoom: Object.fromEntries([...addedEntityIdsByRoom.entries()].map(([roomId, set]) => [roomId, [...set].sort()])),
+      replacementEntityById: Object.fromEntries([...replacementEntityById.entries()].sort(([left], [right]) => left.localeCompare(right))),
+      mapMarkers: clone(mapMarkers),
+      pendingCombat: clone(pendingCombat),
+      events: clone(events),
+    };
+  }
+
   function dispatch(actionId) {
     const action = actions.get(actionId);
     if (!action) {
@@ -1337,6 +1377,7 @@ export function createFirstSessionRuntime(contract, options = {}) {
 
   return {
     snapshot,
+    exportSaveState,
     dispatch,
     selectChapterNode,
     selectChapterRoom,
@@ -1362,5 +1403,4 @@ export function summarizeFirstSessionContract(contract) {
     rewards: activeChapter?.rewards?.length || 0,
   };
 }
-
 

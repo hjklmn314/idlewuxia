@@ -1,0 +1,33 @@
+{
+  "$schema": "idlewuxia.android_device_acceptance_contract.v1",
+  "identityContract": "config/android_identity_contract.json",
+  "referenceViewport": {
+    "width": 540,
+    "height": 960,
+    "aspectTolerance": 0.002
+  },
+  "initialState": "STATE_FS_001_OPENING_STORY",
+  "initialScreen": "UI_OpeningStory",
+  "playerAction": {
+    "label": "武学世家",
+    "tapRatio": {
+      "x": 0.277778,
+      "y": 0.442708
+    },
+    "expectedState": "STATE_FS_001_ORIGIN_RESULT",
+    "expectedScreen": "UI_OpeningOriginResult",
+    "expectedOrigin": "武学世家"
+  },
+  "settleMs": {
+    "coldStart": 3500,
+    "lifecycle": 1500,
+    "forceStop": 3000
+  },
+  "crashPatterns": [
+    "FATAL EXCEPTION",
+    "ANR in com.idlewuxia.app.debug",
+    "net::ERR_",
+    "Uncaught ReferenceError",
+    "Uncaught TypeError"
+  ]
+}
