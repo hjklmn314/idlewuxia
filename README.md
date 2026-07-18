@@ -45,9 +45,13 @@ exports only mutable first-session state; `src/runtimePersistence.js` owns
 restore, compatibility rejection, storage isolation, and autosave wrapping.
 
 `npm run runtime:condition-negative` is the T02-01 interactable branch gate.
-It covers exact and unhinted fallback branches, proves that an unmet configured
-condition is explicitly rejected without changing any observable runtime state,
-keeps missing evidence at `unknown`, and verifies that the corresponding
+It covers exact and unhinted fallback branches, exact-versus-fallback conflicts,
+multiple simultaneously satisfied branches, repeat attempts, save restoration,
+and the Web item-panel presentation. An unmet configured condition must append
+one rejection audit event while leaving every other observable runtime field
+unchanged. Availability and execution consume the same selected branch;
+missing evidence remains `unknown`; the Web UI disables unavailable actions,
+shows the requirement, and renders rejection feedback. The corresponding
 satisfied branch still executes. `npm run runtime:first-session-simulator:test`
 guards the real first-session action order and distinguishes the intentional
 locked-action rejection from unexpected failures or acceptances.

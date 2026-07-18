@@ -3542,13 +3542,15 @@ body.wuxia-mode #app {
   font-weight: 950;
 }
 
-.wuxia-npc-action {
+.wuxia-npc-action,
+.wuxia-item-action {
   display: grid;
   align-content: center;
   gap: 2px;
 }
 
-.wuxia-npc-action small {
+.wuxia-npc-action small,
+.wuxia-item-action small {
   display: block;
   overflow: hidden;
   font-size: 10px;
@@ -3558,10 +3560,13 @@ body.wuxia-mode #app {
   white-space: nowrap;
 }
 
-.wuxia-npc-action.is-locked {
+.wuxia-npc-action.is-locked,
+.wuxia-item-action.is-locked {
   border-color: #6f594d;
   background: linear-gradient(180deg, #c2b6a2, #8a806f);
   color: #4b3e38;
+  cursor: not-allowed;
+  opacity: 0.82;
 }
 
 .wuxia-npc-dialogue {

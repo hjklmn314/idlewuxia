@@ -381,7 +381,7 @@ function roomObjects(room, flowContract, snapshot) {
     .filter(Boolean);
 }
 
-function lastNpcLog(snapshot, room, block = {}) {
+export function lastNpcLog(snapshot, room, block = {}) {
   const lastEvent = [...(snapshot?.events || [])].reverse().find((event) => (
     event.type === "combatResolved"
     || event.type === "combatResolutionRejected"
@@ -389,6 +389,7 @@ function lastNpcLog(snapshot, room, block = {}) {
     || event.type === "npcInteractionRejected"
     || event.type === "npcSelected"
     || event.type === "interactableInteraction"
+    || event.type === "interactableInteractionRejected"
     || event.type === "interactableSelected"
     || event.type === "roomSelected"
   ));
@@ -399,7 +400,9 @@ function lastNpcLog(snapshot, room, block = {}) {
   if (lastEvent?.type === "npcSelected") {
     return [`你选择了${lastEvent.name || "对方"}。`];
   }
-  if (lastEvent?.type === "interactableInteraction") return lastEvent.feedbackLines || [lastEvent.feedback].filter(Boolean);
+  if (lastEvent?.type === "interactableInteraction" || lastEvent?.type === "interactableInteractionRejected") {
+    return lastEvent.feedbackLines || [lastEvent.feedback || lastEvent.reason].filter(Boolean);
+  }
   if (lastEvent?.type === "interactableSelected") {
     return lastEvent.description
       ? [lastEvent.description]
@@ -451,8 +454,11 @@ function renderNpcPanel(npc, snapshot) {
   `;
 }
 
-function renderItemPanel(item) {
+export function renderItemPanel(item, snapshot) {
   if (!item) return "";
+  const availabilityByAction = new Map(
+    (snapshot?.chapter?.selectedInteractableActionAvailability || []).map((entry) => [entry.actionType, entry]),
+  );
   return `
     <section class="wuxia-npc-panel wuxia-item-panel" data-testid="room-item-panel" aria-live="polite">
       <header>
@@ -461,11 +467,16 @@ function renderItemPanel(item) {
       </header>
       ${item.description ? `<p>${escapeHtml(item.description)}</p>` : ""}
       <div class="wuxia-npc-actions">
-        ${(item.actions || []).map((action) => `
-          <button type="button" class="wuxia-item-action" data-testid="room-item-action" data-wuxia-interactable-id="${escapeHtml(item.interactableId)}" data-wuxia-interactable-action="${escapeHtml(action.actionType)}">
-            ${escapeHtml(action.label)}
-          </button>
-        `).join("")}
+        ${(item.actions || []).map((action) => {
+          const availability = availabilityByAction.get(action.actionType) || { available: true };
+          const requirement = conditionRequirementText(availability);
+          const locked = !availability.available;
+          return `
+            <button type="button" class="wuxia-item-action ${locked ? "is-locked" : ""}" data-testid="room-item-action" data-wuxia-interactable-id="${escapeHtml(item.interactableId)}" data-wuxia-interactable-action="${escapeHtml(action.actionType)}" aria-disabled="${locked}" title="${escapeHtml(requirement)}"${locked ? " disabled" : ""}>
+              <span>${escapeHtml(action.label)}</span>${requirement ? `<small>${escapeHtml(requirement)}</small>` : ""}
+            </button>
+          `;
+        }).join("")}
       </div>
     </section>
   `;
@@ -543,7 +554,7 @@ function renderRoomExplore(block, flowContract, snapshot) {
         </div>
       </section>
       ${renderNpcPanel(selectedNpc, snapshot)}
-      ${renderItemPanel(selectedItem)}
+      ${renderItemPanel(selectedItem, snapshot)}
       <section class="wuxia-room-log" data-testid="room-log">
         ${logLines.map((line) => `<p>${escapeHtml(line)}</p>`).join("")}
       </section>
@@ -914,8 +925,7 @@ function selectItemFromUi(interactableId) {
 
 function interactItemFromUi(interactableId, actionType) {
   if (!interactableId || !actionType) return;
-  const result = state.runtime.interactWithChapterInteractable(interactableId, actionType);
-  if (!result.accepted) return;
+  state.runtime.interactWithChapterInteractable(interactableId, actionType);
   render();
 }
 
@@ -1127,5 +1137,5 @@ async function init() {
   }
 }
 
-init();
+if (typeof document !== "undefined") init();
 

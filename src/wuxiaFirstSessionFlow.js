@@ -1085,9 +1085,10 @@ export function createFirstSessionRuntime(contract, options = {}) {
       )));
   }
 
-  function configuredBranchAvailability(candidateBranches, context = {}, sourceEvidenceLevel = "unknown") {
+  function configuredBranchDecision(candidateBranches, context = {}, sourceEvidenceLevel = "unknown") {
     if (!candidateBranches.length) {
       return {
+        branch: null,
         available: true,
         reason: "",
         checks: [],
@@ -1101,6 +1102,7 @@ export function createFirstSessionRuntime(contract, options = {}) {
     const accepted = evaluations.find(({ evaluation }) => evaluation.accepted);
     if (accepted) {
       return {
+        branch: accepted.branch,
         available: true,
         reason: "",
         checks: clone(accepted.evaluation.checks || []),
@@ -1110,6 +1112,7 @@ export function createFirstSessionRuntime(contract, options = {}) {
     }
     const first = evaluations[0];
     return {
+      branch: null,
       available: false,
       reason: "configured action conditions are not met",
       checks: clone(first?.evaluation?.checks || []),
@@ -1137,13 +1140,14 @@ export function createFirstSessionRuntime(contract, options = {}) {
       npc?.evidence?.level,
       combatPolicy?.evidence?.level,
     );
+    const { branch: _branch, ...availability } = configuredBranchDecision(
+      candidateBranches,
+      { actionType, ignoreConditionTokens: combatOutcomeTokens },
+      sourceEvidenceLevel,
+    );
     return {
       actionType,
-      ...configuredBranchAvailability(
-        candidateBranches,
-        { actionType, ignoreConditionTokens: combatOutcomeTokens },
-        sourceEvidenceLevel,
-      ),
+      ...availability,
     };
   }
 
@@ -1249,17 +1253,7 @@ export function createFirstSessionRuntime(contract, options = {}) {
     return branches.filter((branch) => !(branch.actionHints || []).length);
   }
 
-  function branchForInteractableAction(item, actionType) {
-    const candidateBranches = interactableBranchesForAction(item, actionType);
-    return candidateBranches.find((branch) => (
-      branch.narrativeLines?.length
-      && branchConditionsMet(branch, { actionType }).accepted
-    ))
-      || candidateBranches.find((branch) => branchConditionsMet(branch, { actionType }).accepted)
-      || null;
-  }
-
-  function interactableActionAvailability(item, actionType) {
+  function interactableActionDecision(item, actionType) {
     const action = (item?.actions || []).find((candidate) => candidate.actionType === actionType);
     if (!action) return { actionType, available: false, reason: "interactable action unavailable", checks: [] };
     const candidateBranches = interactableBranchesForAction(item, actionType);
@@ -1270,8 +1264,13 @@ export function createFirstSessionRuntime(contract, options = {}) {
     );
     return {
       actionType,
-      ...configuredBranchAvailability(candidateBranches, { actionType }, sourceEvidenceLevel),
+      ...configuredBranchDecision(candidateBranches, { actionType }, sourceEvidenceLevel),
     };
+  }
+
+  function interactableActionAvailability(item, actionType) {
+    const { branch: _branch, ...availability } = interactableActionDecision(item, actionType);
+    return availability;
   }
 
   function interactWithChapterNpc(roleId, actionType = "talk") {
@@ -1392,24 +1391,24 @@ export function createFirstSessionRuntime(contract, options = {}) {
       events.push(event);
       return { accepted: false, event, snapshot: snapshot() };
     }
-    const availability = interactableActionAvailability(item, actionType);
-    if (!availability.available) {
+    const decision = interactableActionDecision(item, actionType);
+    if (!decision.available) {
       const event = {
         type: "interactableInteractionRejected",
         interactableId,
         actionType,
-        reason: availability.reason,
-        feedback: availability.reason,
-        conditionTokens: clone(availability.conditionTokens || []),
-        conditionChecks: clone(availability.checks || []),
-        evidenceLevel: evidenceLevelOrUnknown(availability.evidenceLevel),
+        reason: decision.reason,
+        feedback: decision.reason,
+        conditionTokens: clone(decision.conditionTokens || []),
+        conditionChecks: clone(decision.checks || []),
+        evidenceLevel: evidenceLevelOrUnknown(decision.evidenceLevel),
       };
       events.push(event);
       return { accepted: false, event, snapshot: snapshot() };
     }
     selectedChapterNpcId = "";
     selectedChapterInteractableId = interactableId;
-    const branch = branchForInteractableAction(item, actionType);
+    const branch = decision.branch;
     const interactableName = item.name || item.displayName?.zhCN || "\u7269\u4ef6";
     const fallbackLine = item.description
       ? `${interactableName}\uff1a${item.description}`
