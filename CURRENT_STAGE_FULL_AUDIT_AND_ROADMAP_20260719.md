@@ -626,3 +626,15 @@ ChoiceDefinition
 - 全 11 屏在三种目标尺寸的视觉质量；
 - 当前最终提交 APK 在真机上的冷启动、生命周期和返回键表现；
 - 自有美术、音频、商业化和正式签名发布链完成时间。
+
+## 2026-07-19 ARCH-001 续施工补充
+
+- 已完整阅读当前 1,938 行 Runtime、1,229 行 UI 控制器、现有辅助模块和 1,455 行直接相关测试。
+- `src/conditionEvaluator.js` 已作为 ARCH-001 切片 1 提取，显式接收定义和 Runtime 状态，保持无 mutation。
+- 旧 `createFirstSessionRuntime` facade、快照、事件和存档 DTO 未改变。
+- 新合同测试已按红灯到绿灯执行，并接入 `task:preflight` 与 `wuxia:check:fast`。
+- 条件负路径仍为 6/6、`negativeMutationCount=0`；Runtime integrity 13/13；Choice/Result 10/10；首局完整交互 PASS。
+- 真实 Edge `interaction-contract` 在 dev-server 就绪后完成 20 步、0 failures；首次未启动服务器的 `ERR_CONNECTION_REFUSED` 作为环境诊断保留，不冒充产品失败。
+- Android sync 与 Web bundle freshness PASS：12 个运输文件、0 unexpected、0 findings。
+- ARCH-001 仍为 `open`：Result、Navigation、Entity、ChapterSession 和 UI adapter 尚未全部拆分。
+- `T03-01` 继续等待 ARCH-001 完成；COMBAT-002 与 CombatSession 继续延期。

@@ -43,6 +43,10 @@
 
 `T03-01` 必须等待上述两项完成。所有 G5、G6、G7 工作不得跳过 G4 出口。
 
+ARCH-001 当前进度：ConditionEvaluator 切片已完成并接入回归门禁；Result、
+Navigation、Entity、ChapterSession facade 和 UI adapter 仍未完成，详见
+`ARCH-001_IMPLEMENTATION_RECORD_20260719.md`。因此任务状态保持 `open`。
+
 ## 状态更新规则
 
 - `done`：所有 acceptance 有当前 commit 绑定证据。

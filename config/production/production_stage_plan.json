@@ -356,7 +356,11 @@
         "Concrete chapter content remains in configuration.",
         "Existing snapshots and event semantics remain backward compatible."
       ],
-      "evidence": []
+      "evidence": [
+        "src/conditionEvaluator.js",
+        "tools/test-condition-evaluator.mjs",
+        "docs/codex_game_development_os/ARCH-001_IMPLEMENTATION_RECORD_20260719.md"
+      ]
     },
     {
       "id": "T03-00",

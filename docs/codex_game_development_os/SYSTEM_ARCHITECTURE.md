@@ -26,6 +26,11 @@ flowchart LR
 
 链路可运行，但 `B` 和 `D` 均为巨型模块。
 
+截至 2026-07-19，ARCH-001 切片 1 已把 Condition 解释器提取为
+`src/conditionEvaluator.js`。`wuxiaFirstSessionFlow.js` 仍作为兼容
+ChapterSession facade；Result、Navigation、Entity 和 UI adapter 尚未完成，
+因此 ARCH-001 仍为 `open`。
+
 ## 目标模块
 
 ```mermaid
@@ -84,8 +89,8 @@ flowchart TB
 
 ## ARCH-001 施工切片
 
-1. 先写 Characterization Tests，冻结 358 动作现有语义和存档 DTO。
-2. 提取纯函数 `ConditionEvaluator`，保持 token/arg 解释不变。
+1. 先写 Characterization Tests，冻结 358 动作现有语义和存档 DTO。（进行中）
+2. 提取纯函数 `ConditionEvaluator`，保持 token/arg 解释不变。（切片 1 已完成）
 3. 提取事务型 `EffectExecutor` 与 `ResultSet` 防循环合同。
 4. 提取 `NavigationService` 和 `EntityInteractionService`。
 5. 提取 `ChapterSession`，旧 `createWuxiaFirstSessionRuntime` 保留兼容 facade。

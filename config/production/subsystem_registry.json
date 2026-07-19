@@ -35,14 +35,15 @@
     {
       "id": "condition-evaluation",
       "owner": "configuration-driven-runtime",
-      "stateAuthority": "src/wuxiaFirstSessionFlow.js",
+      "stateAuthority": "src/conditionEvaluator.js",
       "runtimeModules": [
+        "src/conditionEvaluator.js",
         "src/wuxiaFirstSessionFlow.js"
       ],
       "configuration": [
         "config/wuxia_first_session_flow.json"
       ],
-      "status": "implemented-fail-closed",
+      "status": "modularized-v1-fail-closed",
       "nextTaskIds": [
         "T03-01"
       ]
