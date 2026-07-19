@@ -31030,6 +31030,30 @@
         "scopePolicy": "hidden_out_of_normal_first_session_until_activity_module_enabled",
         "evidenceLevel": "config_confirmed"
       },
+      "inventoryMutation": {
+        "schema": "idlewuxia.inventory_mutation_policy.v1",
+        "moduleId": "inventory_mutation_executor",
+        "enabledInFirstSession": true,
+        "categoryName": "item_reward_or_cost",
+        "deltaActionName": "玩家物品变化",
+        "craftActionName": "物品合成",
+        "itemIdArg": "Arg2",
+        "deltaArg": "Arg3",
+        "craftIngredientsArg": "Arg2",
+        "craftProductArg": "Arg3",
+        "craftFeedbackArg": "Arg5",
+        "stackDelimiter": ";",
+        "stackFieldDelimiters": [
+          ",",
+          ":"
+        ],
+        "defaultDelta": 1,
+        "evidence": {
+          "level": "lua_confirmed",
+          "source": "CommonResults.lua item mutation and crafting dispatch",
+          "semantics": "configured item deltas and recipes must pass projected-inventory validation before runtime commit"
+        }
+      },
       "choiceResult": {
         "schema": "idlewuxia.choice_result_policy.v1",
         "moduleId": "choice_result_executor",

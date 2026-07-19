@@ -5,7 +5,7 @@
 Owner：`subsystem-domain-architect`
 
 独立验收：`qa-bot-regression-engineer`
-当前判定：`OPEN — Slice 1/6 complete`
+当前判定：`OPEN — Slice 2A/6 complete`
 
 ## 1. 当前现状
 
@@ -100,16 +100,31 @@ TDD 证据：
 - Persistence：PASS；
 - 首局完整交互：PASS，54 个事件，最终回到地图；
 - `wuxia:check:fast`：PASS，内容边界 `high=0`；
-- 真实 Edge `interaction-contract`：20 步、0 failures，最终状态 `STATE_FS_008_MAP_EXPLORE`；
+- 真实 Edge `interaction_condition_qa`：20 步、0 failures，最终状态 `STATE_FS_008_MAP_EXPLORE`；
 - Android sync / Web bundle freshness：12 个运输文件、0 unexpected、0 findings；
 - 完整 `task:preflight`：PASS，`trackedFileCount=231`、scope findings=0。
+
+### Slice 2A：Result preparation
+
+- 新增 `src/resultPreparation.js`；
+- 将 ResultSet 递归展开、深度/循环检查、Choice 定义校验、SkillConversion 计划、库存变化与物品合成预检移出 Runtime；
+- 新增 `inventoryMutation` 策略合同，库存类别、动作名、参数位与堆栈分隔符由配置定义；
+- 公共接口接收 Result 定义和玩家快照，只返回准备结果与 projected state，不提交 Runtime mutation；
+- 红灯为 `ERR_MODULE_NOT_FOUND`，绿灯为 `result preparation contract tests: PASS`；
+- Result preparation 合同、Choice/Result 10/10、Runtime integrity 13/13、条件负路径 6/6、首局交互 54 事件均 PASS；
+- `wuxia:check:fast` PASS，358 动作 `highRisk=0`、内容边界 `high=0`；
+- 真实 Edge `interaction-contract`：20 步、0 failures，最终状态 `STATE_FS_008_MAP_EXPLORE`；
+- Android sync / Web bundle freshness：12 个运输文件、0 unexpected、0 findings；
+- 最终基线构建：PASS，`trackedFileCount=233`、`shippingFileCount=12`、0 findings；
+- Runtime 从切片 1 后的 1,814 行降至 1,676 行，Result preparation 模块为 265 行；
+- Runtime 外部 facade、快照、事件和存档 DTO 未改变。
 
 浏览器第一次运行在 dev-server 未启动时得到 `ERR_CONNECTION_REFUSED`。该次证据保留为
 环境诊断；启动服务器并通过 `wuxia:assert:dev-server` 后复跑通过，因此不归类为产品回归。
 
 ## 8. 风险
 
-- Result 执行仍可直接修改多个闭包状态，事务对象尚未独立；
+- Result preparation 已独立，但 Effect commit 仍可直接修改多个闭包状态，事务对象尚未独立；
 - Navigation 与 Entity 仍共享闭包 Map/Set；
 - UI 仍直接调用 Runtime，尚未形成单一 intent adapter；
 - JSDoc 提供当前 JavaScript 类型合同，但不是编译期 TypeScript；
@@ -119,7 +134,7 @@ TDD 证据：
 
 ARCH-001 后续固定顺序：
 
-1. Characterize 并提取 Result preparation / transactional effect executor；
+1. Result preparation 已完成；下一步提取 transactional EffectExecutor；
 2. 提取 NavigationService；
 3. 提取 EntityInteractionService；
 4. 建立 ChapterSession，并保留 `createFirstSessionRuntime` facade；

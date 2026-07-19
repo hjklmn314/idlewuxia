@@ -53,13 +53,14 @@
       "owner": "production-code-engineer",
       "stateAuthority": "src/resultExecutionModules.js",
       "runtimeModules": [
+        "src/resultPreparation.js",
         "src/resultExecutionModules.js",
         "src/wuxiaFirstSessionFlow.js"
       ],
       "configuration": [
         "config/wuxia_first_session_flow.json"
       ],
-      "status": "implemented-with-postponed-combat",
+      "status": "preparation-modularized-effect-commit-monolith",
       "nextTaskIds": [
         "T03-01",
         "COMBAT-002"

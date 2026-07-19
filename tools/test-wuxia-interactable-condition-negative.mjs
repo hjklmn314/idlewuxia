@@ -19,6 +19,22 @@ function createContract({ keyCount, actionHints = ["open"] }) {
       },
     ],
     transitions: [],
+    chapterSystem: {
+      resultEffectPolicies: {
+        inventoryMutation: {
+          categoryName: "item_reward_or_cost",
+          deltaActionName: "玩家物品变化",
+          craftActionName: "物品合成",
+          itemIdArg: "Arg2",
+          deltaArg: "Arg3",
+          craftIngredientsArg: "Arg2",
+          craftProductArg: "Arg3",
+          stackDelimiter: ";",
+          stackFieldDelimiters: [",", ":"],
+          defaultDelta: 1,
+        },
+      },
+    },
     playerSeed: {
       name: "条件测试角色",
       inventory: {

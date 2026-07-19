@@ -359,6 +359,8 @@
       "evidence": [
         "src/conditionEvaluator.js",
         "tools/test-condition-evaluator.mjs",
+        "src/resultPreparation.js",
+        "tools/test-result-preparation.mjs",
         "docs/codex_game_development_os/ARCH-001_IMPLEMENTATION_RECORD_20260719.md"
       ]
     },

@@ -638,3 +638,15 @@ ChoiceDefinition
 - Android sync 与 Web bundle freshness PASS：12 个运输文件、0 unexpected、0 findings。
 - ARCH-001 仍为 `open`：Result、Navigation、Entity、ChapterSession 和 UI adapter 尚未全部拆分。
 - `T03-01` 继续等待 ARCH-001 完成；COMBAT-002 与 CombatSession 继续延期。
+
+## 2026-07-19 ARCH-001 Result preparation 续施工
+
+- `src/resultPreparation.js` 已完成 ARCH-001 切片 2A；
+- ResultSet 展开、防循环、Choice/SkillConversion 准备、库存与合成预检均在纯模块内完成；
+- 库存类别、动作、参数位与配方分隔符由 `inventoryMutation` 配置策略驱动；
+- 调用方玩家状态不被 preparation 修改，失败在 Effect commit 前关闭；
+- Runtime facade、快照、事件和存档 DTO 保持兼容；
+- `wuxia:check:fast` PASS，真实 Edge 20 步/0 failures，Android freshness 0 findings；
+- Runtime 当前为 1,676 行，Result preparation 模块为 265 行；
+- transactional Effect commit 尚未提取，因此 ARCH-001 继续保持 `open`；
+- COMBAT-002 与 CombatSession 继续延期。

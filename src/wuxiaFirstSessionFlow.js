@@ -1,11 +1,11 @@
 ﻿import { cloneData } from "./dataClone.js";
 import { createConditionEvaluator } from "./conditionEvaluator.js";
+import { createResultPreparation } from "./resultPreparation.js";
 import {
   applySkillConversionPlan,
   createChoiceDefinition,
   createSkillConversionPlan,
   isValidPendingChoice,
-  splitConfiguredResultTokens,
 } from "./resultExecutionModules.js";
 
 function resolveActiveChapter(contract, options = {}) {
@@ -50,9 +50,18 @@ export function createFirstSessionRuntime(contract, options = {}) {
   const combatActionPolicies = contract?.chapterSystem?.combatActionPolicies || {};
   const officialMeritPolicy = resultEffectPolicies.officialMerit || {};
   const seasonalActivityPolicy = resultEffectPolicies.seasonalActivity || {};
+  const inventoryMutationPolicy = resultEffectPolicies.inventoryMutation || {};
   const choiceResultPolicy = resultEffectPolicies.choiceResult || {};
   const resultSetPolicy = resultEffectPolicies.resultSet || {};
   const skillConversionPolicy = resultEffectPolicies.skillConversion || {};
+  const resultPreparation = createResultPreparation({
+    resultLookup,
+    resultSetPolicy,
+    skillConversionPolicy,
+    choiceResultPolicy,
+    seasonalActivityPolicy,
+    inventoryMutationPolicy,
+  });
   const chapterClearPolicy = contract?.chapterSystem?.chapterClearPolicy || {};
   const chapterClearChapters = chapterClearPolicy.chapters || {};
   const candidateSaveState = options.initialSaveState || null;
@@ -200,159 +209,11 @@ export function createFirstSessionRuntime(contract, options = {}) {
   }
 
   function validateResultEffects(branch = {}) {
-    const preparation = prepareResultEffects(branch);
-    if (!preparation.accepted) return preparation;
-    const projectedInventory = clone(preparation.projectedPlayer.inventory || {});
-    for (const result of preparation.preparedBranch.resolvedResults || []) {
-      const args = result.args || {};
-      const category = result.category || "";
-      const action = result.action || "";
-      if (category === "item_reward_or_cost" && action === "物品合成") {
-        const ingredients = parseItemStackList(args.Arg2 || "");
-        const productId = args.Arg3 || "";
-        if (!ingredients.length || !productId) {
-          return { accepted: false, reason: "invalid crafting recipe", resultId: result.resultId || "" };
-        }
-        for (const ingredient of ingredients) {
-          if (Number(projectedInventory[ingredient.itemId] || 0) < ingredient.count) {
-            return {
-              accepted: false,
-              reason: "insufficient crafting ingredients",
-              resultId: result.resultId || "",
-              itemId: ingredient.itemId,
-              required: ingredient.count,
-              available: Number(projectedInventory[ingredient.itemId] || 0),
-            };
-          }
-          projectedInventory[ingredient.itemId] = Number(projectedInventory[ingredient.itemId] || 0) - ingredient.count;
-        }
-        projectedInventory[productId] = Number(projectedInventory[productId] || 0) + 1;
-        continue;
-      }
-      if (category === "item_reward_or_cost" || action === "玩家物品变化") {
-        const itemId = args.Arg2 || "";
-        const rawDelta = args.Arg3 === "" || args.Arg3 === undefined ? 1 : args.Arg3;
-        const delta = Number(rawDelta);
-        if (!itemId || !Number.isFinite(delta)) {
-          return { accepted: false, reason: "invalid inventory delta", resultId: result.resultId || "" };
-        }
-        const nextValue = Number(projectedInventory[itemId] || 0) + delta;
-        if (nextValue < 0) {
-          return {
-            accepted: false,
-            reason: "insufficient inventory",
-            resultId: result.resultId || "",
-            itemId,
-            delta,
-            available: Number(projectedInventory[itemId] || 0),
-          };
-        }
-        projectedInventory[itemId] = nextValue;
-      }
-    }
-    return {
-      accepted: true,
-      reason: "ok",
-      preparedBranch: preparation.preparedBranch,
-    };
+    return resultPreparation.prepare(branch, player);
   }
 
   function resultRecord(resultId = "") {
-    const key = String(resultId || "").replace(/^rlt_/, "");
-    return resultLookup.get(key) || resultLookup.get(`rlt_${key}`) || null;
-  }
-
-  function prepareResultRecords(records = [], context = {}) {
-    const depth = Number(context.depth || 0);
-    const maxDepth = Math.max(1, Number(resultSetPolicy.maxDepth || 16));
-    if (depth > maxDepth) {
-      return { accepted: false, reason: "result chain depth exceeded", depth, maxDepth };
-    }
-    const trail = Array.isArray(context.trail) ? context.trail : [];
-    const projectedPlayer = context.projectedPlayer || clone(player);
-    const prepared = [];
-
-    for (const sourceResult of records) {
-      const result = clone(sourceResult);
-      const resultId = result.resultId || "";
-      const action = result.action || "";
-      if (action === resultSetPolicy.actionName) {
-        if (trail.includes(resultId)) {
-          return { accepted: false, reason: "result chain cycle detected", resultId, trail: clone(trail) };
-        }
-        const tokens = splitConfiguredResultTokens(
-          result.args?.[resultSetPolicy.resultListArg] || "",
-          resultSetPolicy.resultDelimiter || ";",
-        );
-        if (!tokens.length) {
-          return { accepted: false, reason: "result set is empty", resultId };
-        }
-        const children = [];
-        for (const token of tokens) {
-          const child = resultRecord(token);
-          if (!child) return { accepted: false, reason: "unknown result token", resultId, resultToken: token };
-          children.push(child);
-        }
-        const nested = prepareResultRecords(children, {
-          depth: depth + 1,
-          trail: [...trail, resultId],
-          projectedPlayer,
-        });
-        if (!nested.accepted) return nested;
-        prepared.push(...nested.records);
-        continue;
-      }
-
-      if (action === skillConversionPolicy.actionName) {
-        if (trail.includes(resultId)) {
-          return { accepted: false, reason: "result chain cycle detected", resultId, trail: clone(trail) };
-        }
-        const plan = createSkillConversionPlan(result, skillConversionPolicy, projectedPlayer);
-        if (!plan.accepted) return { ...plan, resultId };
-        result.executionPlan = { type: "skill_conversion", plan: clone(plan) };
-        prepared.push(result);
-        applySkillConversionPlan(projectedPlayer, plan);
-        const children = [];
-        for (const token of plan.resultTokens) {
-          const child = resultRecord(token);
-          if (!child) return { accepted: false, reason: "unknown result token", resultId, resultToken: token };
-          children.push(child);
-        }
-        const nested = prepareResultRecords(children, {
-          depth: depth + 1,
-          trail: [...trail, resultId],
-          projectedPlayer,
-        });
-        if (!nested.accepted) return nested;
-        prepared.push(...nested.records);
-        continue;
-      }
-
-      if (action === choiceResultPolicy.actionName) {
-        const choice = createChoiceDefinition(result, choiceResultPolicy, resultRecord);
-        if (!choice.accepted) return { ...choice, resultId };
-        result.choiceDefinition = clone(choice.definition);
-      }
-      prepared.push(result);
-    }
-    return { accepted: true, records: prepared, projectedPlayer };
-  }
-
-  function prepareResultEffects(branch = {}) {
-    const preparation = prepareResultRecords(branch.resolvedResults || [], {
-      depth: 0,
-      trail: [],
-      projectedPlayer: clone(player),
-    });
-    if (!preparation.accepted) return preparation;
-    return {
-      accepted: true,
-      projectedPlayer: preparation.projectedPlayer,
-      preparedBranch: {
-        ...branch,
-        resolvedResults: preparation.records,
-      },
-    };
+    return resultPreparation.resolveRecord(resultId);
   }
 
   function matchesAnyPattern(value = "", patterns = []) {
@@ -373,13 +234,6 @@ export function createFirstSessionRuntime(contract, options = {}) {
     return (
       result.action === (officialMeritPolicy.actionName || "改变政绩")
       || matchesAnyPattern(result.resultId, officialMeritPolicy.resultIdPatterns || [])
-    );
-  }
-
-  function matchesSeasonalActivityResult(result = {}) {
-    return (
-      (seasonalActivityPolicy.actionNames || []).includes(result.action)
-      || matchesAnyPattern(result.resultId, seasonalActivityPolicy.resultIdPatterns || [])
     );
   }
 
@@ -431,26 +285,16 @@ export function createFirstSessionRuntime(contract, options = {}) {
     };
   }
 
-  function isResultEnabledInFirstSession(result = {}) {
-    if (matchesSeasonalActivityResult(result)) return seasonalActivityPolicy.enabledInFirstSession !== false;
-    return true;
-  }
-
   function branchEnabledInFirstSession(branch = {}) {
-    return (branch.resolvedResults || []).every((result) => isResultEnabledInFirstSession(result));
+    return resultPreparation.isBranchEnabled(branch);
   }
 
   function branchRequiresChoiceUi(branch = {}) {
-    return (branch.resolvedResults || []).some((result) => result.action === "弹出选项框");
+    return resultPreparation.requiresChoiceUi(branch);
   }
 
   function narrativeLinesFromResultRecord(record) {
-    if (!record) return [];
-    if (Array.isArray(record.narrativeLines) && record.narrativeLines.length) return record.narrativeLines.filter(Boolean);
-    return String(record.args?.Arg2 || "")
-      .split("|")
-      .map((line) => line.trim())
-      .filter(Boolean);
+    return resultPreparation.narrativeLines(record);
   }
 
   function branchConditionsMet(branch, context = {}) {

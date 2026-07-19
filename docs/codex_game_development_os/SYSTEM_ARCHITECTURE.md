@@ -26,10 +26,15 @@ flowchart LR
 
 链路可运行，但 `B` 和 `D` 均为巨型模块。
 
-截至 2026-07-19，ARCH-001 切片 1 已把 Condition 解释器提取为
-`src/conditionEvaluator.js`。`wuxiaFirstSessionFlow.js` 仍作为兼容
-ChapterSession facade；Result、Navigation、Entity 和 UI adapter 尚未完成，
+截至 2026-07-19，ARCH-001 已把 Condition 解释器提取为
+`src/conditionEvaluator.js`，并把 ResultSet/Choice/SkillConversion/库存预检
+提取为 `src/resultPreparation.js`。`wuxiaFirstSessionFlow.js` 仍作为兼容
+ChapterSession facade；Effect commit、Navigation、Entity 和 UI adapter 尚未完成，
 因此 ARCH-001 仍为 `open`。
+
+Result preparation 的库存/合成识别由
+`chapterSystem.resultEffectPolicies.inventoryMutation` 提供类别、动作、参数位和
+堆栈分隔符；模块只解释策略，不内置具体物品、配方、NPC 或章节 ID。
 
 ## 目标模块
 
@@ -91,7 +96,7 @@ flowchart TB
 
 1. 先写 Characterization Tests，冻结 358 动作现有语义和存档 DTO。（进行中）
 2. 提取纯函数 `ConditionEvaluator`，保持 token/arg 解释不变。（切片 1 已完成）
-3. 提取事务型 `EffectExecutor` 与 `ResultSet` 防循环合同。
+3. 提取事务型 `EffectExecutor` 与 `ResultSet` 防循环合同。（Result preparation 已完成；Effect commit 待完成）
 4. 提取 `NavigationService` 和 `EntityInteractionService`。
 5. 提取 `ChapterSession`，旧 `createWuxiaFirstSessionRuntime` 保留兼容 facade。
 6. 从 UI 控制器提取 view-model、intent mapper 和 browser automation seam。
