@@ -1,0 +1,112 @@
+{
+  "$schema": "idlewuxia.production.toolchain_registry.v1",
+  "registryId": "idlewuxia-toolchain-v1",
+  "tools": [
+    {
+      "id": "project-baseline",
+      "command": "npm run baseline:verify",
+      "artifact": "outputs/project_baseline",
+      "stage": "G0",
+      "status": "enabled",
+      "notes": "Requires a real Git subprocess; restricted sandboxes can return a false zero-file result."
+    },
+    {
+      "id": "production-contract-validation",
+      "command": "npm run production:validate",
+      "artifact": "outputs/production_os/validation-report.json",
+      "stage": "G0",
+      "status": "enabled"
+    },
+    {
+      "id": "production-report-generation",
+      "command": "npm run production:report",
+      "artifact": "outputs/production_os/current-production-report.md",
+      "stage": "G0",
+      "status": "enabled"
+    },
+    {
+      "id": "tracked-file-full-read-inventory",
+      "command": "npm run production:inventory",
+      "artifact": "outputs/production_os/tracked-file-full-read-inventory.json",
+      "stage": "G2",
+      "status": "enabled",
+      "notes": "Reads every Git-tracked file to EOF, hashes it, counts full text and parses every tracked JSON document."
+    },
+    {
+      "id": "runtime-fast-gate",
+      "command": "npm run wuxia:check:fast",
+      "artifact": "outputs/wuxia_p2_closure_gate",
+      "stage": "G4",
+      "status": "enabled"
+    },
+    {
+      "id": "browser-flow",
+      "command": "npm run wuxia:assert:dev-server",
+      "artifact": "outputs/wuxia_browser_acceptance",
+      "stage": "G5",
+      "status": "partial"
+    },
+    {
+      "id": "ui-acceptance-matrix-generator",
+      "command": "npm run production:ui-matrix",
+      "artifact": "outputs/production_os/ui-acceptance-matrix.json",
+      "stage": "G5",
+      "status": "enabled-planner",
+      "notes": "Generates all 33 screen-viewport evidence obligations from the UI registry; it does not claim browser acceptance."
+    },
+    {
+      "id": "browser-11x3-matrix",
+      "command": "not-yet-implemented",
+      "artifact": "outputs/wuxia_visual_matrix",
+      "stage": "G5",
+      "status": "blocked",
+      "taskId": "QA-UI-001"
+    },
+    {
+      "id": "web-bundle-freshness",
+      "command": "npm run web:freshness",
+      "artifact": "outputs/web_bundle_freshness",
+      "stage": "G7",
+      "status": "enabled"
+    },
+    {
+      "id": "android-debug-audit",
+      "command": "npm run android:audit:wuxia",
+      "artifact": "outputs/android_debug_audit",
+      "stage": "G7",
+      "status": "enabled-debug-only"
+    },
+    {
+      "id": "signed-release-build",
+      "command": "not-yet-implemented",
+      "artifact": "outputs/release",
+      "stage": "G7",
+      "status": "blocked",
+      "taskId": "REL-001"
+    },
+    {
+      "id": "release-monitor-and-rollback",
+      "command": "not-yet-implemented",
+      "artifact": "outputs/release",
+      "stage": "G7",
+      "status": "blocked",
+      "taskId": "REL-003"
+    }
+  ],
+  "upstreamToolPolicy": {
+    "baselineOnly": true,
+    "allowedPatternAdoption": [
+      "schema-validation",
+      "artifact-registry",
+      "browser-surface-sweep",
+      "asset-budget",
+      "release-gate-aggregation"
+    ],
+    "quarantinedBehaviors": [
+      "permanent-delete",
+      "safe-delete-outside-project-temp",
+      "engine-adapter-placeholder-as-runtime-proof",
+      "smoke-simulator-as-balance-proof"
+    ]
+  }
+}

@@ -1,0 +1,166 @@
+{
+  "$schema": "idlewuxia.production.subsystem_registry.v1",
+  "registryId": "idlewuxia-subsystems-v1",
+  "architectureRule": "Code owns generic capability and interpretation; configuration owns concrete game content and composition.",
+  "subsystems": [
+    {
+      "id": "project-governance",
+      "owner": "project-and-engine-auditor",
+      "stateAuthority": "config/project_scope.json",
+      "runtimeModules": [
+        "tools/lib/project-baseline.mjs"
+      ],
+      "status": "implemented",
+      "nextTaskIds": [
+        "PROD-OS-001"
+      ]
+    },
+    {
+      "id": "chapter-runtime",
+      "owner": "html-web-engine-production-engineer",
+      "stateAuthority": "src/wuxiaFirstSessionFlow.js",
+      "runtimeModules": [
+        "src/wuxiaFirstSessionFlow.js"
+      ],
+      "configuration": [
+        "config/wuxia_first_session_flow.json"
+      ],
+      "status": "implemented-monolith",
+      "nextTaskIds": [
+        "ARCH-001",
+        "T03-00",
+        "T03-01"
+      ]
+    },
+    {
+      "id": "condition-evaluation",
+      "owner": "configuration-driven-runtime",
+      "stateAuthority": "src/wuxiaFirstSessionFlow.js",
+      "runtimeModules": [
+        "src/wuxiaFirstSessionFlow.js"
+      ],
+      "configuration": [
+        "config/wuxia_first_session_flow.json"
+      ],
+      "status": "implemented-fail-closed",
+      "nextTaskIds": [
+        "T03-01"
+      ]
+    },
+    {
+      "id": "result-effect-execution",
+      "owner": "production-code-engineer",
+      "stateAuthority": "src/resultExecutionModules.js",
+      "runtimeModules": [
+        "src/resultExecutionModules.js",
+        "src/wuxiaFirstSessionFlow.js"
+      ],
+      "configuration": [
+        "config/wuxia_first_session_flow.json"
+      ],
+      "status": "implemented-with-postponed-combat",
+      "nextTaskIds": [
+        "T03-01",
+        "COMBAT-002"
+      ]
+    },
+    {
+      "id": "persistence",
+      "owner": "save-migration-compatibility",
+      "stateAuthority": "src/runtimePersistence.js",
+      "runtimeModules": [
+        "src/runtimePersistence.js"
+      ],
+      "configuration": [
+        "config/runtime_persistence_contract.json"
+      ],
+      "status": "implemented-local-v1",
+      "nextTaskIds": [
+        "SAVE-001"
+      ]
+    },
+    {
+      "id": "ui-flow-adapter",
+      "owner": "ui-ux-feedback-designer",
+      "stateAuthority": "src/wuxia-main.js",
+      "runtimeModules": [
+        "src/wuxia-main.js",
+        "src/styles.css"
+      ],
+      "configuration": [
+        "config/wuxia_first_session_screen_contract.json",
+        "config/production/ui_experience_registry.json"
+      ],
+      "status": "implemented-monolith-unaccepted",
+      "nextTaskIds": [
+        "UI-ARCH-001",
+        "T05-01"
+      ]
+    },
+    {
+      "id": "asset-registry",
+      "owner": "asset-content-pipeline",
+      "stateAuthority": "config/production/asset_registry.json",
+      "runtimeModules": [],
+      "configuration": [
+        "config/production/asset_registry.json"
+      ],
+      "status": "registry-seed-only",
+      "nextTaskIds": [
+        "T05-02",
+        "ASSET-002"
+      ]
+    },
+    {
+      "id": "browser-acceptance",
+      "owner": "qa-bot-regression-engineer",
+      "stateAuthority": "outputs/browser_acceptance",
+      "runtimeModules": [
+        "tools/run-wuxia-real-browser-flow.mjs",
+        "tools/run-wuxia-role-browser-acceptance.mjs"
+      ],
+      "configuration": [
+        "config/wuxia_browser_acceptance_role_agents.json",
+        "config/production/ui_experience_registry.json"
+      ],
+      "status": "partial",
+      "nextTaskIds": [
+        "QA-UI-001",
+        "T05-01"
+      ]
+    },
+    {
+      "id": "build-package-release",
+      "owner": "build-deployment-release-engineer",
+      "stateAuthority": "config/web_bundle_contract.json",
+      "runtimeModules": [
+        "tools/build-web.mjs",
+        "tools/build-android-debug.ps1",
+        "tools/audit-android-debug.mjs"
+      ],
+      "configuration": [
+        "config/web_bundle_contract.json",
+        "config/android_identity_contract.json"
+      ],
+      "status": "debug-proven-release-blocked",
+      "nextTaskIds": [
+        "REL-001",
+        "REL-002",
+        "REL-003"
+      ]
+    },
+    {
+      "id": "analytics-observability",
+      "owner": "analytics-observability-engineer",
+      "stateAuthority": "config/analytics_events.json",
+      "runtimeModules": [],
+      "configuration": [
+        "config/analytics_events.json"
+      ],
+      "status": "dormant-legacy-contract",
+      "nextTaskIds": [
+        "OBS-001"
+      ]
+    }
+  ]
+}

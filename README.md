@@ -6,6 +6,9 @@ Data-driven vertical Wuxia idle RPG prototype. Competitor research and restored 
 
 ```bash
 npm run start
+npm run production:validate
+npm run production:inventory
+npm run production:report
 npm run task:preflight
 npm run runtime:condition-negative
 npm run runtime:first-session-simulator:test
@@ -24,6 +27,12 @@ npm run wuxia:check:fast
 active entry, runtime configs, development-only evidence, tracked path
 categories, and exact web shipping closure. See `PROJECT_BASELINE.md` for the
 R0 gate and release procedure.
+
+`config/production/production_stage_plan.json` is the machine-readable
+production-to-release authority for G0-G7, task dependencies, acceptance
+evidence, postponed scope, UI/UX, subsystem, asset, and toolchain work. Start
+from `docs/codex_game_development_os/README.md`. Generated production reports
+under `outputs/production_os/` are evidence only and remain excluded from Git.
 
 `config/android_identity_contract.json` is the single source of truth for the
 Capacitor and Android application identity. See `ANDROID_IDENTITY.md` before

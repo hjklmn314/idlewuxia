@@ -1,0 +1,834 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://idlewuxia.local/schemas/production_os_contract.schema.json",
+  "title": "Idlewuxia Production OS Contract",
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      },
+      "uniqueItems": true
+    },
+    "taskIdArray": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "projectProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$schema",
+        "profileId",
+        "projectId",
+        "productName",
+        "osVersion",
+        "osIntegrationMode",
+        "sourcePackage",
+        "activeEngine",
+        "inactiveEngines",
+        "authorities",
+        "workspacePolicy",
+        "postponedScope",
+        "releasePolicy"
+      ],
+      "properties": {
+        "$schema": {
+          "const": "idlewuxia.production.project_profile.v1"
+        },
+        "profileId": {
+          "$ref": "#/$defs/id"
+        },
+        "projectId": {
+          "const": "idlewuxia"
+        },
+        "productName": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "osVersion": {
+          "const": "2.3.0"
+        },
+        "osIntegrationMode": {
+          "const": "selected-overlay"
+        },
+        "sourcePackage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "fileName",
+            "sha256",
+            "fileCount",
+            "validation",
+            "vendorPolicy"
+          ],
+          "properties": {
+            "fileName": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "fileCount": {
+              "const": 225
+            },
+            "validation": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "skills",
+                "roles",
+                "subsystems",
+                "engineProfiles",
+                "starterTestsPassed"
+              ],
+              "properties": {
+                "skills": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "roles": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "subsystems": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "engineProfiles": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "starterTestsPassed": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "vendorPolicy": {
+              "const": "read-only-outside-repository"
+            }
+          }
+        },
+        "activeEngine": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "runtime",
+            "packaging",
+            "versionEvidence"
+          ],
+          "properties": {
+            "id": {
+              "const": "html-web-capacitor"
+            },
+            "runtime": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "packaging": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "versionEvidence": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "$ref": "#/$defs/nonEmptyString"
+              }
+            }
+          }
+        },
+        "inactiveEngines": {
+          "type": "array",
+          "minItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "reason"
+            ],
+            "properties": {
+              "id": {
+                "enum": [
+                  "ue5",
+                  "cocos-creator",
+                  "godot",
+                  "unity"
+                ]
+              },
+              "reason": {
+                "$ref": "#/$defs/nonEmptyString"
+              }
+            }
+          }
+        },
+        "authorities": {
+          "type": "object",
+          "minProperties": 8,
+          "additionalProperties": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "workspacePolicy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "runtimeRepository",
+            "evidenceWorkspace",
+            "canonicalTempRoot",
+            "forbidPermanentDelete",
+            "forbidReferenceAssetAutoCopy",
+            "commitOnlyProjectCodeConfigMarkdown"
+          ],
+          "properties": {
+            "runtimeRepository": {
+              "const": "H:/MyProjectBack/idlewuxia"
+            },
+            "evidenceWorkspace": {
+              "const": "G:/codex"
+            },
+            "canonicalTempRoot": {
+              "const": ".codex-os/temp"
+            },
+            "forbidPermanentDelete": {
+              "const": true
+            },
+            "forbidReferenceAssetAutoCopy": {
+              "const": true
+            },
+            "commitOnlyProjectCodeConfigMarkdown": {
+              "const": true
+            }
+          }
+        },
+        "postponedScope": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "reason",
+              "resumeAuthority"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "reason": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "resumeAuthority": {
+                "const": "product-owner-explicit"
+              }
+            }
+          }
+        },
+        "releasePolicy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "debugApkIsReleaseEvidence",
+            "browserStaticChecksEqualVisualAcceptance",
+            "referenceParityEqualsOwnership",
+            "requiredFinalVerdict",
+            "rollbackRequired"
+          ],
+          "properties": {
+            "debugApkIsReleaseEvidence": {
+              "const": false
+            },
+            "browserStaticChecksEqualVisualAcceptance": {
+              "const": false
+            },
+            "referenceParityEqualsOwnership": {
+              "const": false
+            },
+            "requiredFinalVerdict": {
+              "const": "PASS"
+            },
+            "rollbackRequired": {
+              "const": true
+            }
+          }
+        }
+      }
+    },
+    "subsystemRegistry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$schema",
+        "registryId",
+        "architectureRule",
+        "subsystems"
+      ],
+      "properties": {
+        "$schema": {
+          "const": "idlewuxia.production.subsystem_registry.v1"
+        },
+        "registryId": {
+          "$ref": "#/$defs/id"
+        },
+        "architectureRule": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "subsystems": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "owner",
+              "stateAuthority",
+              "runtimeModules",
+              "status",
+              "nextTaskIds"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "owner": {
+                "$ref": "#/$defs/id"
+              },
+              "stateAuthority": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "runtimeModules": {
+                "$ref": "#/$defs/stringArray"
+              },
+              "configuration": {
+                "$ref": "#/$defs/stringArray"
+              },
+              "status": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "nextTaskIds": {
+                "$ref": "#/$defs/taskIdArray"
+              }
+            }
+          }
+        }
+      }
+    },
+    "uiExperienceRegistry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$schema",
+        "registryId",
+        "playerGoal",
+        "experienceLoop",
+        "viewports",
+        "screens",
+        "acceptancePolicy",
+        "referenceAdoption"
+      ],
+      "properties": {
+        "$schema": {
+          "const": "idlewuxia.production.ui_experience_registry.v1"
+        },
+        "registryId": {
+          "$ref": "#/$defs/id"
+        },
+        "playerGoal": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "experienceLoop": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "viewports": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "width",
+              "height"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "width": {
+                "type": "integer",
+                "minimum": 320
+              },
+              "height": {
+                "type": "integer",
+                "minimum": 568
+              }
+            }
+          }
+        },
+        "screens": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "playerGoal",
+              "primaryInput",
+              "requiredFeedback"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^UI_[A-Za-z0-9_]+$"
+              },
+              "playerGoal": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "primaryInput": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "requiredFeedback": {
+                "$ref": "#/$defs/stringArray"
+              },
+              "acceptanceStatus": {
+                "enum": [
+                  "active",
+                  "postponed"
+                ]
+              },
+              "postponedBy": {
+                "$ref": "#/$defs/id"
+              }
+            }
+          }
+        },
+        "acceptancePolicy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requiredScreenViewportPairs",
+            "requireDomState",
+            "requireComputedStyle",
+            "requireOverflowCheck",
+            "requireConsoleErrorCount",
+            "requireConsoleWarningCount",
+            "requireInteractionProof",
+            "requireScreenshot",
+            "staticChecksMaySubstitute"
+          ],
+          "properties": {
+            "requiredScreenViewportPairs": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "requireDomState": {
+              "const": true
+            },
+            "requireComputedStyle": {
+              "const": true
+            },
+            "requireOverflowCheck": {
+              "const": true
+            },
+            "requireConsoleErrorCount": {
+              "const": 0
+            },
+            "requireConsoleWarningCount": {
+              "const": 0
+            },
+            "requireInteractionProof": {
+              "const": true
+            },
+            "requireScreenshot": {
+              "const": true
+            },
+            "staticChecksMaySubstitute": {
+              "const": false
+            }
+          }
+        },
+        "referenceAdoption": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "adoptPatterns",
+            "rejectContent"
+          ],
+          "properties": {
+            "adoptPatterns": {
+              "$ref": "#/$defs/stringArray"
+            },
+            "rejectContent": {
+              "$ref": "#/$defs/stringArray"
+            }
+          }
+        }
+      }
+    },
+    "assetRegistry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$schema",
+        "registryId",
+        "policy",
+        "assets",
+        "requiredSlots"
+      ],
+      "properties": {
+        "$schema": {
+          "const": "idlewuxia.production.asset_registry.v1"
+        },
+        "registryId": {
+          "$ref": "#/$defs/id"
+        },
+        "policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "defaultUnknownDisposition",
+            "requireLicenseOrOwnershipForShipping",
+            "requireSha256ForShipping",
+            "forbidReferenceAssetAutoCopy",
+            "packageBudgetMb",
+            "allowedRuntimeFormats"
+          ],
+          "properties": {
+            "defaultUnknownDisposition": {
+              "const": "reference-only"
+            },
+            "requireLicenseOrOwnershipForShipping": {
+              "const": true
+            },
+            "requireSha256ForShipping": {
+              "const": true
+            },
+            "forbidReferenceAssetAutoCopy": {
+              "const": true
+            },
+            "packageBudgetMb": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "allowedRuntimeFormats": {
+              "$ref": "#/$defs/stringArray"
+            }
+          }
+        },
+        "assets": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "kind",
+              "provenance",
+              "licenseStatus",
+              "adoption"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "kind": {
+                "$ref": "#/$defs/id"
+              },
+              "provenance": {
+                "$ref": "#/$defs/id"
+              },
+              "licenseStatus": {
+                "$ref": "#/$defs/id"
+              },
+              "adoption": {
+                "enum": [
+                  "ship",
+                  "evaluate-not-copied",
+                  "reference-only",
+                  "workflow-only",
+                  "research-only"
+                ]
+              },
+              "shippingPath": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "referencePath": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "bytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "consumers": {
+                "$ref": "#/$defs/stringArray"
+              },
+              "reason": {
+                "$ref": "#/$defs/nonEmptyString"
+              }
+            }
+          }
+        },
+        "requiredSlots": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "status"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "status": {
+                "enum": [
+                  "satisfied",
+                  "open"
+                ]
+              },
+              "assetId": {
+                "$ref": "#/$defs/id"
+              },
+              "taskId": {
+                "$ref": "#/$defs/id"
+              }
+            }
+          }
+        }
+      }
+    },
+    "toolchainRegistry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$schema",
+        "registryId",
+        "tools",
+        "upstreamToolPolicy"
+      ],
+      "properties": {
+        "$schema": {
+          "const": "idlewuxia.production.toolchain_registry.v1"
+        },
+        "registryId": {
+          "$ref": "#/$defs/id"
+        },
+        "tools": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "command",
+              "artifact",
+              "stage",
+              "status"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "command": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "artifact": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "stage": {
+                "type": "string",
+                "pattern": "^G[0-7]$"
+              },
+              "status": {
+                "$ref": "#/$defs/id"
+              },
+              "notes": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "taskId": {
+                "$ref": "#/$defs/id"
+              }
+            }
+          }
+        },
+        "upstreamToolPolicy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "baselineOnly",
+            "allowedPatternAdoption",
+            "quarantinedBehaviors"
+          ],
+          "properties": {
+            "baselineOnly": {
+              "const": true
+            },
+            "allowedPatternAdoption": {
+              "$ref": "#/$defs/stringArray"
+            },
+            "quarantinedBehaviors": {
+              "$ref": "#/$defs/stringArray"
+            }
+          }
+        }
+      }
+    },
+    "stagePlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$schema",
+        "planId",
+        "currentGate",
+        "currentVerdict",
+        "priorityRule",
+        "gates",
+        "tasks"
+      ],
+      "properties": {
+        "$schema": {
+          "const": "idlewuxia.production.stage_plan.v1"
+        },
+        "planId": {
+          "$ref": "#/$defs/id"
+        },
+        "currentGate": {
+          "type": "string",
+          "pattern": "^G[0-7]$"
+        },
+        "currentVerdict": {
+          "$ref": "#/$defs/id"
+        },
+        "priorityRule": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "gates": {
+          "type": "array",
+          "minItems": 8,
+          "maxItems": 8,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "status",
+              "requiredTaskIds",
+              "exitEvidence"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^G[0-7]$"
+              },
+              "name": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "status": {
+                "$ref": "#/$defs/id"
+              },
+              "requiredTaskIds": {
+                "$ref": "#/$defs/taskIdArray"
+              },
+              "exitEvidence": {
+                "$ref": "#/$defs/stringArray"
+              }
+            }
+          }
+        },
+        "tasks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "title",
+              "priority",
+              "gate",
+              "status",
+              "owner",
+              "dependsOn",
+              "acceptance",
+              "evidence"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "title": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "priority": {
+                "enum": [
+                  "P0",
+                  "P1",
+                  "P2",
+                  "P3"
+                ]
+              },
+              "gate": {
+                "type": "string",
+                "pattern": "^G[0-7]$"
+              },
+              "status": {
+                "enum": [
+                  "done",
+                  "ready",
+                  "open",
+                  "blocked",
+                  "postponed"
+                ]
+              },
+              "owner": {
+                "$ref": "#/$defs/id"
+              },
+              "dependsOn": {
+                "$ref": "#/$defs/taskIdArray"
+              },
+              "acceptance": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "uniqueItems": true
+              },
+              "evidence": {
+                "$ref": "#/$defs/stringArray"
+              },
+              "postponedReason": {
+                "$ref": "#/$defs/nonEmptyString"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

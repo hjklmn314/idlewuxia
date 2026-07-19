@@ -1,0 +1,175 @@
+{
+  "$schema": "idlewuxia.production.ui_experience_registry.v1",
+  "registryId": "idlewuxia-first-session-uiux-v1",
+  "playerGoal": "在移动端清楚理解离线收益、角色状态、任务、章节探索与 NPC 交互，并始终知道下一步操作及其结果。",
+  "experienceLoop": [
+    "opening-context",
+    "identity-and-start",
+    "status-comprehension",
+    "idle-reward-confirmation",
+    "task-selection",
+    "chapter-entry",
+    "map-exploration",
+    "npc-or-object-interaction",
+    "chapter-loop-return"
+  ],
+  "viewports": [
+    {
+      "id": "android-compact",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "id": "android-baseline",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "id": "android-tall",
+      "width": 412,
+      "height": 915
+    }
+  ],
+  "screens": [
+    {
+      "id": "UI_OpeningStory",
+      "playerGoal": "理解开场背景并主动继续。",
+      "primaryInput": "tap-continue",
+      "requiredFeedback": [
+        "current-story-page",
+        "continue-affordance",
+        "transition-complete"
+      ]
+    },
+    {
+      "id": "UI_TitleStart",
+      "playerGoal": "确认产品身份并开始游戏。",
+      "primaryInput": "tap-start",
+      "requiredFeedback": [
+        "brand-visible",
+        "start-enabled",
+        "transition-complete"
+      ]
+    },
+    {
+      "id": "UI_CharacterStatus",
+      "playerGoal": "理解基础属性、门派与成长状态。",
+      "primaryInput": "tap-continue",
+      "requiredFeedback": [
+        "attribute-label-value-pairs",
+        "no-critical-overflow",
+        "next-step-visible"
+      ]
+    },
+    {
+      "id": "UI_IdleConfirm",
+      "playerGoal": "理解离线收益来源并确认领取。",
+      "primaryInput": "tap-confirm",
+      "requiredFeedback": [
+        "reward-before",
+        "reward-delta",
+        "reward-after"
+      ]
+    },
+    {
+      "id": "UI_IdleTaskList",
+      "playerGoal": "选择可执行任务并理解锁定原因。",
+      "primaryInput": "tap-task",
+      "requiredFeedback": [
+        "available-state",
+        "locked-state",
+        "rejection-reason"
+      ]
+    },
+    {
+      "id": "UI_ChapterCardEntry",
+      "playerGoal": "理解章节目标与进入条件。",
+      "primaryInput": "tap-enter-chapter",
+      "requiredFeedback": [
+        "chapter-objective",
+        "entry-requirement",
+        "entry-transition"
+      ]
+    },
+    {
+      "id": "UI_MapExplore",
+      "playerGoal": "识别当前位置、可达节点和交互对象。",
+      "primaryInput": "tap-node-or-object",
+      "requiredFeedback": [
+        "current-location",
+        "available-routes",
+        "unavailable-route-reason",
+        "selection-state"
+      ]
+    },
+    {
+      "id": "UI_EarlyCombat",
+      "playerGoal": "理解战斗入口、过程和结果。",
+      "primaryInput": "tap-action",
+      "requiredFeedback": [
+        "entry-policy",
+        "combat-state",
+        "result-delta"
+      ],
+      "acceptanceStatus": "postponed",
+      "postponedBy": "COMBAT-002"
+    },
+    {
+      "id": "UI_NpcInteraction",
+      "playerGoal": "选择 NPC 动作并看到真实状态变化或明确拒绝。",
+      "primaryInput": "tap-interaction",
+      "requiredFeedback": [
+        "action-availability",
+        "accepted-result",
+        "rejected-reason",
+        "state-delta"
+      ]
+    },
+    {
+      "id": "UI_ChapterLoop",
+      "playerGoal": "理解本轮进展并选择继续探索。",
+      "primaryInput": "tap-return-or-continue",
+      "requiredFeedback": [
+        "progress-summary",
+        "next-loop-action",
+        "saved-state"
+      ]
+    },
+    {
+      "id": "UI_OpeningOriginResult",
+      "playerGoal": "确认开局选择产生的身份结果。",
+      "primaryInput": "tap-confirm",
+      "requiredFeedback": [
+        "choice-result",
+        "attribute-consequence",
+        "continue-affordance"
+      ]
+    }
+  ],
+  "acceptancePolicy": {
+    "requiredScreenViewportPairs": 33,
+    "requireDomState": true,
+    "requireComputedStyle": true,
+    "requireOverflowCheck": true,
+    "requireConsoleErrorCount": 0,
+    "requireConsoleWarningCount": 0,
+    "requireInteractionProof": true,
+    "requireScreenshot": true,
+    "staticChecksMaySubstitute": false
+  },
+  "referenceAdoption": {
+    "adoptPatterns": [
+      "three-target-aspect-ratio-contract",
+      "automated-browser-surface-observation",
+      "modal-open-close-state-proof",
+      "failure-screenshot-dom-state-bundle",
+      "asset-budget-gate"
+    ],
+    "rejectContent": [
+      "shooting-game-screen-layout",
+      "shooting-game-copy",
+      "shooting-game-progression",
+      "monetization-ui-as-default-wuxia-flow"
+    ]
+  }
+}

@@ -14,6 +14,8 @@ Codex 证据区：`G:\codex`
 
 > 本文是当前施工主报告。旧报告仍保留历史价值，但其中的“通过”“已实现”“可上线”不得替代当前代码、当前门禁和当前浏览器/APK 证据。
 
+> 2026-07-19 生产 OS 重整补充：Codex Game Development OS 2.3.0 的项目级 HTML/Capacitor Active Overlay、生产 Schema、程序/配置/资产 G0-G7 Roadmap 和验证工具已接入。新的生产入口为 `docs/codex_game_development_os/README.md`，机器权威为 `config/production/production_stage_plan.json`。本报告继续保留 T02 的详细施工证据；若任务状态与生产配置冲突，以当前代码、实时门禁和生产配置为准。
+
 ## 0. 结论先行
 
 当前项目处于：

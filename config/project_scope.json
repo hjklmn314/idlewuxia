@@ -80,6 +80,7 @@
     },
     {
       "id": "documentation",
+      "prefixes": ["docs/"],
       "rootExtensions": [".md"]
     },
     {

@@ -1,0 +1,87 @@
+{
+  "$schema": "idlewuxia.production.project_profile.v1",
+  "profileId": "idlewuxia-html-capacitor-production",
+  "projectId": "idlewuxia",
+  "productName": "放置武侠",
+  "osVersion": "2.3.0",
+  "osIntegrationMode": "selected-overlay",
+  "sourcePackage": {
+    "fileName": "Codex_Game_Development_OS_v2.3.0_Unified_Multi_Engine_Multi_Agent.zip",
+    "sha256": "22602f79c739cd6f9a50abc6a90654d2a220658276ebc494512b8587f12cc5ad",
+    "fileCount": 225,
+    "validation": {
+      "skills": 41,
+      "roles": 32,
+      "subsystems": 49,
+      "engineProfiles": 5,
+      "starterTestsPassed": 5
+    },
+    "vendorPolicy": "read-only-outside-repository"
+  },
+  "activeEngine": {
+    "id": "html-web-capacitor",
+    "runtime": "ES modules + DOM/CSS",
+    "packaging": "Capacitor Android",
+    "versionEvidence": {
+      "capacitor": "6.2.1",
+      "nodeCi": "24",
+      "browserAutomation": "playwright-core 1.61.x"
+    }
+  },
+  "inactiveEngines": [
+    {
+      "id": "ue5",
+      "reason": "Different project line; forbidden from this HTML/APK production overlay."
+    },
+    {
+      "id": "cocos-creator",
+      "reason": "Not the runtime or authoring engine of idlewuxia."
+    },
+    {
+      "id": "godot",
+      "reason": "Not the runtime or authoring engine of idlewuxia."
+    },
+    {
+      "id": "unity",
+      "reason": "Not the runtime or authoring engine of idlewuxia."
+    }
+  ],
+  "authorities": {
+    "projectScope": "config/project_scope.json",
+    "runtimeContent": "config/wuxia_first_session_flow.json",
+    "screenContract": "config/wuxia_first_session_screen_contract.json",
+    "persistence": "config/runtime_persistence_contract.json",
+    "productionPlan": "config/production/production_stage_plan.json",
+    "subsystems": "config/production/subsystem_registry.json",
+    "uiExperience": "config/production/ui_experience_registry.json",
+    "assets": "config/production/asset_registry.json",
+    "toolchain": "config/production/toolchain_registry.json"
+  },
+  "workspacePolicy": {
+    "runtimeRepository": "H:/MyProjectBack/idlewuxia",
+    "evidenceWorkspace": "G:/codex",
+    "canonicalTempRoot": ".codex-os/temp",
+    "forbidPermanentDelete": true,
+    "forbidReferenceAssetAutoCopy": true,
+    "commitOnlyProjectCodeConfigMarkdown": true
+  },
+  "postponedScope": [
+    {
+      "id": "COMBAT-002",
+      "reason": "Explicitly postponed by product owner.",
+      "resumeAuthority": "product-owner-explicit"
+    },
+    {
+      "id": "CombatSession",
+      "reason": "Real combat session replacement remains coupled to postponed combat scope.",
+      "resumeAuthority": "product-owner-explicit"
+    }
+  ],
+  "releasePolicy": {
+    "debugApkIsReleaseEvidence": false,
+    "browserStaticChecksEqualVisualAcceptance": false,
+    "referenceParityEqualsOwnership": false,
+    "requiredFinalVerdict": "PASS",
+    "rollbackRequired": true
+  }
+}

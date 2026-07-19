@@ -1,0 +1,115 @@
+{
+  "$schema": "idlewuxia.production.asset_registry.v1",
+  "registryId": "idlewuxia-assets-v1",
+  "policy": {
+    "defaultUnknownDisposition": "reference-only",
+    "requireLicenseOrOwnershipForShipping": true,
+    "requireSha256ForShipping": true,
+    "forbidReferenceAssetAutoCopy": true,
+    "packageBudgetMb": 25,
+    "allowedRuntimeFormats": [
+      "svg",
+      "webp",
+      "png",
+      "woff2"
+    ]
+  },
+  "assets": [
+    {
+      "id": "brand-icon-primary",
+      "kind": "brand-icon",
+      "provenance": "project-owned",
+      "licenseStatus": "approved",
+      "adoption": "ship",
+      "shippingPath": "public/wuxia-brand/icon.svg",
+      "sha256": "8f565a0bbcef1c2d58e69df534534374c595555d6da95247ef1275950fb99146",
+      "bytes": 616,
+      "consumers": [
+        "index.html",
+        "android-launcher-generation-future"
+      ]
+    },
+    {
+      "id": "reference-patrick-hand-font",
+      "kind": "font",
+      "provenance": "reference-project-third-party",
+      "licenseStatus": "ofl-present-in-reference",
+      "adoption": "evaluate-not-copied",
+      "referencePath": "public/fonts/PatrickHand-Regular.ttf",
+      "reason": "Latin-focused font; not accepted as the primary Chinese Wuxia typeface."
+    },
+    {
+      "id": "reference-zcool-xiaowei-font",
+      "kind": "font",
+      "provenance": "reference-project-third-party",
+      "licenseStatus": "ofl-present-in-reference",
+      "adoption": "evaluate-not-copied",
+      "referencePath": "public/fonts/ZCOOLXiaoWei-Regular.ttf",
+      "reason": "Potential Chinese display face; legal notice, subset strategy, readability and package budget must pass before import."
+    },
+    {
+      "id": "reference-nova-ink-lishu-font",
+      "kind": "font",
+      "provenance": "reference-project-unknown",
+      "licenseStatus": "unverified",
+      "adoption": "reference-only",
+      "referencePath": "public/fonts/NovaInkLishu.ttf",
+      "reason": "No verified redistribution license was found in the audited reference font folder."
+    },
+    {
+      "id": "reference-style-atlases",
+      "kind": "style-atlas-family",
+      "provenance": "reference-project-mixed",
+      "licenseStatus": "unverified-per-file",
+      "adoption": "workflow-only",
+      "referencePath": "public/style-atlases",
+      "reason": "Adopt registry, slot, budget and validation patterns; do not copy pixels until per-file provenance is approved."
+    },
+    {
+      "id": "reference-original-game-assets",
+      "kind": "competitor-binary-assets",
+      "provenance": "competitor-apk",
+      "licenseStatus": "not-owned",
+      "adoption": "research-only",
+      "referencePath": "public/original-game",
+      "reason": "May inform functional decomposition and visual measurements only; forbidden from shipping."
+    }
+  ],
+  "requiredSlots": [
+    {
+      "id": "brand-icon",
+      "status": "satisfied",
+      "assetId": "brand-icon-primary"
+    },
+    {
+      "id": "android-launcher-set",
+      "status": "open",
+      "taskId": "ASSET-002"
+    },
+    {
+      "id": "wuxia-display-font",
+      "status": "open",
+      "taskId": "ASSET-003"
+    },
+    {
+      "id": "wuxia-body-font",
+      "status": "open",
+      "taskId": "ASSET-003"
+    },
+    {
+      "id": "chapter-map-materials",
+      "status": "open",
+      "taskId": "ASSET-004"
+    },
+    {
+      "id": "npc-portrait-system",
+      "status": "open",
+      "taskId": "ASSET-005"
+    },
+    {
+      "id": "interaction-icon-family",
+      "status": "open",
+      "taskId": "ASSET-006"
+    }
+  ]
+}

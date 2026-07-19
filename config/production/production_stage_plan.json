@@ -1,0 +1,711 @@
+{
+  "$schema": "idlewuxia.production.stage_plan.v1",
+  "planId": "idlewuxia-production-to-release-v1",
+  "currentGate": "G4",
+  "currentVerdict": "PASS_WITH_KNOWN_LIMITATIONS_NOT_RELEASE_READY",
+  "priorityRule": "P0 blockers before P1 production depth; postponed tasks never auto-resume.",
+  "gates": [
+    {
+      "id": "G0",
+      "name": "治理、范围与可复现基线",
+      "status": "pass",
+      "requiredTaskIds": [
+        "T00-01",
+        "T00-02",
+        "PROD-OS-001"
+      ],
+      "exitEvidence": [
+        "config/project_scope.json",
+        "config/project_baseline_contract.json",
+        "config/production/codex_os_project_profile.json",
+        "npm run baseline:build",
+        "npm run production:validate"
+      ]
+    },
+    {
+      "id": "G1",
+      "name": "玩家体验、需求与边界",
+      "status": "pass-with-open-acceptance",
+      "requiredTaskIds": [
+        "UX-001",
+        "TRACE-001"
+      ],
+      "exitEvidence": [
+        "config/production/ui_experience_registry.json",
+        "docs/codex_game_development_os/GAME_EXPERIENCE_UI_UX.md",
+        "docs/codex_game_development_os/TRACEABILITY.md"
+      ]
+    },
+    {
+      "id": "G2",
+      "name": "工程、数据、资产和参考项目审计",
+      "status": "pass-with-known-unknowns",
+      "requiredTaskIds": [
+        "AUDIT-001",
+        "AUDIT-002",
+        "ASSET-001"
+      ],
+      "exitEvidence": [
+        "docs/codex_game_development_os/PROJECT_FULL_REAUDIT.md",
+        "docs/codex_game_development_os/REFERENCE_ADOPTION_AND_ASSET_PROVENANCE.md",
+        "config/production/asset_registry.json"
+      ]
+    },
+    {
+      "id": "G3",
+      "name": "生产工具链与配置契约",
+      "status": "pass",
+      "requiredTaskIds": [
+        "TOOL-001",
+        "CFG-001"
+      ],
+      "exitEvidence": [
+        "config/production/toolchain_registry.json",
+        "config/production/schemas/production_os_contract.schema.json",
+        "tools/validate-production-os.mjs",
+        "tools/generate-production-report.mjs"
+      ]
+    },
+    {
+      "id": "G4",
+      "name": "可维护的模块化运行时",
+      "status": "blocked",
+      "requiredTaskIds": [
+        "ARCH-001",
+        "T03-00",
+        "T03-01",
+        "SAVE-001",
+        "OBS-001"
+      ],
+      "exitEvidence": [
+        "358/358 action state assertions",
+        "zero unintended unreachable entities or actions",
+        "module contract tests",
+        "save migration and corruption recovery tests",
+        "runtime event semantics"
+      ]
+    },
+    {
+      "id": "G5",
+      "name": "产品内容、UI/UX 与资产生产",
+      "status": "blocked",
+      "requiredTaskIds": [
+        "UI-ARCH-001",
+        "T05-01",
+        "T05-02",
+        "ASSET-002",
+        "ASSET-003",
+        "ASSET-004",
+        "ASSET-005",
+        "ASSET-006",
+        "QA-UI-001"
+      ],
+      "exitEvidence": [
+        "11 screens x 3 viewports visual matrix",
+        "zero console errors and warnings",
+        "asset ownership and license ledger",
+        "asset budget report",
+        "interaction before/after proof"
+      ]
+    },
+    {
+      "id": "G6",
+      "name": "内容扩展与编辑效率",
+      "status": "not-started",
+      "requiredTaskIds": [
+        "CONTENT-001",
+        "EDITOR-ROI-001"
+      ],
+      "exitEvidence": [
+        "second chapter package proves generic runtime reuse",
+        "authoring bottleneck measurements",
+        "editor go/no-go decision"
+      ]
+    },
+    {
+      "id": "G7",
+      "name": "候选发布、商店部署与运营回滚",
+      "status": "blocked",
+      "requiredTaskIds": [
+        "SEC-001",
+        "REL-001",
+        "REL-002",
+        "REL-003"
+      ],
+      "exitEvidence": [
+        "signed release AAB or APK",
+        "physical-device regression",
+        "store listing and policy checklist",
+        "monitoring and rollback rehearsal",
+        "local and remote commit equality",
+        "green CI"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "T00-01",
+      "title": "项目治理、证据与范围基线",
+      "priority": "P0",
+      "gate": "G0",
+      "status": "done",
+      "owner": "project-and-engine-auditor",
+      "dependsOn": [],
+      "acceptance": [
+        "Runtime repository and evidence workspace are separated.",
+        "Tracked, shipping, generated and forbidden roots are machine-readable.",
+        "Baseline can be rebuilt and verified."
+      ],
+      "evidence": [
+        "config/project_scope.json",
+        "config/project_baseline_contract.json",
+        "npm run baseline:build"
+      ]
+    },
+    {
+      "id": "T00-02",
+      "title": "Git、CI 与 Android 身份闭环",
+      "priority": "P0",
+      "gate": "G0",
+      "status": "done",
+      "owner": "build-deployment-release-engineer",
+      "dependsOn": [
+        "T00-01"
+      ],
+      "acceptance": [
+        "Android package identity is consistent.",
+        "CI runs the active Wuxia gates.",
+        "Generated APK and evidence are excluded from Git."
+      ],
+      "evidence": [
+        "config/android_identity_contract.json",
+        ".github/workflows/ci.yml",
+        "npm run android:identity"
+      ]
+    },
+    {
+      "id": "PROD-OS-001",
+      "title": "Codex Game Development OS 2.3.0 项目 Overlay",
+      "priority": "P0",
+      "gate": "G0",
+      "status": "done",
+      "owner": "game-dev-os-orchestrator",
+      "dependsOn": [
+        "T00-01"
+      ],
+      "acceptance": [
+        "Only HTML/Web + Capacitor is active.",
+        "Upstream package remains read-only evidence outside the repository.",
+        "Project overlay is schema-validated and reproducible."
+      ],
+      "evidence": [
+        "config/production/codex_os_project_profile.json",
+        "docs/codex_game_development_os/README.md",
+        "npm run production:validate"
+      ]
+    },
+    {
+      "id": "UX-001",
+      "title": "玩家目标与 PSFCD 体验链基线",
+      "priority": "P0",
+      "gate": "G1",
+      "status": "done",
+      "owner": "ui-ux-feedback-designer",
+      "dependsOn": [
+        "T00-01"
+      ],
+      "acceptance": [
+        "Every active screen has player goal, input and required feedback.",
+        "The 11 x 3 visual acceptance obligation is explicit.",
+        "Combat UX is marked postponed rather than falsely accepted."
+      ],
+      "evidence": [
+        "config/production/ui_experience_registry.json",
+        "docs/codex_game_development_os/GAME_EXPERIENCE_UI_UX.md"
+      ]
+    },
+    {
+      "id": "TRACE-001",
+      "title": "需求到程序、配置、资产和测试追踪",
+      "priority": "P0",
+      "gate": "G1",
+      "status": "done",
+      "owner": "documentation-traceability-engineer",
+      "dependsOn": [
+        "UX-001"
+      ],
+      "acceptance": [
+        "Each production domain has one authority and one accountable owner.",
+        "Open work has a task ID and acceptance evidence.",
+        "Facts, inferences and unknowns are separated."
+      ],
+      "evidence": [
+        "docs/codex_game_development_os/TRACEABILITY.md",
+        "config/production/subsystem_registry.json"
+      ]
+    },
+    {
+      "id": "AUDIT-001",
+      "title": "当前仓库全量重审计",
+      "priority": "P0",
+      "gate": "G2",
+      "status": "done",
+      "owner": "project-and-engine-auditor",
+      "dependsOn": [
+        "T00-01"
+      ],
+      "acceptance": [
+        "Active HTML runtime, config, Android text project, tools and Markdown evidence are inventoried.",
+        "Dormant Nova and historical UE material is separated from active truth.",
+        "Current gates are rerun instead of trusting stale reports."
+      ],
+      "evidence": [
+        "docs/codex_game_development_os/PROJECT_FULL_REAUDIT.md",
+        "CURRENT_STAGE_FULL_AUDIT_AND_ROADMAP_20260719.md"
+      ]
+    },
+    {
+      "id": "AUDIT-002",
+      "title": "参考项目功能、工具与资源采用审计",
+      "priority": "P0",
+      "gate": "G2",
+      "status": "done",
+      "owner": "competitor-module-decomposition",
+      "dependsOn": [
+        "AUDIT-001"
+      ],
+      "acceptance": [
+        "Adopt, adapt and reject decisions are recorded.",
+        "Reference gameplay content is not copied into Wuxia configuration.",
+        "Browser, asset and release tool patterns are mapped to project tasks."
+      ],
+      "evidence": [
+        "docs/codex_game_development_os/REFERENCE_ADOPTION_AND_ASSET_PROVENANCE.md"
+      ]
+    },
+    {
+      "id": "ASSET-001",
+      "title": "资产来源与运输资格登记",
+      "priority": "P0",
+      "gate": "G2",
+      "status": "done",
+      "owner": "asset-content-pipeline",
+      "dependsOn": [
+        "AUDIT-002"
+      ],
+      "acceptance": [
+        "Every registered asset has provenance, license status and adoption disposition.",
+        "Only approved project-owned assets may ship.",
+        "Competitor APK assets are research-only."
+      ],
+      "evidence": [
+        "config/production/asset_registry.json"
+      ]
+    },
+    {
+      "id": "TOOL-001",
+      "title": "生产合同校验与报告生成工具",
+      "priority": "P0",
+      "gate": "G3",
+      "status": "done",
+      "owner": "production-toolchain-architect",
+      "dependsOn": [
+        "PROD-OS-001"
+      ],
+      "acceptance": [
+        "All production configs pass JSON Schema and semantic validation.",
+        "Task dependencies are acyclic.",
+        "Shipping assets exist and match SHA-256."
+      ],
+      "evidence": [
+        "tools/validate-production-os.mjs",
+        "tools/generate-production-report.mjs"
+      ]
+    },
+    {
+      "id": "CFG-001",
+      "title": "生产配置 Schema 与版本化契约",
+      "priority": "P0",
+      "gate": "G3",
+      "status": "done",
+      "owner": "configuration-data-pipeline",
+      "dependsOn": [
+        "TOOL-001"
+      ],
+      "acceptance": [
+        "Profile, subsystems, UI, assets, toolchain and stage plan are schema-validated.",
+        "No absolute source path is required for validation.",
+        "Generated reports never become source authority."
+      ],
+      "evidence": [
+        "config/production/schemas/production_os_contract.schema.json"
+      ]
+    },
+    {
+      "id": "ARCH-001",
+      "title": "拆分 1938 行 Runtime 与 1229 行 UI 控制器",
+      "priority": "P0",
+      "gate": "G4",
+      "status": "open",
+      "owner": "subsystem-domain-architect",
+      "dependsOn": [
+        "CFG-001"
+      ],
+      "acceptance": [
+        "Condition, result, navigation, entity, persistence and UI adapters expose typed contracts.",
+        "Concrete chapter content remains in configuration.",
+        "Existing snapshots and event semantics remain backward compatible."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "T03-00",
+      "title": "13 个不可达实体与 27 个不可达动作逐项裁决",
+      "priority": "P0",
+      "gate": "G4",
+      "status": "ready",
+      "owner": "level-content-designer",
+      "dependsOn": [
+        "AUDIT-001"
+      ],
+      "acceptance": [
+        "Every unreachable record is classified as repair, intentional dormant or remove-from-active-config.",
+        "No player-facing action is silently unreachable.",
+        "Reachability audit is deterministic and repeatable."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "T03-01",
+      "title": "358/358 全动作前后状态断言",
+      "priority": "P0",
+      "gate": "G4",
+      "status": "open",
+      "owner": "qa-bot-regression-engineer",
+      "dependsOn": [
+        "T03-00",
+        "ARCH-001"
+      ],
+      "acceptance": [
+        "All 358 actions have availability, dispatch and before/after state assertions.",
+        "Rejected actions produce zero mutation.",
+        "Accepted actions prove an intended state delta or declared narrative-only outcome."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "SAVE-001",
+      "title": "存档版本、迁移、损坏恢复与回滚",
+      "priority": "P1",
+      "gate": "G4",
+      "status": "open",
+      "owner": "save-migration-compatibility",
+      "dependsOn": [
+        "ARCH-001"
+      ],
+      "acceptance": [
+        "Versioned save DTO and migration chain exist.",
+        "Interrupted write and malformed save recovery are tested.",
+        "Rollback compatibility is documented."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "OBS-001",
+      "title": "武侠运行时事件、日志与回放语义",
+      "priority": "P1",
+      "gate": "G4",
+      "status": "open",
+      "owner": "analytics-observability-engineer",
+      "dependsOn": [
+        "ARCH-001"
+      ],
+      "acceptance": [
+        "Player intent, result, rejection and state delta events have stable schemas.",
+        "Events carry build, config and save version.",
+        "A first-session replay can diagnose divergence."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "UI-ARCH-001",
+      "title": "UI 定义、导航、交互和反馈适配器拆分",
+      "priority": "P0",
+      "gate": "G5",
+      "status": "open",
+      "owner": "ui-interaction-editor",
+      "dependsOn": [
+        "ARCH-001",
+        "UX-001"
+      ],
+      "acceptance": [
+        "Screen content and transitions remain configuration-driven.",
+        "DOM bindings are isolated from domain state.",
+        "Legacy shooting CSS is excluded from the Wuxia shipping style bundle."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "T05-01",
+      "title": "11 屏乘 3 尺寸视觉与交互验收",
+      "priority": "P0",
+      "gate": "G5",
+      "status": "open",
+      "owner": "qa-bot-regression-engineer",
+      "dependsOn": [
+        "UI-ARCH-001",
+        "QA-UI-001"
+      ],
+      "acceptance": [
+        "33 screen-viewport pairs have screenshots and machine observations.",
+        "Console error and warning counts are zero.",
+        "No critical overflow, blocked controls or invisible feedback remains."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "T05-02",
+      "title": "自有 AssetRegistry 接入运行时",
+      "priority": "P0",
+      "gate": "G5",
+      "status": "open",
+      "owner": "asset-content-pipeline",
+      "dependsOn": [
+        "ASSET-001",
+        "UI-ARCH-001"
+      ],
+      "acceptance": [
+        "Runtime resolves logical asset IDs through the registry.",
+        "Missing or unapproved assets fail activation.",
+        "Build contains no reference-only asset."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "QA-UI-001",
+      "title": "项目化 Browser Surface 与 Modal Sweep",
+      "priority": "P0",
+      "gate": "G5",
+      "status": "open",
+      "owner": "qa-bot-regression-engineer",
+      "dependsOn": [
+        "UX-001",
+        "TOOL-001"
+      ],
+      "acceptance": [
+        "Tool consumes the Wuxia UI registry rather than hard-coded shooting screens.",
+        "Failure captures screenshot, DOM, state, console and viewport.",
+        "The runner is deterministic and returns non-zero on blockers."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "ASSET-002",
+      "title": "Android 启动图标与启动页资产集",
+      "priority": "P1",
+      "gate": "G5",
+      "status": "open",
+      "owner": "asset-content-pipeline",
+      "dependsOn": [
+        "T05-02"
+      ],
+      "acceptance": [
+        "All Android densities are generated from an approved project source.",
+        "Adaptive icon and launch screen are visually verified.",
+        "Hashes and source provenance are registered."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "ASSET-003",
+      "title": "中文武侠字体选择、授权、子集与预算",
+      "priority": "P1",
+      "gate": "G5",
+      "status": "open",
+      "owner": "asset-content-pipeline",
+      "dependsOn": [
+        "ASSET-001"
+      ],
+      "acceptance": [
+        "Display and body fonts have verified redistribution terms.",
+        "Chinese glyph coverage and readability pass all three viewports.",
+        "Subset and fallback behavior meet package budget."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "ASSET-004",
+      "title": "章节地图材质与节点状态资产",
+      "priority": "P1",
+      "gate": "G5",
+      "status": "open",
+      "owner": "asset-content-pipeline",
+      "dependsOn": [
+        "T05-02"
+      ],
+      "acceptance": [
+        "Available, locked, selected and completed states are visually distinct.",
+        "Assets use logical IDs and budgets.",
+        "No competitor pixels are included."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "ASSET-005",
+      "title": "NPC 肖像与身份反馈资产系统",
+      "priority": "P2",
+      "gate": "G5",
+      "status": "open",
+      "owner": "asset-content-pipeline",
+      "dependsOn": [
+        "T05-02"
+      ],
+      "acceptance": [
+        "Portrait definitions are data-driven.",
+        "Fallback and missing states are explicit.",
+        "Per-file provenance is complete."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "ASSET-006",
+      "title": "交互、奖励、锁定与反馈图标族",
+      "priority": "P2",
+      "gate": "G5",
+      "status": "open",
+      "owner": "asset-content-pipeline",
+      "dependsOn": [
+        "T05-02"
+      ],
+      "acceptance": [
+        "Icons have semantic IDs and consistent states.",
+        "Text remains available for accessibility and ambiguity avoidance.",
+        "Assets pass budget and ownership gates."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "CONTENT-001",
+      "title": "第二章节 Feature Package 复用验证",
+      "priority": "P1",
+      "gate": "G6",
+      "status": "open",
+      "owner": "modular-feature-framework",
+      "dependsOn": [
+        "T03-01",
+        "T05-02"
+      ],
+      "acceptance": [
+        "A second chapter is added without chapter-specific code branches.",
+        "Definition, rule, composition and runtime instance boundaries remain intact.",
+        "Config diff and rollback are validated."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "EDITOR-ROI-001",
+      "title": "内容编辑器 ROI 决策",
+      "priority": "P2",
+      "gate": "G6",
+      "status": "open",
+      "owner": "editor-framework-architect",
+      "dependsOn": [
+        "CONTENT-001"
+      ],
+      "acceptance": [
+        "Repeated authoring bottlenecks are measured.",
+        "A no-editor, script-tool or editor decision is recorded.",
+        "Any editor proposal includes validation, diff, undo and preview."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "COMBAT-002",
+      "title": "真实 Rest/Repair 与 CombatSession",
+      "priority": "P1",
+      "gate": "G5",
+      "status": "postponed",
+      "owner": "combat-system-designer",
+      "dependsOn": [
+        "ARCH-001"
+      ],
+      "acceptance": [
+        "Resume only after explicit product-owner authorization.",
+        "Combat uses a deterministic real session rather than a fixed auto-win timeline.",
+        "Rest and repair prove resource cost and before/after state."
+      ],
+      "evidence": [],
+      "postponedReason": "Explicitly postponed by product owner."
+    },
+    {
+      "id": "SEC-001",
+      "title": "发布信任边界、隐私与权限审计",
+      "priority": "P0",
+      "gate": "G7",
+      "status": "open",
+      "owner": "security-compliance",
+      "dependsOn": [
+        "OBS-001"
+      ],
+      "acceptance": [
+        "Android permissions match actual runtime needs.",
+        "No secrets or development evidence ship.",
+        "Privacy disclosure matches collected data."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "REL-001",
+      "title": "签名 Release AAB/APK 与可复现构建",
+      "priority": "P0",
+      "gate": "G7",
+      "status": "open",
+      "owner": "build-deployment-release-engineer",
+      "dependsOn": [
+        "T05-01",
+        "T05-02",
+        "SEC-001"
+      ],
+      "acceptance": [
+        "Release build is signed outside the repository.",
+        "Source commit, config hashes and packaged bytes are traceable.",
+        "A clean rebuild reproduces the declared artifact set."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "REL-002",
+      "title": "真机、性能、兼容性与商店检查",
+      "priority": "P0",
+      "gate": "G7",
+      "status": "open",
+      "owner": "qa-bot-regression-engineer",
+      "dependsOn": [
+        "REL-001"
+      ],
+      "acceptance": [
+        "Supported Android versions and representative devices pass.",
+        "Startup, memory, frame stability, offline and restore paths pass.",
+        "Store listing, screenshots and policy checklist are complete."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "REL-003",
+      "title": "分阶段发布、监控、事故响应与回滚演练",
+      "priority": "P0",
+      "gate": "G7",
+      "status": "open",
+      "owner": "release-incident-response",
+      "dependsOn": [
+        "REL-002"
+      ],
+      "acceptance": [
+        "Staged rollout thresholds and stop conditions are configured.",
+        "Crash, startup, save and progression signals are monitored.",
+        "Rollback or hotfix rehearsal has evidence."
+      ],
+      "evidence": []
+    }
+  ]
+}
