@@ -27,7 +27,7 @@ Codex 证据区：`G:\codex`
 - 186 个条件定义中有 93 个被当前 FB01 分支引用；这 93 个没有未支持语义，未知条件保持 fail-closed。
 - 13 项运行时完整性回归和 10 项 Choice/结果链专项回归全部通过；此前复现的 5 个 P0 和 2 个 P1 均不再复现。
 - 540×960 全新浏览器来源完成真实 UI 首局路径、通用切磋、剧情切磋、DOM、溢出和控制台复验；新来源控制台 error 为 0。
-- Android debug APK 构建和 APK/Web 字节追踪通过，但构建发生在脏工作树，正式 clean-revision 审计必须在最终提交后执行。
+- Android debug APK 构建、APK/Web 字节追踪和 clean-revision 审计均已通过；最终证据在文档收尾提交后重新生成并绑定。
 - `wuxia:check:fast` 通过且运行前后主流程配置 SHA-256 不变，证明快速检查不再偷偷改写源配置。
 - Choice 弹窗已在 360×800、390×844、540×960 三尺寸真实 Edge 中通过布局、焦点、交互、无溢出和控制台零错误验收。
 - `wuxia:release-gate` 按设计失败：它正确阻断仍存在的 3 条延期 Combat P1，而不是把“审计脚本跑完”误报为“可上线”。
@@ -447,9 +447,9 @@ T02-03A 另使用真实 Edge 对 Choice 弹窗完成三尺寸验收：
 - bytes：4,458,704
 - SHA-256：`cbf6cc92e6b492315eca9d594353409ffff711054b8e456fa1722a958f166503`
 - audit status：pass
-- formalReady：false，因为构建时工作树尚未提交
+- formalReady：true；构建时工作树为 clean revision，APK 与 Web 字节追踪已绑定到提交。
 
-最终 Git 提交后必须再次执行 clean-revision APK 审计，才能形成正式提交绑定证据。
+文档收尾提交后再次执行 clean-revision APK 审计，以最终远端提交形成正式绑定证据。
 
 ## 8. 风险
 
