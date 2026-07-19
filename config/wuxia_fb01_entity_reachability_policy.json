@@ -1,0 +1,187 @@
+{
+  "$schema": "idlewuxia.fb01_entity_reachability_policy.v1",
+  "taskId": "T03-00",
+  "chapterId": "fb01",
+  "scope": "normal_first_session",
+  "allowedDecisions": [
+    "repair",
+    "intentional_dormant",
+    "remove-from-active-config"
+  ],
+  "resultTraversal": {
+    "authority": "config/wuxia_first_session_flow.json#chapterSystem.resultEffectPolicies",
+    "rule": "Result-list argument names are discovered from enabled result-effect policy fields instead of hardcoded entity or result IDs."
+  },
+  "dormantModules": [
+    {
+      "moduleId": "legacy_vendor_quarantine",
+      "activationOwner": "level-content-designer",
+      "enabledInFirstSession": false,
+      "activationPolicy": "prohibited_until_a_room_seed_or_runtime_injection_source_is_evidenced_and_a_player_flow_acceptance_case_exists",
+      "activationSources": [
+        {
+          "sourceFile": "res/script/map/mapRole/fb01.lua",
+          "sourceRecord": "fb01r01_3",
+          "sourceKind": "lua"
+        },
+        {
+          "sourceFile": "res/script/map/mapRoom/fb01.lua",
+          "sourceRecord": "negative_reference_scan",
+          "sourceKind": "lua"
+        }
+      ]
+    },
+    {
+      "moduleId": "spring_festival_cooking",
+      "activationOwner": "seasonal-activity-runtime",
+      "enabledInFirstSession": false,
+      "activationPolicy": "event_window_and_recipe_inventory_contract_required_before_room_injection",
+      "activationSources": [
+        {
+          "sourceFile": "res/script/map/mapRole/fb01.lua",
+          "sourceRecord": "fb01r18_1|fb01r18_2",
+          "sourceKind": "lua"
+        },
+        {
+          "sourceFile": "res/script/map/mapConditionAndResult/fb01.lua",
+          "sourceRecord": "hecheng108|hecheng109|hecheng114|hecheng115|hecheng116|hecheng117",
+          "sourceKind": "lua"
+        }
+      ]
+    },
+    {
+      "moduleId": "timed_visit_task",
+      "activationOwner": "quest-runtime",
+      "enabledInFirstSession": false,
+      "activationPolicy": "change700_must_be_dispatched_by_a_typed_quest_activation_contract_before_the_visit_state_is_visible",
+      "activationSources": [
+        {
+          "sourceFile": "res/script/map/mapRole/fb01.lua",
+          "sourceRecord": "fb01r36_1|fb01r36_1a|fb01r36_1b",
+          "sourceKind": "lua"
+        },
+        {
+          "sourceFile": "res/script/map/mapConditionAndResult/fb01.lua",
+          "sourceRecord": "change700|change701|dingshishezhi1",
+          "sourceKind": "lua"
+        }
+      ]
+    },
+    {
+      "moduleId": "shenshu_task",
+      "activationOwner": "shenshu-task-runtime",
+      "enabledInFirstSession": false,
+      "activationPolicy": "dynamic_instance_only; base definition must never be inserted as a static room encounter",
+      "activationSources": [
+        {
+          "sourceFile": "src/app/models/map/MapHandle/Modules/TaskModule/ShenShuTask.lua",
+          "sourceRecord": "createShenShuNPC:332-338",
+          "sourceKind": "lua"
+        },
+        {
+          "sourceFile": "src/app/models/map/BaseMap.lua",
+          "sourceRecord": "special_dynamic_role_handling:594-602",
+          "sourceKind": "lua"
+        }
+      ]
+    },
+    {
+      "moduleId": "treasure_hunt",
+      "activationOwner": "treasure-runtime",
+      "enabledInFirstSession": false,
+      "activationPolicy": "dynamic_treasure_event_only; event strategy and spawn room must be selected before role creation",
+      "activationSources": [
+        {
+          "sourceFile": "res/script/others/Treasure.lua",
+          "sourceRecord": "事件策略.1.Event3|Event4|Event5",
+          "sourceKind": "lua"
+        },
+        {
+          "sourceFile": "src/app/models/map/BaseMap.lua",
+          "sourceRecord": "special_dynamic_role_handling:594-602",
+          "sourceKind": "lua"
+        }
+      ]
+    },
+    {
+      "moduleId": "mid_autumn_cooking",
+      "activationOwner": "seasonal-activity-runtime",
+      "enabledInFirstSession": false,
+      "activationPolicy": "event_window_and_mooncake_recipe_inventory_contract_required_before_room_injection",
+      "activationSources": [
+        {
+          "sourceFile": "res/script/map/mapRole/fb01.lua",
+          "sourceRecord": "zhongqiuchuzi",
+          "sourceKind": "lua"
+        },
+        {
+          "sourceFile": "res/script/map/mapConditionAndResult/fb01.lua",
+          "sourceRecord": "yuebingpihecheng4|yuebingpihecheng5|yuebingpihecheng6",
+          "sourceKind": "lua"
+        }
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "entityId": "fb01r01_3",
+      "decision": "intentional_dormant",
+      "moduleId": "legacy_vendor_quarantine",
+      "reason": "The role and sale inventory exist, but no fb01 room seed, result mutation, or external runtime injection source was found. Preserve it as quarantined source content; do not expose four player actions."
+    },
+    {
+      "entityId": "fb01r18_1",
+      "decision": "intentional_dormant",
+      "moduleId": "spring_festival_cooking",
+      "reason": "All four recipes consume or produce chunjie-prefixed content and the role has no normal room seed."
+    },
+    {
+      "entityId": "fb01r18_2",
+      "decision": "intentional_dormant",
+      "moduleId": "spring_festival_cooking",
+      "reason": "Both recipes consume or produce chunjie-prefixed content and the role has no normal room seed."
+    },
+    {
+      "entityId": "fb01r36_1a",
+      "decision": "intentional_dormant",
+      "moduleId": "timed_visit_task",
+      "reason": "This visit-task replacement state requires change700, whose activation producer is outside the normal first-session graph."
+    },
+    {
+      "entityId": "fb01r36_1b",
+      "decision": "intentional_dormant",
+      "moduleId": "timed_visit_task",
+      "reason": "This completion state follows fb01r36_1a through change701 and remains hidden while the visit-task activation producer is disabled."
+    },
+    {
+      "entityId": "shenshunpc",
+      "decision": "intentional_dormant",
+      "moduleId": "shenshu_task",
+      "reason": "The competitor creates unique runtime role IDs from this base definition during the ShenShu task; it is not a static room entity."
+    },
+    {
+      "entityId": "xunbaoren1",
+      "decision": "intentional_dormant",
+      "moduleId": "treasure_hunt",
+      "reason": "Treasure.lua selects this role as a dynamic treasure event and BaseMap handles it as a special dynamic role."
+    },
+    {
+      "entityId": "xunbaoren2",
+      "decision": "intentional_dormant",
+      "moduleId": "treasure_hunt",
+      "reason": "Treasure.lua selects this role as a dynamic treasure event and BaseMap handles it as a special dynamic role."
+    },
+    {
+      "entityId": "xunbaoren3",
+      "decision": "intentional_dormant",
+      "moduleId": "treasure_hunt",
+      "reason": "Treasure.lua selects this role as a dynamic treasure event and BaseMap handles it as a special dynamic role."
+    },
+    {
+      "entityId": "zhongqiuchuzi",
+      "decision": "intentional_dormant",
+      "moduleId": "mid_autumn_cooking",
+      "reason": "The three recipes consume or produce zhongqiu-prefixed mooncake content and the role has no normal room seed."
+    }
+  ]
+}

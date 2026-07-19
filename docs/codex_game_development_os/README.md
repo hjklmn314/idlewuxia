@@ -45,5 +45,5 @@ npm run wuxia:check:fast
 当前结论是 `PASS WITH KNOWN LIMITATIONS / NOT RELEASE READY`：
 
 - HTML/Capacitor 运行链、证据契约、条件拒绝、结果执行器和 debug APK 链已有可重复证据。
-- 13 个不可达实体、27 个不可达动作、358/358 状态断言、11×3 视觉矩阵、自有资产运行时、签名 Release、真机矩阵和回滚演练未完成。
+- T03-00 已将旧 13/27 纠偏并关闭：129 个实体可达，10 个实体/24 个动作受控休眠，0 个未裁决；358/358 状态断言、11×3 视觉矩阵、自有资产运行时、签名 Release、真机矩阵和回滚演练仍未完成。
 - `COMBAT-002` 与 `CombatSession` 继续延期，除非产品负责人明确解除。

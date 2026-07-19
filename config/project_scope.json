@@ -20,7 +20,8 @@
   ],
   "developmentReferenceFiles": [
     "config/wuxia_competitor_first_session_reference.json",
-    "config/wuxia_evidence_contract.schema.json"
+    "config/wuxia_evidence_contract.schema.json",
+    "config/wuxia_fb01_entity_reachability_policy.json"
   ],
   "shippingFiles": [
     "index.html",

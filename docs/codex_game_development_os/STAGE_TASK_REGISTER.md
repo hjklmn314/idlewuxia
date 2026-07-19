@@ -14,7 +14,7 @@
 | ASSET-001 | P0 | G2 | done | asset-content-pipeline | 资产来源和运输资格登记 |
 | TOOL-001 | P0 | G3 | done | production-toolchain-architect | 生产合同验证和报告工具 |
 | CFG-001 | P0 | G3 | done | configuration-data-pipeline | 生产 Schema 与版本化合同 |
-| T03-00 | P0 | G4 | ready | level-content-designer | 13 实体、27 动作可达性裁决 |
+| T03-00 | P0 | G4 | done | level-content-designer | 旧 13/27 已纠偏为 129 可达、10 个受控休眠实体与 24 个受控休眠动作；0 未裁决 |
 | ARCH-001 | P0 | G4 | open | subsystem-domain-architect | 拆分 Runtime 与 UI 巨型模块 |
 | T03-01 | P0 | G4 | open | qa-bot-regression-engineer | 358/358 全动作状态断言 |
 | SAVE-001 | P1 | G4 | open | save-migration-compatibility | 存档迁移、损坏恢复、回滚 |
@@ -38,8 +38,8 @@
 
 ## 当前可开工
 
-1. `T03-00`：状态为 ready，是当前第一项。
-2. `ARCH-001`：依赖已满足，可在 T03-00 裁决边界稳定后施工。
+1. `ARCH-001`：T03-00 边界已稳定，当前第一项是拆分 Runtime/UI 控制器并建立可测试模块合同。
+2. `T03-01`：依赖 T03-00 与 ARCH-001；架构拆分后完成 358/358 全动作状态断言。
 
 `T03-01` 必须等待上述两项完成。所有 G5、G6、G7 工作不得跳过 G4 出口。
 

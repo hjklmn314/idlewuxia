@@ -76,7 +76,7 @@ flowchart TB
 |---|---|---|
 | `foundation-runtime` | condition/result/save/event/asset contracts | 部分存在，待拆分 |
 | `first-session-shell` | 11 屏流程、基础反馈和持久化 | 已有纵切 |
-| `chapter-fb01` | 45 房间、116 NPC、23 物件、动作和奖励 | 已配置，仍有不可达内容 |
+| `chapter-fb01` | 45 房间、116 NPC、23 物件、动作和奖励 | 已配置；T03-00 为 129 可达实体、10 个受控休眠实体、0 未裁决 |
 | `wuxia-ui-shell` | DOM adapter、导航、样式、可访问性 | 巨型模块，待拆 |
 | `wuxia-asset-presentation` | Registry、字体、地图、肖像、图标 | 仅 Registry 种子 |
 | `android-release` | bundle、签名、设备、商店、回滚 | debug proof only |

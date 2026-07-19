@@ -360,10 +360,10 @@
     },
     {
       "id": "T03-00",
-      "title": "13 个不可达实体与 27 个不可达动作逐项裁决",
+      "title": "FB01 实体与动作可达性逐项裁决",
       "priority": "P0",
       "gate": "G4",
-      "status": "ready",
+      "status": "done",
       "owner": "level-content-designer",
       "dependsOn": [
         "AUDIT-001"
@@ -373,7 +373,12 @@
         "No player-facing action is silently unreachable.",
         "Reachability audit is deterministic and repeatable."
       ],
-      "evidence": []
+      "evidence": [
+        "config/wuxia_fb01_entity_reachability_policy.json",
+        "tools/audit-wuxia-fb01-entity-reachability.mjs",
+        "tools/test-wuxia-fb01-entity-reachability.mjs",
+        "npm run wuxia:audit:entity-reachability"
+      ]
     },
     {
       "id": "T03-01",

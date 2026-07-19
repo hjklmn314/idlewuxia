@@ -6,14 +6,14 @@
 
 当前位于 G4，G0-G3 已建立可重复的治理、体验、审计和工具合同。项目不是 Release Ready。
 
-当前第一个 P0 施工项是 `T03-00`：
+`T03-00` 已完成：
 
-- 逐项审计 13 个不可达实体和 27 个不可达动作；
-- 每项只能裁决为 `repair`、`intentional-dormant` 或 `remove-from-active-config`；
-- 修复后重跑可达性、358 动作清单、首局模拟、真实浏览器路线；
+- 旧 13/27 经配置化嵌套结果遍历纠偏为 129 可达实体、10 个受控休眠实体与 24 个受控休眠动作；
+- 每个剩余不可达实体均有 `intentional_dormant` 决策、模块所有者、激活来源和启用前置条件；
+- 未裁决实体与动作均为 0；
 - 不在此任务中实现 COMBAT-002。
 
-`ARCH-001` 随后开始，给 `T03-01` 提供可测试的模块边界。
+当前第一项转为 `ARCH-001`，给 `T03-01` 提供可测试的模块边界。
 
 ## 阶段总览
 
@@ -32,11 +32,10 @@
 
 施工顺序：
 
-1. `T03-00` 可达性逐项裁决。
-2. `ARCH-001` Characterization Tests 与通用服务提取。
-3. `T03-01` 358/358 动作 before/after assertion。
-4. `SAVE-001` 存档迁移、损坏恢复、回滚。
-5. `OBS-001` intent/result/delta 事件和回放。
+1. `ARCH-001` Characterization Tests 与通用服务提取。
+2. `T03-01` 358/358 动作 before/after assertion。
+3. `SAVE-001` 存档迁移、损坏恢复、回滚。
+4. `OBS-001` intent/result/delta 事件和回放。
 
 G4 上线级出口：
 
