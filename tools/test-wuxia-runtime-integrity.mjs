@@ -116,20 +116,52 @@ runCase("combat_result_without_policy_is_hidden", () => {
   assert.equal(result.event.reason, "combat runtime module is postponed");
 });
 
-runCase("choice_result_without_choice_ui_is_hidden", () => {
+runCase("choice_result_opens_data_driven_pending_choice", () => {
   const runtime = createFirstSessionRuntime(clone(flow));
   const selected = runtime.selectChapterNpc("tmnpc01d");
   const availability = selected.snapshot.chapter.selectedNpcActionAvailability
     .find((item) => item.actionType === "custom_caozuo1");
-  assert.equal(availability.visible, false);
+  assert.equal(availability.available, true);
   const result = runtime.interactWithChapterNpc("tmnpc01d", "custom_caozuo1");
-  assert.equal(result.accepted, false);
-  assert.equal(result.event.reason, "choice UI runtime module is postponed");
+  assert.equal(result.accepted, true);
+  assert.equal(result.snapshot.pendingChoice.choiceId, "tmchoice01");
+  assert.deepEqual(
+    result.snapshot.pendingChoice.options.map((option) => option.optionId),
+    ["option_1", "option_2"],
+  );
 });
 
 runCase("malformed_compatible_save_is_ignored", () => {
   const invalidState = createFirstSessionRuntime(clone(flow)).exportSaveState();
   invalidState.hiddenEntityIds = {};
+  const envelope = {
+    $schema: persistenceContract.envelopeSchema,
+    schemaVersion: persistenceContract.schemaVersion,
+    runtimeSchema: invalidState.runtimeSchema,
+    savedAt: new Date().toISOString(),
+    state: invalidState,
+  };
+  const persistence = createRuntimePersistence({
+    contract: persistenceContract,
+    storage: {
+      getItem: () => JSON.stringify(envelope),
+      setItem: () => {},
+      removeItem: () => {},
+    },
+  });
+  const restored = persistence.restore(flow.schema);
+  assert.equal(restored.status, "ignored_invalid");
+  assert.equal(restored.state, null);
+});
+
+runCase("malformed_pending_choice_save_is_ignored", () => {
+  const invalidState = createFirstSessionRuntime(clone(flow)).exportSaveState();
+  invalidState.pendingChoice = {
+    choiceId: "broken",
+    title: "",
+    sourceId: "npc",
+    options: [],
+  };
   const envelope = {
     $schema: persistenceContract.envelopeSchema,
     schemaVersion: persistenceContract.schemaVersion,

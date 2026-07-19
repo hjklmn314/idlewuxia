@@ -11,6 +11,7 @@
     "runtime:compatibility:test": "node tools/test-runtime-webview-compatibility.mjs",
     "runtime:persistence:test": "node tools/test-runtime-persistence.mjs",
     "runtime:integrity:test": "node tools/test-wuxia-runtime-integrity.mjs",
+    "runtime:choice-result:test": "node tools/test-wuxia-choice-result-runtime.mjs",
     "runtime:condition-negative": "node tools/test-wuxia-interactable-condition-negative.mjs --out outputs/t02_01_interactable_condition/interactable_branch_tests.json",
     "runtime:first-session-simulator:test": "node tools/test-wuxia-first-session-simulator.mjs",
     "apk:traceability:test": "node tools/test-apk-web-bundle-traceability.mjs",
@@ -19,7 +20,7 @@
     "baseline:verify": "node tools/project-baseline.mjs --mode baseline --require-clean",
     "baseline:verify:remote": "node tools/project-baseline.mjs --mode baseline --require-clean --require-upstream",
     "scope:validate": "node tools/project-baseline.mjs --mode scope",
-    "task:preflight": "npm run baseline:test && npm run web:freshness:test && npm run apk:traceability:test && npm run runtime:compatibility:test && npm run runtime:persistence:test && npm run runtime:integrity:test && npm run runtime:condition-negative && npm run runtime:first-session-simulator:test && npm run scope:validate && npm run android:identity && npm run wuxia:validate:active-entry && npm run wuxia:validate:first-session:runtime",
+    "task:preflight": "npm run baseline:test && npm run web:freshness:test && npm run apk:traceability:test && npm run runtime:compatibility:test && npm run runtime:persistence:test && npm run runtime:integrity:test && npm run runtime:choice-result:test && npm run runtime:condition-negative && npm run runtime:first-session-simulator:test && npm run scope:validate && npm run android:identity && npm run wuxia:validate:active-entry && npm run wuxia:validate:first-session:runtime",
     "validate": "node tools/validate-config.mjs",
     "validate:reference-parity": "node tools/validate-reference-parity.mjs",
     "validate:unlock-gates": "node tools/validate-unlock-gates.mjs",
@@ -58,6 +59,7 @@
     "wuxia:sync:combat-action-policies": "node tools/sync-wuxia-combat-action-policies.mjs",
     "wuxia:audit:fb01-interactions": "node tools/audit-wuxia-fb01-interaction-coverage.mjs",
     "wuxia:audit:fb01-browser-crawl": "node tools/audit-wuxia-fb01-browser-interaction-crawl.mjs",
+    "wuxia:audit:choice-result-browser": "node tools/audit-wuxia-choice-result-browser.mjs",
     "wuxia:plan:fb01-browser-crawl": "node tools/build-wuxia-fb01-browser-crawl-batches.mjs",
     "wuxia:plan:fb01-route-unlocks": "node tools/build-wuxia-fb01-route-unlock-plans.mjs",
     "wuxia:run:fb01-browser-batch": "node tools/run-wuxia-fb01-browser-crawl-batch.mjs",
@@ -77,7 +79,7 @@
     "wuxia:sync:hangup-reward-class": "node tools/sync-hangup-reward-class-to-first-session-flow.mjs",
     "wuxia:validate:active-entry": "node tools/validate-wuxia-active-entry.mjs",
     "wuxia:sync:all": "npm run wuxia:sync:combat-action-policies && npm run wuxia:sync:hangup-reward-class && npm run wuxia:sync:fb01-npc-actions && npm run wuxia:sync:fb01-result-args && npm run wuxia:sync:fb01-chapter-clear",
-    "wuxia:check:fast": "npm run validate && npm run wuxia:validate:active-entry && npm run wuxia:validate:first-session && npm run runtime:integrity:test && npm run runtime:condition-negative && npm run runtime:first-session-simulator:test && npm run wuxia:simulate:first-session && npm run wuxia:test:first-session-interactions && npm run wuxia:audit:fb01-interactions && npm run wuxia:audit:fb01-result-tokens && npm run wuxia:audit:flow-parity && npm run wuxia:audit:p2-closure && npm run wuxia:audit:content-boundary",
+    "wuxia:check:fast": "npm run validate && npm run wuxia:validate:active-entry && npm run wuxia:validate:first-session && npm run runtime:integrity:test && npm run runtime:choice-result:test && npm run runtime:condition-negative && npm run runtime:first-session-simulator:test && npm run wuxia:simulate:first-session && npm run wuxia:test:first-session-interactions && npm run wuxia:audit:fb01-interactions && npm run wuxia:audit:fb01-result-tokens && npm run wuxia:audit:flow-parity && npm run wuxia:audit:p2-closure && npm run wuxia:audit:content-boundary",
     "wuxia:release-gate": "npm run wuxia:check:fast && npm run wuxia:audit:online-standard",
     "wuxia:audit:flow-parity": "node tools/audit-wuxia-vs-fzjh-flow-parity.mjs"
   },
@@ -86,7 +88,8 @@
     "@capacitor/core": "6.2.1"
   },
   "devDependencies": {
-    "@capacitor/cli": "6.2.1"
+    "@capacitor/cli": "6.2.1",
+    "playwright-core": "^1.61.1"
   },
   "description": "Data-driven vertical Wuxia idle RPG with an isolated HTML/Capacitor shipping runtime."
 }

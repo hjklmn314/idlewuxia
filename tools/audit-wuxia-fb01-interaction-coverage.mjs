@@ -33,14 +33,21 @@ function normalizeLines(lines) {
 const GLOBAL_NPC_ACTIONS = new Set(["present", "sale", "compete", "kill", "apprentice"]);
 const GLOBAL_INTERACTABLE_ACTIONS = new Set(["pickup"]);
 let configuredCombatActionTypes = new Set();
+let configuredChoiceActionName = "";
 
 function branchForAction(entry, actionType, kind) {
   const branches = Array.isArray(entry.branches) ? entry.branches : [];
   const exact = branches.find((branch) => (branch.actionHints || []).includes(actionType));
   if (exact) {
-    const hasUnroutedChoiceResult = (exact.resolvedResults || []).some((result) => /choice|tankuang/i.test(result.resultId || ""));
-    if (hasUnroutedChoiceResult) {
-      return { branch: exact, matchPolicy: "unrouted_choice_intentionally_hidden" };
+    const choiceResults = (exact.resolvedResults || []).filter((result) => /choice|tankuang/i.test(result.resultId || ""));
+    if (choiceResults.length) {
+      const configured = choiceResults.every((result) => result.action === configuredChoiceActionName);
+      return {
+        branch: exact,
+        matchPolicy: configured
+          ? "configured_choice_result_executor"
+          : "unrouted_choice_intentionally_hidden",
+      };
     }
     const hasUnroutedCombatResult = !configuredCombatActionTypes.has(actionType)
       && (exact.resolvedResults || []).some((result) => result.category === "combat");
@@ -88,6 +95,7 @@ function branchForAction(entry, actionType, kind) {
 function statusForBranch(branch, matchPolicy) {
   if (matchPolicy === "default_words") return "default_words_confirmed";
   if (matchPolicy === "configured_combat_action_policy") return "configured_combat_action_policy";
+  if (matchPolicy === "configured_choice_result_executor") return "configured_choice_result_executor";
   if (matchPolicy === "unrouted_choice_intentionally_hidden") return "intentionally_hidden_postponed_choice_ui";
   if (matchPolicy === "unrouted_combat_intentionally_hidden") return "intentionally_hidden_postponed_combat";
   if (matchPolicy.startsWith("global_")) return "intentionally_hidden_no_runtime_branch";
@@ -133,6 +141,7 @@ function actionRowsFor(entry, kind) {
 
 const data = readJson(configPath);
 configuredCombatActionTypes = new Set(Object.keys(data.chapterSystem?.combatActionPolicies || {}));
+configuredChoiceActionName = data.chapterSystem?.resultEffectPolicies?.choiceResult?.actionName || "";
 const npcs = data.chapter1?.npcs || [];
 const interactables = data.chapter1?.interactables || [];
 const rows = [

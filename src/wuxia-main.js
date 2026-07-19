@@ -805,6 +805,50 @@ function renderScreenBody(screen, screenContract, flowContract, snapshot) {
   `;
 }
 
+function renderPendingChoice(choice) {
+  if (!choice) return "";
+  return `
+    <div class="wuxia-choice-backdrop" data-wuxia-choice-id="${escapeHtml(choice.choiceId)}">
+      <section class="wuxia-choice-dialog" role="dialog" aria-modal="true" aria-labelledby="wuxiaChoiceTitle">
+        <p id="wuxiaChoiceTitle">${escapeHtml(choice.title)}</p>
+        <div class="wuxia-choice-options">
+          ${(choice.options || []).map((option) => `
+            <button type="button" data-wuxia-choice-option="${escapeHtml(option.optionId)}">
+              ${escapeHtml(option.label)}
+            </button>
+          `).join("")}
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+function bindPendingChoiceDialog(stage, choice) {
+  if (!choice) return;
+  const screen = stage.querySelector(".wuxia-screen");
+  if (screen) {
+    screen.inert = true;
+    screen.setAttribute("aria-hidden", "true");
+  }
+  const dialog = stage.querySelector(".wuxia-choice-dialog");
+  const buttons = [...(dialog?.querySelectorAll("[data-wuxia-choice-option]") || [])];
+  if (!dialog || !buttons.length) return;
+  dialog.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      return;
+    }
+    if (event.key !== "Tab") return;
+    const currentIndex = buttons.indexOf(document.activeElement);
+    const nextIndex = event.shiftKey
+      ? (currentIndex <= 0 ? buttons.length - 1 : currentIndex - 1)
+      : (currentIndex >= buttons.length - 1 ? 0 : currentIndex + 1);
+    event.preventDefault();
+    buttons[nextIndex].focus();
+  });
+  window.requestAnimationFrame(() => buttons[0]?.focus());
+}
+
 function renderMapSelection(event) {
   if (!event || event.type !== "nodeSelected") return;
   document.body.dataset.wuxiaSelectedNode = event.nodeId || "";
@@ -1046,6 +1090,40 @@ function installAutomationApi() {
         automation: true,
       };
     },
+    selectNpc(roleId) {
+      const result = state.runtime?.selectChapterNpc(roleId);
+      render();
+      return {
+        clicked: Boolean(result?.accepted),
+        reason: result?.event?.reason || "",
+        roleId,
+        text: result?.event?.name || roleId,
+        automation: true,
+      };
+    },
+    interactNpc(roleId, actionType) {
+      const result = state.runtime?.interactWithChapterNpc(roleId, actionType);
+      render();
+      return {
+        clicked: Boolean(result?.accepted),
+        reason: result?.event?.reason || "",
+        roleId,
+        actionType,
+        text: result?.event?.feedback || actionType,
+        automation: true,
+      };
+    },
+    resolveChoice(optionId) {
+      const result = state.runtime?.resolvePendingChoice(optionId);
+      render();
+      return {
+        clicked: Boolean(result?.accepted),
+        reason: result?.event?.reason || "",
+        optionId,
+        text: result?.event?.feedback || result?.event?.optionLabel || optionId,
+        automation: true,
+      };
+    },
     snapshot() {
       return state.runtime?.snapshot();
     },
@@ -1086,7 +1164,7 @@ function render() {
   document.body.dataset.wuxiaScreen = screenId;
   document.body.dataset.wuxiaMode = screen.mode || "status";
   stage.dataset.screenMode = screen.mode || "status";
-  stage.innerHTML = renderScreenBody(screen, screenContract, flowContract, snapshot);
+  stage.innerHTML = `${renderScreenBody(screen, screenContract, flowContract, snapshot)}${renderPendingChoice(snapshot.pendingChoice)}`;
   syncCombatPlayback(snapshot, screen, flowContract);
 
   stage.querySelectorAll("[data-wuxia-action-id]").forEach((button) => {
@@ -1105,6 +1183,13 @@ function render() {
   });
   bindRoomNavigation(stage, mapExploreBlockForSnapshot(snapshot) || {});
   bindNpcNavigation(stage);
+  stage.querySelectorAll("[data-wuxia-choice-option]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.runtime.resolvePendingChoice(button.dataset.wuxiaChoiceOption);
+      render();
+    });
+  });
+  bindPendingChoiceDialog(stage, snapshot.pendingChoice);
 }
 
 async function init() {

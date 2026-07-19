@@ -91,7 +91,7 @@ function runtimeStatusV2(result = {}, source = {}, flow = {}) {
   const action = result.action || "";
   const resultId = result.resultId || "";
   const hasNarrative = (result.narrativeLines || []).filter(Boolean).length > 0;
-  if (category === "narrative_feedback" && /choice|tankuang/i.test(resultId)) return "feedback_choice_ui_not_implemented";
+  if (category === "narrative_feedback" && /choice|tankuang/i.test(resultId)) return "implemented_choice_definition_and_continuation";
   if (category === "narrative_feedback" && hasNarrative) return "implemented_text_feedback";
   if (category === "narrative_feedback") return "partial_empty_text_feedback";
   if (category === "other" && (action === "阻止玩家移动" || resultId === "stop")) return "implemented_navigation_block";
@@ -117,6 +117,8 @@ function runtimeStatusV2(result = {}, source = {}, flow = {}) {
   if (category === "skill_progression") return "implemented_skill_exp_delta";
   if (category === "combat") return "combat_placeholder_postponed";
   if (category === "other" && /^tmstory/.test(resultId)) return "implemented_story_dialogue_feedback";
+  if (category === "other" && action === "结果集") return "implemented_recursive_result_set";
+  if (category === "other" && action === "碧云心法转换成手心劫") return "implemented_data_driven_skill_conversion";
   if (category === "other" && (action === "玩家时间标记设置" || action === "玩家定时标记设置" || resultId.includes("timebj") || resultId.includes("dingshi"))) return "implemented_time_marker";
   if (category === "other" && matchesOfficialMeritResult(result, flow)) return "implemented_official_merit_ledger";
   if (category === "other" && matchesSeasonalActivityResult(result, flow)) return "scoped_out_seasonal_activity_module_disabled";
@@ -246,6 +248,12 @@ function bindingFor(row) {
       return "runtime_story_dialogue_feedback";
     case "implemented_official_merit_ledger":
       return "runtime_official_merit_ledger_executor";
+    case "implemented_choice_definition_and_continuation":
+      return "runtime_choice_definition_ui_and_continuation_executor";
+    case "implemented_recursive_result_set":
+      return "runtime_recursive_result_set_executor";
+    case "implemented_data_driven_skill_conversion":
+      return "runtime_data_driven_skill_conversion_executor";
     case "scoped_out_seasonal_activity_module_disabled":
       return "chapter_system_module_scope_guard";
     case "partial_empty_text_feedback":

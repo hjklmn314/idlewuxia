@@ -28830,6 +28830,98 @@
         ],
         "scopePolicy": "hidden_out_of_normal_first_session_until_activity_module_enabled",
         "evidenceLevel": "config_confirmed"
+      },
+      "choiceResult": {
+        "schema": "idlewuxia.choice_result_policy.v1",
+        "moduleId": "choice_result_executor",
+        "enabledInFirstSession": true,
+        "actionName": "弹出选项框",
+        "definitionSchema": "idlewuxia.choice_definition.v1",
+        "titleArg": "Arg2",
+        "resultDelimiter": ";",
+        "stripDisplayPrefixes": [
+          "YEL",
+          "RED",
+          "GRN",
+          "CYN",
+          "MAG",
+          "WHT"
+        ],
+        "dismissPolicy": "explicit_option_only",
+        "options": [
+          {
+            "optionId": "option_1",
+            "labelArg": "Arg3",
+            "resultListArg": "Arg5"
+          },
+          {
+            "optionId": "option_2",
+            "labelArg": "Arg4",
+            "resultListArg": "Arg6"
+          }
+        ],
+        "evidence": {
+          "level": "lua_confirmed",
+          "source": "CommonResults.lua:717-748",
+          "semantics": "Arg2 title; Arg3/Arg4 labels; Arg5/Arg6 result lists; selected option dispatches doNoRoleResults"
+        }
+      },
+      "resultSet": {
+        "schema": "idlewuxia.result_set_policy.v1",
+        "moduleId": "recursive_result_set_executor",
+        "enabledInFirstSession": true,
+        "actionName": "结果集",
+        "resultListArg": "Arg2",
+        "resultDelimiter": ";",
+        "maxDepth": 16,
+        "evidenceLevel": "lua_confirmed"
+      },
+      "skillConversion": {
+        "schema": "idlewuxia.skill_conversion_policy.v1",
+        "moduleId": "skill_conversion_executor",
+        "enabledInFirstSession": true,
+        "actionName": "碧云心法转换成手心劫",
+        "successResultListArg": "Arg2",
+        "failureResultListArg": "Arg3",
+        "resultDelimiter": ";",
+        "sourceSkillId": "biyunxinfa",
+        "targetSkillId": "shouxinjie",
+        "experienceCap": {
+          "playerLevelField": "level",
+          "curve": {
+            "identityBelowLevel": 8,
+            "coefficient": 0.015,
+            "exponent": 3,
+            "offset": 1,
+            "rounding": "ceil"
+          }
+        },
+        "moveTransfers": [
+          {
+            "sourceMoveId": "biluohuangquan",
+            "targetMoveId": "xinzhongci"
+          },
+          {
+            "sourceMoveId": "yunqilongxiang",
+            "targetMoveId": "zhijiansha"
+          }
+        ],
+        "fragmentTransfers": [
+          {
+            "sourceItemId": "biluohuangquancanye",
+            "targetItemId": "xinzhongcicanye"
+          },
+          {
+            "sourceItemId": "yunqilongxiangcanye",
+            "targetItemId": "zhijianshacanye"
+          }
+        ],
+        "evidence": {
+          "level": "lua_confirmed",
+          "dispatcherSource": "CommonResults.lua:3380-3411",
+          "experienceCurveSource": "Skill.lua:909-920",
+          "semantics": "source skill exp transfers up to player-level cap; move exp and fragment counts are copied; source records remain"
+        }
       }
     },
     "chapterContentPolicy": {

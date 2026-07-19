@@ -1,4 +1,5 @@
 import { cloneData } from "./dataClone.js";
+import { isValidPendingChoice } from "./resultExecutionModules.js";
 
 function statusRecord(status, detail = "") {
   return { status, detail };
@@ -40,7 +41,12 @@ function validRuntimeStateShape(state) {
     && isStringArrayRecord(state.addedEntityIdsByRoom)
     && isStringRecord(state.replacementEntityById)
     && isStringRecord(state.mapMarkers)
-    && (state.pendingCombat === null || isRecord(state.pendingCombat));
+    && (state.pendingCombat === null || isRecord(state.pendingCombat))
+    && (
+      state.pendingChoice === undefined
+      || state.pendingChoice === null
+      || isValidPendingChoice(state.pendingChoice)
+    );
 }
 
 export function createRuntimePersistence({ storage, contract = {} }) {

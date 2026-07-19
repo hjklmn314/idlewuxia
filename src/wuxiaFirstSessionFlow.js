@@ -1,4 +1,11 @@
 ﻿import { cloneData } from "./dataClone.js";
+import {
+  applySkillConversionPlan,
+  createChoiceDefinition,
+  createSkillConversionPlan,
+  isValidPendingChoice,
+  splitConfiguredResultTokens,
+} from "./resultExecutionModules.js";
 
 function resolveActiveChapter(contract, options = {}) {
   return (
@@ -41,6 +48,9 @@ export function createFirstSessionRuntime(contract, options = {}) {
   const combatActionPolicies = contract?.chapterSystem?.combatActionPolicies || {};
   const officialMeritPolicy = resultEffectPolicies.officialMerit || {};
   const seasonalActivityPolicy = resultEffectPolicies.seasonalActivity || {};
+  const choiceResultPolicy = resultEffectPolicies.choiceResult || {};
+  const resultSetPolicy = resultEffectPolicies.resultSet || {};
+  const skillConversionPolicy = resultEffectPolicies.skillConversion || {};
   const chapterClearPolicy = contract?.chapterSystem?.chapterClearPolicy || {};
   const chapterClearChapters = chapterClearPolicy.chapters || {};
   const candidateSaveState = options.initialSaveState || null;
@@ -63,6 +73,7 @@ export function createFirstSessionRuntime(contract, options = {}) {
   const player = cloneData(saveState.player || options.initialPlayer || contract?.playerSeed || {});
   player.inventory = cloneData(player.inventory || {});
   player.skillExp = cloneData(player.skillExp || {});
+  player.skillMoveExp = cloneData(player.skillMoveExp || {});
   player.skillLevels = cloneData(player.skillLevels || player.skills || {});
   player.markers = cloneData(player.markers || {});
   player.inheritableMarkers = cloneData(player.inheritableMarkers || {});
@@ -89,6 +100,9 @@ export function createFirstSessionRuntime(contract, options = {}) {
   }
   const mapMarkers = { ...(saveState.mapMarkers || options.initialMapMarkers || {}) };
   let pendingCombat = cloneData(saveState.pendingCombat || null);
+  let pendingChoice = isValidPendingChoice(saveState.pendingChoice)
+    ? cloneData(saveState.pendingChoice)
+    : null;
 
   function clone(value) {
     return cloneData(value);
@@ -213,8 +227,10 @@ export function createFirstSessionRuntime(contract, options = {}) {
   }
 
   function validateResultEffects(branch = {}) {
-    const projectedInventory = clone(player.inventory || {});
-    for (const result of branch.resolvedResults || []) {
+    const preparation = prepareResultEffects(branch);
+    if (!preparation.accepted) return preparation;
+    const projectedInventory = clone(preparation.projectedPlayer.inventory || {});
+    for (const result of preparation.preparedBranch.resolvedResults || []) {
       const args = result.args || {};
       const category = result.category || "";
       const action = result.action || "";
@@ -261,12 +277,109 @@ export function createFirstSessionRuntime(contract, options = {}) {
         projectedInventory[itemId] = nextValue;
       }
     }
-    return { accepted: true, reason: "ok" };
+    return {
+      accepted: true,
+      reason: "ok",
+      preparedBranch: preparation.preparedBranch,
+    };
   }
 
   function resultRecord(resultId = "") {
     const key = String(resultId || "").replace(/^rlt_/, "");
     return resultLookup.get(key) || resultLookup.get(`rlt_${key}`) || null;
+  }
+
+  function prepareResultRecords(records = [], context = {}) {
+    const depth = Number(context.depth || 0);
+    const maxDepth = Math.max(1, Number(resultSetPolicy.maxDepth || 16));
+    if (depth > maxDepth) {
+      return { accepted: false, reason: "result chain depth exceeded", depth, maxDepth };
+    }
+    const trail = Array.isArray(context.trail) ? context.trail : [];
+    const projectedPlayer = context.projectedPlayer || clone(player);
+    const prepared = [];
+
+    for (const sourceResult of records) {
+      const result = clone(sourceResult);
+      const resultId = result.resultId || "";
+      const action = result.action || "";
+      if (action === resultSetPolicy.actionName) {
+        if (trail.includes(resultId)) {
+          return { accepted: false, reason: "result chain cycle detected", resultId, trail: clone(trail) };
+        }
+        const tokens = splitConfiguredResultTokens(
+          result.args?.[resultSetPolicy.resultListArg] || "",
+          resultSetPolicy.resultDelimiter || ";",
+        );
+        if (!tokens.length) {
+          return { accepted: false, reason: "result set is empty", resultId };
+        }
+        const children = [];
+        for (const token of tokens) {
+          const child = resultRecord(token);
+          if (!child) return { accepted: false, reason: "unknown result token", resultId, resultToken: token };
+          children.push(child);
+        }
+        const nested = prepareResultRecords(children, {
+          depth: depth + 1,
+          trail: [...trail, resultId],
+          projectedPlayer,
+        });
+        if (!nested.accepted) return nested;
+        prepared.push(...nested.records);
+        continue;
+      }
+
+      if (action === skillConversionPolicy.actionName) {
+        if (trail.includes(resultId)) {
+          return { accepted: false, reason: "result chain cycle detected", resultId, trail: clone(trail) };
+        }
+        const plan = createSkillConversionPlan(result, skillConversionPolicy, projectedPlayer);
+        if (!plan.accepted) return { ...plan, resultId };
+        result.executionPlan = { type: "skill_conversion", plan: clone(plan) };
+        prepared.push(result);
+        applySkillConversionPlan(projectedPlayer, plan);
+        const children = [];
+        for (const token of plan.resultTokens) {
+          const child = resultRecord(token);
+          if (!child) return { accepted: false, reason: "unknown result token", resultId, resultToken: token };
+          children.push(child);
+        }
+        const nested = prepareResultRecords(children, {
+          depth: depth + 1,
+          trail: [...trail, resultId],
+          projectedPlayer,
+        });
+        if (!nested.accepted) return nested;
+        prepared.push(...nested.records);
+        continue;
+      }
+
+      if (action === choiceResultPolicy.actionName) {
+        const choice = createChoiceDefinition(result, choiceResultPolicy, resultRecord);
+        if (!choice.accepted) return { ...choice, resultId };
+        result.choiceDefinition = clone(choice.definition);
+      }
+      prepared.push(result);
+    }
+    return { accepted: true, records: prepared, projectedPlayer };
+  }
+
+  function prepareResultEffects(branch = {}) {
+    const preparation = prepareResultRecords(branch.resolvedResults || [], {
+      depth: 0,
+      trail: [],
+      projectedPlayer: clone(player),
+    });
+    if (!preparation.accepted) return preparation;
+    return {
+      accepted: true,
+      projectedPlayer: preparation.projectedPlayer,
+      preparedBranch: {
+        ...branch,
+        resolvedResults: preparation.records,
+      },
+    };
   }
 
   function matchesAnyPattern(value = "", patterns = []) {
@@ -508,8 +621,57 @@ export function createFirstSessionRuntime(contract, options = {}) {
         status: "ignored_text_only",
       };
 
+      if (action === choiceResultPolicy.actionName) {
+        const definition = result.choiceDefinition
+          || createChoiceDefinition(result, choiceResultPolicy, resultRecord).definition;
+        if (definition && isValidPendingChoice({ ...definition, sourceId })) {
+          pendingChoice = {
+            ...clone(definition),
+            sourceId,
+            openedAtEventIndex: events.length,
+          };
+          sideEffects.push({
+            ...effect,
+            status: "opened_choice",
+            choiceId: definition.choiceId,
+            optionIds: definition.options.map((option) => option.optionId),
+          });
+        } else {
+          sideEffects.push({ ...effect, status: "invalid_choice_definition" });
+        }
+        continue;
+      }
+
+      if (action === skillConversionPolicy.actionName) {
+        const plan = result.executionPlan?.plan
+          || createSkillConversionPlan(result, skillConversionPolicy, player);
+        if (plan?.accepted) {
+          applySkillConversionPlan(player, plan);
+          for (const [skillId, delta] of Object.entries(plan.mutations?.skillExpDeltas || {})) {
+            flags.add(`skill_exp:${skillId}=${player.skillExp[skillId]}`);
+            if (Number(delta || 0) === 0) flags.add(`skill_exp_capped:${skillId}`);
+          }
+          sideEffects.push({
+            ...effect,
+            status: plan.outcome === "success"
+              ? "applied_skill_conversion"
+              : "skill_conversion_source_not_learned",
+            outcome: plan.outcome,
+            conversion: clone(plan.audit || {}),
+            mutations: clone(plan.mutations || {}),
+          });
+        } else {
+          sideEffects.push({ ...effect, status: "invalid_skill_conversion_plan", reason: plan?.reason || "" });
+        }
+        continue;
+      }
+
       if (category === "narrative_feedback") {
-        sideEffects.push(effect);
+        sideEffects.push({
+          ...effect,
+          status: "applied_text_feedback",
+          feedbackLines: narrativeLinesFromResultRecord(result),
+        });
         continue;
       }
 
@@ -844,6 +1006,7 @@ export function createFirstSessionRuntime(contract, options = {}) {
       chapter: chapterSnapshot,
       chapter1: chapterSnapshot,
       pendingCombat: clone(pendingCombat),
+      pendingChoice: clone(pendingChoice),
       events: clone(events),
     };
   }
@@ -866,11 +1029,26 @@ export function createFirstSessionRuntime(contract, options = {}) {
       replacementEntityById: Object.fromEntries([...replacementEntityById.entries()].sort(([left], [right]) => left.localeCompare(right))),
       mapMarkers: clone(mapMarkers),
       pendingCombat: clone(pendingCombat),
+      pendingChoice: clone(pendingChoice),
       events: clone(events),
     };
   }
 
+  function rejectCommandWhileChoicePending(commandType, detail = {}) {
+    if (!pendingChoice) return null;
+    const event = {
+      type: `${commandType}Rejected`,
+      ...detail,
+      reason: "pending choice must be resolved first",
+      choiceId: pendingChoice.choiceId,
+    };
+    events.push(event);
+    return { accepted: false, event, snapshot: snapshot() };
+  }
+
   function dispatch(actionId) {
+    const choiceBlock = rejectCommandWhileChoicePending("dispatch", { actionId });
+    if (choiceBlock) return choiceBlock;
     const action = actions.get(actionId);
     if (!action) {
       const event = { type: "commandRejected", actionId, reason: "unknown action" };
@@ -962,6 +1140,8 @@ export function createFirstSessionRuntime(contract, options = {}) {
   }
 
   function selectChapterNode(nodeId) {
+    const choiceBlock = rejectCommandWhileChoicePending("nodeSelection", { nodeId });
+    if (choiceBlock) return choiceBlock;
     const node = nodeMap.get(nodeId);
     if (!node) {
       const event = { type: "nodeRejected", nodeId, reason: "unknown node" };
@@ -997,6 +1177,8 @@ export function createFirstSessionRuntime(contract, options = {}) {
   }
 
   function selectChapterRoom(roomId) {
+    const choiceBlock = rejectCommandWhileChoicePending("roomSelection", { roomId });
+    if (choiceBlock) return choiceBlock;
     const room = roomMap.get(roomId);
     if (!room) {
       const event = { type: "roomRejected", roomId, reason: "unknown room" };
@@ -1064,6 +1246,8 @@ export function createFirstSessionRuntime(contract, options = {}) {
   }
 
   function selectChapterNpc(roleId) {
+    const choiceBlock = rejectCommandWhileChoicePending("npcSelection", { roleId });
+    if (choiceBlock) return choiceBlock;
     const npc = npcMap.get(roleId);
     if (!npc) {
       const event = { type: "npcRejected", roleId, reason: "unknown npc" };
@@ -1090,6 +1274,8 @@ export function createFirstSessionRuntime(contract, options = {}) {
   }
 
   function selectChapterInteractable(interactableId) {
+    const choiceBlock = rejectCommandWhileChoicePending("interactableSelection", { interactableId });
+    if (choiceBlock) return choiceBlock;
     const item = interactableMap.get(interactableId);
     if (!item) {
       const event = { type: "interactableRejected", interactableId, reason: "unknown interactable" };
@@ -1246,14 +1432,17 @@ export function createFirstSessionRuntime(contract, options = {}) {
       sourceEvidenceLevel,
     );
     if (decision.branch && branchRequiresChoiceUi(decision.branch)) {
-      return {
-        actionType,
-        visible: false,
-        available: false,
-        reason: "choice UI runtime module is postponed",
-        checks: clone(decision.checks || []),
-        evidenceLevel: decision.evidenceLevel,
-      };
+      const validation = validateResultEffects(decision.branch);
+      if (!validation.accepted) {
+        return {
+          actionType,
+          visible: true,
+          available: false,
+          reason: validation.reason,
+          checks: clone(decision.checks || []),
+          evidenceLevel: decision.evidenceLevel,
+        };
+      }
     }
     const { branch: _branch, ...availability } = decision;
     return {
@@ -1316,7 +1505,8 @@ export function createFirstSessionRuntime(contract, options = {}) {
       events.push({ type: "combatResolutionRejected", ...clone(resolution) });
       return resolution;
     }
-    const sideEffects = branch ? applyResultEffects(pendingCombat.sourceId, branch) : [];
+    const executionBranch = validation.preparedBranch || branch;
+    const sideEffects = executionBranch ? applyResultEffects(pendingCombat.sourceId, executionBranch) : [];
     const resolution = {
       accepted: true,
       outcome,
@@ -1331,6 +1521,85 @@ export function createFirstSessionRuntime(contract, options = {}) {
     events.push({ type: "combatResolved", ...clone(resolution) });
     pendingCombat = null;
     return resolution;
+  }
+
+  function feedbackLinesFromSideEffects(sideEffects = []) {
+    return sideEffects.flatMap((effect) => [
+      ...(effect.feedbackLines || []),
+      ...feedbackLinesFromSideEffects(effect.followupSideEffects || []),
+    ]).filter(Boolean);
+  }
+
+  function resolvePendingChoice(optionId = "") {
+    if (!pendingChoice) {
+      const event = { type: "choiceResolutionRejected", optionId, reason: "no pending choice" };
+      events.push(event);
+      return { accepted: false, event, snapshot: snapshot() };
+    }
+    const choice = clone(pendingChoice);
+    const option = choice.options.find((candidate) => candidate.optionId === optionId);
+    if (!option) {
+      const event = {
+        type: "choiceResolutionRejected",
+        choiceId: choice.choiceId,
+        optionId,
+        reason: "unknown choice option",
+      };
+      events.push(event);
+      return { accepted: false, event, snapshot: snapshot() };
+    }
+    const resolvedResults = [];
+    for (const token of option.resultTokens) {
+      const result = resultRecord(token);
+      if (!result) {
+        const event = {
+          type: "choiceResolutionRejected",
+          choiceId: choice.choiceId,
+          optionId,
+          reason: "unknown result token",
+          resultToken: token,
+        };
+        events.push(event);
+        return { accepted: false, event, snapshot: snapshot() };
+      }
+      resolvedResults.push(result);
+    }
+    const branch = {
+      conditionTokens: [],
+      resultTokens: clone(option.resultTokens),
+      resolvedResults,
+      evidenceLevel: choice.evidence?.level || "unknown",
+    };
+    const validation = validateResultEffects(branch);
+    if (!validation.accepted) {
+      const event = {
+        type: "choiceResolutionRejected",
+        choiceId: choice.choiceId,
+        optionId,
+        reason: validation.reason,
+        validation: clone(validation),
+      };
+      events.push(event);
+      return { accepted: false, event, snapshot: snapshot() };
+    }
+
+    const sideEffects = applyResultEffects(choice.sourceId, validation.preparedBranch || branch);
+    const feedbackLines = feedbackLinesFromSideEffects(sideEffects);
+    pendingChoice = null;
+    const event = {
+      type: "choiceResolved",
+      choiceId: choice.choiceId,
+      sourceId: choice.sourceId,
+      optionId,
+      optionLabel: option.label,
+      resultTokens: clone(option.resultTokens),
+      feedbackLines,
+      feedback: feedbackLines.join("\n"),
+      sideEffects: clone(sideEffects),
+      evidenceLevel: choice.evidence?.level || "unknown",
+    };
+    events.push(event);
+    return { accepted: true, event, snapshot: snapshot() };
   }
 
   function globalNpcActionFeedback(npc, action) {
@@ -1403,15 +1672,18 @@ export function createFirstSessionRuntime(contract, options = {}) {
     }
     const decision = configuredBranchDecision(candidateBranches, { actionType }, sourceEvidenceLevel);
     if (decision.branch && branchRequiresChoiceUi(decision.branch)) {
-      return {
-        actionType,
-        branch: null,
-        visible: false,
-        available: false,
-        reason: "choice UI runtime module is postponed",
-        checks: clone(decision.checks || []),
-        evidenceLevel: decision.evidenceLevel,
-      };
+      const validation = validateResultEffects(decision.branch);
+      if (!validation.accepted) {
+        return {
+          actionType,
+          branch: null,
+          visible: true,
+          available: false,
+          reason: validation.reason,
+          checks: clone(decision.checks || []),
+          evidenceLevel: decision.evidenceLevel,
+        };
+      }
     }
     return {
       actionType,
@@ -1425,6 +1697,8 @@ export function createFirstSessionRuntime(contract, options = {}) {
   }
 
   function interactWithChapterNpc(roleId, actionType = "talk") {
+    const choiceBlock = rejectCommandWhileChoicePending("npcInteraction", { roleId, actionType });
+    if (choiceBlock) return choiceBlock;
     const npc = npcMap.get(roleId);
     if (!npc) {
       const event = { type: "npcInteractionRejected", roleId, actionType, reason: "unknown npc" };
@@ -1504,7 +1778,8 @@ export function createFirstSessionRuntime(contract, options = {}) {
     selectedChapterNpcId = roleId;
     selectedChapterInteractableId = "";
     const fallback = branch?.narrativeLines?.length ? null : globalNpcActionFeedback(npc, action);
-    const sideEffects = branch ? applyResultEffects(roleId, branch) : [];
+    const executionBranch = resultValidation.preparedBranch || branch;
+    const sideEffects = executionBranch ? applyResultEffects(roleId, executionBranch) : [];
     const sideEffectFeedbackLines = sideEffects.flatMap((effect) => [
       ...(effect.feedbackLines || []),
       ...((effect.followupSideEffects || []).flatMap((followup) => followup.feedbackLines || [])),
@@ -1537,6 +1812,8 @@ export function createFirstSessionRuntime(contract, options = {}) {
   }
 
   function interactWithChapterInteractable(interactableId, actionType = "use") {
+    const choiceBlock = rejectCommandWhileChoicePending("interactableInteraction", { interactableId, actionType });
+    if (choiceBlock) return choiceBlock;
     const item = interactableMap.get(interactableId);
     if (!item) {
       const event = { type: "interactableInteractionRejected", interactableId, actionType, reason: "unknown interactable" };
@@ -1596,7 +1873,8 @@ export function createFirstSessionRuntime(contract, options = {}) {
     }
     selectedChapterNpcId = "";
     selectedChapterInteractableId = interactableId;
-    const sideEffects = branch ? applyResultEffects(interactableId, branch) : [];
+    const executionBranch = resultValidation.preparedBranch || branch;
+    const sideEffects = executionBranch ? applyResultEffects(interactableId, executionBranch) : [];
     const sideEffectFeedbackLines = sideEffects.flatMap((effect) => [
       ...(effect.feedbackLines || []),
       ...((effect.followupSideEffects || []).flatMap((followup) => followup.feedbackLines || [])),
@@ -1639,6 +1917,7 @@ export function createFirstSessionRuntime(contract, options = {}) {
     selectChapterInteractable,
     interactWithChapterInteractable,
     resolvePendingCombat,
+    resolvePendingChoice,
   };
 }
 
