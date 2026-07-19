@@ -64,6 +64,7 @@ export function createFirstSessionRuntime(contract, options = {}) {
   player.inventory = cloneData(player.inventory || {});
   player.skillExp = cloneData(player.skillExp || {});
   player.skillLevels = cloneData(player.skillLevels || player.skills || {});
+  player.markers = cloneData(player.markers || {});
   player.inheritableMarkers = cloneData(player.inheritableMarkers || {});
   player.timeMarkers = cloneData(player.timeMarkers || {});
   player.timedMarkers = cloneData(player.timedMarkers || {});
@@ -211,6 +212,58 @@ export function createFirstSessionRuntime(contract, options = {}) {
       .filter((entry) => entry.itemId);
   }
 
+  function validateResultEffects(branch = {}) {
+    const projectedInventory = clone(player.inventory || {});
+    for (const result of branch.resolvedResults || []) {
+      const args = result.args || {};
+      const category = result.category || "";
+      const action = result.action || "";
+      if (category === "item_reward_or_cost" && action === "物品合成") {
+        const ingredients = parseItemStackList(args.Arg2 || "");
+        const productId = args.Arg3 || "";
+        if (!ingredients.length || !productId) {
+          return { accepted: false, reason: "invalid crafting recipe", resultId: result.resultId || "" };
+        }
+        for (const ingredient of ingredients) {
+          if (Number(projectedInventory[ingredient.itemId] || 0) < ingredient.count) {
+            return {
+              accepted: false,
+              reason: "insufficient crafting ingredients",
+              resultId: result.resultId || "",
+              itemId: ingredient.itemId,
+              required: ingredient.count,
+              available: Number(projectedInventory[ingredient.itemId] || 0),
+            };
+          }
+          projectedInventory[ingredient.itemId] = Number(projectedInventory[ingredient.itemId] || 0) - ingredient.count;
+        }
+        projectedInventory[productId] = Number(projectedInventory[productId] || 0) + 1;
+        continue;
+      }
+      if (category === "item_reward_or_cost" || action === "玩家物品变化") {
+        const itemId = args.Arg2 || "";
+        const rawDelta = args.Arg3 === "" || args.Arg3 === undefined ? 1 : args.Arg3;
+        const delta = Number(rawDelta);
+        if (!itemId || !Number.isFinite(delta)) {
+          return { accepted: false, reason: "invalid inventory delta", resultId: result.resultId || "" };
+        }
+        const nextValue = Number(projectedInventory[itemId] || 0) + delta;
+        if (nextValue < 0) {
+          return {
+            accepted: false,
+            reason: "insufficient inventory",
+            resultId: result.resultId || "",
+            itemId,
+            delta,
+            available: Number(projectedInventory[itemId] || 0),
+          };
+        }
+        projectedInventory[itemId] = nextValue;
+      }
+    }
+    return { accepted: true, reason: "ok" };
+  }
+
   function resultRecord(resultId = "") {
     const key = String(resultId || "").replace(/^rlt_/, "");
     return resultLookup.get(key) || resultLookup.get(`rlt_${key}`) || null;
@@ -301,6 +354,10 @@ export function createFirstSessionRuntime(contract, options = {}) {
     return (branch.resolvedResults || []).every((result) => isResultEnabledInFirstSession(result));
   }
 
+  function branchRequiresChoiceUi(branch = {}) {
+    return (branch.resolvedResults || []).some((result) => result.action === "弹出选项框");
+  }
+
   function narrativeLinesFromResultRecord(record) {
     if (!record) return [];
     if (Array.isArray(record.narrativeLines) && record.narrativeLines.length) return record.narrativeLines.filter(Boolean);
@@ -330,6 +387,11 @@ export function createFirstSessionRuntime(contract, options = {}) {
       const expected = String(arg2 || "");
       const accepted = action === "门派等于" ? actual === expected : actual !== expected;
       return { status: action === "门派等于" ? "checked_sect_eq" : "checked_sect_ne", accepted, token, field: "sectId", actual, expected, expectedLabel: String(condition.arg3 || arg2 || "") };
+    }
+    if (action === "玩家标记等于" || action === "玩家标记大于" || action === "玩家标记小于") {
+      const actual = Number(player.markers[arg2] || 0);
+      const operator = action.endsWith("大于") ? "gt" : action.endsWith("小于") ? "lt" : "eq";
+      return { status: `checked_player_marker_${operator}`, accepted: compareNumbers(actual, operator, arg3), token, marker: arg2, actual, expected: arg3 };
     }
     if (action === "可传承玩家标记等于" || action === "可传承玩家标记大于" || action === "可传承玩家标记小于") {
       const actual = Number(player.inheritableMarkers[arg2] || 0);
@@ -531,8 +593,9 @@ export function createFirstSessionRuntime(contract, options = {}) {
       }
 
       if (category === "item_reward_or_cost" || action === "玩家物品变化") {
-        const didApply = applyInventoryDelta(arg2, arg3 || 1);
-        sideEffects.push({ ...effect, status: didApply ? "applied_inventory_delta" : "missing_inventory_delta_arg", itemId: arg2, delta: arg3 || "1" });
+        const delta = arg3 === "" || arg3 === undefined ? 1 : arg3;
+        const didApply = applyInventoryDelta(arg2, delta);
+        sideEffects.push({ ...effect, status: didApply ? "applied_inventory_delta" : "missing_inventory_delta_arg", itemId: arg2, delta });
         continue;
       }
 
@@ -600,7 +663,11 @@ export function createFirstSessionRuntime(contract, options = {}) {
 
       if (category === "role_state" || action === "玩家标记设置" || action === "玩家标记变化") {
         if (arg2) {
-          const value = arg3 || "1";
+          const rawValue = arg3 === "" || arg3 === undefined ? 1 : arg3;
+          const value = action === "玩家标记变化"
+            ? Number(player.markers[arg2] || 0) + Number(rawValue)
+            : rawValue;
+          player.markers[arg2] = value;
           flags.add(`player_marker:${arg2}=${value}`);
           sideEffects.push({ ...effect, status: "applied_player_marker", marker: arg2, value });
         } else {
@@ -699,13 +766,23 @@ export function createFirstSessionRuntime(contract, options = {}) {
     }
     const minimums = action.requestPayload?.minimumPlayerValues || {};
     for (const [key, minimum] of Object.entries(minimums)) {
-      if (Number(player[key] || 0) < Number(minimum)) {
+      const actual = Number(player[key] || 0);
+      const expected = Number(minimum);
+      if (!Number.isFinite(actual) || !Number.isFinite(expected)) {
+        return { accepted: false, reason: `invalid numeric condition for ${key}` };
+      }
+      if (actual < expected) {
         return { accepted: false, reason: `${key} requires ${minimum}` };
       }
     }
     const taskMinimums = action.requestPayload?.minimumTaskValues || {};
     for (const [key, minimum] of Object.entries(taskMinimums)) {
-      if (Number(taskState[key] || 0) < Number(minimum)) {
+      const actual = Number(taskState[key] || 0);
+      const expected = Number(minimum);
+      if (!Number.isFinite(actual) || !Number.isFinite(expected)) {
+        return { accepted: false, reason: `invalid numeric condition for ${key}` };
+      }
+      if (actual < expected) {
         return { accepted: false, reason: `${key} requires ${minimum}` };
       }
     }
@@ -759,15 +836,15 @@ export function createFirstSessionRuntime(contract, options = {}) {
     return {
       schema: contract?.schema || "",
       currentState,
-      state: states.get(currentState) || null,
-      availableActions: actionsByState.get(currentState) || [],
+      state: clone(states.get(currentState) || null),
+      availableActions: clone(actionsByState.get(currentState) || []),
       flags: [...flags].sort(),
       player: clone(player),
       taskState: clone(taskState),
       chapter: chapterSnapshot,
       chapter1: chapterSnapshot,
       pendingCombat: clone(pendingCombat),
-      events: [...events],
+      events: clone(events),
     };
   }
 
@@ -820,6 +897,18 @@ export function createFirstSessionRuntime(contract, options = {}) {
       events.push(event);
       return { accepted: false, event, snapshot: snapshot() };
     }
+    const rewardClassId = action.responseModel?.rewardClassId || "";
+    const rewardResult = rewardClassId ? rewardClassDeltas(rewardClassId) : { missing: false, deltas: {}, rows: [] };
+    if (rewardResult.missing) {
+      const event = {
+        type: "commandRejected",
+        actionId,
+        reason: `missing reward class ${rewardClassId}`,
+        feedback: `missing reward class ${rewardClassId}`,
+      };
+      events.push(event);
+      return { accepted: false, event, snapshot: snapshot() };
+    }
     const combatResolution = action.responseModel?.resolvePendingCombat && pendingCombat
       ? resolvePendingCombat(action.responseModel?.combatOutcome || "success")
       : null;
@@ -841,18 +930,6 @@ export function createFirstSessionRuntime(contract, options = {}) {
     }
     for (const revoked of action.responseModel?.revokeStates || []) flags.delete(revoked);
     Object.assign(player, action.responseModel?.profilePatch || {});
-    const rewardClassId = action.responseModel?.rewardClassId || "";
-    const rewardResult = rewardClassId ? rewardClassDeltas(rewardClassId) : { missing: false, deltas: {}, rows: [] };
-    if (rewardResult.missing) {
-      const event = {
-        type: "commandRejected",
-        actionId,
-        reason: `missing reward class ${rewardClassId}`,
-        feedback: `missing reward class ${rewardClassId}`,
-      };
-      events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
-    }
     const statDeltas = {
       ...(action.responseModel?.statDeltas || {}),
       ...rewardResult.deltas,
@@ -1131,20 +1208,54 @@ export function createFirstSessionRuntime(contract, options = {}) {
     const candidateBranches = exactBranches.length
       ? exactBranches
       : (actionType === "talk" ? talkBranches(npc) : []);
-    const combatOutcomeTokens = combatPolicy
-      ? [combatPolicy.successConditionToken, combatPolicy.failureConditionToken, combatPolicy.runawayConditionToken].filter(Boolean)
-      : [];
     const sourceEvidenceLevel = evidenceLevelOrUnknown(
       action.evidenceLevel,
       action.evidence?.level,
       npc?.evidence?.level,
       combatPolicy?.evidence?.level,
     );
-    const { branch: _branch, ...availability } = configuredBranchDecision(
+    const hasUnroutedCombatResult = !combatPolicy && candidateBranches.some((branch) => (
+      (branch.resolvedResults || []).some((result) => result.category === "combat")
+    ));
+    if (hasUnroutedCombatResult) {
+      return {
+        actionType,
+        visible: false,
+        available: false,
+        reason: "combat runtime module is postponed",
+        checks: [],
+        evidenceLevel: sourceEvidenceLevel,
+      };
+    }
+    if (!candidateBranches.length && actionType !== "talk" && !combatPolicy) {
+      return {
+        actionType,
+        visible: false,
+        available: false,
+        reason: "no configured runtime execution branch",
+        checks: [],
+        evidenceLevel: sourceEvidenceLevel,
+      };
+    }
+    const combatOutcomeTokens = combatPolicy
+      ? [combatPolicy.successConditionToken, combatPolicy.failureConditionToken, combatPolicy.runawayConditionToken].filter(Boolean)
+      : [];
+    const decision = configuredBranchDecision(
       candidateBranches,
       { actionType, ignoreConditionTokens: combatOutcomeTokens },
       sourceEvidenceLevel,
     );
+    if (decision.branch && branchRequiresChoiceUi(decision.branch)) {
+      return {
+        actionType,
+        visible: false,
+        available: false,
+        reason: "choice UI runtime module is postponed",
+        checks: clone(decision.checks || []),
+        evidenceLevel: decision.evidenceLevel,
+      };
+    }
+    const { branch: _branch, ...availability } = decision;
     return {
       actionType,
       ...availability,
@@ -1189,16 +1300,33 @@ export function createFirstSessionRuntime(contract, options = {}) {
         && branchConditionsMet(candidate, { satisfiedCombatToken: outcomeToken }).accepted
       ))
       : null;
+    const validation = branch ? validateResultEffects(branch) : { accepted: true, reason: "ok" };
+    if (branch && !validation.accepted) {
+      const resolution = {
+        accepted: false,
+        outcome,
+        outcomeToken,
+        sourceId: pendingCombat.sourceId,
+        feedbackLines: [],
+        resultTokens: clone(branch.resultTokens || []),
+        sideEffects: [],
+        reason: validation.reason,
+        validation: clone(validation),
+      };
+      events.push({ type: "combatResolutionRejected", ...clone(resolution) });
+      return resolution;
+    }
     const sideEffects = branch ? applyResultEffects(pendingCombat.sourceId, branch) : [];
     const resolution = {
-      accepted: Boolean(branch),
+      accepted: true,
       outcome,
       outcomeToken,
       sourceId: pendingCombat.sourceId,
+      matchedOutcomeBranch: Boolean(branch),
       feedbackLines: clone(branch?.narrativeLines || []),
       resultTokens: clone(branch?.resultTokens || []),
       sideEffects: clone(sideEffects),
-      reason: branch ? "" : `missing combat outcome branch ${outcomeToken || outcome}`,
+      reason: "",
     };
     events.push({ type: "combatResolved", ...clone(resolution) });
     pendingCombat = null;
@@ -1262,9 +1390,32 @@ export function createFirstSessionRuntime(contract, options = {}) {
       action.evidence?.level,
       item?.evidence?.level,
     );
+    if (!candidateBranches.length) {
+      return {
+        actionType,
+        branch: null,
+        visible: false,
+        available: false,
+        reason: "no configured runtime execution branch",
+        checks: [],
+        evidenceLevel: sourceEvidenceLevel,
+      };
+    }
+    const decision = configuredBranchDecision(candidateBranches, { actionType }, sourceEvidenceLevel);
+    if (decision.branch && branchRequiresChoiceUi(decision.branch)) {
+      return {
+        actionType,
+        branch: null,
+        visible: false,
+        available: false,
+        reason: "choice UI runtime module is postponed",
+        checks: clone(decision.checks || []),
+        evidenceLevel: decision.evidenceLevel,
+      };
+    }
     return {
       actionType,
-      ...configuredBranchDecision(candidateBranches, { actionType }, sourceEvidenceLevel),
+      ...decision,
     };
   }
 
@@ -1306,11 +1457,11 @@ export function createFirstSessionRuntime(contract, options = {}) {
       events.push(event);
       return { accepted: false, event, snapshot: snapshot() };
     }
-    selectedChapterNpcId = roleId;
-    selectedChapterInteractableId = "";
     const branch = branchForNpcAction(npc, actionType);
     const combatPolicy = combatPolicyForAction(actionType);
     if (combatPolicy) {
+      selectedChapterNpcId = roleId;
+      selectedChapterInteractableId = "";
       const fallback = globalNpcActionFeedback(npc, action);
       const event = {
         type: "npcInteraction",
@@ -1335,6 +1486,23 @@ export function createFirstSessionRuntime(contract, options = {}) {
       }
       return { accepted: true, event, snapshot: snapshot() };
     }
+    const resultValidation = branch ? validateResultEffects(branch) : { accepted: true, reason: "ok" };
+    if (!resultValidation.accepted) {
+      const event = {
+        type: "npcInteractionRejected",
+        roleId,
+        actionType,
+        reason: resultValidation.reason,
+        feedback: resultValidation.reason,
+        resultTokens: clone(branch?.resultTokens || []),
+        validation: clone(resultValidation),
+        evidenceLevel: evidenceLevelOrUnknown(branch?.evidenceLevel, npc?.evidence?.level),
+      };
+      events.push(event);
+      return { accepted: false, event, snapshot: snapshot() };
+    }
+    selectedChapterNpcId = roleId;
+    selectedChapterInteractableId = "";
     const fallback = branch?.narrativeLines?.length ? null : globalNpcActionFeedback(npc, action);
     const sideEffects = branch ? applyResultEffects(roleId, branch) : [];
     const sideEffectFeedbackLines = sideEffects.flatMap((effect) => [
@@ -1406,13 +1574,28 @@ export function createFirstSessionRuntime(contract, options = {}) {
       events.push(event);
       return { accepted: false, event, snapshot: snapshot() };
     }
-    selectedChapterNpcId = "";
-    selectedChapterInteractableId = interactableId;
     const branch = decision.branch;
     const interactableName = item.name || item.displayName?.zhCN || "\u7269\u4ef6";
     const fallbackLine = item.description
       ? `${interactableName}\uff1a${item.description}`
       : `${interactableName}\u6ca1\u6709\u66f4\u591a\u53cd\u5e94\u3002`;
+    const resultValidation = branch ? validateResultEffects(branch) : { accepted: true, reason: "ok" };
+    if (!resultValidation.accepted) {
+      const event = {
+        type: "interactableInteractionRejected",
+        interactableId,
+        actionType,
+        reason: resultValidation.reason,
+        feedback: resultValidation.reason,
+        resultTokens: clone(branch?.resultTokens || []),
+        validation: clone(resultValidation),
+        evidenceLevel: evidenceLevelOrUnknown(branch?.evidenceLevel, item?.evidence?.level),
+      };
+      events.push(event);
+      return { accepted: false, event, snapshot: snapshot() };
+    }
+    selectedChapterNpcId = "";
+    selectedChapterInteractableId = interactableId;
     const sideEffects = branch ? applyResultEffects(interactableId, branch) : [];
     const sideEffectFeedbackLines = sideEffects.flatMap((effect) => [
       ...(effect.feedbackLines || []),

@@ -8,13 +8,39 @@ function isRecord(value) {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
+function isStringArray(value) {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+function isStringRecord(value) {
+  return isRecord(value)
+    && Object.values(value).every((item) => typeof item === "string" || typeof item === "number");
+}
+
+function isStringArrayRecord(value) {
+  return isRecord(value)
+    && Object.values(value).every((item) => isStringArray(item));
+}
+
 function validRuntimeStateShape(state) {
   return isRecord(state)
     && typeof state.currentState === "string"
-    && Array.isArray(state.flags)
+    && typeof state.runtimeSchema === "string"
+    && typeof state.chapterId === "string"
+    && isStringArray(state.flags)
     && isRecord(state.player)
     && isRecord(state.taskState)
-    && Array.isArray(state.events);
+    && Array.isArray(state.events)
+    && state.events.every(isRecord)
+    && typeof state.selectedChapterNodeId === "string"
+    && typeof state.selectedChapterRoomId === "string"
+    && typeof state.selectedChapterNpcId === "string"
+    && typeof state.selectedChapterInteractableId === "string"
+    && isStringArray(state.hiddenEntityIds)
+    && isStringArrayRecord(state.addedEntityIdsByRoom)
+    && isStringRecord(state.replacementEntityById)
+    && isStringRecord(state.mapMarkers)
+    && (state.pendingCombat === null || isRecord(state.pendingCombat));
 }
 
 export function createRuntimePersistence({ storage, contract = {} }) {

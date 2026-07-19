@@ -391,6 +391,7 @@ export function lastNpcLog(snapshot, room, block = {}) {
     || event.type === "interactableInteraction"
     || event.type === "interactableInteractionRejected"
     || event.type === "interactableSelected"
+    || event.type === "roomBlocked"
     || event.type === "roomSelected"
   ));
   if (lastEvent?.type === "combatResolved") return lastEvent.feedbackLines || [lastEvent.feedback].filter(Boolean);
@@ -433,14 +434,15 @@ function conditionRequirementText(availability = {}) {
 function renderNpcPanel(npc, snapshot) {
   if (!npc) return "";
   const availabilityByAction = new Map((snapshot?.chapter?.selectedNpcActionAvailability || []).map((entry) => [entry.actionType, entry]));
+  const visibleActions = (npc.actions || []).filter((action) => availabilityByAction.get(action.actionType)?.visible !== false);
   return `
     <section class="wuxia-npc-panel" data-testid="room-npc-panel" aria-live="polite">
       <header>
         <strong>${escapeHtml(npc.name || npc.displayName?.zhCN || "")}</strong>
-        <span>${escapeHtml((npc.actions || []).map((action) => action.label).filter(Boolean).join(" / "))}</span>
+        <span>${escapeHtml(visibleActions.map((action) => action.label).filter(Boolean).join(" / "))}</span>
       </header>
       <div class="wuxia-npc-actions">
-        ${(npc.actions || []).map((action) => {
+        ${visibleActions.map((action) => {
           const availability = availabilityByAction.get(action.actionType) || { available: true };
           const requirement = conditionRequirementText(availability);
           return `
@@ -459,15 +461,16 @@ export function renderItemPanel(item, snapshot) {
   const availabilityByAction = new Map(
     (snapshot?.chapter?.selectedInteractableActionAvailability || []).map((entry) => [entry.actionType, entry]),
   );
+  const visibleActions = (item.actions || []).filter((action) => availabilityByAction.get(action.actionType)?.visible !== false);
   return `
     <section class="wuxia-npc-panel wuxia-item-panel" data-testid="room-item-panel" aria-live="polite">
       <header>
         <strong>${escapeHtml(item.name || item.interactableId || "")}</strong>
-        <span>${escapeHtml((item.actions || []).map((action) => action.label).filter(Boolean).join(" / "))}</span>
+        <span>${escapeHtml(visibleActions.map((action) => action.label).filter(Boolean).join(" / "))}</span>
       </header>
       ${item.description ? `<p>${escapeHtml(item.description)}</p>` : ""}
       <div class="wuxia-npc-actions">
-        ${(item.actions || []).map((action) => {
+        ${visibleActions.map((action) => {
           const availability = availabilityByAction.get(action.actionType) || { available: true };
           const requirement = conditionRequirementText(availability);
           const locked = !availability.available;

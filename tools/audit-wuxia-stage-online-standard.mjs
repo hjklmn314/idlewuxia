@@ -432,6 +432,7 @@ fs.writeFileSync(path.join(outDir, "stage_tasks_online_standard_gap_audit_202607
 
 console.log(JSON.stringify(summary, null, 2));
 
-if (issues.some((entry) => entry.severity === "P0")) {
+const allowP1 = process.argv.includes("--allow-p1");
+if (issues.some((entry) => entry.severity === "P0" || (!allowP1 && entry.severity === "P1"))) {
   process.exitCode = 1;
 }

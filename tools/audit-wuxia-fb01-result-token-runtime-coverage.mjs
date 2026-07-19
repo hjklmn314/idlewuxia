@@ -91,6 +91,7 @@ function runtimeStatusV2(result = {}, source = {}, flow = {}) {
   const action = result.action || "";
   const resultId = result.resultId || "";
   const hasNarrative = (result.narrativeLines || []).filter(Boolean).length > 0;
+  if (category === "narrative_feedback" && /choice|tankuang/i.test(resultId)) return "feedback_choice_ui_not_implemented";
   if (category === "narrative_feedback" && hasNarrative) return "implemented_text_feedback";
   if (category === "narrative_feedback") return "partial_empty_text_feedback";
   if (category === "other" && (action === "阻止玩家移动" || resultId === "stop")) return "implemented_navigation_block";
@@ -110,21 +111,11 @@ function runtimeStatusV2(result = {}, source = {}, flow = {}) {
   if (category === "role_state") return "implemented_player_marker";
   if (category === "attribute_reward") return "implemented_attribute_reward";
   if (category === "item_reward_or_cost" && (action === "物品合成" || resultId.includes("hecheng"))) {
-    return result.args?.Arg2 && result.args?.Arg3 ? "implemented_item_crafting_recipe" : "not_executed_item_crafting_recipe";
+    return result.args?.Arg2 && result.args?.Arg3 ? "implemented_item_crafting_recipe_with_preflight" : "not_executed_item_crafting_recipe";
   }
   if (category === "item_reward_or_cost") return "implemented_inventory_delta";
   if (category === "skill_progression") return "implemented_skill_exp_delta";
-  if (category === "combat" && resultId === "compare") {
-    const hasCompareWinBranch = (source.branches || []).some((branch) => (branch.conditionTokens || []).includes("comparewin"));
-    return hasCompareWinBranch ? "implemented_combat_compare_to_comparewin" : "recorded_combat_trigger_not_resolved";
-  }
-  if (category === "combat" && /^inattack/.test(resultId)) {
-    const autoTextId = result.args?.Arg3 || "";
-    return autoTextId && flow.chapter1?.resultLookup?.[autoTextId]
-      ? "implemented_inheritance_combat_autotext"
-      : "recorded_combat_trigger_not_resolved";
-  }
-  if (category === "combat") return "recorded_combat_trigger_not_resolved";
+  if (category === "combat") return "combat_placeholder_postponed";
   if (category === "other" && /^tmstory/.test(resultId)) return "implemented_story_dialogue_feedback";
   if (category === "other" && (action === "玩家时间标记设置" || action === "玩家定时标记设置" || resultId.includes("timebj") || resultId.includes("dingshi"))) return "implemented_time_marker";
   if (category === "other" && matchesOfficialMeritResult(result, flow)) return "implemented_official_merit_ledger";
@@ -137,6 +128,10 @@ function severityFor(row) {
   if (row.RuntimeStatus.startsWith("implemented_")) return "P3";
   if (row.RuntimeStatus.startsWith("scoped_out_")) return "P3";
   if (row.RuntimeStatus === "partial_empty_text_feedback") return "P2";
+  if (
+    row.RuntimeStatus === "feedback_choice_ui_not_implemented"
+    || row.RuntimeStatus === "combat_placeholder_postponed"
+  ) return "P1";
   if (
     row.SourceId === "fb01r01_1"
     || row.SourceId === "fb01r02_1"
@@ -237,7 +232,7 @@ function bindingFor(row) {
       return "runtime_inventory_delta_executor";
     case "implemented_navigation_block":
       return "runtime_room_transition_block_executor";
-    case "implemented_item_crafting_recipe":
+    case "implemented_item_crafting_recipe_with_preflight":
       return "runtime_item_crafting_recipe_executor";
     case "implemented_combat_compare_to_comparewin":
       return "runtime_combat_compare_and_comparewin_executor";
@@ -255,6 +250,10 @@ function bindingFor(row) {
       return "chapter_system_module_scope_guard";
     case "partial_empty_text_feedback":
       return "suppress_empty_text_or_restore_text_source";
+    case "feedback_choice_ui_not_implemented":
+      return "choice_ui_and_selected_continuation_executor";
+    case "combat_placeholder_postponed":
+      return "real_combat_session_postponed";
     case "not_executed_entity_mutation":
       return "entity_visibility_mutation_executor";
     case "not_executed_navigation_block":

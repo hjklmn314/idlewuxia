@@ -107,6 +107,13 @@ assert(selectedSteward.accepted, "old steward should be selectable as an NPC in 
 assert(selectedSteward.event.actions.some((action) => action.actionType === "talk"), "old steward should expose talk action");
 assert(selectedSteward.event.actions.some((action) => action.actionType === "compete"), "old steward should expose compete action");
 assert(selectedSteward.event.actions.some((action) => action.actionType === "present"), "old steward should expose present action");
+const genericStewardCompete = runtime.interactWithChapterNpc("fb01r01_1", "compete");
+assert(genericStewardCompete.accepted, "reference-compatible generic compete must start even without a story outcome branch");
+const genericStewardResolution = runtime.dispatch("ACTION_FS_009_EARLY_COMBAT");
+assert(genericStewardResolution.accepted, "generic compete must return to the map after combat");
+assert(genericStewardResolution.event.combatResolution.accepted, "generic combat outcome must resolve successfully");
+assert(!genericStewardResolution.event.combatResolution.matchedOutcomeBranch, "generic compete must not invent a comparewin story branch");
+assert(genericStewardResolution.event.combatResolution.sideEffects.length === 0, "generic compete must not grant story side effects");
 const stewardTalk = runtime.interactWithChapterNpc("fb01r01_1", "talk");
 assert(stewardTalk.accepted, "old steward talk action should be accepted");
 assert(stewardTalk.event.feedback.includes("\u91d1\u725b\u6b66\u9986\u6bd4\u6b66\u62db\u8d24"), "old steward talk should resolve rlt_text27 narrative text");
@@ -304,10 +311,6 @@ assert(craftingRuntime.snapshot().player.inventory.chunjie5 === 0, "hecheng114 s
 assert(craftingRuntime.snapshot().player.inventory.chunjie7 === 0, "hecheng114 should consume chunjie7");
 assert(craftingRuntime.snapshot().player.inventory.chunjie20celue === 1, "hecheng114 should grant chunjie20celue");
 
-const combatTriggerRuntime = createFirstSessionRuntime(flow, {
-  initialState: screen.defaultStartState,
-  initialFlags: screen.defaultStartFlags,
-});
 const captureRuntime = createFirstSessionRuntime(flow, {
   initialState: screen.defaultStartState,
   initialFlags: screen.defaultStartFlags,
@@ -319,20 +322,17 @@ const captureRuntime = createFirstSessionRuntime(flow, {
   },
 });
 const captureYin = captureRuntime.interactWithChapterNpc("fb01r16_3", "custom_caozuo");
-assert(captureYin.accepted, "Yin Quanan capture operation should be accepted");
-const captureEffect = captureYin.event.sideEffects.find((effect) => effect.resultId === "compare");
-assert(captureEffect?.status === "resolved_compare_via_comparewin_branch", "compare should resolve through same NPC comparewin branch when itemdayu3 is satisfied");
-assert(captureEffect.followupSideEffects.some((effect) => effect.resultId === "npcset1" && effect.status === "applied_player_marker"), "comparewin followup should apply npcset1 marker");
-assert(captureEffect.followupSideEffects.some((effect) => effect.resultId === "delete" && effect.status === "applied_hide_self"), "comparewin followup should delete Yin after capture");
-assert(captureYin.event.feedback.includes("\u6210\u529f"), "comparewin followup narrative should be visible after capture");
+assert(!captureYin.accepted, "Yin Quanan capture operation must stay hidden until a real combat policy exists");
+assert(captureYin.event.reason === "combat runtime module is postponed", "capture placeholder must fail closed");
 
+const combatTriggerRuntime = createFirstSessionRuntime(flow, {
+  initialState: screen.defaultStartState,
+  initialFlags: screen.defaultStartFlags,
+});
 const inheritedCombat = combatTriggerRuntime.interactWithChapterNpc("fb01r41_1", "custom_caozuo");
-assert(inheritedCombat.accepted, "inheritance combat trigger should be accepted");
-assert(inheritedCombat.event.sideEffects.some((effect) => effect.resultId === "inattack201" && effect.status === "resolved_inheritance_combat_via_autotext"), "inattack201 should resolve to restored autotext202 narrative result");
-assert(inheritedCombat.event.feedbackLines.length > 0, "inattack201 autotext narrative should be visible in interaction feedback");
+assert(!inheritedCombat.accepted, "inheritance combat placeholder must stay hidden while combat work is postponed");
 const revengeCombat = combatTriggerRuntime.interactWithChapterNpc("fb01r42_1", "custom_caozuo");
-assert(revengeCombat.accepted, "second inheritance combat trigger should be accepted");
-assert(revengeCombat.event.sideEffects.some((effect) => effect.resultId === "inattack202" && effect.status === "resolved_inheritance_combat_via_autotext"), "inattack202 should resolve to restored autotext203 narrative result");
+assert(!revengeCombat.accepted, "second inheritance combat placeholder must stay hidden while combat work is postponed");
 
 const skillRuntime = createFirstSessionRuntime(flow, {
   initialState: screen.defaultStartState,
