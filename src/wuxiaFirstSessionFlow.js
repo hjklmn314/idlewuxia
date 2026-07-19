@@ -1,12 +1,8 @@
 ﻿import { cloneData } from "./dataClone.js";
 import { createConditionEvaluator } from "./conditionEvaluator.js";
+import { createResultEffectExecutor } from "./resultEffectExecutor.js";
 import { createResultPreparation } from "./resultPreparation.js";
-import {
-  applySkillConversionPlan,
-  createChoiceDefinition,
-  createSkillConversionPlan,
-  isValidPendingChoice,
-} from "./resultExecutionModules.js";
+import { isValidPendingChoice } from "./resultExecutionModules.js";
 
 function resolveActiveChapter(contract, options = {}) {
   return (
@@ -48,7 +44,6 @@ export function createFirstSessionRuntime(contract, options = {}) {
   const conditionEvaluator = createConditionEvaluator({ conditionLookup, rewardAttributeMap });
   const resultEffectPolicies = contract?.chapterSystem?.resultEffectPolicies || {};
   const combatActionPolicies = contract?.chapterSystem?.combatActionPolicies || {};
-  const officialMeritPolicy = resultEffectPolicies.officialMerit || {};
   const seasonalActivityPolicy = resultEffectPolicies.seasonalActivity || {};
   const inventoryMutationPolicy = resultEffectPolicies.inventoryMutation || {};
   const choiceResultPolicy = resultEffectPolicies.choiceResult || {};
@@ -63,7 +58,15 @@ export function createFirstSessionRuntime(contract, options = {}) {
     inventoryMutationPolicy,
   });
   const chapterClearPolicy = contract?.chapterSystem?.chapterClearPolicy || {};
-  const chapterClearChapters = chapterClearPolicy.chapters || {};
+  const resultEffectExecutor = createResultEffectExecutor({
+    resultLookup,
+    npcLookup: npcMap,
+    interactableLookup: interactableMap,
+    rewardAttributeMap,
+    resultEffectPolicies,
+    chapterClearPolicy,
+    evaluateBranch: (branch, context) => conditionEvaluator.evaluateBranch(branch, context),
+  });
   const candidateSaveState = options.initialSaveState || null;
   const saveState = candidateSaveState
     && candidateSaveState.runtimeSchema === (contract?.schema || "")
@@ -73,7 +76,7 @@ export function createFirstSessionRuntime(contract, options = {}) {
   const initialFlags = Array.isArray(saveState.flags)
     ? saveState.flags
     : (options.initialFlags || ["new_install_or_new_save"]);
-  const flags = new Set(initialFlags);
+  let flags = new Set(initialFlags);
   const requestedState = saveState.currentState || options.initialState || contract?.states?.[0]?.stateId || "";
   let currentState = states.has(requestedState) ? requestedState : (options.initialState || contract?.states?.[0]?.stateId || "");
   let selectedChapterNodeId = nodeMap.has(saveState.selectedChapterNodeId) ? saveState.selectedChapterNodeId : "";
@@ -81,7 +84,7 @@ export function createFirstSessionRuntime(contract, options = {}) {
   let selectedChapterNpcId = npcMap.has(saveState.selectedChapterNpcId) ? saveState.selectedChapterNpcId : "";
   let selectedChapterInteractableId = interactableMap.has(saveState.selectedChapterInteractableId) ? saveState.selectedChapterInteractableId : "";
   const events = cloneData(Array.isArray(saveState.events) ? saveState.events : []);
-  const player = cloneData(saveState.player || options.initialPlayer || contract?.playerSeed || {});
+  let player = cloneData(saveState.player || options.initialPlayer || contract?.playerSeed || {});
   player.inventory = cloneData(player.inventory || {});
   player.skillExp = cloneData(player.skillExp || {});
   player.skillMoveExp = cloneData(player.skillMoveExp || {});
@@ -100,20 +103,58 @@ export function createFirstSessionRuntime(contract, options = {}) {
     completedClicks: 0,
     ...(saveState.taskState || options.initialTaskState || {}),
   };
-  const hiddenEntityIds = new Set(saveState.hiddenEntityIds || options.initialHiddenEntityIds || []);
-  const addedEntityIdsByRoom = new Map();
+  let hiddenEntityIds = new Set(saveState.hiddenEntityIds || options.initialHiddenEntityIds || []);
+  let addedEntityIdsByRoom = new Map();
   for (const [roomId, entityIds] of Object.entries(saveState.addedEntityIdsByRoom || {})) {
     addedEntityIdsByRoom.set(roomId, new Set(entityIds || []));
   }
-  const replacementEntityById = new Map();
+  let replacementEntityById = new Map();
   for (const [entityId, replacementId] of Object.entries(saveState.replacementEntityById || {})) {
     replacementEntityById.set(entityId, replacementId);
   }
-  const mapMarkers = { ...(saveState.mapMarkers || options.initialMapMarkers || {}) };
+  let mapMarkers = { ...(saveState.mapMarkers || options.initialMapMarkers || {}) };
   let pendingCombat = cloneData(saveState.pendingCombat || null);
   let pendingChoice = isValidPendingChoice(saveState.pendingChoice)
     ? cloneData(saveState.pendingChoice)
     : null;
+
+  function captureEffectState() {
+    return {
+      player,
+      flags,
+      hiddenEntityIds,
+      addedEntityIdsByRoom,
+      replacementEntityById,
+      mapMarkers,
+      pendingChoice,
+      selectedChapterNpcId,
+      selectedChapterInteractableId,
+    };
+  }
+
+  function adoptEffectState(nextState) {
+    player = nextState.player;
+    flags = nextState.flags;
+    hiddenEntityIds = nextState.hiddenEntityIds;
+    addedEntityIdsByRoom = nextState.addedEntityIdsByRoom;
+    replacementEntityById = nextState.replacementEntityById;
+    mapMarkers = nextState.mapMarkers;
+    pendingChoice = nextState.pendingChoice;
+    selectedChapterNpcId = nextState.selectedChapterNpcId;
+    selectedChapterInteractableId = nextState.selectedChapterInteractableId;
+  }
+
+  function commitResultEffects(sourceId, branch = {}, stateOverrides = {}) {
+    const transaction = resultEffectExecutor.commit({
+      sourceId,
+      currentRoomId: selectedChapterRoomId,
+      preparedBranch: branch,
+      state: { ...captureEffectState(), ...stateOverrides },
+      eventIndex: events.length,
+    });
+    if (transaction.accepted) adoptEffectState(transaction.state);
+    return transaction;
+  }
 
   function clone(value) {
     return cloneData(value);
@@ -123,24 +164,6 @@ export function createFirstSessionRuntime(contract, options = {}) {
     for (const [key, delta] of Object.entries(deltas)) {
       target[key] = Number(target[key] || 0) + Number(delta || 0);
     }
-  }
-
-  function addEntityToRoom(entityId, roomId = selectedChapterRoomId) {
-    if (!entityId || !roomId) return false;
-    const set = addedEntityIdsByRoom.get(roomId) || new Set();
-    set.add(entityId);
-    addedEntityIdsByRoom.set(roomId, set);
-    hiddenEntityIds.delete(entityId);
-    return true;
-  }
-
-  function hideEntity(entityId) {
-    if (!entityId) return false;
-    hiddenEntityIds.add(entityId);
-    for (const set of addedEntityIdsByRoom.values()) set.delete(entityId);
-    if (selectedChapterNpcId === entityId) selectedChapterNpcId = "";
-    if (selectedChapterInteractableId === entityId) selectedChapterInteractableId = "";
-    return true;
   }
 
   function dynamicEntityIdsForRoom(roomId) {
@@ -188,101 +211,12 @@ export function createFirstSessionRuntime(contract, options = {}) {
     return null;
   }
 
-  function applyInventoryDelta(itemId, rawDelta = 1) {
-    if (!itemId) return false;
-    const delta = Number.isFinite(Number(rawDelta)) ? Number(rawDelta) : 1;
-    player.inventory[itemId] = Number(player.inventory[itemId] || 0) + delta;
-    return true;
-  }
-
-  function parseItemStackList(raw = "") {
-    return String(raw || "")
-      .replace(/^"+|"+$/g, "")
-      .split(";")
-      .map((part) => part.trim())
-      .filter(Boolean)
-      .map((part) => {
-        const [itemId = "", count = "1"] = part.split(/[,:]/).map((value) => value.trim());
-        return { itemId, count: Number.isFinite(Number(count)) ? Number(count) : 1 };
-      })
-      .filter((entry) => entry.itemId);
-  }
-
   function validateResultEffects(branch = {}) {
     return resultPreparation.prepare(branch, player);
   }
 
   function resultRecord(resultId = "") {
     return resultPreparation.resolveRecord(resultId);
-  }
-
-  function matchesAnyPattern(value = "", patterns = []) {
-    const text = String(value || "");
-    return (patterns || []).some((pattern) => {
-      if (!pattern) return false;
-      const startsWithWildcard = pattern.startsWith("*");
-      const endsWithWildcard = pattern.endsWith("*");
-      const needle = pattern.replace(/^\*/, "").replace(/\*$/, "");
-      if (startsWithWildcard && endsWithWildcard) return text.includes(needle);
-      if (startsWithWildcard) return text.endsWith(needle);
-      if (endsWithWildcard) return text.startsWith(needle);
-      return text === pattern;
-    });
-  }
-
-  function matchesOfficialMeritResult(result = {}) {
-    return (
-      result.action === (officialMeritPolicy.actionName || "改变政绩")
-      || matchesAnyPattern(result.resultId, officialMeritPolicy.resultIdPatterns || [])
-    );
-  }
-
-  function chapterClearEntryForResult(resultId = "") {
-    return Object.entries(chapterClearChapters).find(([, policy]) => policy?.clearProgressResultId === resultId) || null;
-  }
-
-  function applyChapterClearIfNeeded(resultId = "", sourceResult = {}) {
-    const entry = chapterClearEntryForResult(resultId);
-    if (!entry) return null;
-    const [chapterId, policy] = entry;
-    if (player.chapterClearLedger.some((ledger) => ledger.chapterId === chapterId && ledger.rewardId === policy.rewardId)) {
-      return {
-        resultId,
-        category: "chapter_clear",
-        action: "章节通关",
-        status: "skipped_chapter_clear_already_applied",
-        chapterId,
-        rewardId: policy.rewardId || "",
-      };
-    }
-
-    const rewardDeltas = policy.rewardDeltas || {};
-    applyNumericDeltas(player, rewardDeltas);
-    if (policy.clearFlag) flags.add(policy.clearFlag);
-    if (policy.clearStateSignal) flags.add(policy.clearStateSignal);
-    flags.add(`chapter_complete:${chapterId}`);
-
-    const ledger = {
-      chapterId,
-      rewardId: policy.rewardId || "",
-      clearProgressResultId: resultId,
-      clearSourceNodeId: policy.clearSourceNodeId || "",
-      clearNodeId: policy.clearNodeId || "",
-      rewardDeltas: clone(rewardDeltas),
-      sourceResultId: sourceResult.resultId || resultId,
-      evidence: clone(policy.evidence || {}),
-    };
-    player.chapterClearLedger.push(ledger);
-    return {
-      resultId,
-      category: "chapter_clear",
-      action: "章节通关",
-      status: "applied_chapter_clear_reward",
-      chapterId,
-      rewardId: policy.rewardId || "",
-      rewardDeltas: clone(rewardDeltas),
-      ledger,
-    };
   }
 
   function branchEnabledInFirstSession(branch = {}) {
@@ -303,348 +237,6 @@ export function createFirstSessionRuntime(contract, options = {}) {
       player,
       mapMarkers,
     });
-  }
-
-  function combatFollowupForResult(sourceId, result) {
-    const resultId = result.resultId || "";
-    const args = result.args || {};
-    const source = npcMap.get(sourceId) || interactableMap.get(sourceId) || null;
-    if (resultId === "compare" && source) {
-      const winBranch = (source.branches || []).find((candidate) => (candidate.conditionTokens || []).includes("comparewin"));
-      if (!winBranch) return { status: "started_compare_without_comparewin_branch" };
-      const condition = branchConditionsMet(winBranch, { satisfiedCombatToken: "comparewin" });
-      if (!condition.accepted) {
-        return {
-          status: "started_compare_followup_conditions_not_met",
-          conditionChecks: condition.checks,
-          followupConditionTokens: [...(winBranch.conditionTokens || [])],
-        };
-      }
-      return {
-        status: "resolved_compare_via_comparewin_branch",
-        followupBranch: winBranch,
-        followupResultTokens: [...(winBranch.resultTokens || [])],
-        feedbackLines: [...(winBranch.narrativeLines || [])],
-        conditionChecks: condition.checks,
-      };
-    }
-    if (/^inattack/.test(resultId)) {
-      const autoTextId = args.Arg3 || "";
-      const autoText = resultRecord(autoTextId);
-      if (!autoText) return { status: "started_inheritance_combat_missing_autotext", autoTextId };
-      const marker = autoText.args?.Arg3 || "";
-      if (marker) flags.add(`combat_marker:${marker}=1`);
-      return {
-        status: "resolved_inheritance_combat_via_autotext",
-        autoTextId,
-        marker,
-        feedbackLines: narrativeLinesFromResultRecord(autoText),
-      };
-    }
-    return { status: "started_combat_without_known_resolution" };
-  }
-
-  function applyResultEffects(sourceId, branch = {}) {
-    const sideEffects = [];
-    for (const result of branch.resolvedResults || []) {
-      const args = result.args || {};
-      const category = result.category || "";
-      const action = result.action || "";
-      const arg2 = args.Arg2 || "";
-      const arg3 = args.Arg3 || "";
-      const effect = {
-        resultId: result.resultId || "",
-        category,
-        action,
-        status: "ignored_text_only",
-      };
-
-      if (action === choiceResultPolicy.actionName) {
-        const definition = result.choiceDefinition
-          || createChoiceDefinition(result, choiceResultPolicy, resultRecord).definition;
-        if (definition && isValidPendingChoice({ ...definition, sourceId })) {
-          pendingChoice = {
-            ...clone(definition),
-            sourceId,
-            openedAtEventIndex: events.length,
-          };
-          sideEffects.push({
-            ...effect,
-            status: "opened_choice",
-            choiceId: definition.choiceId,
-            optionIds: definition.options.map((option) => option.optionId),
-          });
-        } else {
-          sideEffects.push({ ...effect, status: "invalid_choice_definition" });
-        }
-        continue;
-      }
-
-      if (action === skillConversionPolicy.actionName) {
-        const plan = result.executionPlan?.plan
-          || createSkillConversionPlan(result, skillConversionPolicy, player);
-        if (plan?.accepted) {
-          applySkillConversionPlan(player, plan);
-          for (const [skillId, delta] of Object.entries(plan.mutations?.skillExpDeltas || {})) {
-            flags.add(`skill_exp:${skillId}=${player.skillExp[skillId]}`);
-            if (Number(delta || 0) === 0) flags.add(`skill_exp_capped:${skillId}`);
-          }
-          sideEffects.push({
-            ...effect,
-            status: plan.outcome === "success"
-              ? "applied_skill_conversion"
-              : "skill_conversion_source_not_learned",
-            outcome: plan.outcome,
-            conversion: clone(plan.audit || {}),
-            mutations: clone(plan.mutations || {}),
-          });
-        } else {
-          sideEffects.push({ ...effect, status: "invalid_skill_conversion_plan", reason: plan?.reason || "" });
-        }
-        continue;
-      }
-
-      if (category === "narrative_feedback") {
-        sideEffects.push({
-          ...effect,
-          status: "applied_text_feedback",
-          feedbackLines: narrativeLinesFromResultRecord(result),
-        });
-        continue;
-      }
-
-      if (action === "换人") {
-        const fromId = arg2 || sourceId;
-        const toId = arg3 || "";
-        for (const [anchorId, replacementId] of replacementEntityById.entries()) {
-          if (replacementId === fromId) replacementEntityById.set(anchorId, toId);
-        }
-        if (fromId && toId) replacementEntityById.set(fromId, toId);
-        const didHide = hideEntity(fromId);
-        const didAdd = addEntityToRoom(toId);
-        if (didAdd) {
-          if (npcMap.has(toId)) selectedChapterNpcId = toId;
-          if (interactableMap.has(toId)) selectedChapterInteractableId = toId;
-        }
-        sideEffects.push({ ...effect, status: didHide || didAdd ? "applied_entity_swap" : "missing_entity_swap_args", fromId, toId });
-        continue;
-      }
-
-      if (action === "添加人物") {
-        const didAdd = addEntityToRoom(arg2);
-        sideEffects.push({ ...effect, status: didAdd ? "applied_entity_add" : "missing_entity_add_arg", entityId: arg2 });
-        continue;
-      }
-
-      if (action === "删除自身") {
-        const didHide = hideEntity(sourceId);
-        sideEffects.push({ ...effect, status: didHide ? "applied_hide_self" : "missing_source_for_hide_self", entityId: sourceId });
-        continue;
-      }
-
-      if (action === "删除人物") {
-        const didHide = hideEntity(arg2);
-        sideEffects.push({ ...effect, status: didHide ? "applied_entity_delete" : "missing_entity_delete_arg", entityId: arg2 });
-        continue;
-      }
-
-      if (category === "map_state" || action === "地图标记设置" || action === "地图标记变化") {
-        if (arg2) {
-          mapMarkers[arg2] = arg3 || "1";
-          flags.add(`map_marker:${arg2}=${mapMarkers[arg2]}`);
-          sideEffects.push({ ...effect, status: "applied_map_marker", marker: arg2, value: mapMarkers[arg2] });
-          const clearEffect = applyChapterClearIfNeeded(result.resultId || "", result);
-          if (clearEffect) sideEffects.push(clearEffect);
-        } else {
-          sideEffects.push({ ...effect, status: "missing_map_marker_arg" });
-        }
-        continue;
-      }
-
-      if (category === "attribute_reward" || action === "玩家属性变化") {
-        const field = rewardAttributeMap[arg2] || arg2;
-        const value = Number(arg3 || 0);
-        if (field && Number.isFinite(value)) {
-          applyNumericDeltas(player, { [field]: value });
-          sideEffects.push({ ...effect, status: "applied_attribute_delta", field, value });
-        } else {
-          sideEffects.push({ ...effect, status: "missing_attribute_delta_args", field, value: arg3 });
-        }
-        continue;
-      }
-
-      if (category === "item_reward_or_cost" && action === "物品合成") {
-        const ingredients = parseItemStackList(arg2);
-        const productId = arg3 || "";
-        if (ingredients.length && productId) {
-          for (const ingredient of ingredients) applyInventoryDelta(ingredient.itemId, -ingredient.count);
-          applyInventoryDelta(productId, 1);
-          sideEffects.push({
-            ...effect,
-            status: "applied_item_crafting_recipe",
-            ingredients,
-            productId,
-            feedbackLines: (args.Arg5 || "").split(";").filter(Boolean),
-          });
-        } else {
-          sideEffects.push({ ...effect, status: "missing_item_crafting_recipe_args", ingredients, productId });
-        }
-        continue;
-      }
-
-      if (category === "item_reward_or_cost" || action === "玩家物品变化") {
-        const delta = arg3 === "" || arg3 === undefined ? 1 : arg3;
-        const didApply = applyInventoryDelta(arg2, delta);
-        sideEffects.push({ ...effect, status: didApply ? "applied_inventory_delta" : "missing_inventory_delta_arg", itemId: arg2, delta });
-        continue;
-      }
-
-      if (category === "skill_progression" || action === "玩家武功经验变化") {
-        const delta = Number(arg3 || 0);
-        if (arg2 && Number.isFinite(delta)) {
-          player.skillExp[arg2] = Number(player.skillExp[arg2] || 0) + delta;
-          flags.add(`skill_exp:${arg2}=${player.skillExp[arg2]}`);
-          sideEffects.push({ ...effect, status: "applied_skill_exp_delta", skillId: arg2, delta, total: player.skillExp[arg2] });
-        } else {
-          sideEffects.push({ ...effect, status: "missing_skill_exp_args", skillId: arg2, delta: arg3 });
-        }
-        continue;
-      }
-
-      if (matchesOfficialMeritResult(result)) {
-        const rawDelta = args.Arg2;
-        const delta = rawDelta === "" || rawDelta === undefined || rawDelta === null
-          ? Number(officialMeritPolicy.defaultDelta ?? 20)
-          : Number(rawDelta);
-        const gateField = officialMeritPolicy.gateField || "officialType";
-        const targetField = officialMeritPolicy.playerField || "officialAchievement";
-        const officialType = Number(player[gateField] || 0);
-        const entry = {
-          resultId: result.resultId || "",
-          sourceId,
-          action,
-          delta,
-          rawDelta,
-          usedDefaultDelta: rawDelta === "" || rawDelta === undefined || rawDelta === null,
-          gateField,
-          gateValue: player[gateField] ?? 0,
-          playerField: targetField,
-          evidenceLevel: officialMeritPolicy.evidenceLevel || "lua_confirmed",
-          sourceFile: officialMeritPolicy.dispatcherSource || result.sourceFile || "",
-        };
-        if (Number.isFinite(delta) && officialType !== 0) {
-          player[targetField] = Number(player[targetField] || 0) + delta;
-          entry.status = "applied_official_merit_delta";
-          entry.total = player[targetField];
-          flags.add(`merit:${targetField}=${player[targetField]}`);
-        } else if (Number.isFinite(delta)) {
-          entry.status = "skipped_official_merit_official_type_gate";
-          entry.total = Number(player[targetField] || 0);
-        } else {
-          entry.status = "missing_official_merit_delta";
-          entry.total = Number(player[targetField] || 0);
-        }
-        player.meritLedger.push(entry);
-        sideEffects.push({ ...effect, status: entry.status, merit: clone(entry) });
-        continue;
-      }
-
-      if (action === "可传承玩家标记设置") {
-        if (arg2) {
-          const value = arg3 || "1";
-          player.inheritableMarkers[arg2] = value;
-          flags.add(`inheritable_marker:${arg2}=${value}`);
-          sideEffects.push({ ...effect, status: "applied_inheritable_marker", marker: arg2, value });
-        } else {
-          sideEffects.push({ ...effect, status: "missing_inheritable_marker_arg" });
-        }
-        continue;
-      }
-
-      if (category === "role_state" || action === "玩家标记设置" || action === "玩家标记变化") {
-        if (arg2) {
-          const rawValue = arg3 === "" || arg3 === undefined ? 1 : arg3;
-          const value = action === "玩家标记变化"
-            ? Number(player.markers[arg2] || 0) + Number(rawValue)
-            : rawValue;
-          player.markers[arg2] = value;
-          flags.add(`player_marker:${arg2}=${value}`);
-          sideEffects.push({ ...effect, status: "applied_player_marker", marker: arg2, value });
-        } else {
-          sideEffects.push({ ...effect, status: "missing_player_marker_arg" });
-        }
-        continue;
-      }
-
-      if (action === "玩家时间标记设置") {
-        if (arg2) {
-          const value = arg3 || "1";
-          player.timeMarkers[arg2] = value;
-          flags.add(`time_marker:${arg2}=${value}`);
-          sideEffects.push({ ...effect, status: "applied_player_time_marker", marker: arg2, value });
-        } else {
-          sideEffects.push({ ...effect, status: "missing_player_time_marker_arg" });
-        }
-        continue;
-      }
-
-      if (action === "玩家定时标记设置") {
-        if (arg2) {
-          const value = arg3 || "1";
-          const duration = args.Arg4 ?? "";
-          player.timedMarkers[arg2] = { value, duration, setAtEventIndex: events.length };
-          flags.add(`timed_marker:${arg2}=${value}`);
-          sideEffects.push({ ...effect, status: "applied_player_timed_marker", marker: arg2, value, duration });
-        } else {
-          sideEffects.push({ ...effect, status: "missing_player_timed_marker_arg" });
-        }
-        continue;
-      }
-
-      if (action === "副本故事") {
-        const feedbackLines = String(args.Arg2 || "")
-          .split(";")
-          .map((line) => line.trim())
-          .filter(Boolean);
-        sideEffects.push({
-          ...effect,
-          status: feedbackLines.length ? "applied_story_dialogue_feedback" : "missing_story_dialogue_text",
-          feedbackLines,
-          lineDurations: String(args.Arg3 || "").split(";").filter(Boolean),
-        });
-        continue;
-      }
-
-      if (action === "阻止玩家移动") {
-        sideEffects.push({ ...effect, status: "recorded_navigation_stop" });
-        continue;
-      }
-
-      if (action === "拜年" || action === "拜年委托" || /^bainian/.test(result.resultId || "")) {
-        sideEffects.push({ ...effect, status: "scoped_out_seasonal_activity_module_disabled" });
-        continue;
-      }
-
-      if (category === "combat") {
-        const followup = combatFollowupForResult(sourceId, result);
-        const followupSideEffects = followup.followupBranch ? applyResultEffects(sourceId, followup.followupBranch) : [];
-        sideEffects.push({
-          ...effect,
-          status: followup.status,
-          targetRoleId: arg2 || sourceId,
-          autoTextId: arg3 || "",
-          feedbackLines: clone(followup.feedbackLines || []),
-          followupResultTokens: clone(followup.followupResultTokens || []),
-          followupSideEffects: clone(followupSideEffects),
-          conditionChecks: clone(followup.conditionChecks || []),
-          marker: followup.marker || "",
-        });
-        continue;
-      }
-
-      sideEffects.push({ ...effect, status: "unimplemented_result_effect" });
-    }
-    return sideEffects;
   }
 
   function rewardClassDeltas(rewardClassId) {
@@ -928,7 +520,28 @@ export function createFirstSessionRuntime(contract, options = {}) {
       const feedbackLines = blocker.branch?.narrativeLines?.length
         ? blocker.branch.narrativeLines
         : [`${blocker.npc.name || blocker.npc.displayName?.zhCN || "有人"}拦住了你。`];
-      const sideEffects = applyResultEffects(blocker.npc.roleId, blocker.branch);
+      const transaction = commitResultEffects(blocker.npc.roleId, blocker.branch);
+      if (!transaction.accepted) {
+        const event = {
+          type: "roomBlockEffectRejected",
+          roomId: selectedChapterRoomId,
+          targetRoomId: roomId,
+          sourceRoleId: blocker.npc.roleId,
+          sourceName: blocker.npc.name || blocker.npc.displayName?.zhCN || "",
+          reason: transaction.reason,
+          resultId: transaction.resultId || "",
+          category: transaction.category || "",
+          action: transaction.action || "",
+          conditionTokens: clone(blocker.branch?.conditionTokens || []),
+          resultTokens: clone(blocker.branch?.resultTokens || []),
+          sideEffects: [],
+          transaction: clone(transaction),
+          evidence: clone(blocker.npc.evidence || {}),
+        };
+        events.push(event);
+        return { accepted: false, event, snapshot: snapshot() };
+      }
+      const sideEffects = transaction.sideEffects;
       const event = {
         type: "roomBlocked",
         roomId: selectedChapterRoomId,
@@ -1244,7 +857,25 @@ export function createFirstSessionRuntime(contract, options = {}) {
       return resolution;
     }
     const executionBranch = validation.preparedBranch || branch;
-    const sideEffects = executionBranch ? applyResultEffects(pendingCombat.sourceId, executionBranch) : [];
+    const transaction = executionBranch
+      ? commitResultEffects(pendingCombat.sourceId, executionBranch)
+      : { accepted: true, sideEffects: [] };
+    if (!transaction.accepted) {
+      const resolution = {
+        accepted: false,
+        outcome,
+        outcomeToken,
+        sourceId: pendingCombat.sourceId,
+        feedbackLines: [],
+        resultTokens: clone(branch?.resultTokens || []),
+        sideEffects: clone(transaction.sideEffects || []),
+        reason: transaction.reason,
+        transaction: clone(transaction),
+      };
+      events.push({ type: "combatResolutionRejected", ...clone(resolution) });
+      return resolution;
+    }
+    const sideEffects = transaction.sideEffects;
     const resolution = {
       accepted: true,
       outcome,
@@ -1321,7 +952,19 @@ export function createFirstSessionRuntime(contract, options = {}) {
       return { accepted: false, event, snapshot: snapshot() };
     }
 
-    const sideEffects = applyResultEffects(choice.sourceId, validation.preparedBranch || branch);
+    const transaction = commitResultEffects(choice.sourceId, validation.preparedBranch || branch);
+    if (!transaction.accepted) {
+      const event = {
+        type: "choiceResolutionRejected",
+        choiceId: choice.choiceId,
+        optionId,
+        reason: transaction.reason,
+        transaction: clone(transaction),
+      };
+      events.push(event);
+      return { accepted: false, event, snapshot: snapshot() };
+    }
+    const sideEffects = transaction.sideEffects;
     const feedbackLines = feedbackLinesFromSideEffects(sideEffects);
     pendingChoice = null;
     const event = {
@@ -1513,11 +1156,29 @@ export function createFirstSessionRuntime(contract, options = {}) {
       events.push(event);
       return { accepted: false, event, snapshot: snapshot() };
     }
-    selectedChapterNpcId = roleId;
-    selectedChapterInteractableId = "";
     const fallback = branch?.narrativeLines?.length ? null : globalNpcActionFeedback(npc, action);
     const executionBranch = resultValidation.preparedBranch || branch;
-    const sideEffects = executionBranch ? applyResultEffects(roleId, executionBranch) : [];
+    const transaction = executionBranch
+      ? commitResultEffects(roleId, executionBranch, {
+        selectedChapterNpcId: roleId,
+        selectedChapterInteractableId: "",
+      })
+      : { accepted: true, sideEffects: [] };
+    if (!transaction.accepted) {
+      const event = {
+        type: "npcInteractionRejected",
+        roleId,
+        actionType,
+        reason: transaction.reason,
+        feedback: transaction.reason,
+        resultTokens: clone(branch?.resultTokens || []),
+        transaction: clone(transaction),
+        evidenceLevel: evidenceLevelOrUnknown(branch?.evidenceLevel, npc?.evidence?.level),
+      };
+      events.push(event);
+      return { accepted: false, event, snapshot: snapshot() };
+    }
+    const sideEffects = transaction.sideEffects;
     const sideEffectFeedbackLines = sideEffects.flatMap((effect) => [
       ...(effect.feedbackLines || []),
       ...((effect.followupSideEffects || []).flatMap((followup) => followup.feedbackLines || [])),
@@ -1609,10 +1270,28 @@ export function createFirstSessionRuntime(contract, options = {}) {
       events.push(event);
       return { accepted: false, event, snapshot: snapshot() };
     }
-    selectedChapterNpcId = "";
-    selectedChapterInteractableId = interactableId;
     const executionBranch = resultValidation.preparedBranch || branch;
-    const sideEffects = executionBranch ? applyResultEffects(interactableId, executionBranch) : [];
+    const transaction = executionBranch
+      ? commitResultEffects(interactableId, executionBranch, {
+        selectedChapterNpcId: "",
+        selectedChapterInteractableId: interactableId,
+      })
+      : { accepted: true, sideEffects: [] };
+    if (!transaction.accepted) {
+      const event = {
+        type: "interactableInteractionRejected",
+        interactableId,
+        actionType,
+        reason: transaction.reason,
+        feedback: transaction.reason,
+        resultTokens: clone(branch?.resultTokens || []),
+        transaction: clone(transaction),
+        evidenceLevel: evidenceLevelOrUnknown(branch?.evidenceLevel, item?.evidence?.level),
+      };
+      events.push(event);
+      return { accepted: false, event, snapshot: snapshot() };
+    }
+    const sideEffects = transaction.sideEffects;
     const sideEffectFeedbackLines = sideEffects.flatMap((effect) => [
       ...(effect.feedbackLines || []),
       ...((effect.followupSideEffects || []).flatMap((followup) => followup.feedbackLines || [])),

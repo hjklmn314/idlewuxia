@@ -75,6 +75,55 @@ runCase("crafting_requires_all_ingredients", () => {
   assert.deepEqual(after.player.inventory, before.player.inventory);
 });
 
+runCase("late_invalid_effect_rolls_back_the_entire_branch", () => {
+  const contract = clone(flow);
+  const chapter = contract.activeChapter || contract.chapter1;
+  const branch = chapter.npcs
+    .find((npc) => npc.roleId === "fb01r07_1a")
+    .branches
+    .find((candidate) => (candidate.conditionTokens || []).includes("quest01dengyu1"));
+  branch.resolvedResults
+    .find((result) => result.resultId === "quest01")
+    .args.Arg3 = "not-a-number";
+  const runtime = createFirstSessionRuntime(contract, {
+    initialPlayer: {
+      ...contract.playerSeed,
+      markers: { quest01: 0 },
+    },
+  });
+  const before = runtime.exportSaveState();
+  const result = runtime.interactWithChapterNpc("fb01r07_1a", "talk");
+  const after = runtime.exportSaveState();
+  assert.equal(result.accepted, false);
+  assert.equal(result.event.reason, "invalid player marker delta");
+  assert.deepEqual(
+    { ...after, events: [] },
+    { ...before, events: [] },
+    "a later invalid effect must roll back earlier rewards and entity changes",
+  );
+});
+
+runCase("room_blocker_effect_failure_is_reported_as_rejection", () => {
+  const contract = clone(flow);
+  const chapter = contract.activeChapter || contract.chapter1;
+  const branch = chapter.npcs
+    .find((npc) => npc.roleId === "fb01r02_2")
+    .branches
+    .find((candidate) => (candidate.conditionTokens || []).includes("gorome3"));
+  const lateEffect = branch.resolvedResults.find((result) => result.resultId === "textout6");
+  lateEffect.category = contract.chapterSystem.resultEffectPolicies.runtimeMutation.categoryNames.attributeReward;
+  lateEffect.action = contract.chapterSystem.resultEffectPolicies.runtimeMutation.actionNames.attributeChange;
+  lateEffect.args = { Arg2: "power" };
+  const runtime = createFirstSessionRuntime(contract);
+  assert.equal(runtime.selectChapterRoom("fb01_02").accepted, true);
+  const result = runtime.selectChapterRoom("fb01_03");
+  assert.equal(result.accepted, false);
+  assert.equal(result.event.type, "roomBlockEffectRejected");
+  assert.equal(result.event.reason, "missing attribute delta args");
+  assert.equal(result.event.resultId, "textout6");
+  assert.deepEqual(result.event.sideEffects, []);
+});
+
 runCase("player_marker_conditions_and_deltas_follow_reference_semantics", () => {
   const runtime = createFirstSessionRuntime(clone(flow), {
     initialPlayer: {

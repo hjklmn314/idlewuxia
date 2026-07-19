@@ -5,7 +5,7 @@
 Owner：`subsystem-domain-architect`
 
 独立验收：`qa-bot-regression-engineer`
-当前判定：`OPEN — Slice 2A/6 complete`
+当前判定：`OPEN — Slice 2B/6 complete`
 
 ## 1. 当前现状
 
@@ -23,15 +23,15 @@ Owner：`subsystem-domain-architect`
 
 - Runtime 工厂同时拥有配置索引、Condition 解释、Result 准备与执行、导航、实体生命周期、命令、存档 DTO 和事件；
 - UI 控制器同时拥有配置加载、view-model、HTML 生成、DOM 绑定、战斗时间轴、持久化生命周期和自动化 API；
-- `resultExecutionModules.js` 与 `runtimePersistence.js` 已是独立模块，但 Result 的事务执行主体仍在 Runtime 工厂；
+- `resultExecutionModules.js`、`resultPreparation.js`、`resultEffectExecutor.js` 与 `runtimePersistence.js` 已是独立模块；Result 事务执行已移出 Runtime 工厂；
 - 旧 `createFirstSessionRuntime` 是全部测试、浏览器和存档的兼容入口，迁移期间不能破坏。
 
 ## 2. 存在问题
 
-1. 条件语义被封装在 Runtime 闭包，无法独立枚举、验证或被后续 ChapterSession 复用。
-2. 条件读取定义和运行状态的依赖是隐式闭包，职责边界不清。
+1. Condition 与 Result 语义已独立，但 Navigation 与 Entity 仍封装在 Runtime 闭包，无法被后续 ChapterSession 独立复用。
+2. Navigation、Entity、当前章节选择与事件写入仍共享隐式闭包状态，职责边界尚未完全收口。
 3. 巨型迁移若一次完成，任何快照、事件、拒绝原子性或存档差异都难以定位和回滚。
-4. 当前 ARCH-001 验收还没有全部满足：ResultEffectExecutor、NavigationService、EntityInteractionService、ChapterSession 和 UI Adapter 尚未完成提取。
+4. 当前 ARCH-001 验收还没有全部满足：NavigationService、EntityInteractionService、ChapterSession 和 UI Adapter 尚未完成提取。
 
 ## 3. 修改方案
 
@@ -44,7 +44,7 @@ Owner：`subsystem-domain-architect`
 5. ChapterSession + 旧工厂兼容 facade；
 6. UI view-model / intent adapter / automation seam。
 
-本轮只完成切片 1。先写模块合同测试并观察缺模块红灯，再实现纯解释器并接入旧 Runtime；不同时修改配置内容、数值或玩家可见文本。
+当前已完成切片 1、2A 与 2B。每个切片都先写模块合同测试并观察红灯，再实现解释器并接入旧 Runtime；没有修改玩家可见文本、数值或具体章节内容。
 
 ## 4. 修改范围
 
@@ -56,7 +56,7 @@ Owner：`subsystem-domain-architect`
 
 不修改：
 
-- `config/wuxia_first_session_flow.json`；
+- 除 Result 解释所需的通用 policy 映射外，不修改 `config/wuxia_first_session_flow.json` 中任何具体内容定义；
 - 任何章节、NPC、房间、技能、奖励、战斗或 UI 内容；
 - 存档 DTO、事件名称、快照字段；
 - Android 运输文件；
@@ -124,18 +124,18 @@ TDD 证据：
 
 ## 8. 风险
 
-- Result preparation 已独立，但 Effect commit 仍可直接修改多个闭包状态，事务对象尚未独立；
+- Result preparation 与 Effect commit 已独立；兼容 facade 仍是唯一 Runtime 状态权威，Executor 只拥有一次调用期间的隔离草稿；
 - Navigation 与 Entity 仍共享闭包 Map/Set；
 - UI 仍直接调用 Runtime，尚未形成单一 intent adapter；
 - JSDoc 提供当前 JavaScript 类型合同，但不是编译期 TypeScript；
-- 本切片只证明条件边界，不等于 ARCH-001 完成，更不等于 G4 或上线完成。
+- 已完成切片只证明 Condition 与 Result 事务边界，不等于 ARCH-001 完成，更不等于 G4 或上线完成。
 
 ## 9. 未完成项
 
 ARCH-001 后续固定顺序：
 
-1. Result preparation 已完成；下一步提取 transactional EffectExecutor；
-2. 提取 NavigationService；
+1. Result preparation 与 transactional EffectExecutor 已完成；
+2. 下一步提取 NavigationService；
 3. 提取 EntityInteractionService；
 4. 建立 ChapterSession，并保留 `createFirstSessionRuntime` facade；
 5. 提取 UI view-model、intent mapper 与 browser automation seam；
@@ -147,3 +147,19 @@ ARCH-001 后续固定顺序：
 - 从 `wuxiaFirstSessionFlow.js` 移除 `createConditionEvaluator` 委托并恢复原闭包函数；
 - 删除新模块与测试；
 - 恢复 `package.json` 和生产登记。
+
+### Slice 2B：Transactional ResultEffectExecutor
+
+- 新增 `src/resultEffectExecutor.js`，将玩家、标记、地图、实体、Choice、章节清算与既有 Combat follow-up 的效果解释集中到一个无 DOM、无事件写入、无持久化写入的事务模块；
+- `src/wuxiaFirstSessionFlow.js` 只在 `accepted=true` 时采纳完整 next-state；失败只记录带 `reason/resultId/category/action` 的 rejection，且 `sideEffects=[]`；
+- 房间阻挡、NPC、物件、Choice 与延期战斗结果的现有调用链统一走同一事务入口；房间阻挡中的非法后段效果不再伪装成普通 `roomBlocked`；
+- 新增 `config/wuxia_runtime_mutation_policy.schema.json`，由 Ajv Draft 2020-12 实际执行；类别、动作、参数位、默认值、列表分隔符、既有 Combat follow-up 与失败策略全部为必填；
+- Runtime 从 1,676 行降至 1,355 行，Executor 为 598 行；外部 facade、快照与存档 DTO 保持兼容；
+- 修复发布白名单漏掉 `conditionEvaluator.js`、`resultPreparation.js` 与 `resultEffectExecutor.js` 的 P0；Web/APK 产品闭包从错误的 12 文件修正为 15 文件，Schema 保持开发期不运输；
+- 模块合同测试覆盖后段失败整条回滚、拒绝副作用为空、缺失属性/武功数值拒绝、成功多域提交与输入不变；
+- Runtime integrity 为 15/15，包含真实 NPC branch 后段非法效果回滚，以及房间阻挡事务失败的结构化 rejection；
+- 真实 Edge `interaction_condition_qa` 为 20 步、0 failures，最终状态 `STATE_FS_008_MAP_EXPLORE`；
+- 暂存态基线构建 PASS：`trackedFileCount=238`、`shippingFileCount=15`、0 findings；
+- 540×960 人工视觉验收检查房间首屏、NPC 长文本反馈、状态页与移动结果：无横向溢出、无原始 ID/调试文案、关键操作可见、长文本可滚动、控制台 0 error/0 warning；
+- 本切片结论为 `PASS WITH KNOWN LIMITATIONS`，只代表 Slice 2B 达标；ARCH-001、T05-01 与项目发布仍未完成；
+- `COMBAT-002`、Rest/Repair 与真实 CombatSession 未施工并继续延期。

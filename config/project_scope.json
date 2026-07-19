@@ -6,9 +6,12 @@
   "activeRuntimeFiles": [
     "index.html",
     "src/styles.css",
+    "src/conditionEvaluator.js",
     "src/dataClone.js",
     "src/evidenceContract.js",
+    "src/resultEffectExecutor.js",
     "src/resultExecutionModules.js",
+    "src/resultPreparation.js",
     "src/runtimePersistence.js",
     "src/wuxia-main.js",
     "src/wuxiaFirstSessionFlow.js"
@@ -21,14 +24,18 @@
   "developmentReferenceFiles": [
     "config/wuxia_competitor_first_session_reference.json",
     "config/wuxia_evidence_contract.schema.json",
-    "config/wuxia_fb01_entity_reachability_policy.json"
+    "config/wuxia_fb01_entity_reachability_policy.json",
+    "config/wuxia_runtime_mutation_policy.schema.json"
   ],
   "shippingFiles": [
     "index.html",
     "src/styles.css",
+    "src/conditionEvaluator.js",
     "src/dataClone.js",
     "src/evidenceContract.js",
+    "src/resultEffectExecutor.js",
     "src/resultExecutionModules.js",
+    "src/resultPreparation.js",
     "src/runtimePersistence.js",
     "src/wuxia-main.js",
     "src/wuxiaFirstSessionFlow.js",

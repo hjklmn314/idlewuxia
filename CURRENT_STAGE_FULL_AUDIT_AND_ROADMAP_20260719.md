@@ -27,7 +27,7 @@ Codex 证据区：`G:\codex`
 - 358 个配置动作已逐项执行：220 个当前可见且全部被运行时接受，138 个没有真实执行模块的动作被明确隐藏并拒绝，0 个“未实现却返回 accepted”。
 - 421 个结果定义中有 213 个被当前 FB01 分支引用；316 次实际结果出现里有 313 次达到当前 P3 运行时分类，仍有 3 次 P1。
 - 186 个条件定义中有 93 个被当前 FB01 分支引用；这 93 个没有未支持语义，未知条件保持 fail-closed。
-- 13 项运行时完整性回归和 10 项 Choice/结果链专项回归全部通过；此前复现的 5 个 P0 和 2 个 P1 均不再复现。
+- 15 项运行时完整性回归和 10 项 Choice/结果链专项回归全部通过；此前复现的 5 个 P0 和 2 个 P1 均不再复现。
 - 540×960 全新浏览器来源完成真实 UI 首局路径、通用切磋、剧情切磋、DOM、溢出和控制台复验；新来源控制台 error 为 0。
 - Android debug APK 构建、APK/Web 字节追踪和 clean-revision 审计均已通过；最终证据在文档收尾提交后重新生成并绑定。
 - `wuxia:check:fast` 通过且运行前后主流程配置 SHA-256 不变，证明快速检查不再偷偷改写源配置。
@@ -46,13 +46,16 @@ Codex 证据区：`G:\codex`
 
 ### 1.1 当前发布闭包
 
-活动入口是 `src/wuxia-main.js`。T02-04B 后 Web/APK 发布闭包为 12 个产品文件：
+活动入口是 `src/wuxia-main.js`。ARCH-001 Slice 2B 后 Web/APK 发布闭包为 15 个产品文件：
 
 - `index.html`
 - `src/styles.css`
+- `src/conditionEvaluator.js`
 - `src/dataClone.js`
 - `src/evidenceContract.js`
+- `src/resultEffectExecutor.js`
 - `src/resultExecutionModules.js`
+- `src/resultPreparation.js`
 - `src/runtimePersistence.js`
 - `src/wuxia-main.js`
 - `src/wuxiaFirstSessionFlow.js`
@@ -61,7 +64,7 @@ Codex 证据区：`G:\codex`
 - `config/wuxia_first_session_screen_contract.json`
 - `public/wuxia-brand/icon.svg`
 
-Capacitor 另生成 `cordova.js` 和 `cordova_plugins.js`。T02-04B 提交后必须重新构建并执行 clean-revision APK 审计，证明 12 个产品文件、2 个平台生成文件与 Web manifest 字节一致且没有额外 Web 资产。
+Capacitor 另生成 `cordova.js` 和 `cordova_plugins.js`。Slice 2B 提交后必须重新构建并执行 clean-revision APK 审计，证明 15 个产品文件、2 个平台生成文件与 Web manifest 字节一致且没有额外 Web 资产。
 
 ### 1.2 当前配置规模
 
@@ -633,10 +636,10 @@ ChoiceDefinition
 - `src/conditionEvaluator.js` 已作为 ARCH-001 切片 1 提取，显式接收定义和 Runtime 状态，保持无 mutation。
 - 旧 `createFirstSessionRuntime` facade、快照、事件和存档 DTO 未改变。
 - 新合同测试已按红灯到绿灯执行，并接入 `task:preflight` 与 `wuxia:check:fast`。
-- 条件负路径仍为 6/6、`negativeMutationCount=0`；Runtime integrity 13/13；Choice/Result 10/10；首局完整交互 PASS。
+- 条件负路径仍为 6/6、`negativeMutationCount=0`；Runtime integrity 15/15；Choice/Result 10/10；首局完整交互 PASS。
 - 真实 Edge `interaction-contract` 在 dev-server 就绪后完成 20 步、0 failures；首次未启动服务器的 `ERR_CONNECTION_REFUSED` 作为环境诊断保留，不冒充产品失败。
-- Android sync 与 Web bundle freshness PASS：12 个运输文件、0 unexpected、0 findings。
-- ARCH-001 仍为 `open`：Result、Navigation、Entity、ChapterSession 和 UI adapter 尚未全部拆分。
+- 本段历史执行时 Android sync 与 Web bundle freshness 按旧白名单报告 12 文件；Slice 2B 完整运输链复核已确认该白名单漏模块，最终结论以随后修正的 15 文件闭包复验为准。
+- ARCH-001 仍为 `open`：Navigation、Entity、ChapterSession 和 UI adapter 尚未拆分。
 - `T03-01` 继续等待 ARCH-001 完成；COMBAT-002 与 CombatSession 继续延期。
 
 ## 2026-07-19 ARCH-001 Result preparation 续施工
@@ -648,5 +651,19 @@ ChoiceDefinition
 - Runtime facade、快照、事件和存档 DTO 保持兼容；
 - `wuxia:check:fast` PASS，真实 Edge 20 步/0 failures，Android freshness 0 findings；
 - Runtime 当前为 1,676 行，Result preparation 模块为 265 行；
-- transactional Effect commit 尚未提取，因此 ARCH-001 继续保持 `open`；
+- transactional Effect commit 已在 Slice 2B 提取；ARCH-001 因 Navigation、Entity、ChapterSession 与 UI adapter 尚未完成而继续保持 `open`；
 - COMBAT-002 与 CombatSession 继续延期。
+
+## 2026-07-19 ARCH-001 Transactional EffectExecutor 续施工
+
+- `src/resultEffectExecutor.js` 已完成 ARCH-001 切片 2B；旧 Runtime facade 仍是唯一状态权威，Executor 只拥有单次调用的隔离草稿；
+- 完整运输链复核发现旧 12 文件白名单漏掉已被 Runtime 导入的 `conditionEvaluator.js` 与 `resultPreparation.js`，并会继续漏掉新 Executor；`config/project_scope.json` 已改为 15 文件闭包，三者都进入 Web/APK，而 Runtime policy Schema 明确保持开发期、不运输；
+- 新增 `idlewuxia.runtime_mutation_policy.v1` 及 Draft 2020-12 Schema，类别、动作、参数位、默认值、列表分隔符、既有 Combat follow-up 与失败策略全部由配置定义并由 Ajv 实际校验；
+- 任一未知、缺参、非法数值或执行异常会拒绝整条 branch、丢弃草稿并返回空 `sideEffects`；房间阻挡失败也产生结构化 rejection，不再伪装成普通阻挡；
+- Runtime integrity 15/15，模块合同、Choice/Result、Persistence、条件负路径、首局交互与快速总门禁均通过；
+- 真实 Edge `interaction_condition_qa` 为 20 步、0 failures，最终状态 `STATE_FS_008_MAP_EXPLORE`；
+- 540×960 人工视觉验收已检查房间首屏、NPC 长文本反馈、状态页与移动结果：无横向溢出、无原始 ID/调试文案，反馈可读可滚动，控制台 0 error/0 warning；
+- 修正白名单后 `android:sync` 重新物化 15 个产品文件并复制到 Android，2 个平台生成文件保留，`wwwUnexpectedFiles=0`、`androidUnexpectedFiles=0`、`findings=0`；重新打开 `/www/` 人工复验仍通过；
+- 暂存态项目基线 PASS：`trackedFileCount=238`、`shippingFileCount=15`、0 findings；
+- 本切片为 `PASS WITH KNOWN LIMITATIONS`，不等于 ARCH-001、11 屏×3 尺寸、正式 APK、真机或项目上线完成；
+- 下一施工项为 NavigationService；`COMBAT-002`、Rest/Repair 与真实 CombatSession 继续延期。

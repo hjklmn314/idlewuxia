@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import Ajv2020 from "ajv/dist/2020.js";
+
 import {
   evidenceReferences,
   validateEvidenceContract,
@@ -54,6 +56,57 @@ const rewards = Array.isArray(config.chapter1?.rewards) ? config.chapter1.reward
 const screens = screenContract.screens || {};
 const rewardClasses = config.rewardClasses || {};
 const mobileLayout = screenContract.mobileLayout || {};
+const runtimeMutationPolicy = config.chapterSystem?.resultEffectPolicies?.runtimeMutation || {};
+
+const runtimeMutationSchemaPath = path.join(root, "config", "wuxia_runtime_mutation_policy.schema.json");
+const runtimeMutationSchema = JSON.parse(fs.readFileSync(runtimeMutationSchemaPath, "utf8"));
+const runtimeMutationAjv = new Ajv2020({ allErrors: true, strict: true });
+const validateRuntimeMutationPolicy = runtimeMutationAjv.compile(runtimeMutationSchema);
+if (!validateRuntimeMutationPolicy(runtimeMutationPolicy)) {
+  for (const error of validateRuntimeMutationPolicy.errors || []) {
+    findings.push(finding(
+      "error",
+      `Runtime mutation policy schema violation: ${error.message || "invalid value"}.`,
+      `chapterSystem.resultEffectPolicies.runtimeMutation${error.instancePath || ""}`,
+    ));
+  }
+}
+
+if (runtimeMutationPolicy.schema !== "idlewuxia.runtime_mutation_policy.v1") {
+  findings.push(finding("error", "Runtime mutation policy schema is missing or unsupported.", "chapterSystem.resultEffectPolicies.runtimeMutation.schema"));
+}
+for (const [group, keys] of Object.entries({
+  categoryNames: ["narrativeFeedback", "mapState", "attributeReward", "skillProgression", "roleState", "combat", "chapterClear"],
+  actionNames: [
+    "entitySwap", "entityAdd", "hideSelf", "entityDelete", "mapMarkerSet", "mapMarkerChange",
+    "attributeChange", "skillExperienceChange", "inheritableMarkerSet", "playerMarkerSet",
+    "playerMarkerChange", "playerTimeMarkerSet", "playerTimedMarkerSet", "storyDialogue", "navigationStop", "chapterClear",
+  ],
+  argKeys: ["primary", "secondary", "duration"],
+})) {
+  for (const key of keys) {
+    if (!String(runtimeMutationPolicy[group]?.[key] || "").trim()) {
+      findings.push(finding(
+        "error",
+        `Runtime mutation policy is missing ${group}.${key}.`,
+        `chapterSystem.resultEffectPolicies.runtimeMutation.${group}.${key}`,
+      ));
+    }
+  }
+}
+for (const key of ["defaultValue", "listDelimiter"]) {
+  if (!String(runtimeMutationPolicy[key] || "").trim()) {
+    findings.push(finding("error", `Runtime mutation policy is missing ${key}.`, `chapterSystem.resultEffectPolicies.runtimeMutation.${key}`));
+  }
+}
+for (const key of ["compareResultId", "compareWinConditionToken", "inheritanceResultIdPrefix", "autoTextArg", "autoTextMarkerArg"]) {
+  if (!String(runtimeMutationPolicy.combatFollowup?.[key] || "").trim()) {
+    findings.push(finding("error", `Runtime mutation policy is missing combatFollowup.${key}.`, `chapterSystem.resultEffectPolicies.runtimeMutation.combatFollowup.${key}`));
+  }
+}
+if (runtimeMutationPolicy.failurePolicy !== "reject_entire_branch_and_discard_draft") {
+  findings.push(finding("error", "Runtime mutation policy must reject and discard an invalid branch draft.", "chapterSystem.resultEffectPolicies.runtimeMutation.failurePolicy"));
+}
 
 if (mobileLayout.orientation !== "portrait") {
   findings.push(finding("error", "Screen contract must declare portrait mobile orientation.", "mobileLayout.orientation"));

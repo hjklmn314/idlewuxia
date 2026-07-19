@@ -1,23 +1,12 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const simulatorPath = path.join(root, "tools", "simulate-wuxia-first-session-flow.mjs");
 const reportPath = path.join(root, "outputs", "idlewuxia_migration", "wuxia_first_session_flow_simulation.json");
 
-const result = spawnSync(process.execPath, [simulatorPath], {
-  cwd: root,
-  encoding: "utf8",
-});
-
-assert.equal(
-  result.status,
-  0,
-  `first-session simulator must complete its configured path\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`,
-);
+await import("./simulate-wuxia-first-session-flow.mjs");
 
 const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
 assert.equal(report.summary?.mismatches, 0, "every configured simulation step must match its expected outcome");

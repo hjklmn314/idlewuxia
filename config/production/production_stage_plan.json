@@ -361,6 +361,11 @@
         "tools/test-condition-evaluator.mjs",
         "src/resultPreparation.js",
         "tools/test-result-preparation.mjs",
+        "src/resultEffectExecutor.js",
+        "tools/test-result-effect-executor.mjs",
+        "config/wuxia_runtime_mutation_policy.schema.json",
+        "docs/codex_game_development_os/RESULT_EFFECT_EXECUTOR_CONTRACT.md",
+        "docs/codex_game_development_os/ARCH-001_SLICE_2B_MANUAL_VISUAL_ACCEPTANCE_20260719.md",
         "docs/codex_game_development_os/ARCH-001_IMPLEMENTATION_RECORD_20260719.md"
       ]
     },

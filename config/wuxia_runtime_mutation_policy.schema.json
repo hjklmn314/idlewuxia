@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://idlewuxia.local/schemas/wuxia_runtime_mutation_policy.schema.json",
+  "title": "Idlewuxia Runtime Mutation Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "moduleId",
+    "enabledInFirstSession",
+    "categoryNames",
+    "actionNames",
+    "argKeys",
+    "defaultValue",
+    "listDelimiter",
+    "combatFollowup",
+    "failurePolicy",
+    "evidenceLevel"
+  ],
+  "properties": {
+    "schema": { "const": "idlewuxia.runtime_mutation_policy.v1" },
+    "moduleId": { "const": "result_effect_executor" },
+    "enabledInFirstSession": { "const": true },
+    "categoryNames": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["narrativeFeedback", "mapState", "attributeReward", "skillProgression", "roleState", "combat", "chapterClear"],
+      "properties": {
+        "narrativeFeedback": { "$ref": "#/$defs/nonEmptyString" },
+        "mapState": { "$ref": "#/$defs/nonEmptyString" },
+        "attributeReward": { "$ref": "#/$defs/nonEmptyString" },
+        "skillProgression": { "$ref": "#/$defs/nonEmptyString" },
+        "roleState": { "$ref": "#/$defs/nonEmptyString" },
+        "combat": { "$ref": "#/$defs/nonEmptyString" },
+        "chapterClear": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "actionNames": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entitySwap", "entityAdd", "hideSelf", "entityDelete", "mapMarkerSet", "mapMarkerChange", "attributeChange", "skillExperienceChange", "inheritableMarkerSet", "playerMarkerSet", "playerMarkerChange", "playerTimeMarkerSet", "playerTimedMarkerSet", "storyDialogue", "navigationStop", "chapterClear"],
+      "properties": {
+        "entitySwap": { "$ref": "#/$defs/nonEmptyString" },
+        "entityAdd": { "$ref": "#/$defs/nonEmptyString" },
+        "hideSelf": { "$ref": "#/$defs/nonEmptyString" },
+        "entityDelete": { "$ref": "#/$defs/nonEmptyString" },
+        "mapMarkerSet": { "$ref": "#/$defs/nonEmptyString" },
+        "mapMarkerChange": { "$ref": "#/$defs/nonEmptyString" },
+        "attributeChange": { "$ref": "#/$defs/nonEmptyString" },
+        "skillExperienceChange": { "$ref": "#/$defs/nonEmptyString" },
+        "inheritableMarkerSet": { "$ref": "#/$defs/nonEmptyString" },
+        "playerMarkerSet": { "$ref": "#/$defs/nonEmptyString" },
+        "playerMarkerChange": { "$ref": "#/$defs/nonEmptyString" },
+        "playerTimeMarkerSet": { "$ref": "#/$defs/nonEmptyString" },
+        "playerTimedMarkerSet": { "$ref": "#/$defs/nonEmptyString" },
+        "storyDialogue": { "$ref": "#/$defs/nonEmptyString" },
+        "navigationStop": { "$ref": "#/$defs/nonEmptyString" },
+        "chapterClear": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "argKeys": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary", "secondary", "duration"],
+      "properties": {
+        "primary": { "$ref": "#/$defs/nonEmptyString" },
+        "secondary": { "$ref": "#/$defs/nonEmptyString" },
+        "duration": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "defaultValue": { "$ref": "#/$defs/nonEmptyString" },
+    "listDelimiter": { "$ref": "#/$defs/nonEmptyString" },
+    "combatFollowup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["compareResultId", "compareWinConditionToken", "inheritanceResultIdPrefix", "autoTextArg", "autoTextMarkerArg"],
+      "properties": {
+        "compareResultId": { "$ref": "#/$defs/nonEmptyString" },
+        "compareWinConditionToken": { "$ref": "#/$defs/nonEmptyString" },
+        "inheritanceResultIdPrefix": { "$ref": "#/$defs/nonEmptyString" },
+        "autoTextArg": { "$ref": "#/$defs/nonEmptyString" },
+        "autoTextMarkerArg": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "failurePolicy": { "const": "reject_entire_branch_and_discard_draft" },
+    "evidenceLevel": { "$ref": "#/$defs/nonEmptyString" }
+  },
+  "$defs": {
+    "nonEmptyString": { "type": "string", "minLength": 1 }
+  }
+}

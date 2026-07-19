@@ -28,7 +28,7 @@
 ### 项目和运输闭包
 
 - 活跃产品是原生 ES Module + DOM/CSS 的 HTML 运行时，由 Capacitor 6.2.1 打包 Android。
-- `config/project_scope.json` 声明 12 个运输文件。
+- `config/project_scope.json` 当前声明 15 个运输文件；2026-07-19 Slice 2B 复核修正了旧 12 文件白名单漏掉 Condition、Result preparation 与 Result effect executor 的问题。
 - 活跃配置只有持久化、首局流程、首局屏幕合同三项；开发证据在 Web 构建清洗。
 - Android 正式包名 `com.idlewuxia.app`，debug 包名 `com.idlewuxia.app.debug`。
 - 起点基线为 201 个 Git 跟踪文件，baseline digest 为 `e5122b5706ae9499b063e2a5d1c2bc8df4e6b1bf66feff731832841c417b4407`。

@@ -23,7 +23,8 @@
         "src/wuxiaFirstSessionFlow.js"
       ],
       "configuration": [
-        "config/wuxia_first_session_flow.json"
+        "config/wuxia_first_session_flow.json",
+        "config/wuxia_runtime_mutation_policy.schema.json"
       ],
       "status": "implemented-monolith",
       "nextTaskIds": [
@@ -51,8 +52,9 @@
     {
       "id": "result-effect-execution",
       "owner": "production-code-engineer",
-      "stateAuthority": "src/resultExecutionModules.js",
+      "stateAuthority": "src/wuxiaFirstSessionFlow.js",
       "runtimeModules": [
+        "src/resultEffectExecutor.js",
         "src/resultPreparation.js",
         "src/resultExecutionModules.js",
         "src/wuxiaFirstSessionFlow.js"
@@ -60,7 +62,7 @@
       "configuration": [
         "config/wuxia_first_session_flow.json"
       ],
-      "status": "preparation-modularized-effect-commit-monolith",
+      "status": "transactional-prepare-and-commit-modularized-combat-postponed",
       "nextTaskIds": [
         "T03-01",
         "COMBAT-002"

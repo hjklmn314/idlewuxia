@@ -16,10 +16,17 @@ flowchart LR
     A["wuxia_first_session_flow.json"] --> B["wuxiaFirstSessionFlow.js"]
     C["screen_contract.json"] --> D["wuxia-main.js"]
     E["runtime_persistence_contract.json"] --> F["runtimePersistence.js"]
+    A --> K["conditionEvaluator.js"]
+    A --> L["resultPreparation.js"]
+    A --> M["resultEffectExecutor.js"]
+    K --> B
+    L --> B
+    M --> B
     B --> D
     D --> G["DOM / CSS"]
     B --> F
-    H["resultExecutionModules.js"] --> B
+    H["resultExecutionModules.js"] --> L
+    H --> M
     G --> I["build-web.mjs"]
     I --> J["Capacitor Android"]
 ```
@@ -27,14 +34,17 @@ flowchart LR
 链路可运行，但 `B` 和 `D` 均为巨型模块。
 
 截至 2026-07-19，ARCH-001 已把 Condition 解释器提取为
-`src/conditionEvaluator.js`，并把 ResultSet/Choice/SkillConversion/库存预检
-提取为 `src/resultPreparation.js`。`wuxiaFirstSessionFlow.js` 仍作为兼容
-ChapterSession facade；Effect commit、Navigation、Entity 和 UI adapter 尚未完成，
+`src/conditionEvaluator.js`，把 ResultSet/Choice/SkillConversion/库存预检
+提取为 `src/resultPreparation.js`，并把事务提交提取为 `src/resultEffectExecutor.js`。
+`wuxiaFirstSessionFlow.js` 仍作为兼容 ChapterSession facade 和唯一状态权威；Navigation、Entity 和 UI adapter 尚未完成，
 因此 ARCH-001 仍为 `open`。
 
 Result preparation 的库存/合成识别由
 `chapterSystem.resultEffectPolicies.inventoryMutation` 提供类别、动作、参数位和
 堆栈分隔符；模块只解释策略，不内置具体物品、配方、NPC 或章节 ID。
+其余效果映射由 `chapterSystem.resultEffectPolicies.runtimeMutation` 与
+`config/wuxia_runtime_mutation_policy.schema.json` 约束；Executor 只在隔离草稿上工作，
+失败丢弃整条草稿并返回空 `sideEffects`。
 
 ## 目标模块
 
@@ -96,8 +106,8 @@ flowchart TB
 
 1. 先写 Characterization Tests，冻结 358 动作现有语义和存档 DTO。（进行中）
 2. 提取纯函数 `ConditionEvaluator`，保持 token/arg 解释不变。（切片 1 已完成）
-3. 提取事务型 `EffectExecutor` 与 `ResultSet` 防循环合同。（Result preparation 已完成；Effect commit 待完成）
-4. 提取 `NavigationService` 和 `EntityInteractionService`。
+3. 提取事务型 `EffectExecutor` 与 `ResultSet` 防循环合同。（切片 2A、2B 已完成）
+4. 提取 `NavigationService` 和 `EntityInteractionService`。（下一施工项）
 5. 提取 `ChapterSession`，旧 `createWuxiaFirstSessionRuntime` 保留兼容 facade。
 6. 从 UI 控制器提取 view-model、intent mapper 和 browser automation seam。
 7. 分离 `wuxia.css` 与 dormant legacy CSS，Web Bundle 只运输武侠样式。

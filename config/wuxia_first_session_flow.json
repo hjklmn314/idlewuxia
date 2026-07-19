@@ -31005,6 +31005,7 @@
         "moduleId": "official_merit",
         "enabledInFirstSession": true,
         "actionName": "改变政绩",
+        "deltaArg": "Arg2",
         "resultIdPatterns": [
           "*zhengji*"
         ],
@@ -31053,6 +31054,54 @@
           "source": "CommonResults.lua item mutation and crafting dispatch",
           "semantics": "configured item deltas and recipes must pass projected-inventory validation before runtime commit"
         }
+      },
+      "runtimeMutation": {
+        "schema": "idlewuxia.runtime_mutation_policy.v1",
+        "moduleId": "result_effect_executor",
+        "enabledInFirstSession": true,
+        "categoryNames": {
+          "narrativeFeedback": "narrative_feedback",
+          "mapState": "map_state",
+          "attributeReward": "attribute_reward",
+          "skillProgression": "skill_progression",
+          "roleState": "role_state",
+          "combat": "combat",
+          "chapterClear": "chapter_clear"
+        },
+        "actionNames": {
+          "entitySwap": "换人",
+          "entityAdd": "添加人物",
+          "hideSelf": "删除自身",
+          "entityDelete": "删除人物",
+          "mapMarkerSet": "地图标记设置",
+          "mapMarkerChange": "地图标记变化",
+          "attributeChange": "玩家属性变化",
+          "skillExperienceChange": "玩家武功经验变化",
+          "inheritableMarkerSet": "可传承玩家标记设置",
+          "playerMarkerSet": "玩家标记设置",
+          "playerMarkerChange": "玩家标记变化",
+          "playerTimeMarkerSet": "玩家时间标记设置",
+          "playerTimedMarkerSet": "玩家定时标记设置",
+          "storyDialogue": "副本故事",
+          "navigationStop": "阻止玩家移动",
+          "chapterClear": "章节通关"
+        },
+        "argKeys": {
+          "primary": "Arg2",
+          "secondary": "Arg3",
+          "duration": "Arg4"
+        },
+        "defaultValue": "1",
+        "listDelimiter": ";",
+        "combatFollowup": {
+          "compareResultId": "compare",
+          "compareWinConditionToken": "comparewin",
+          "inheritanceResultIdPrefix": "inattack",
+          "autoTextArg": "Arg3",
+          "autoTextMarkerArg": "Arg3"
+        },
+        "failurePolicy": "reject_entire_branch_and_discard_draft",
+        "evidenceLevel": "runtime_contract"
       },
       "choiceResult": {
         "schema": "idlewuxia.choice_result_policy.v1",
