@@ -7,6 +7,7 @@ import {
   EVIDENCE_SCHEMA,
   EVIDENCE_SOURCE_KINDS,
   evidenceReferences,
+  isExternalEvidenceReference,
   validateEvidenceContract,
 } from "../src/evidenceContract.js";
 import { materializeWebBundle } from "./lib/web-bundle-freshness.mjs";
@@ -152,8 +153,12 @@ for (const reference of playerSeedReferences) {
 let canonicalReferenceCount = 0;
 let canonicalFileMatches = 0;
 let canonicalLogicalReferences = 0;
+let canonicalExternalUnresolved = 0;
 let canonicalRecordChecks = 0;
 let canonicalRecordMatches = 0;
+const externalEvidenceRoots = (scope.forbiddenTrackedRoots || [])
+  .map((entry) => String(entry).replaceAll("\\", "/"))
+  .filter((entry) => entry === "fangzhijianghu/");
 for (const entry of canonicalEntries) {
   for (const reference of entry.references) {
     canonicalReferenceCount += 1;
@@ -169,6 +174,10 @@ for (const entry of canonicalEntries) {
       ? reference.sourceFile
       : path.join(root, reference.sourceFile);
     if (!fs.existsSync(absolute)) {
+      if (isExternalEvidenceReference(normalizedSource, externalEvidenceRoots)) {
+        canonicalExternalUnresolved += 1;
+        continue;
+      }
       report.findings.push({
         severity: "error",
         code: "CANONICAL_SOURCE_FILE_MISSING",
@@ -206,6 +215,7 @@ report.summary = {
   canonicalReferences: canonicalReferenceCount,
   canonicalFileMatches,
   canonicalLogicalReferences,
+  canonicalExternalUnresolved,
   canonicalRecordChecks,
   canonicalRecordMatches,
   sourceSchemaValid: !report.findings.some(

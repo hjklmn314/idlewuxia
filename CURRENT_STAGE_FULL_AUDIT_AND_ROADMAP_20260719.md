@@ -564,10 +564,11 @@ ChoiceDefinition
 - repair 工具已改为输出 typed references，并通过隔离临时目录实跑回归；
 - 证据地图和验收登记改为“一条来源一行”，生成阶段会主动拒绝再次出现 pipe-packed source/record；
 - Web/APK 发布变换会成组移除 `evidenceSchema` 与全部开发态 provenance 字段；验证器同时检查源配置 Schema 有效、发布配置不存在半清洗契约或证据泄漏。
+- GitHub clean checkout 不包含项目明确禁止提交的 `fangzhijianghu/` 开发证据根；验证器仅对这个显式外部根允许 unresolved，并继续对本机存在的文件做逐记录核验，其他未知缺失路径仍 hard fail。
 
 自动门禁：
 
-- `runtime:evidence-contract:test`：12/12 pass；
+- `runtime:evidence-contract:test`：14/14 pass；
 - `wuxia:validate:evidence`：0 findings；
 - 151 个规范来源拥有者、325 条规范来源引用；其中 17 条项目内文件引用全部存在，308 条上游逻辑引用保留为逐文件地址；
 - 17 个项目内文本记录检查全部定位成功；

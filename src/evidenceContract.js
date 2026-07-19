@@ -35,6 +35,14 @@ export function inferEvidenceSourceKind(sourceFile, evidenceLevel = "") {
   return "unknown";
 }
 
+export function isExternalEvidenceReference(sourceFile, externalRoots = []) {
+  const normalizedFile = cleanText(sourceFile).replaceAll("\\", "/").replace(/^\.\/+/, "");
+  return externalRoots.some((root) => {
+    const normalizedRoot = cleanText(root).replaceAll("\\", "/").replace(/^\.\/+/, "");
+    return normalizedRoot && normalizedFile.startsWith(normalizedRoot);
+  });
+}
+
 export function evidenceReferences(evidence = {}) {
   if (Array.isArray(evidence.sources)) {
     return evidence.sources.map(canonicalReference);

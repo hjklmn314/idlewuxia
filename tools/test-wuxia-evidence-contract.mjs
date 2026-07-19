@@ -9,6 +9,7 @@ import {
   allEvidenceReferences,
   evidenceReferences,
   inferEvidenceSourceKind,
+  isExternalEvidenceReference,
   migrateEvidenceContract,
   validateEvidenceContract,
 } from "../src/evidenceContract.js";
@@ -122,6 +123,22 @@ assert.equal(
   inferEvidenceSourceKind("public/reference/frame.png", "recording_observed"),
   "visual_reference",
   "visual evidence kind inference must not depend on a development-only path token",
+);
+assert.equal(
+  isExternalEvidenceReference(
+    "fangzhijianghu/outputs/a.csv",
+    ["fangzhijianghu/"],
+  ),
+  true,
+  "an explicitly excluded development evidence root may be unresolved in a clean CI checkout",
+);
+assert.equal(
+  isExternalEvidenceReference(
+    "config/missing.json",
+    ["fangzhijianghu/"],
+  ),
+  false,
+  "an unknown missing project path must not inherit the external evidence exception",
 );
 
 const compositeSupplementalReport = validateEvidenceContract({
@@ -245,4 +262,4 @@ try {
   fs.rmSync(repairRoot, { recursive: true, force: true });
 }
 
-console.log(JSON.stringify({ status: "pass", checks: 12 }, null, 2));
+console.log(JSON.stringify({ status: "pass", checks: 14 }, null, 2));
