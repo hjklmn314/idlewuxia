@@ -525,7 +525,7 @@ function renderRoomExplore(block, flowContract, snapshot) {
                 const availability = exitAvailability.get(connection.roomId) || { available: true };
                 const blockedText = availability.available ? "" : (availability.feedbackLines || [])[0] || availability.blockerName || "";
                 return `
-                  <button type="button" class="wuxia-room-direction ${availability.available ? "" : "is-locked"}" data-wuxia-room-id="${escapeHtml(connection.roomId || "")}" aria-disabled="${!availability.available}" title="${escapeHtml(blockedText)}">
+                  <button type="button" class="wuxia-room-direction ${availability.available ? "" : "is-locked"}" data-wuxia-room-id="${escapeHtml(connection.roomId || "")}" aria-disabled="${!availability.available}" title="${escapeHtml(blockedText)}"${availability.available ? "" : " disabled"}>
                     <small>${escapeHtml(directionLabel(connection.direction, block))}</small>
                     <strong>${escapeHtml(roomTitle(target) || connection.roomId || "")}</strong>
                     ${blockedText ? `<em>${escapeHtml(blockedText)}</em>` : ""}

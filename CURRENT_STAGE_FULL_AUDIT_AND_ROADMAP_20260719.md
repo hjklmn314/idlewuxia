@@ -46,13 +46,14 @@ Codex 证据区：`G:\codex`
 
 ### 1.1 当前发布闭包
 
-活动入口是 `src/wuxia-main.js`。ARCH-001 Slice 2B 后 Web/APK 发布闭包为 15 个产品文件：
+活动入口是 `src/wuxia-main.js`。ARCH-001 Slice 3 后 Web/APK 发布闭包为 16 个产品文件：
 
 - `index.html`
 - `src/styles.css`
 - `src/conditionEvaluator.js`
 - `src/dataClone.js`
 - `src/evidenceContract.js`
+- `src/navigationService.js`
 - `src/resultEffectExecutor.js`
 - `src/resultExecutionModules.js`
 - `src/resultPreparation.js`
@@ -64,7 +65,7 @@ Codex 证据区：`G:\codex`
 - `config/wuxia_first_session_screen_contract.json`
 - `public/wuxia-brand/icon.svg`
 
-Capacitor 另生成 `cordova.js` 和 `cordova_plugins.js`。Slice 2B 提交后必须重新构建并执行 clean-revision APK 审计，证明 15 个产品文件、2 个平台生成文件与 Web manifest 字节一致且没有额外 Web 资产。
+Capacitor 另生成 `cordova.js` 和 `cordova_plugins.js`。每次发布提交后必须重新构建并执行 clean-revision APK 审计，证明 16 个产品文件、2 个平台生成文件与 Web manifest 字节一致且没有额外 Web 资产。
 
 ### 1.2 当前配置规模
 
@@ -639,7 +640,7 @@ ChoiceDefinition
 - 条件负路径仍为 6/6、`negativeMutationCount=0`；Runtime integrity 15/15；Choice/Result 10/10；首局完整交互 PASS。
 - 真实 Edge `interaction-contract` 在 dev-server 就绪后完成 20 步、0 failures；首次未启动服务器的 `ERR_CONNECTION_REFUSED` 作为环境诊断保留，不冒充产品失败。
 - 本段历史执行时 Android sync 与 Web bundle freshness 按旧白名单报告 12 文件；Slice 2B 完整运输链复核已确认该白名单漏模块，最终结论以随后修正的 15 文件闭包复验为准。
-- ARCH-001 仍为 `open`：Navigation、Entity、ChapterSession 和 UI adapter 尚未拆分。
+- ARCH-001 仍为 `open`：Entity、ChapterSession 和 UI adapter 尚未拆分。
 - `T03-01` 继续等待 ARCH-001 完成；COMBAT-002 与 CombatSession 继续延期。
 
 ## 2026-07-19 ARCH-001 Result preparation 续施工
@@ -651,7 +652,7 @@ ChoiceDefinition
 - Runtime facade、快照、事件和存档 DTO 保持兼容；
 - `wuxia:check:fast` PASS，真实 Edge 20 步/0 failures，Android freshness 0 findings；
 - Runtime 当前为 1,676 行，Result preparation 模块为 265 行；
-- transactional Effect commit 已在 Slice 2B 提取；ARCH-001 因 Navigation、Entity、ChapterSession 与 UI adapter 尚未完成而继续保持 `open`；
+- transactional Effect commit 已在 Slice 2B 提取，NavigationService 已在 Slice 3 提取；ARCH-001 因 Entity、ChapterSession 与 UI adapter 尚未完成而继续保持 `open`；
 - COMBAT-002 与 CombatSession 继续延期。
 
 ## 2026-07-19 ARCH-001 Transactional EffectExecutor 续施工
@@ -666,4 +667,15 @@ ChoiceDefinition
 - 修正白名单后 `android:sync` 重新物化 15 个产品文件并复制到 Android，2 个平台生成文件保留，`wwwUnexpectedFiles=0`、`androidUnexpectedFiles=0`、`findings=0`；重新打开 `/www/` 人工复验仍通过；
 - 暂存态项目基线 PASS：`trackedFileCount=238`、`shippingFileCount=15`、0 findings；
 - 本切片为 `PASS WITH KNOWN LIMITATIONS`，不等于 ARCH-001、11 屏×3 尺寸、正式 APK、真机或项目上线完成；
-- 下一施工项为 NavigationService；`COMBAT-002`、Rest/Repair 与真实 CombatSession 继续延期。
+- Slice 2B 的后继 NavigationService 已在 Slice 3 完成；当前下一施工项为 EntityInteractionService，`COMBAT-002`、Rest/Repair 与真实 CombatSession 继续延期。
+
+## 2026-07-20 ARCH-001 NavigationService 续施工
+
+- `src/navigationService.js` 已完成 ARCH-001 切片 3：以无状态服务解释节点、房间路线、配置化房间进入条件、活动 NPC 移动阻断和出口可用性；
+- `chapterSystem.navigationPolicy` 与 `config/wuxia_navigation_policy.schema.json` 已取代 Runtime 内的房间 ID 正则和固定 `stop` Result ID；Schema 由 Ajv Draft 2020-12 实际执行；
+- 节点/房间事件和存档 DTO 保持兼容，路线新增 `routeKind/navigationOnly` 观测字段；项目导航桥仍按既有产品策略保留，但显式限制为 navigation-only；
+- 45 个房间连接均存在、方向唯一且互反；真实 FB01 移动阻断、事务失败、首局 54 事件、15/15 Runtime integrity、358 动作 `highRisk=0` 和内容边界 `high=0` 通过；
+- Web/Android 发布闭包为 16 个产品文件，`www` 与 Android 运输文件 0 unexpected、0 freshness findings；
+- 人工视觉首轮发现紧凑断点隐藏/截断阻断原因，修复后在 540×960 与 390×844 复验：阻断原因完整、出口 disabled、往返移动正确、无横向溢出、无原始 ID、控制台 0 error/0 warning；
+- 本切片判定 `PASS WITH KNOWN LIMITATIONS`，不等于 ARCH-001、T05-01、正式 APK、真机或项目上线完成；
+- 下一切片为 EntityInteractionService；`COMBAT-002`、Rest/Repair 与真实 CombatSession 继续延期。

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "idlewuxia.navigation_policy.schema.v1",
+  "title": "Idlewuxia Navigation Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "roomEntryCondition",
+    "blockerResult",
+    "projectBridge",
+    "failurePolicy"
+  ],
+  "properties": {
+    "schema": { "const": "idlewuxia.navigation_policy.v1" },
+    "roomEntryCondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actionName", "targetRoomField"],
+      "properties": {
+        "actionName": { "$ref": "#/$defs/nonEmptyString" },
+        "targetRoomField": { "enum": ["arg2", "arg3", "arg4", "arg5", "arg6", "arg7"] }
+      }
+    },
+    "blockerResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actionName"],
+      "properties": {
+        "actionName": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "projectBridge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "mutationPolicy"],
+      "properties": {
+        "mode": { "enum": ["allow_configured_room_selection", "connected_rooms_only"] },
+        "mutationPolicy": { "const": "navigation_only" }
+      }
+    },
+    "failurePolicy": { "const": "reject_unknown_definition_or_unconfigured_route" }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

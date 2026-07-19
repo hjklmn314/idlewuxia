@@ -1,5 +1,6 @@
 ﻿import { cloneData } from "./dataClone.js";
 import { createConditionEvaluator } from "./conditionEvaluator.js";
+import { createNavigationService } from "./navigationService.js";
 import { createResultEffectExecutor } from "./resultEffectExecutor.js";
 import { createResultPreparation } from "./resultPreparation.js";
 import { isValidPendingChoice } from "./resultExecutionModules.js";
@@ -42,6 +43,16 @@ export function createFirstSessionRuntime(contract, options = {}) {
   const resultLookup = new Map(Object.entries(activeChapter?.resultLookup || {}));
   const conditionLookup = new Map(Object.entries(activeChapter?.conditionLookup || {}));
   const conditionEvaluator = createConditionEvaluator({ conditionLookup, rewardAttributeMap });
+  const navigationService = createNavigationService({
+    nodeLookup: nodeMap,
+    roomLookup: roomMap,
+    npcLookup: npcMap,
+    gateLookup: gateMap,
+    rewardLookup: rewardMap,
+    conditionLookup,
+    resultLookup,
+    navigationPolicy: contract?.chapterSystem?.navigationPolicy || {},
+  });
   const resultEffectPolicies = contract?.chapterSystem?.resultEffectPolicies || {};
   const combatActionPolicies = contract?.chapterSystem?.combatActionPolicies || {};
   const seasonalActivityPolicy = resultEffectPolicies.seasonalActivity || {};
@@ -188,29 +199,6 @@ export function createFirstSessionRuntime(contract, options = {}) {
     return ordered;
   }
 
-  function roomEnterConditionToken(roomId = "") {
-    const match = String(roomId).match(/_(\d+)$/);
-    if (!match) return "";
-    return `gorome${Number(match[1])}`;
-  }
-
-  function transitionBlockerForRoom(targetRoomId) {
-    if (!selectedChapterRoomId || !targetRoomId || selectedChapterRoomId === targetRoomId) return null;
-    const currentRoom = roomMap.get(selectedChapterRoomId);
-    const conditionToken = roomEnterConditionToken(targetRoomId);
-    if (!currentRoom || !conditionToken) return null;
-    for (const entityId of roomEntityIds(currentRoom)) {
-      const npc = npcMap.get(entityId);
-      if (!npc) continue;
-      const branch = (npc.branches || []).find((candidate) => (
-        (candidate.conditionTokens || []).includes(conditionToken)
-        && (candidate.resultTokens || []).includes("stop")
-      ));
-      if (branch) return { npc, branch, conditionToken };
-    }
-    return null;
-  }
-
   function validateResultEffects(branch = {}) {
     return resultPreparation.prepare(branch, player);
   }
@@ -284,18 +272,9 @@ export function createFirstSessionRuntime(contract, options = {}) {
   function snapshot() {
     const selectedRoom = selectedChapterRoomId ? roomMap.get(selectedChapterRoomId) : null;
     const selectedNpc = selectedChapterNpcId ? npcMap.get(selectedChapterNpcId) : null;
-    const exitAvailability = (selectedRoom?.connections || []).map((connection) => {
-      const blocker = transitionBlockerForRoom(connection.roomId);
-      return {
-        roomId: connection.roomId || "",
-        direction: connection.direction || "",
-        available: !blocker,
-        blockerRoleId: blocker?.npc?.roleId || "",
-        blockerName: blocker?.npc?.name || blocker?.npc?.displayName?.zhCN || "",
-        conditionTokens: clone(blocker?.branch?.conditionTokens || []),
-        feedbackLines: clone(blocker?.branch?.narrativeLines || []),
-        evidence: clone(blocker?.npc?.evidence || {}),
-      };
+    const exitAvailability = navigationService.exitAvailability({
+      currentRoomId: selectedChapterRoomId,
+      roomEntityIds: roomEntityIds(selectedRoom),
     });
     const chapterSnapshot = {
       chapterId: activeChapter?.chapterId || "",
@@ -472,15 +451,13 @@ export function createFirstSessionRuntime(contract, options = {}) {
   function selectChapterNode(nodeId) {
     const choiceBlock = rejectCommandWhileChoicePending("nodeSelection", { nodeId });
     if (choiceBlock) return choiceBlock;
-    const node = nodeMap.get(nodeId);
-    if (!node) {
-      const event = { type: "nodeRejected", nodeId, reason: "unknown node" };
+    const decision = navigationService.inspectNode(nodeId);
+    if (!decision.accepted) {
+      const event = { type: "nodeRejected", nodeId, reason: decision.reason };
       events.push(event);
       return { accepted: false, event, snapshot: snapshot() };
     }
-    const gates = (node.gates || []).map((gateId) => gateMap.get(gateId) || { gateId, missing: true });
-    const rewards = (node.rewards || []).map((rewardId) => rewardMap.get(rewardId) || { rewardId, missing: true });
-    const rooms = (node.sourceRooms || []).map((roomId) => roomMap.get(roomId) || { roomId, missing: true });
+    const { node, gates, rewards, rooms } = decision;
     selectedChapterNodeId = nodeId;
     selectedChapterRoomId = rooms.find((room) => room && !room.missing)?.roomId || "";
     selectedChapterNpcId = "";
@@ -509,13 +486,20 @@ export function createFirstSessionRuntime(contract, options = {}) {
   function selectChapterRoom(roomId) {
     const choiceBlock = rejectCommandWhileChoicePending("roomSelection", { roomId });
     if (choiceBlock) return choiceBlock;
-    const room = roomMap.get(roomId);
-    if (!room) {
-      const event = { type: "roomRejected", roomId, reason: "unknown room" };
+    const currentRoom = roomMap.get(selectedChapterRoomId);
+    const decision = navigationService.inspectRoomSelection({
+      currentNodeId: selectedChapterNodeId,
+      currentRoomId: selectedChapterRoomId,
+      targetRoomId: roomId,
+      roomEntityIds: roomEntityIds(currentRoom),
+    });
+    if (!decision.accepted && !decision.blocker) {
+      const event = { type: "roomRejected", roomId, reason: decision.reason };
       events.push(event);
       return { accepted: false, event, snapshot: snapshot() };
     }
-    const blocker = transitionBlockerForRoom(roomId);
+    const room = decision.room;
+    const blocker = decision.blocker;
     if (blocker) {
       const feedbackLines = blocker.branch?.narrativeLines?.length
         ? blocker.branch.narrativeLines
@@ -536,6 +520,7 @@ export function createFirstSessionRuntime(contract, options = {}) {
           resultTokens: clone(blocker.branch?.resultTokens || []),
           sideEffects: [],
           transaction: clone(transaction),
+          routeKind: decision.routeKind || "",
           evidence: clone(blocker.npc.evidence || {}),
         };
         events.push(event);
@@ -553,6 +538,7 @@ export function createFirstSessionRuntime(contract, options = {}) {
         conditionTokens: clone(blocker.branch?.conditionTokens || []),
         resultTokens: clone(blocker.branch?.resultTokens || []),
         sideEffects: clone(sideEffects),
+        routeKind: decision.routeKind || "",
         evidence: clone(blocker.npc.evidence || {}),
       };
       events.push(event);
@@ -578,6 +564,8 @@ export function createFirstSessionRuntime(contract, options = {}) {
       rewardIds: clone(room.rewardIds || []),
       fightBackground: room.fightBackground || "",
       roomBgm: room.roomBgm || "",
+      routeKind: decision.routeKind || "",
+      navigationOnly: Boolean(decision.navigationOnly),
       evidence: clone(room.evidence || {}),
     };
     events.push(event);

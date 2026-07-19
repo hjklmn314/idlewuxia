@@ -57,6 +57,7 @@ const screens = screenContract.screens || {};
 const rewardClasses = config.rewardClasses || {};
 const mobileLayout = screenContract.mobileLayout || {};
 const runtimeMutationPolicy = config.chapterSystem?.resultEffectPolicies?.runtimeMutation || {};
+const navigationPolicy = config.chapterSystem?.navigationPolicy || {};
 
 const runtimeMutationSchemaPath = path.join(root, "config", "wuxia_runtime_mutation_policy.schema.json");
 const runtimeMutationSchema = JSON.parse(fs.readFileSync(runtimeMutationSchemaPath, "utf8"));
@@ -106,6 +107,48 @@ for (const key of ["compareResultId", "compareWinConditionToken", "inheritanceRe
 }
 if (runtimeMutationPolicy.failurePolicy !== "reject_entire_branch_and_discard_draft") {
   findings.push(finding("error", "Runtime mutation policy must reject and discard an invalid branch draft.", "chapterSystem.resultEffectPolicies.runtimeMutation.failurePolicy"));
+}
+
+const navigationSchemaPath = path.join(root, "config", "wuxia_navigation_policy.schema.json");
+const navigationSchema = JSON.parse(fs.readFileSync(navigationSchemaPath, "utf8"));
+const navigationAjv = new Ajv2020({ allErrors: true, strict: true });
+const validateNavigationPolicy = navigationAjv.compile(navigationSchema);
+if (!validateNavigationPolicy(navigationPolicy)) {
+  for (const error of validateNavigationPolicy.errors || []) {
+    findings.push(finding(
+      "error",
+      `Navigation policy schema violation: ${error.message || "invalid value"}.`,
+      `chapterSystem.navigationPolicy${error.instancePath || ""}`,
+    ));
+  }
+}
+if (navigationPolicy.blockerResult?.actionName !== runtimeMutationPolicy.actionNames?.navigationStop) {
+  findings.push(finding(
+    "error",
+    "Navigation blocker action must match the runtime mutation navigationStop action.",
+    "chapterSystem.navigationPolicy.blockerResult.actionName",
+  ));
+}
+const roomEntryConditions = Object.values(config.chapter1?.conditionLookup || {}).filter((condition) => (
+  condition?.arg1 === navigationPolicy.roomEntryCondition?.actionName
+  && String(condition?.[navigationPolicy.roomEntryCondition?.targetRoomField] || "").trim()
+));
+if (!roomEntryConditions.length) {
+  findings.push(finding(
+    "error",
+    "Navigation policy does not resolve any configured room-entry conditions.",
+    "chapter1.conditionLookup",
+  ));
+}
+const blockerResults = Object.values(config.chapter1?.resultLookup || {}).filter((result) => (
+  result?.action === navigationPolicy.blockerResult?.actionName
+));
+if (!blockerResults.length) {
+  findings.push(finding(
+    "error",
+    "Navigation policy does not resolve any configured movement-blocking result.",
+    "chapter1.resultLookup",
+  ));
 }
 
 if (mobileLayout.orientation !== "portrait") {
@@ -245,9 +288,27 @@ for (const room of rooms) {
   if (room.parentNodeId && !nodeIds.has(room.parentNodeId)) {
     findings.push(finding("error", `Room ${room.roomId} points to missing parent node ${room.parentNodeId}.`, room.roomId));
   }
+  const connectionKeys = new Set();
+  const connectionDirections = new Set();
   for (const connection of room.connections || []) {
+    if (!String(connection.direction || "").trim()) {
+      findings.push(finding("error", `Room ${room.roomId} has a connection without direction.`, room.roomId));
+    }
+    const connectionKey = `${connection.direction || ""}:${connection.roomId || ""}`;
+    if (connectionKeys.has(connectionKey)) {
+      findings.push(finding("error", `Room ${room.roomId} has duplicate connection ${connectionKey}.`, room.roomId));
+    }
+    connectionKeys.add(connectionKey);
+    if (connectionDirections.has(connection.direction)) {
+      findings.push(finding("error", `Room ${room.roomId} has more than one connection in direction ${connection.direction}.`, room.roomId));
+    }
+    connectionDirections.add(connection.direction);
     if (connection.roomId && !roomIds.has(connection.roomId)) {
       findings.push(finding("error", `Room ${room.roomId} connects to missing room ${connection.roomId}.`, room.roomId));
+    }
+    const targetRoom = rooms.find((candidate) => candidate.roomId === connection.roomId);
+    if (targetRoom && !(targetRoom.connections || []).some((candidate) => candidate.roomId === room.roomId)) {
+      findings.push(finding("error", `Room connection ${room.roomId} -> ${connection.roomId} is not reciprocal.`, room.roomId));
     }
   }
   if (!room.evidence?.level) findings.push(finding("error", `Room ${room.roomId} missing evidence level.`, room.roomId));

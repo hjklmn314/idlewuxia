@@ -37,6 +37,15 @@ const flowContract = {
     },
   }],
   playerSeed: { origin: "", inventory: {} },
+  chapterSystem: {
+    navigationPolicy: {
+      schema: "idlewuxia.navigation_policy.v1",
+      roomEntryCondition: { actionName: "enter_room", targetRoomField: "arg2" },
+      blockerResult: { actionName: "block_movement" },
+      projectBridge: { mode: "allow_configured_room_selection", mutationPolicy: "navigation_only" },
+      failurePolicy: "reject_unknown_definition_or_unconfigured_route",
+    },
+  },
   activeChapter: {
     chapterId: "test_chapter",
     nodes: [{ nodeId: "node_1", sourceRooms: [] }],

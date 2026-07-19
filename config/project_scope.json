@@ -9,6 +9,7 @@
     "src/conditionEvaluator.js",
     "src/dataClone.js",
     "src/evidenceContract.js",
+    "src/navigationService.js",
     "src/resultEffectExecutor.js",
     "src/resultExecutionModules.js",
     "src/resultPreparation.js",
@@ -25,6 +26,7 @@
     "config/wuxia_competitor_first_session_reference.json",
     "config/wuxia_evidence_contract.schema.json",
     "config/wuxia_fb01_entity_reachability_policy.json",
+    "config/wuxia_navigation_policy.schema.json",
     "config/wuxia_runtime_mutation_policy.schema.json"
   ],
   "shippingFiles": [
@@ -33,6 +35,7 @@
     "src/conditionEvaluator.js",
     "src/dataClone.js",
     "src/evidenceContract.js",
+    "src/navigationService.js",
     "src/resultEffectExecutor.js",
     "src/resultExecutionModules.js",
     "src/resultPreparation.js",

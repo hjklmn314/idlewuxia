@@ -25,6 +25,12 @@ const routeGateEvidence = argValue("--route-gate-evidence", "");
 const edgePath = process.env.EDGE_PATH || "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe";
 const url = process.env.WUXIA_URL || `http://127.0.0.1:5187/?real-browser-flow=20260707&scenario=${encodeURIComponent(scenario)}`;
 const port = Number(process.env.EDGE_DEBUG_PORT || 9227);
+const viewportWidth = Number(argValue("--viewport-width", process.env.WUXIA_VIEWPORT_WIDTH || "540"));
+const viewportHeight = Number(argValue("--viewport-height", process.env.WUXIA_VIEWPORT_HEIGHT || "960"));
+
+if (!Number.isInteger(viewportWidth) || viewportWidth <= 0 || !Number.isInteger(viewportHeight) || viewportHeight <= 0) {
+  throw new Error("Viewport width and height must be positive integers.");
+}
 
 fs.mkdirSync(outDir, { recursive: true });
 
@@ -253,7 +259,7 @@ const edge = spawn(edgePath, [
   "--disable-gpu",
   "--no-first-run",
   `--remote-debugging-port=${port}`,
-  "--window-size=540,960",
+  `--window-size=${viewportWidth},${viewportHeight}`,
   `--user-data-dir=${profileDir}`,
   url,
 ], { stdio: ["ignore", "pipe", "pipe"] });
@@ -271,8 +277,8 @@ try {
   await cdp.send("Page.enable");
   await cdp.send("Runtime.enable");
   await cdp.send("Emulation.setDeviceMetricsOverride", {
-    width: 540,
-    height: 960,
+    width: viewportWidth,
+    height: viewportHeight,
     deviceScaleFactor: 1,
     mobile: true,
   });
@@ -523,7 +529,7 @@ const report = {
   generatedAt: new Date().toISOString(),
   url,
   scenario,
-  viewport: "540x960",
+  viewport: `${viewportWidth}x${viewportHeight}`,
   steps: results.length,
   failures,
   runError,

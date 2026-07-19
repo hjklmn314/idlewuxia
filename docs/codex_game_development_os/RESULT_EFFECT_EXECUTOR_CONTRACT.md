@@ -164,6 +164,6 @@ flowchart LR
 ## 10. 已知限制
 
 - CombatSession 与三个真实 combat result 按产品 Owner 要求继续延期；
-- NavigationService、EntityInteractionService、ChapterSession 和 UI intent adapter 尚未拆分；
+- NavigationService 已在后续 Slice 3 拆分；EntityInteractionService、ChapterSession 和 UI intent adapter 尚未拆分；
 - JavaScript 通过运行时合同和门禁提供类型约束，不等于 TypeScript 编译期类型；
 - 本合同完成不代表 ARCH-001、G4、T05-01 或商业发行完成。

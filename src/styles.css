@@ -3413,13 +3413,14 @@ body.wuxia-mode #app {
 
 .wuxia-room-direction em {
   grid-column: 2;
-  overflow: hidden;
-  color: #aa4b4b;
-  font-size: 11px;
+  overflow: visible;
+  color: #000000;
+  font-size: 12px;
   font-style: normal;
+  font-weight: 850;
   line-height: 1.15;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-overflow: clip;
+  white-space: normal;
 }
 
 .wuxia-room-direction.is-locked {
@@ -3620,7 +3621,7 @@ body.wuxia-mode #app {
   }
 
   .wuxia-room-direction {
-    min-height: 42px;
+    min-height: 46px;
     min-width: 96px;
     padding: 5px 8px;
   }
@@ -3770,16 +3771,25 @@ body.wuxia-mode .wuxia-stage {
   overscroll-behavior: contain;
 }
 
-@media (max-width: 390px) {
+@media (max-width: 400px) {
   .wuxia-room-grid {
     grid-template-columns: minmax(0, 0.9fr) minmax(96px, 1fr) minmax(0, 0.9fr);
     gap: 4px;
   }
 
   .wuxia-room-direction-stack { gap: 3px; }
-  .wuxia-room-direction { min-height: 42px; padding: 5px; grid-template-columns: 22px 1fr; gap: 4px; }
+  .wuxia-room-direction { min-height: 46px; padding: 5px; grid-template-columns: 22px 1fr; gap: 4px; }
   .wuxia-room-direction small { min-width: 20px; height: 20px; font-size: 12px; }
-  .wuxia-room-direction em { display: none; }
+  .wuxia-room-direction.is-locked { min-height: 64px; }
+  .wuxia-room-direction em {
+    grid-column: 1 / -1;
+    overflow: visible;
+    font-size: 11px;
+    line-height: 1.2;
+    text-align: center;
+    text-overflow: clip;
+    white-space: normal;
+  }
   .wuxia-room-current { min-width: 88px; min-height: 54px; padding: 8px; font-size: 22px; }
 }
 

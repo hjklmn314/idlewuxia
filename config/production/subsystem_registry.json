@@ -20,16 +20,36 @@
       "owner": "html-web-engine-production-engineer",
       "stateAuthority": "src/wuxiaFirstSessionFlow.js",
       "runtimeModules": [
+        "src/navigationService.js",
         "src/wuxiaFirstSessionFlow.js"
       ],
       "configuration": [
         "config/wuxia_first_session_flow.json",
+        "config/wuxia_navigation_policy.schema.json",
         "config/wuxia_runtime_mutation_policy.schema.json"
       ],
       "status": "implemented-monolith",
       "nextTaskIds": [
         "ARCH-001",
         "T03-00",
+        "T03-01"
+      ]
+    },
+    {
+      "id": "chapter-navigation",
+      "owner": "configuration-driven-runtime",
+      "stateAuthority": "src/wuxiaFirstSessionFlow.js",
+      "runtimeModules": [
+        "src/navigationService.js",
+        "src/wuxiaFirstSessionFlow.js"
+      ],
+      "configuration": [
+        "config/wuxia_first_session_flow.json",
+        "config/wuxia_navigation_policy.schema.json"
+      ],
+      "status": "modularized-v1-stateless-policy-driven",
+      "nextTaskIds": [
+        "ARCH-001",
         "T03-01"
       ]
     },

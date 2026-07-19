@@ -43,9 +43,11 @@
 
 `T03-01` 必须等待上述两项完成。所有 G5、G6、G7 工作不得跳过 G4 出口。
 
-ARCH-001 当前进度：ConditionEvaluator 切片已完成并接入回归门禁；Result、
-Navigation、Entity、ChapterSession facade 和 UI adapter 仍未完成，详见
+ARCH-001 当前进度：ConditionEvaluator、Result preparation、ResultEffectExecutor 与
+NavigationService 切片已完成并接入回归门禁；Entity、ChapterSession facade 和 UI adapter 仍未完成，详见
 `ARCH-001_IMPLEMENTATION_RECORD_20260719.md`。因此任务状态保持 `open`。
+
+2026-07-20 更新：NavigationService 切片 3 已完成并通过真实浏览器手动验收。导航条件和阻断动作已改为 Schema 校验的配置解释，Web/Android 发布闭包为 16 个文件；EntityInteractionService、ChapterSession 与 UI adapter 仍未完成，因此 `ARCH-001` 继续保持 `open`，下一项为 EntityInteractionService。
 
 ## 状态更新规则
 

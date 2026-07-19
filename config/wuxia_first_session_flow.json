@@ -31000,6 +31000,21 @@
     "schema": "idlewuxia.chapter_system.v1",
     "model": "config_driven_chapter_level_runtime",
     "extensionPolicy": "chapters declare rooms/npcs/interactables/gates/rewards/resultEffectPolicies; new chapter systems add result-effect modules instead of hardcoding UI/runtime branches",
+    "navigationPolicy": {
+      "schema": "idlewuxia.navigation_policy.v1",
+      "roomEntryCondition": {
+        "actionName": "玩家要进入房间",
+        "targetRoomField": "arg2"
+      },
+      "blockerResult": {
+        "actionName": "阻止玩家移动"
+      },
+      "projectBridge": {
+        "mode": "allow_configured_room_selection",
+        "mutationPolicy": "navigation_only"
+      },
+      "failurePolicy": "reject_unknown_definition_or_unconfigured_route"
+    },
     "resultEffectPolicies": {
       "officialMerit": {
         "moduleId": "official_merit",
