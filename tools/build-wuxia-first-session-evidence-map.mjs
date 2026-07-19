@@ -1,6 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import {
+  allEvidenceReferences,
+  evidenceReferences,
+  inferEvidenceSourceKind,
+} from "../src/evidenceContract.js";
+
 const root = process.cwd();
 const outDir = path.join(root, "outputs", "wuxia_first_session_evidence_map");
 
@@ -26,11 +32,12 @@ function writeCsv(fileName, rows, columns) {
 }
 
 function evidenceOf(row = {}) {
-  const evidence = row.evidence || {};
+  const hasNestedEvidence = Boolean(row.evidence);
+  const evidence = row.evidence || row;
   return {
-    source: evidence.source || evidence.sourceEvidence || "",
-    record: evidence.record || row.sourceStepId || row.nodeId || row.roomId || row.roleId || row.gateId || row.rewardId || "",
-    level: evidence.level || row.source || "unknown",
+    references: allEvidenceReferences(evidence),
+    fallbackRecord: row.sourceStepId || row.nodeId || row.roomId || row.roleId || row.gateId || row.rewardId || "",
+    level: hasNestedEvidence ? (evidence.level || "unknown") : (evidence.sourceKind || "unknown"),
     frameSecond: evidence.frameSecond ?? "",
     framePath: evidence.framePath || "",
   };
@@ -73,22 +80,42 @@ function statusFor(evidenceLevel, implementationReady) {
 
 function pushMap(rows, domain, subjectId, row, projectField, owner, implementationReady = false, nextAction = "") {
   const evidence = evidenceOf(row);
-  rows.push({
-    MapId: `${domain}:${subjectId}`,
-    Domain: domain,
-    SubjectId: subjectId,
-    DisplayName: displayNameOf(row),
-    CompetitorSource: evidence.source,
-    SourceRecord: evidence.record,
-    EvidenceLevel: evidence.level,
-    FrameSecond: evidence.frameSecond,
-    FramePath: evidence.framePath,
-    SourceValue: sourceValueOf(row),
-    ProjectField: projectField,
-    ProjectOwner: owner,
-    ValidationStatus: statusFor(evidence.level, implementationReady),
-    NextAction: nextAction || (evidence.level === "unknown" ? "补 Lua/配置/录屏证据" : "真实交互验收"),
-  });
+  const references = evidence.references.length
+    ? evidence.references
+    : [{ sourceFile: "", sourceRecord: evidence.fallbackRecord, sourceKind: "unknown" }];
+  for (const [index, reference] of references.entries()) {
+    rows.push({
+      MapId: `${domain}:${subjectId}:source:${index + 1}`,
+      Domain: domain,
+      SubjectId: subjectId,
+      DisplayName: displayNameOf(row),
+      CompetitorSource: reference.sourceFile,
+      SourceRecord: reference.sourceRecord || evidence.fallbackRecord,
+      SourceKind: reference.sourceKind,
+      EvidenceLevel: evidence.level,
+      FrameSecond: evidence.frameSecond,
+      FramePath: evidence.framePath,
+      SourceValue: sourceValueOf(row),
+      ProjectField: projectField,
+      ProjectOwner: owner,
+      ValidationStatus: statusFor(evidence.level, implementationReady),
+      NextAction: nextAction || (evidence.level === "unknown" ? "补 Lua/配置/录屏证据" : "真实交互验收"),
+    });
+  }
+}
+
+function referenceRows(evidence = {}, resultSource = "") {
+  if (resultSource) {
+    return [{
+      sourceFile: resultSource,
+      sourceRecord: "",
+      sourceKind: inferEvidenceSourceKind(resultSource, evidence.level),
+    }];
+  }
+  const references = allEvidenceReferences(evidence);
+  return references.length
+    ? references
+    : [{ sourceFile: "", sourceRecord: "", sourceKind: "unknown" }];
 }
 
 fs.mkdirSync(outDir, { recursive: true });
@@ -105,6 +132,7 @@ for (const [key, sourcePath] of Object.entries(flow.sourceFiles || {})) {
     DisplayName: key,
     CompetitorSource: sourcePath,
     SourceRecord: "",
+    SourceKind: inferEvidenceSourceKind(sourcePath, "source_manifest"),
     EvidenceLevel: "source_manifest",
     FrameSecond: "",
     FramePath: "",
@@ -133,53 +161,59 @@ for (const node of flow.chapter1?.nodes || []) {
 }
 
 for (const room of flow.chapter1?.rooms || []) {
-  const ready = Boolean(room.roomId && room.displayName?.zhCN && room.evidence?.source);
+  const ready = Boolean(room.roomId && room.displayName?.zhCN && evidenceReferences(room.evidence).length);
   pushMap(rows, "chapter1_room", room.roomId, room, "chapter1.rooms[]", "room_graph", ready, "用房间出口/NPC/门槛驱动第一章地图详情与交互");
 }
 
 for (const npc of flow.chapter1?.npcs || []) {
-  const ready = Boolean(npc.roleId && npc.name && npc.evidence?.source);
+  const ready = Boolean(npc.roleId && npc.name && evidenceReferences(npc.evidence).length);
   pushMap(rows, "chapter1_npc", npc.roleId, npc, "chapter1.npcs[]", "npc_interaction", ready, "verify in real browser room/NPC/action/log flow");
   for (const action of npc.actions || []) {
-    rows.push({
-      MapId: `chapter1_npc_action:${npc.roleId}:${action.actionType}`,
-      Domain: "chapter1_npc_action",
-      SubjectId: `${npc.roleId}:${action.actionType}`,
-      DisplayName: `${npc.name || npc.roleId}:${action.label || action.actionType}`,
-      CompetitorSource: npc.evidence?.source || "",
-      SourceRecord: `${npc.roleId}.${action.sourceField || action.actionType}`,
-      EvidenceLevel: action.evidenceLevel || npc.evidence?.level || "unknown",
-      FrameSecond: "",
-      FramePath: "",
-      SourceValue: action.label || action.actionType,
-      ProjectField: "chapter1.npcs[].actions[]",
-      ProjectOwner: "npc_interaction",
-      ValidationStatus: action.actionType ? "mapped_and_implemented" : "needs_source_evidence",
-      NextAction: "real browser click validation",
-    });
+    for (const [index, reference] of referenceRows(npc.evidence).entries()) {
+      rows.push({
+        MapId: `chapter1_npc_action:${npc.roleId}:${action.actionType}:source:${index + 1}`,
+        Domain: "chapter1_npc_action",
+        SubjectId: `${npc.roleId}:${action.actionType}`,
+        DisplayName: `${npc.name || npc.roleId}:${action.label || action.actionType}`,
+        CompetitorSource: reference.sourceFile,
+        SourceRecord: reference.sourceRecord || `${npc.roleId}.${action.sourceField || action.actionType}`,
+        SourceKind: reference.sourceKind,
+        EvidenceLevel: action.evidenceLevel || npc.evidence?.level || "unknown",
+        FrameSecond: "",
+        FramePath: "",
+        SourceValue: action.label || action.actionType,
+        ProjectField: "chapter1.npcs[].actions[]",
+        ProjectOwner: "npc_interaction",
+        ValidationStatus: action.actionType ? "mapped_and_implemented" : "needs_source_evidence",
+        NextAction: "real browser click validation",
+      });
+    }
   }
   for (const branch of npc.branches || []) {
-    rows.push({
-      MapId: `chapter1_npc_branch:${npc.roleId}:${branch.order}`,
-      Domain: "chapter1_npc_branch",
-      SubjectId: `${npc.roleId}:${branch.order}`,
-      DisplayName: `${npc.name || npc.roleId}:branch ${branch.order}`,
-      CompetitorSource: npc.evidence?.resultSource || npc.evidence?.source || "",
-      SourceRecord: `${npc.roleId}.branch.${branch.order}`,
-      EvidenceLevel: branch.evidenceLevel || "unknown",
-      FrameSecond: "",
-      FramePath: "",
-      SourceValue: (branch.narrativeLines || []).join("|") || (branch.resultTokens || []).join("|"),
-      ProjectField: "chapter1.npcs[].branches[]",
-      ProjectOwner: "npc_interaction",
-      ValidationStatus: (branch.narrativeLines || []).length ? "mapped_and_implemented" : "mapped_needs_runtime_check",
-      NextAction: (branch.narrativeLines || []).length ? "real browser log validation" : "resolve non-narrative result dispatcher",
-    });
+    for (const [index, reference] of referenceRows(npc.evidence, npc.evidence?.resultSource).entries()) {
+      rows.push({
+        MapId: `chapter1_npc_branch:${npc.roleId}:${branch.order}:source:${index + 1}`,
+        Domain: "chapter1_npc_branch",
+        SubjectId: `${npc.roleId}:${branch.order}`,
+        DisplayName: `${npc.name || npc.roleId}:branch ${branch.order}`,
+        CompetitorSource: reference.sourceFile,
+        SourceRecord: reference.sourceRecord || `${npc.roleId}.branch.${branch.order}`,
+        SourceKind: reference.sourceKind,
+        EvidenceLevel: branch.evidenceLevel || "unknown",
+        FrameSecond: "",
+        FramePath: "",
+        SourceValue: (branch.narrativeLines || []).join("|") || (branch.resultTokens || []).join("|"),
+        ProjectField: "chapter1.npcs[].branches[]",
+        ProjectOwner: "npc_interaction",
+        ValidationStatus: (branch.narrativeLines || []).length ? "mapped_and_implemented" : "mapped_needs_runtime_check",
+        NextAction: (branch.narrativeLines || []).length ? "real browser log validation" : "resolve non-narrative result dispatcher",
+      });
+    }
   }
 }
 
 for (const item of flow.chapter1?.interactables || []) {
-  const ready = Boolean(item.interactableId && item.name && item.evidence?.source);
+  const ready = Boolean(item.interactableId && item.name && evidenceReferences(item.evidence).length);
   pushMap(
     rows,
     item.canSee ? "chapter1_interactable" : "chapter1_hidden_interactable",
@@ -191,40 +225,46 @@ for (const item of flow.chapter1?.interactables || []) {
     item.canSee ? "verify in real browser room/object/action/log flow" : "verify hidden trigger is retained in data but not rendered as player action",
   );
   for (const action of item.actions || []) {
-    rows.push({
-      MapId: `chapter1_interactable_action:${item.interactableId}:${action.actionType}`,
-      Domain: "chapter1_interactable_action",
-      SubjectId: `${item.interactableId}:${action.actionType}`,
-      DisplayName: `${item.name || item.interactableId}:${action.label || action.actionType}`,
-      CompetitorSource: item.evidence?.source || "",
-      SourceRecord: `${item.interactableId}.${action.sourceField || action.actionType}`,
-      EvidenceLevel: action.evidenceLevel || item.evidence?.level || "unknown",
-      FrameSecond: "",
-      FramePath: "",
-      SourceValue: action.label || action.actionType,
-      ProjectField: "chapter1.interactables[].actions[]",
-      ProjectOwner: "room_interactable",
-      ValidationStatus: action.actionType ? "mapped_and_implemented" : "needs_source_evidence",
-      NextAction: "real browser click validation",
-    });
+    for (const [index, reference] of referenceRows(item.evidence).entries()) {
+      rows.push({
+        MapId: `chapter1_interactable_action:${item.interactableId}:${action.actionType}:source:${index + 1}`,
+        Domain: "chapter1_interactable_action",
+        SubjectId: `${item.interactableId}:${action.actionType}`,
+        DisplayName: `${item.name || item.interactableId}:${action.label || action.actionType}`,
+        CompetitorSource: reference.sourceFile,
+        SourceRecord: reference.sourceRecord || `${item.interactableId}.${action.sourceField || action.actionType}`,
+        SourceKind: reference.sourceKind,
+        EvidenceLevel: action.evidenceLevel || item.evidence?.level || "unknown",
+        FrameSecond: "",
+        FramePath: "",
+        SourceValue: action.label || action.actionType,
+        ProjectField: "chapter1.interactables[].actions[]",
+        ProjectOwner: "room_interactable",
+        ValidationStatus: action.actionType ? "mapped_and_implemented" : "needs_source_evidence",
+        NextAction: "real browser click validation",
+      });
+    }
   }
   for (const branch of item.branches || []) {
-    rows.push({
-      MapId: `chapter1_interactable_branch:${item.interactableId}:${branch.order}`,
-      Domain: "chapter1_interactable_branch",
-      SubjectId: `${item.interactableId}:${branch.order}`,
-      DisplayName: `${item.name || item.interactableId}:branch ${branch.order}`,
-      CompetitorSource: item.evidence?.resultSource || item.evidence?.source || "",
-      SourceRecord: `${item.interactableId}.branch.${branch.order}`,
-      EvidenceLevel: branch.evidenceLevel || "unknown",
-      FrameSecond: "",
-      FramePath: "",
-      SourceValue: (branch.narrativeLines || []).join("|") || (branch.resultTokens || []).join("|"),
-      ProjectField: "chapter1.interactables[].branches[]",
-      ProjectOwner: "room_interactable",
-      ValidationStatus: (branch.narrativeLines || []).length ? "mapped_and_implemented" : "mapped_needs_runtime_check",
-      NextAction: (branch.narrativeLines || []).length ? "real browser log validation" : "resolve non-narrative result dispatcher",
-    });
+    for (const [index, reference] of referenceRows(item.evidence, item.evidence?.resultSource).entries()) {
+      rows.push({
+        MapId: `chapter1_interactable_branch:${item.interactableId}:${branch.order}:source:${index + 1}`,
+        Domain: "chapter1_interactable_branch",
+        SubjectId: `${item.interactableId}:${branch.order}`,
+        DisplayName: `${item.name || item.interactableId}:branch ${branch.order}`,
+        CompetitorSource: reference.sourceFile,
+        SourceRecord: reference.sourceRecord || `${item.interactableId}.branch.${branch.order}`,
+        SourceKind: reference.sourceKind,
+        EvidenceLevel: branch.evidenceLevel || "unknown",
+        FrameSecond: "",
+        FramePath: "",
+        SourceValue: (branch.narrativeLines || []).join("|") || (branch.resultTokens || []).join("|"),
+        ProjectField: "chapter1.interactables[].branches[]",
+        ProjectOwner: "room_interactable",
+        ValidationStatus: (branch.narrativeLines || []).length ? "mapped_and_implemented" : "mapped_needs_runtime_check",
+        NextAction: (branch.narrativeLines || []).length ? "real browser log validation" : "resolve non-narrative result dispatcher",
+      });
+    }
   }
 }
 
@@ -246,6 +286,7 @@ for (const [screenId, screen] of Object.entries(screens.screens || {})) {
     DisplayName: screen.title || screen.nav?.center || screenId,
     CompetitorSource: "",
     SourceRecord: screenId,
+    SourceKind: "project_config",
     EvidenceLevel: "project_mapping",
     FrameSecond: "",
     FramePath: "",
@@ -264,6 +305,7 @@ const columns = [
   "DisplayName",
   "CompetitorSource",
   "SourceRecord",
+  "SourceKind",
   "EvidenceLevel",
   "FrameSecond",
   "FramePath",
@@ -273,6 +315,16 @@ const columns = [
   "ValidationStatus",
   "NextAction",
 ];
+
+const packedReferenceRows = rows.filter(
+  (row) => String(row.CompetitorSource || "").includes("|")
+    || String(row.SourceRecord || "").includes("|"),
+);
+if (packedReferenceRows.length) {
+  throw new Error(
+    `Evidence map contains ${packedReferenceRows.length} pipe-packed source reference rows.`,
+  );
+}
 
 writeCsv("first_session_competitor_evidence_map.csv", rows, columns);
 fs.writeFileSync(

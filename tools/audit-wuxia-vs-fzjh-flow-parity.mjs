@@ -1,6 +1,8 @@
 ﻿import fs from "node:fs";
 import path from "node:path";
 
+import { allEvidenceReferences } from "../src/evidenceContract.js";
+
 const root = process.cwd();
 const outDir = path.join(root, "outputs", "wuxia_fzjh_flow_parity_audit");
 fs.mkdirSync(outDir, { recursive: true });
@@ -65,6 +67,10 @@ function add(severity, area, subject, issue, sourceEvidence = "", action = "") {
   findings.push({ Severity: severity, Area: area, Subject: subject, Issue: issue, SourceEvidence: sourceEvidence, RequiredAction: action });
 }
 
+function evidenceSourceText(evidence) {
+  return JSON.stringify(allEvidenceReferences(evidence));
+}
+
 for (const [key, rel] of Object.entries(flow.sourceFiles || {})) {
   if (!existsRel(rel)) add("P0", "source", key, "source file referenced by flow does not exist", rel, "restore source or change evidence to unknown/design_proposal");
 }
@@ -119,7 +125,7 @@ for (const action of flow.actions || []) {
       isDocumentedNavigationBridge
         ? "documented project navigation bridge, not competitor progression content"
         : "action is project proposal, not competitor fact",
-      action.evidence?.source || "",
+      evidenceSourceText(action.evidence),
       isDocumentedNavigationBridge
         ? "keep data-driven and forbid reward/progression mutation"
         : "keep but mark in UI/acceptance as project policy",
@@ -129,7 +135,7 @@ for (const action of flow.actions || []) {
 
 for (const node of flow.chapter1?.nodes || []) {
   if (node.isProjectBridge || node.hideFromMap || node.nodeType === "chapter_settlement") {
-    if (!node.hideFromMap) add("P1", "chapter1", node.nodeId, "project bridge node must not be visible on player-facing chapter map", node.evidence?.source || "", "set hideFromMap=true and route only through result flow");
+    if (!node.hideFromMap) add("P1", "chapter1", node.nodeId, "project bridge node must not be visible on player-facing chapter map", evidenceSourceText(node.evidence), "set hideFromMap=true and route only through result flow");
     if (node.evidence?.level === "design_proposal") {
       add(
         chapterContentPolicy.hiddenProjectBridgePolicy && node.hideFromMap ? "P3" : "P2",
@@ -138,7 +144,7 @@ for (const node of flow.chapter1?.nodes || []) {
         chapterContentPolicy.hiddenProjectBridgePolicy && node.hideFromMap
           ? "hidden project bridge node documented and excluded from player-facing map"
           : "node is project bridge, not competitor map content",
-        node.evidence?.source || "",
+        evidenceSourceText(node.evidence),
         chapterContentPolicy.hiddenProjectBridgePolicy && node.hideFromMap
           ? "keep hidden and exclude from competitor-visible chapter map"
           : "keep hidden and document as project policy",
@@ -146,7 +152,7 @@ for (const node of flow.chapter1?.nodes || []) {
     }
     continue;
   }
-  if (!node.evidence?.level || node.evidence.level === "design_proposal") add("P1", "chapter1", node.nodeId, "node is not fully competitor-confirmed", node.evidence?.source || "", "trace mapRoom/mapRole/mapRoleBase fields or downgrade presentation claim");
+  if (!node.evidence?.level || node.evidence.level === "design_proposal") add("P1", "chapter1", node.nodeId, "node is not fully competitor-confirmed", evidenceSourceText(node.evidence), "trace mapRoom/mapRole/mapRoleBase fields or downgrade presentation claim");
   if (!node.primaryAction?.actionId) add("P0", "chapter1", node.nodeId, "node has no executable primary action", "chapter1.nodes.primaryAction", "bind route action");
 }
 

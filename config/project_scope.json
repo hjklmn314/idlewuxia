@@ -7,6 +7,7 @@
     "index.html",
     "src/styles.css",
     "src/dataClone.js",
+    "src/evidenceContract.js",
     "src/resultExecutionModules.js",
     "src/runtimePersistence.js",
     "src/wuxia-main.js",
@@ -18,12 +19,14 @@
     "config/wuxia_first_session_screen_contract.json"
   ],
   "developmentReferenceFiles": [
-    "config/wuxia_competitor_first_session_reference.json"
+    "config/wuxia_competitor_first_session_reference.json",
+    "config/wuxia_evidence_contract.schema.json"
   ],
   "shippingFiles": [
     "index.html",
     "src/styles.css",
     "src/dataClone.js",
+    "src/evidenceContract.js",
     "src/resultExecutionModules.js",
     "src/runtimePersistence.js",
     "src/wuxia-main.js",
@@ -40,7 +43,13 @@
       "config/wuxia_first_session_screen_contract.json"
     ],
     "removeObjectKeys": [
-      "sourceFiles"
+      "sourceFiles",
+      "evidenceSchema",
+      "evidence",
+      "sourceEvidence",
+      "sourceFile",
+      "sourceRecord",
+      "sourceKind"
     ],
     "forbiddenStringPatterns": [
       "fangzhijianghu",

@@ -41,6 +41,7 @@ function recordingEvidence(record, frameSecond) {
 const flow = readJson(flowPath);
 const screen = readJson(screenPath);
 
+flow.evidenceSchema = "idlewuxia.evidence.v2";
 flow.playerSeed = {
   profileId: "local_new_player",
   characterId: "unnamed_girl",
@@ -60,7 +61,9 @@ flow.playerSeed = {
   potential: 1,
   origin: "",
   originFeedback: "",
-  source: "recording_observed",
+  sourceFile: "public/competitor-reference/first-session/03_FS_003_CHARACTER_STATUS_frame_090s.png",
+  sourceRecord: "FS_003_CHARACTER_STATUS",
+  sourceKind: "recording",
 };
 
 screen.defaultStartState = "STATE_FS_001_OPENING_STORY";

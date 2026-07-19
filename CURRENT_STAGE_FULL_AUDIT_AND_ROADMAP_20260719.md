@@ -18,7 +18,7 @@ Codex 证据区：`G:\codex`
 
 当前项目处于：
 
-**FB01 Web 技术纵切已建立，T02-02 交互真实性和 T02-03A ChoiceResultExecutor 已完成；但三个延后战斗结果、全动作浏览器验收、自有资源和全屏视觉验收仍阻断上线。**
+**FB01 Web 技术纵切已建立，T02-02 交互真实性、T02-03A ChoiceResultExecutor 和 T02-04B 条件证据字段规范化已完成；但三个延后战斗结果、全动作浏览器验收、自有资源和全屏视觉验收仍阻断上线。**
 
 本轮可以确认：
 
@@ -44,11 +44,13 @@ Codex 证据区：`G:\codex`
 
 ### 1.1 当前发布闭包
 
-活动入口是 `src/wuxia-main.js`。当前 Web/APK 发布闭包为 10 个产品文件：
+活动入口是 `src/wuxia-main.js`。T02-04B 后 Web/APK 发布闭包为 12 个产品文件：
 
 - `index.html`
 - `src/styles.css`
 - `src/dataClone.js`
+- `src/evidenceContract.js`
+- `src/resultExecutionModules.js`
 - `src/runtimePersistence.js`
 - `src/wuxia-main.js`
 - `src/wuxiaFirstSessionFlow.js`
@@ -57,7 +59,7 @@ Codex 证据区：`G:\codex`
 - `config/wuxia_first_session_screen_contract.json`
 - `public/wuxia-brand/icon.svg`
 
-Capacitor 另生成 `cordova.js` 和 `cordova_plugins.js`。当前 APK 内 10 个产品文件、2 个平台生成文件全部与 Web manifest 字节一致，没有额外 Web 资产。
+Capacitor 另生成 `cordova.js` 和 `cordova_plugins.js`。T02-04B 提交后必须重新构建并执行 clean-revision APK 审计，证明 12 个产品文件、2 个平台生成文件与 Web manifest 字节一致且没有额外 Web 资产。
 
 ### 1.2 当前配置规模
 
@@ -482,7 +484,7 @@ T02-03A 另使用真实 Edge 对 Choice 弹窗完成三尺寸验收：
 | T02-02 交互真实性 | done | 0 fake accepted；无模块动作隐藏拒绝 |
 | T02-03 结果执行器 | partial | 313/316 当前结果出现达到 P3，剩余 3 条均为延期 Combat |
 | T02-03A ChoiceResultExecutor | done | 两条 Choice、四个选项、递归结果集、武学转换、存档和三尺寸浏览器验收通过 |
-| T02-04 条件执行器 | runtime in-scope done / metadata partial | 93/93 当前使用条件有运行时语义；证据字段仍需规范化 |
+| T02-04 条件执行器 | done | 93/93 当前使用条件有运行时语义；T02-04B 证据字段规范化、Schema、验证和回滚链完成 |
 | T03-01 全交互验收 | open | 尚未完成 358 动作浏览器逐项状态断言 |
 | T04-01 CombatSession | open | 固定 preview 尚未替换 |
 | T05-01 11 屏三尺寸 | open | Choice 已验三尺寸，但尚未覆盖 11 屏 × 3 尺寸 |
@@ -544,16 +546,47 @@ ChoiceDefinition
 - 三尺寸控制台 0 error；
 - 结果审计 Choice P1=0。
 
-### 9.3 后续顺序
+### 9.3 已完成施工项：T02-04B 条件证据字段规范化
 
-1. **T02-04B 条件证据字段规范化**：把 3 个歧义 `source` 字段拆成 `sourceFile/sourceRecord/sourceKind`，加 Schema 校验。
-2. **T03-00 可达性清理**：逐个定性 13 个不可达实体、27 个不可达动作；补入口、明确活动 scoped-out 或删除死配置。
-3. **T03-01 全动作状态断言**：358/358 记录前置、可见性、可用性、实际 delta、截图和结果。
-4. **T05-01 11 屏三尺寸视觉验收**：建立当前提交绑定的 33 组合截图矩阵。
-5. **T05-02 AssetRegistry**：替换 generated placeholder，建立授权、来源、用途和打包门禁。
-6. **T04-01 CombatSession**：在用户解除延后后施工确定性胜负、失败、逃跑和真实战斗状态。
-7. **Android clean audit + 真机回归**：对最终提交 APK 做正式审计和设备证据。
-8. **Release Gate**：必须 P0=0、P1=0、正式 APK/设备/视觉/资源门禁全绿后才允许宣称上线。
+完成日期：2026-07-19。第一轮审计确认旧报告中的“3 个歧义 source”实际是 3 种唯一歧义值：两种 `|` 拼接的多文件主来源共出现在 8 个 Action 证据对象中，另一种是 `playerSeed.source=recording_observed` 把来源种类伪装成文件。独立 Standards/Spec 复审随后发现，旧 `sourceEvidence` 字段还存在 142 个复合字符串实例，生成器也会重新用 `|` 压平多引用；本项在关闭前已把这些二次缺口一并纳入修复。
+
+完成内容：
+
+- 新增 `idlewuxia.evidence.v2` 和 `config/wuxia_evidence_contract.schema.json`；
+- 每个规范来源引用只包含一个 `sourceFile`、一个 `sourceRecord` 和一个 `sourceKind`；
+- 8 个复合主证据对象迁移为 16 条独立引用，142 个复合 `sourceEvidence` 迁移为 308 条逐文件 supplemental 引用；
+- playerSeed 改为引用开发态证据登记 Schema；登记项再定位录屏资产和 `FS_003_CHARACTER_STATUS`，不再让来源种类伪装成文件；
+- 新增 `evidenceContract.js` 深模块，统一旧单来源兼容、规范引用、展示、校验和迁移；
+- 新增双向迁移工具，`up -> down` 可无损恢复旧结构；
+- 修复证据地图把 `playerSeed.level=1` 误当证据等级的问题；
+- 实际使用 Ajv 执行 Draft 2020-12 Schema，而不是只比对 `$id`、版本和枚举；
+- Schema 与运行时验证器同时拒绝复合 legacy `source`、复合字符串 `sourceEvidence`、空引用集和混合新旧形状，但暂时兼容读取 258 个无歧义旧单来源对象；
+- repair 工具已改为输出 typed references，并通过隔离临时目录实跑回归；
+- 证据地图和验收登记改为“一条来源一行”，生成阶段会主动拒绝再次出现 pipe-packed source/record；
+- Web/APK 发布变换会成组移除 `evidenceSchema` 与全部开发态 provenance 字段；验证器同时检查源配置 Schema 有效、发布配置不存在半清洗契约或证据泄漏。
+
+自动门禁：
+
+- `runtime:evidence-contract:test`：12/12 pass；
+- `wuxia:validate:evidence`：0 findings；
+- 151 个规范来源拥有者、325 条规范来源引用；其中 17 条项目内文件引用全部存在，308 条上游逻辑引用保留为逐文件地址；
+- 17 个项目内文本记录检查全部定位成功；
+- 复合 legacy source 与复合字符串 sourceEvidence 数量均为 0；
+- 源配置 Draft 2020-12 Schema 有效，发布配置 evidence/provenance 泄漏数为 0；
+- 证据地图生成 1,879 条逐来源记录，首局验收登记生成 81 条逐来源记录，pipe-packed source/record 为 0；
+- `build:web`：12 个发布文件完成确定性物化；
+- 浏览器实跑：`src/wuxia-main.js` 正常加载，`#wuxiaShell` 存在，页面可见且控制台 0 error/0 warning。
+- `npm run check` 与 `wuxia:check:fast`：整体 pass；358 动作 highRisk=0，结果 P2=0，数据驱动边界 high=0。
+
+### 9.4 后续顺序
+
+1. **T03-00 可达性清理**：逐个定性 13 个不可达实体、27 个不可达动作；补入口、明确活动 scoped-out 或删除死配置。
+2. **T03-01 全动作状态断言**：358/358 记录前置、可见性、可用性、实际 delta、截图和结果。
+3. **T05-01 11 屏三尺寸视觉验收**：建立当前提交绑定的 33 组合截图矩阵。
+4. **T05-02 AssetRegistry**：替换 generated placeholder，建立授权、来源、用途和打包门禁。
+5. **T04-01 CombatSession**：在用户解除延后后施工确定性胜负、失败、逃跑和真实战斗状态。
+6. **Android clean audit + 真机回归**：对最终提交 APK 做正式审计和设备证据。
+7. **Release Gate**：必须 P0=0、P1=0、正式 APK/设备/视觉/资源门禁全绿后才允许宣称上线。
 
 ## 10. 事实、推断与未知
 
@@ -568,7 +601,7 @@ ChoiceDefinition
 
 ### 设计推断
 
-- 条件证据字段规范化是当前不触碰延期 Combat 的最小下一施工项；
+- T02-04B 已关闭，T03-00 可达性清理是当前不触碰延期 Combat 的最小下一施工项；
 - 13 个不可达实体中一部分可能是活动态或替换态，不能在没有入口证据前直接删除；
 - 135 个隐藏动作应按独立能力模块逐类开放，而不是恢复通用反馈 fallback。
 

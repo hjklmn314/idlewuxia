@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "idlewuxia.evidence_contract.v2",
+  "title": "Idle Wuxia Evidence Contract",
+  "type": "object",
+  "required": [
+    "evidenceSchema",
+    "playerSeed",
+    "states",
+    "actions",
+    "chapter1"
+  ],
+  "properties": {
+    "evidenceSchema": {
+      "const": "idlewuxia.evidence.v2"
+    },
+    "playerSeed": {
+      "type": "object",
+      "required": [
+        "sourceFile",
+        "sourceRecord",
+        "sourceKind"
+      ],
+      "properties": {
+        "sourceFile": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^|]+$"
+        },
+        "sourceRecord": {
+          "type": "string"
+        },
+        "sourceKind": {
+          "$ref": "#/$defs/sourceKind"
+        }
+      },
+      "not": {
+        "required": [
+          "source"
+        ]
+      }
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "#/$defs/evidenceTree"
+    }
+  ],
+  "$defs": {
+    "sourceReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceFile",
+        "sourceRecord",
+        "sourceKind"
+      ],
+      "properties": {
+        "sourceFile": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^|]+$"
+        },
+        "sourceRecord": {
+          "type": "string"
+        },
+        "sourceKind": {
+          "$ref": "#/$defs/sourceKind"
+        }
+      }
+    },
+    "sourceKind": {
+      "enum": [
+        "lua",
+        "project_config",
+        "project_generated",
+        "recording",
+        "visual_reference",
+        "unknown"
+      ]
+    },
+    "sourceCollection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sources"
+      ],
+      "properties": {
+        "sourceRole": {
+          "const": "supplemental"
+        },
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/sourceReference"
+          }
+        }
+      }
+    },
+    "sourceEvidenceValue": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^|]+$"
+        },
+        {
+          "$ref": "#/$defs/sourceCollection"
+        },
+        {
+          "$ref": "#/$defs/evidenceOwner"
+        }
+      ]
+    },
+    "evidenceOwner": {
+      "type": "object",
+      "required": [
+        "level"
+      ],
+      "properties": {
+        "level": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^|]+$"
+        },
+        "record": {
+          "type": "string"
+        },
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/sourceReference"
+          }
+        },
+        "sourceEvidence": {
+          "$ref": "#/$defs/sourceEvidenceValue"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "sources"
+            ]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "source"
+                  ]
+                },
+                {
+                  "required": [
+                    "record"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "canonicalEvidence": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/evidenceOwner"
+        },
+        {
+          "required": [
+            "sources"
+          ]
+        }
+      ]
+    },
+    "evidenceTree": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "evidence": {
+              "$ref": "#/$defs/evidenceOwner"
+            },
+            "sourceEvidence": {
+              "$ref": "#/$defs/sourceEvidenceValue"
+            }
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/evidenceTree"
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evidenceTree"
+          }
+        },
+        {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "null"
+          ]
+        }
+      ]
+    }
+  },
+  "x-idlewuxia-migration": {
+    "fromVersion": 1,
+    "toVersion": 2,
+    "migrationTool": "tools/migrate-wuxia-evidence-contract.mjs",
+    "rollbackSupported": true,
+    "legacySingleSourceReadCompatible": true,
+    "legacyCompositeSourceDelimiter": "|",
+    "legacyCompositeSourceAllowed": false,
+    "playerSeedReference": {
+      "sourceFile": "config/wuxia_evidence_contract.schema.json",
+      "sourceRecord": "x-idlewuxia-migration.playerSeedReference",
+      "sourceKind": "project_config",
+      "legacySource": "recording_observed",
+      "recordingAsset": "public/competitor-reference/first-session/03_FS_003_CHARACTER_STATUS_frame_090s.png",
+      "recordingId": "FS_003_CHARACTER_STATUS"
+    }
+  }
+}

@@ -8,6 +8,18 @@ This context describes the player-visible first-session and chapter runtime reco
 A sourced claim about competitor behavior, configuration, UI, interaction, or assets with an explicit evidence level.
 _Avoid_: Guess, assumed fact
 
+**Evidence Source Reference**:
+One typed location supporting an Evidence Row, expressed as one `sourceFile`, one `sourceRecord`, and one `sourceKind`. A cross-source claim owns multiple references instead of delimiter-packed source text.
+_Avoid_: Overloaded source, pipe-joined file path
+
+**Supplemental Evidence Collection**:
+Additional typed references that corroborate an Evidence Row without replacing its primary provenance. It is represented by `sourceRole=supplemental` plus `sources[]`, and each entry still identifies exactly one location.
+_Avoid_: `sourceEvidence` pipe string, flattened multi-source cell
+
+**Shipping Evidence Boundary**:
+The build boundary that removes the evidence schema declaration and all development provenance together. A shipping config must never retain a v2 declaration after removing required source fields, and must never expose competitor or workstation paths.
+_Avoid_: Half-sanitized evidence contract, development path leak
+
 **Chapter Definition**:
 The configuration-owned graph of rooms, routes, NPCs, interactables, gates, encounters, rewards, and result tokens for one chapter.
 _Avoid_: Hardcoded chapter flow, level script

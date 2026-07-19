@@ -1,7 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const root = process.cwd();
+const root = process.env.IDLEWUXIA_REPAIR_ROOT
+  ? path.resolve(process.env.IDLEWUXIA_REPAIR_ROOT)
+  : process.cwd();
 const flowPath = path.join(root, "config", "wuxia_first_session_flow.json");
 const screenPath = path.join(root, "config", "wuxia_first_session_screen_contract.json");
 
@@ -32,6 +34,17 @@ function ensureOrReplaceAction(action) {
   else flow.actions.push(action);
 }
 
+function supplementalLuaSources(...sourceFiles) {
+  return {
+    sourceRole: "supplemental",
+    sources: sourceFiles.map((sourceFile) => ({
+      sourceFile,
+      sourceRecord: "",
+      sourceKind: "lua",
+    })),
+  };
+}
+
 const flow = readJson(flowPath);
 const screens = readJson(screenPath);
 
@@ -59,8 +72,11 @@ if (chapterCardState) {
     level: "cross_source_confirmed",
     source: "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_runtime_contract.json",
     record: "NODE_FB01_OUTER_GATE",
-    sourceEvidence:
-      "res/script/map/mapRoom/fb01.lua|res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+    sourceEvidence: supplementalLuaSources(
+      "res/script/map/mapRoom/fb01.lua",
+      "res/script/map/mapRole/fb01.lua",
+      "res/script/map/mapRoleBase/fb01.lua",
+    ),
   };
 }
 
@@ -110,9 +126,20 @@ if (fishClick) {
     "你一竿子下去，正中鱼儿的脑门，今天的晚饭有着落了。\n获得经验 200、潜能 200。";
   fishClick.evidence = {
     level: "config_confirmed",
-    source:
-      "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/06_effective_lua/effective_plain_best/res/script/HangUpTask/hangUpTaskConfig.lua|fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/06_effective_lua/effective_plain_best/res/script/HangUpTask/hangUpTaskTextConfig.lua",
-    record: "hangUpTaskConfig[10001]|hangUpTaskTextConfig[id=3]",
+    sources: [
+      {
+        sourceFile:
+          "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/06_effective_lua/effective_plain_best/res/script/HangUpTask/hangUpTaskConfig.lua",
+        sourceRecord: "hangUpTaskConfig[10001]",
+        sourceKind: "lua",
+      },
+      {
+        sourceFile:
+          "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/06_effective_lua/effective_plain_best/res/script/HangUpTask/hangUpTaskTextConfig.lua",
+        sourceRecord: "hangUpTaskTextConfig[id=3]",
+        sourceKind: "lua",
+      },
+    ],
   };
 }
 
@@ -130,9 +157,18 @@ if (continueAction) {
   continueAction.responseModel.feedback = "你收起鱼竿，准备前往金牛武馆。";
   continueAction.evidence = {
     level: "cross_source_confirmed",
-    source:
-      "fangzhijianghu/outputs/chapter1_progression_gate_package_20260628/chapter1_hangup_task_runtime.csv|fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
-    record: "TaskId=10001|NODE_FB01_OUTER_GATE",
+    sources: [
+      {
+        sourceFile: "fangzhijianghu/outputs/chapter1_progression_gate_package_20260628/chapter1_hangup_task_runtime.csv",
+        sourceRecord: "TaskId=10001",
+        sourceKind: "project_generated",
+      },
+      {
+        sourceFile: "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
+        sourceRecord: "NODE_FB01_OUTER_GATE",
+        sourceKind: "project_generated",
+      },
+    ],
   };
 }
 
@@ -318,8 +354,11 @@ if (chapterCardAction) {
     level: "cross_source_confirmed",
     source: "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_runtime_contract.json",
     record: "NODE_FB01_OUTER_GATE",
-    sourceEvidence:
-      "res/script/map/mapRoom/fb01.lua|res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+    sourceEvidence: supplementalLuaSources(
+      "res/script/map/mapRoom/fb01.lua",
+      "res/script/map/mapRole/fb01.lua",
+      "res/script/map/mapRoleBase/fb01.lua",
+    ),
   };
 }
 
@@ -412,11 +451,23 @@ for (const node of flow.chapter1?.nodes || []) {
     acceptance: "第一章节点进入动作必须由 fb01 房间/路由配置驱动，不能复用泛化探索按钮。",
     evidence: {
       level: "cross_source_confirmed",
-      source:
-        "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_action_routes.csv|fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
-      record: node.nodeId,
-      sourceEvidence:
-        "res/script/map/mapRoom/fb01.lua|res/script/map/mapRole/fb01.lua|res/script/map/mapConditionAndResult/fb01.lua",
+      sources: [
+        {
+          sourceFile: "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_action_routes.csv",
+          sourceRecord: node.nodeId,
+          sourceKind: "project_generated",
+        },
+        {
+          sourceFile: "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
+          sourceRecord: node.nodeId,
+          sourceKind: "project_generated",
+        },
+      ],
+      sourceEvidence: supplementalLuaSources(
+        "res/script/map/mapRoom/fb01.lua",
+        "res/script/map/mapRole/fb01.lua",
+        "res/script/map/mapConditionAndResult/fb01.lua",
+      ),
     },
   });
 }

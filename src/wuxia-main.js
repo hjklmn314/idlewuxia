@@ -1,5 +1,6 @@
 ﻿import { createFirstSessionRuntime, summarizeFirstSessionContract } from "./wuxiaFirstSessionFlow.js";
 import { cloneData } from "./dataClone.js";
+import { evidenceSummary } from "./evidenceContract.js";
 import { createRuntimePersistence } from "./runtimePersistence.js";
 
 const CONFIG_FILES = {
@@ -251,8 +252,7 @@ function compactList(values, names = []) {
 }
 
 function evidenceText(evidence) {
-  const pieces = [evidence?.level, evidence?.sourceEvidence || evidence?.source, evidence?.record].filter(Boolean);
-  return pieces.join(" / ");
+  return evidenceSummary(evidence);
 }
 
 function renderNodeFact(label, values, emptyText = "") {

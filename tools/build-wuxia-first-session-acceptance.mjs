@@ -1,6 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import {
+  allEvidenceReferences,
+} from "../src/evidenceContract.js";
+
 const root = process.cwd();
 const outputDir = path.join(root, "outputs", "wuxia_first_session_acceptance");
 
@@ -26,7 +30,16 @@ function writeCsv(fileName, rows, columns) {
 }
 
 function evidenceSource(evidence = {}) {
-  return [evidence.source, evidence.sourceEvidence].filter(Boolean).join("|");
+  return {
+    references: allEvidenceReferences(evidence),
+  };
+}
+
+function evidenceReferencesOrBlank(evidence = {}) {
+  const references = allEvidenceReferences(evidence);
+  return references.length
+    ? references
+    : [{ sourceFile: "", sourceRecord: "", sourceKind: "unknown" }];
 }
 
 function actionLabel(action = {}) {
@@ -85,36 +98,42 @@ const automatedGoldenActions = new Set([
 
 const evidenceRows = [];
 for (const state of flow.states || []) {
-  evidenceRows.push({
-    EvidenceId: `EV_STATE_${state.stateId}`,
-    Domain: "first_session_state",
-    SubjectId: state.stateId,
-    Claim: `${state.stateId} renders ${state.screenId}`,
-    SourceFile: state.evidence?.source || "",
-    SourceRecord: state.evidence?.record || state.sourceStepId || "",
-    SourceValue: state.displayText?.rawCompetitorText || state.displayText?.zhCN || "",
-    EvidenceLevel: state.evidence?.level || "unknown",
-    Confidence: state.evidence?.level === "recording_observed" ? "0.80" : "0.60",
-    Interpretation: state.stepType || "",
-    ProjectMapping: state.screenId || "",
-    ValidationStatus: screens[state.screenId] ? "implemented" : "missing_screen_contract",
-  });
+  for (const [index, reference] of evidenceReferencesOrBlank(state.evidence).entries()) {
+    evidenceRows.push({
+      EvidenceId: `EV_STATE_${state.stateId}_SRC_${index + 1}`,
+      Domain: "first_session_state",
+      SubjectId: state.stateId,
+      Claim: `${state.stateId} renders ${state.screenId}`,
+      SourceFile: reference.sourceFile,
+      SourceRecord: reference.sourceRecord || state.sourceStepId || "",
+      SourceKind: reference.sourceKind,
+      SourceValue: state.displayText?.rawCompetitorText || state.displayText?.zhCN || "",
+      EvidenceLevel: state.evidence?.level || "unknown",
+      Confidence: state.evidence?.level === "recording_observed" ? "0.80" : "0.60",
+      Interpretation: state.stepType || "",
+      ProjectMapping: state.screenId || "",
+      ValidationStatus: screens[state.screenId] ? "implemented" : "missing_screen_contract",
+    });
+  }
 }
 for (const action of flow.actions || []) {
-  evidenceRows.push({
-    EvidenceId: `EV_ACTION_${action.actionId}`,
-    Domain: "first_session_action",
-    SubjectId: action.actionId,
-    Claim: `${action.fromState} -> ${action.toState || action.fromState}`,
-    SourceFile: action.evidence?.source || "",
-    SourceRecord: action.evidence?.record || "",
-    SourceValue: action.displayText?.rawCompetitorText || action.input || "",
-    EvidenceLevel: actionEvidence(action),
-    Confidence: actionEvidence(action) === "recording_observed" ? "0.80" : "0.55",
-    Interpretation: action.serverCommand || "",
-    ProjectMapping: action.actionId,
-    ValidationStatus: automatedGoldenActions.has(action.actionId) ? "automated" : "manual_or_branch",
-  });
+  for (const [index, reference] of evidenceReferencesOrBlank(action.evidence).entries()) {
+    evidenceRows.push({
+      EvidenceId: `EV_ACTION_${action.actionId}_SRC_${index + 1}`,
+      Domain: "first_session_action",
+      SubjectId: action.actionId,
+      Claim: `${action.fromState} -> ${action.toState || action.fromState}`,
+      SourceFile: reference.sourceFile,
+      SourceRecord: reference.sourceRecord,
+      SourceKind: reference.sourceKind,
+      SourceValue: action.displayText?.rawCompetitorText || action.input || "",
+      EvidenceLevel: actionEvidence(action),
+      Confidence: actionEvidence(action) === "recording_observed" ? "0.80" : "0.55",
+      Interpretation: action.serverCommand || "",
+      ProjectMapping: action.actionId,
+      ValidationStatus: automatedGoldenActions.has(action.actionId) ? "automated" : "manual_or_branch",
+    });
+  }
 }
 
 const flowRows = (flow.actions || []).map((action) => ({
@@ -318,7 +337,7 @@ for (const state of flow.states || []) {
 for (const action of flow.actions || []) {
   if (!statesById.has(action.fromState)) issues.push({ severity: "error", id: action.actionId, issue: `missing fromState ${action.fromState}` });
   if (action.toState && !statesById.has(action.toState)) issues.push({ severity: "error", id: action.actionId, issue: `missing toState ${action.toState}` });
-  if (!action.evidence?.source && actionEvidence(action) !== "design_proposal") {
+  if (!allEvidenceReferences(action.evidence).length && actionEvidence(action) !== "design_proposal") {
     issues.push({ severity: "warning", id: action.actionId, issue: "missing evidence source" });
   }
 }
@@ -328,8 +347,18 @@ for (const [screenId, screen] of Object.entries(screens)) {
   }
 }
 
+const packedEvidenceRows = evidenceRows.filter(
+  (row) => String(row.SourceFile || "").includes("|")
+    || String(row.SourceRecord || "").includes("|"),
+);
+if (packedEvidenceRows.length) {
+  throw new Error(
+    `Acceptance registry contains ${packedEvidenceRows.length} pipe-packed source reference rows.`,
+  );
+}
+
 writeCsv("evidence_registry.csv", evidenceRows, [
-  "EvidenceId", "Domain", "SubjectId", "Claim", "SourceFile", "SourceRecord", "SourceValue",
+  "EvidenceId", "Domain", "SubjectId", "Claim", "SourceFile", "SourceRecord", "SourceKind", "SourceValue",
   "EvidenceLevel", "Confidence", "Interpretation", "ProjectMapping", "ValidationStatus",
 ]);
 writeCsv("system_flow.csv", flowRows, [

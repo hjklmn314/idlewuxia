@@ -1,5 +1,6 @@
 {
   "schema": "idlewuxia.first_session_flow.v1",
+  "evidenceSchema": "idlewuxia.evidence.v2",
   "generatedAt": "2026-07-02T00:00:00",
   "authority": "local_config_runtime_with_server_command_boundary",
   "serverPolicy": {
@@ -53,9 +54,11 @@
     "potential": 1,
     "origin": "",
     "originFeedback": "",
-    "source": "recording_observed",
     "yueli": 0,
-    "chapterClearLedger": []
+    "chapterClearLedger": [],
+    "sourceFile": "config/wuxia_evidence_contract.schema.json",
+    "sourceRecord": "x-idlewuxia-migration.playerSeedReference",
+    "sourceKind": "project_config"
   },
   "states": [
     {
@@ -193,7 +196,26 @@
         "level": "cross_source_confirmed",
         "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_runtime_contract.json",
         "record": "NODE_FB01_OUTER_GATE",
-        "sourceEvidence": "res/script/map/mapRoom/fb01.lua|res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua"
+        "sourceEvidence": {
+          "sourceRole": "supplemental",
+          "sources": [
+            {
+              "sourceFile": "res/script/map/mapRoom/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/map/mapRole/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            }
+          ]
+        }
       }
     },
     {
@@ -387,7 +409,26 @@
         "level": "cross_source_confirmed",
         "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_runtime_contract.json",
         "record": "NODE_FB01_OUTER_GATE",
-        "sourceEvidence": "res/script/map/mapRoom/fb01.lua|res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua"
+        "sourceEvidence": {
+          "sourceRole": "supplemental",
+          "sources": [
+            {
+              "sourceFile": "res/script/map/mapRoom/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/map/mapRole/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            }
+          ]
+        }
       }
     },
     {
@@ -661,7 +702,26 @@
         "level": "cross_source_confirmed",
         "source": "fangzhijianghu/outputs/client_runtime_sync_contract_20260627/client_runtime_smoke/client_runtime_summary.json",
         "record": "taskId=10001;awardClass=100012",
-        "sourceEvidence": "res/script/HangUpTask/hangUpTaskConfig.lua|res/script/HangUpTask/hangUpTaskRewardConfig.lua|res/script/HangUpTask/hangUpTaskTextConfig.lua"
+        "sourceEvidence": {
+          "sourceRole": "supplemental",
+          "sources": [
+            {
+              "sourceFile": "res/script/HangUpTask/hangUpTaskConfig.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/HangUpTask/hangUpTaskRewardConfig.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/HangUpTask/hangUpTaskTextConfig.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            }
+          ]
+        }
       }
     },
     {
@@ -734,8 +794,18 @@
       },
       "evidence": {
         "level": "cross_source_confirmed",
-        "source": "fangzhijianghu/outputs/chapter1_progression_gate_package_20260628/chapter1_hangup_task_runtime.csv|fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
-        "record": "TaskId=10001|NODE_FB01_OUTER_GATE"
+        "sources": [
+          {
+            "sourceFile": "fangzhijianghu/outputs/chapter1_progression_gate_package_20260628/chapter1_hangup_task_runtime.csv",
+            "sourceRecord": "TaskId=10001",
+            "sourceKind": "project_generated"
+          },
+          {
+            "sourceFile": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
+            "sourceRecord": "NODE_FB01_OUTER_GATE",
+            "sourceKind": "project_generated"
+          }
+        ]
       },
       "failureFeedback": "先完成一次池边打鱼。"
     },
@@ -948,9 +1018,38 @@
       "acceptance": "第一章节点进入动作必须由 fb01 房间/路由配置驱动，不能复用泛化探索按钮。",
       "evidence": {
         "level": "cross_source_confirmed",
-        "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_action_routes.csv|fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
-        "record": "NODE_FB01_OUTER_GATE",
-        "sourceEvidence": "res/script/map/mapRoom/fb01.lua|res/script/map/mapRole/fb01.lua|res/script/map/mapConditionAndResult/fb01.lua"
+        "sourceEvidence": {
+          "sourceRole": "supplemental",
+          "sources": [
+            {
+              "sourceFile": "res/script/map/mapRoom/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/map/mapRole/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/map/mapConditionAndResult/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            }
+          ]
+        },
+        "sources": [
+          {
+            "sourceFile": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_action_routes.csv",
+            "sourceRecord": "NODE_FB01_OUTER_GATE",
+            "sourceKind": "project_generated"
+          },
+          {
+            "sourceFile": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
+            "sourceRecord": "NODE_FB01_OUTER_GATE",
+            "sourceKind": "project_generated"
+          }
+        ]
       }
     },
     {
@@ -980,9 +1079,38 @@
       "acceptance": "第一章节点进入动作必须由 fb01 房间/路由配置驱动，不能复用泛化探索按钮。",
       "evidence": {
         "level": "cross_source_confirmed",
-        "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_action_routes.csv|fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
-        "record": "NODE_FB01_FRONT_YARD",
-        "sourceEvidence": "res/script/map/mapRoom/fb01.lua|res/script/map/mapRole/fb01.lua|res/script/map/mapConditionAndResult/fb01.lua"
+        "sourceEvidence": {
+          "sourceRole": "supplemental",
+          "sources": [
+            {
+              "sourceFile": "res/script/map/mapRoom/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/map/mapRole/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/map/mapConditionAndResult/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            }
+          ]
+        },
+        "sources": [
+          {
+            "sourceFile": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_action_routes.csv",
+            "sourceRecord": "NODE_FB01_FRONT_YARD",
+            "sourceKind": "project_generated"
+          },
+          {
+            "sourceFile": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
+            "sourceRecord": "NODE_FB01_FRONT_YARD",
+            "sourceKind": "project_generated"
+          }
+        ]
       }
     },
     {
@@ -1012,9 +1140,38 @@
       "acceptance": "第一章节点进入动作必须由 fb01 房间/路由配置驱动，不能复用泛化探索按钮。",
       "evidence": {
         "level": "cross_source_confirmed",
-        "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_action_routes.csv|fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
-        "record": "NODE_FB01_MAIN_HALL",
-        "sourceEvidence": "res/script/map/mapRoom/fb01.lua|res/script/map/mapRole/fb01.lua|res/script/map/mapConditionAndResult/fb01.lua"
+        "sourceEvidence": {
+          "sourceRole": "supplemental",
+          "sources": [
+            {
+              "sourceFile": "res/script/map/mapRoom/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/map/mapRole/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/map/mapConditionAndResult/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            }
+          ]
+        },
+        "sources": [
+          {
+            "sourceFile": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_action_routes.csv",
+            "sourceRecord": "NODE_FB01_MAIN_HALL",
+            "sourceKind": "project_generated"
+          },
+          {
+            "sourceFile": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
+            "sourceRecord": "NODE_FB01_MAIN_HALL",
+            "sourceKind": "project_generated"
+          }
+        ]
       }
     },
     {
@@ -1044,9 +1201,38 @@
       "acceptance": "第一章节点进入动作必须由 fb01 房间/路由配置驱动，不能复用泛化探索按钮。",
       "evidence": {
         "level": "cross_source_confirmed",
-        "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_action_routes.csv|fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
-        "record": "NODE_FB01_OWNER_WING",
-        "sourceEvidence": "res/script/map/mapRoom/fb01.lua|res/script/map/mapRole/fb01.lua|res/script/map/mapConditionAndResult/fb01.lua"
+        "sourceEvidence": {
+          "sourceRole": "supplemental",
+          "sources": [
+            {
+              "sourceFile": "res/script/map/mapRoom/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/map/mapRole/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/map/mapConditionAndResult/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            }
+          ]
+        },
+        "sources": [
+          {
+            "sourceFile": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_action_routes.csv",
+            "sourceRecord": "NODE_FB01_OWNER_WING",
+            "sourceKind": "project_generated"
+          },
+          {
+            "sourceFile": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
+            "sourceRecord": "NODE_FB01_OWNER_WING",
+            "sourceKind": "project_generated"
+          }
+        ]
       }
     },
     {
@@ -1076,9 +1262,38 @@
       "acceptance": "第一章节点进入动作必须由 fb01 房间/路由配置驱动，不能复用泛化探索按钮。",
       "evidence": {
         "level": "cross_source_confirmed",
-        "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_action_routes.csv|fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
-        "record": "NODE_FB01_TRAINING_FIELDS",
-        "sourceEvidence": "res/script/map/mapRoom/fb01.lua|res/script/map/mapRole/fb01.lua|res/script/map/mapConditionAndResult/fb01.lua"
+        "sourceEvidence": {
+          "sourceRole": "supplemental",
+          "sources": [
+            {
+              "sourceFile": "res/script/map/mapRoom/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/map/mapRole/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/map/mapConditionAndResult/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            }
+          ]
+        },
+        "sources": [
+          {
+            "sourceFile": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_action_routes.csv",
+            "sourceRecord": "NODE_FB01_TRAINING_FIELDS",
+            "sourceKind": "project_generated"
+          },
+          {
+            "sourceFile": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
+            "sourceRecord": "NODE_FB01_TRAINING_FIELDS",
+            "sourceKind": "project_generated"
+          }
+        ]
       }
     },
     {
@@ -1108,9 +1323,38 @@
       "acceptance": "第一章节点进入动作必须由 fb01 房间/路由配置驱动，不能复用泛化探索按钮。",
       "evidence": {
         "level": "cross_source_confirmed",
-        "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_action_routes.csv|fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
-        "record": "NODE_FB01_BACKYARD_WORK",
-        "sourceEvidence": "res/script/map/mapRoom/fb01.lua|res/script/map/mapRole/fb01.lua|res/script/map/mapConditionAndResult/fb01.lua"
+        "sourceEvidence": {
+          "sourceRole": "supplemental",
+          "sources": [
+            {
+              "sourceFile": "res/script/map/mapRoom/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/map/mapRole/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/map/mapConditionAndResult/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            }
+          ]
+        },
+        "sources": [
+          {
+            "sourceFile": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_action_routes.csv",
+            "sourceRecord": "NODE_FB01_BACKYARD_WORK",
+            "sourceKind": "project_generated"
+          },
+          {
+            "sourceFile": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
+            "sourceRecord": "NODE_FB01_BACKYARD_WORK",
+            "sourceKind": "project_generated"
+          }
+        ]
       }
     },
     {
@@ -1140,9 +1384,38 @@
       "acceptance": "第一章节点进入动作必须由 fb01 房间/路由配置驱动，不能复用泛化探索按钮。",
       "evidence": {
         "level": "cross_source_confirmed",
-        "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_action_routes.csv|fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
-        "record": "NODE_FB01_SETTLEMENT_LOOP",
-        "sourceEvidence": "res/script/map/mapRoom/fb01.lua|res/script/map/mapRole/fb01.lua|res/script/map/mapConditionAndResult/fb01.lua"
+        "sourceEvidence": {
+          "sourceRole": "supplemental",
+          "sources": [
+            {
+              "sourceFile": "res/script/map/mapRoom/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/map/mapRole/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/map/mapConditionAndResult/fb01.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            }
+          ]
+        },
+        "sources": [
+          {
+            "sourceFile": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_action_routes.csv",
+            "sourceRecord": "NODE_FB01_SETTLEMENT_LOOP",
+            "sourceKind": "project_generated"
+          },
+          {
+            "sourceFile": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
+            "sourceRecord": "NODE_FB01_SETTLEMENT_LOOP",
+            "sourceKind": "project_generated"
+          }
+        ]
       }
     }
   ],
@@ -1189,7 +1462,26 @@
         "evidence": {
           "level": "cross_source_confirmed",
           "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua|res/script/map/mapRoom/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoom/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "NODE_FB01_OUTER_GATE"
         },
         "primaryAction": {
@@ -1252,7 +1544,26 @@
         "evidence": {
           "level": "cross_source_confirmed",
           "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua|res/script/map/mapRoom/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoom/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "NODE_FB01_FRONT_YARD"
         },
         "primaryAction": {
@@ -1313,7 +1624,26 @@
         "evidence": {
           "level": "cross_source_confirmed",
           "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua|res/script/map/mapRoom/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoom/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "NODE_FB01_MAIN_HALL"
         },
         "primaryAction": {
@@ -1373,7 +1703,26 @@
         "evidence": {
           "level": "cross_source_confirmed",
           "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua|res/script/map/mapRoom/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoom/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "NODE_FB01_OWNER_WING"
         },
         "primaryAction": {
@@ -1452,7 +1801,26 @@
         "evidence": {
           "level": "cross_source_confirmed",
           "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua|res/script/map/mapRoom/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoom/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "NODE_FB01_TRAINING_FIELDS"
         },
         "primaryAction": {
@@ -1552,7 +1920,31 @@
         "evidence": {
           "level": "cross_source_confirmed",
           "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
-          "sourceEvidence": "res/script/HangUpTask/hangUpTaskConfig.lua|res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua|res/script/map/mapRoom/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/HangUpTask/hangUpTaskConfig.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoom/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "NODE_FB01_BACKYARD_WORK"
         },
         "primaryAction": {
@@ -1624,7 +2016,21 @@
         "evidence": {
           "level": "design_proposal",
           "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
-          "sourceEvidence": "outputs/fzjh_chapter1_planning_audit_20260622/chapter1_pacing_beats.csv|res/script/map/map.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "outputs/fzjh_chapter1_planning_audit_20260622/chapter1_pacing_beats.csv",
+                "sourceRecord": "",
+                "sourceKind": "project_generated"
+              },
+              {
+                "sourceFile": "res/script/map/map.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "NODE_FB01_SETTLEMENT_LOOP"
         },
         "primaryAction": {
@@ -1787,7 +2193,26 @@
           "level": "cross_source_confirmed",
           "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
           "record": "NODE_FB01_OUTER_GATE",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua|res/script/map/mapRoom/fb01.lua"
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoom/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          }
         }
       },
       {
@@ -1814,7 +2239,26 @@
           "level": "cross_source_confirmed",
           "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
           "record": "NODE_FB01_FRONT_YARD",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua|res/script/map/mapRoom/fb01.lua"
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoom/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          }
         }
       },
       {
@@ -1841,7 +2285,26 @@
           "level": "cross_source_confirmed",
           "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
           "record": "NODE_FB01_FRONT_YARD",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua|res/script/map/mapRoom/fb01.lua"
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoom/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          }
         }
       },
       {
@@ -1865,7 +2328,26 @@
           "level": "cross_source_confirmed",
           "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
           "record": "NODE_FB01_MAIN_HALL",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua|res/script/map/mapRoom/fb01.lua"
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoom/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          }
         }
       },
       {
@@ -1889,7 +2371,26 @@
           "level": "cross_source_confirmed",
           "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
           "record": "NODE_FB01_OWNER_WING",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua|res/script/map/mapRoom/fb01.lua"
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoom/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          }
         }
       },
       {
@@ -1911,7 +2412,21 @@
           "level": "design_proposal",
           "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
           "record": "NODE_FB01_SETTLEMENT_LOOP",
-          "sourceEvidence": "outputs/fzjh_chapter1_planning_audit_20260622/chapter1_pacing_beats.csv|res/script/map/map.lua"
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "outputs/fzjh_chapter1_planning_audit_20260622/chapter1_pacing_beats.csv",
+                "sourceRecord": "",
+                "sourceKind": "project_generated"
+              },
+              {
+                "sourceFile": "res/script/map/map.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          }
         }
       }
     ],
@@ -1992,7 +2507,26 @@
           "level": "cross_source_confirmed",
           "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
           "record": "NODE_FB01_OWNER_WING",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua|res/script/map/mapRoom/fb01.lua"
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoom/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          }
         }
       },
       {
@@ -2006,7 +2540,26 @@
           "level": "cross_source_confirmed",
           "source": "fangzhijianghu/outputs/fb01_room_chain_package_20260629/fb01_room_nodes.csv",
           "record": "NODE_FB01_TRAINING_FIELDS",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua|res/script/map/mapRoom/fb01.lua"
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoom/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          }
         }
       }
     ],
@@ -4393,7 +4946,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "2019qxcdg1a"
         }
       },
@@ -4476,7 +5043,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "2019qxcdg1b"
         }
       },
@@ -4623,7 +5204,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "bf1r01a_1"
         }
       },
@@ -4669,7 +5264,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "bf1r01a_1a"
         }
       },
@@ -4753,7 +5362,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "bf2r06_1"
         }
       },
@@ -4794,7 +5417,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "bf2r06_1a"
         }
       },
@@ -4835,7 +5472,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "bf2r06_1b"
         }
       },
@@ -4902,7 +5553,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "bfr25_1"
         }
       },
@@ -5059,7 +5724,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "bfr25_1a"
         }
       },
@@ -5094,7 +5773,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "bfr25_1b"
         }
       },
@@ -5129,7 +5822,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "cg2r02_1"
         }
       },
@@ -5231,7 +5938,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "cg2r02_1a"
         }
       },
@@ -5314,7 +6035,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "cg2r02_2"
         }
       },
@@ -5349,7 +6084,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "cg2r02_2a"
         }
       },
@@ -5483,7 +6232,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "cg2r02_3"
         }
       },
@@ -5600,7 +6363,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "cg2r02_3a"
         }
       },
@@ -5640,7 +6417,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "cg2r02_3b"
         }
       },
@@ -5774,7 +6565,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "cg2r02_4"
         }
       },
@@ -5891,7 +6696,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "cg2r02_4a"
         }
       },
@@ -5931,7 +6750,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "cg2r02_4b"
         }
       },
@@ -6124,7 +6957,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "ever24_1"
         }
       },
@@ -6228,7 +7075,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r01_1"
         }
       },
@@ -6453,7 +7314,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r01_1a"
         }
       },
@@ -6533,7 +7408,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r01_1b"
         }
       },
@@ -6613,7 +7502,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r01_1c"
         }
       },
@@ -6671,7 +7574,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r01_3"
         }
       },
@@ -6877,7 +7794,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r02_1"
         }
       },
@@ -6930,7 +7861,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r02_1a"
         }
       },
@@ -7063,7 +8008,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r02_1b"
         }
       },
@@ -7237,7 +8196,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r02_2"
         }
       },
@@ -7283,7 +8256,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r02_2a"
         }
       },
@@ -7387,7 +8374,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r04_1"
         }
       },
@@ -7531,7 +8532,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r04_1a"
         }
       },
@@ -7589,7 +8604,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r04_1b"
         }
       },
@@ -7647,7 +8676,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r04_2"
         }
       },
@@ -8076,7 +9119,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r05_1"
         },
         "customOperations": [
@@ -8512,7 +9569,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r05_1a"
         },
         "customOperations": [
@@ -8844,7 +9915,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r05_1b"
         },
         "customOperations": [
@@ -8911,7 +9996,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r05_2"
         }
       },
@@ -8969,7 +10068,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r05_3"
         }
       },
@@ -9027,7 +10140,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r05_4"
         }
       },
@@ -9139,7 +10266,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r07_1"
         }
       },
@@ -9400,7 +10541,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r07_1a"
         }
       },
@@ -9459,7 +10614,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r07_1b"
         }
       },
@@ -9517,7 +10686,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r07_2"
         }
       },
@@ -9575,7 +10758,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r07_3"
         }
       },
@@ -9633,7 +10830,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r08_1"
         }
       },
@@ -9691,7 +10902,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r08_2"
         }
       },
@@ -9809,7 +11034,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r10_1"
         }
       },
@@ -9856,7 +11095,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r10_1a"
         }
       },
@@ -9914,7 +11167,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r11_1"
         }
       },
@@ -9972,7 +11239,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r11_2"
         }
       },
@@ -10063,7 +11344,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r11_3"
         }
       },
@@ -10157,7 +11452,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r11_4"
         }
       },
@@ -10225,7 +11534,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r11_4a"
         }
       },
@@ -10283,7 +11606,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r12_1"
         }
       },
@@ -10341,7 +11678,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r12_2"
         }
       },
@@ -10399,7 +11750,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r13_1"
         }
       },
@@ -10457,7 +11822,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r13_2"
         }
       },
@@ -10515,7 +11894,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r15_1"
         }
       },
@@ -10573,7 +11966,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r15_2"
         }
       },
@@ -10658,7 +12065,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r15_3"
         }
       },
@@ -10752,7 +12173,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r15_4"
         }
       },
@@ -10820,7 +12255,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r15_4a"
         }
       },
@@ -10932,7 +12381,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r16_1"
         }
       },
@@ -11074,7 +12537,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r16_1a"
         }
       },
@@ -11132,7 +12609,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r16_1b"
         }
       },
@@ -11239,7 +12730,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r16_2"
         }
       },
@@ -11396,7 +12901,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r16_3"
         },
         "customOperations": [
@@ -11602,7 +13121,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r18_1"
         },
         "customOperations": [
@@ -11750,7 +13283,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r18_2"
         },
         "customOperations": [
@@ -11872,7 +13419,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r19_2"
         }
       },
@@ -11928,7 +13489,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r19_2a"
         }
       },
@@ -11986,7 +13561,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r20_1"
         }
       },
@@ -12059,7 +13648,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r22_1"
         }
       },
@@ -12228,7 +13831,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r22_1a"
         }
       },
@@ -12275,7 +13892,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r22_1b"
         }
       },
@@ -12333,7 +13964,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r22_2"
         }
       },
@@ -12458,7 +14103,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r24_1"
         }
       },
@@ -12510,7 +14169,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r24_1a"
         }
       },
@@ -12568,7 +14241,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r24_2"
         }
       },
@@ -12635,7 +14322,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r24_3"
         }
       },
@@ -12693,7 +14394,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r25_1"
         }
       },
@@ -12751,7 +14466,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r26_1"
         }
       },
@@ -12858,7 +14587,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r27_1"
         }
       },
@@ -13119,7 +14862,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r28_1"
         }
       },
@@ -13282,7 +15039,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r30_1"
         }
       },
@@ -13340,7 +15111,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r30_1a"
         }
       },
@@ -13398,7 +15183,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r32_1"
         }
       },
@@ -13456,7 +15255,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r33_1"
         }
       },
@@ -13514,7 +15327,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r34_1"
         }
       },
@@ -13621,7 +15448,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r34_2"
         }
       },
@@ -13695,7 +15536,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r36_1"
         }
       },
@@ -13858,7 +15713,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r36_1a"
         }
       },
@@ -13900,7 +15769,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r36_1b"
         }
       },
@@ -13958,7 +15841,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r37_1"
         }
       },
@@ -14100,7 +15997,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r39_1"
         }
       },
@@ -14212,7 +16123,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r39_1a"
         }
       },
@@ -14295,7 +16220,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r40_1"
         },
         "customOperations": [
@@ -14386,7 +16325,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r41_1"
         },
         "customOperations": [
@@ -14436,7 +16389,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r41_2"
         }
       },
@@ -14518,7 +16485,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "fb01r42_1"
         },
         "customOperations": [
@@ -14919,7 +16900,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "npc01_jl1"
         },
         "customOperations": [
@@ -15320,7 +17315,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "npc01_jl2"
         },
         "customOperations": [
@@ -15369,7 +17378,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "npc01_jl3"
         }
       },
@@ -15411,7 +17434,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "shenshunpc"
         }
       },
@@ -15508,7 +17545,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "tmnpc01a"
         }
       },
@@ -15679,7 +17730,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "tmnpc01b"
         },
         "customOperations": [
@@ -15859,7 +17924,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "tmnpc01c"
         },
         "customOperations": [
@@ -16070,7 +18149,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "tmnpc01d"
         },
         "customOperations": [
@@ -16130,7 +18223,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "tmnpc01e"
         }
       },
@@ -16174,7 +18281,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "tmnpc01f"
         }
       },
@@ -16216,7 +18337,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "xunbaoren1"
         }
       },
@@ -16258,7 +18393,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "xunbaoren2"
         }
       },
@@ -16300,7 +18449,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "xunbaoren3"
         }
       },
@@ -16457,7 +18620,21 @@
           "level": "config_confirmed",
           "source": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_npc_interactions.csv",
           "resultSource": "fangzhijianghu/outputs/fzjh_chapter1_planning_audit_20260622/chapter1_results.csv",
-          "sourceEvidence": "res/script/map/mapRole/fb01.lua|res/script/map/mapRoleBase/fb01.lua",
+          "sourceEvidence": {
+            "sourceRole": "supplemental",
+            "sources": [
+              {
+                "sourceFile": "res/script/map/mapRole/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              },
+              {
+                "sourceFile": "res/script/map/mapRoleBase/fb01.lua",
+                "sourceRecord": "",
+                "sourceKind": "lua"
+              }
+            ]
+          },
           "record": "zhongqiuchuzi"
         },
         "customOperations": [
@@ -28683,7 +30860,21 @@
         "level": "cross_source_confirmed",
         "source": "fangzhijianghu/outputs/client_runtime_sync_contract_20260627/client_runtime_smoke/client_runtime_summary.json",
         "record": "award_class=100012;task_id=10001",
-        "sourceEvidence": "res/script/HangUpTask/hangUpTaskConfig.lua|res/script/HangUpTask/hangUpTaskRewardConfig.lua"
+        "sourceEvidence": {
+          "sourceRole": "supplemental",
+          "sources": [
+            {
+              "sourceFile": "res/script/HangUpTask/hangUpTaskConfig.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            },
+            {
+              "sourceFile": "res/script/HangUpTask/hangUpTaskRewardConfig.lua",
+              "sourceRecord": "",
+              "sourceKind": "lua"
+            }
+          ]
+        }
       }
     }
   },
@@ -28761,7 +30952,11 @@
             "造成了 9 点伤害。",
             "（你动作似乎开始有点不太灵光，但是仍然有条不紊。）"
           ],
-          "logTones": ["", "damage", "hint"]
+          "logTones": [
+            "",
+            "damage",
+            "hint"
+          ]
         },
         {
           "time": "1.1s",
@@ -28786,7 +30981,11 @@
             "造成了 28 点伤害。",
             "（武馆老管家已经陷入半昏迷状态，随时都可能摔倒晕去。）"
           ],
-          "logTones": ["", "damage", "damage"]
+          "logTones": [
+            "",
+            "damage",
+            "damage"
+          ]
         }
       ],
       "logLines": [

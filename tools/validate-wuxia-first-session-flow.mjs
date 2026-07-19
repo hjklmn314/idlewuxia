@@ -1,6 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import {
+  evidenceReferences,
+  validateEvidenceContract,
+} from "../src/evidenceContract.js";
+
 const root = process.cwd();
 const configPath = path.join(root, "config", "wuxia_first_session_flow.json");
 const outputDir = path.join(root, "outputs", "idlewuxia_migration");
@@ -15,6 +20,11 @@ function existsRel(relPath) {
   return Boolean(relPath) && fs.existsSync(path.join(root, relPath));
 }
 
+function evidenceFilesExist(evidence) {
+  const references = evidenceReferences(evidence);
+  return references.length > 0 && references.every((entry) => existsRel(entry.sourceFile));
+}
+
 function collectStrings(value, out = []) {
   if (typeof value === "string") out.push(value);
   else if (Array.isArray(value)) value.forEach((item) => collectStrings(item, out));
@@ -26,6 +36,10 @@ const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
 const screenPath = path.join(root, "config", "wuxia_first_session_screen_contract.json");
 const screenContract = JSON.parse(fs.readFileSync(screenPath, "utf8"));
 const findings = [];
+const evidenceContractReport = validateEvidenceContract(config);
+for (const entry of evidenceContractReport.findings) {
+  findings.push(finding(entry.severity, `${entry.code}: ${entry.detail}`, entry.path));
+}
 
 if (config.schema !== "idlewuxia.first_session_flow.v1") {
   findings.push(finding("error", "Unexpected first-session schema.", "schema"));
@@ -67,8 +81,8 @@ for (const state of states) {
     findings.push(finding("error", `State ${state.stateId} points to missing screen ${state.screenId}.`, state.stateId));
   }
   if (!state.evidence?.level) findings.push(finding("error", `State ${state.stateId} missing evidence level.`, state.stateId));
-  if (!state.evidence?.source || (requireLocalEvidenceFiles && !existsRel(state.evidence.source))) {
-    findings.push(finding("error", `State ${state.stateId} source file is missing.`, state.evidence?.source || state.stateId));
+  if (!evidenceReferences(state.evidence).length || (requireLocalEvidenceFiles && !evidenceFilesExist(state.evidence))) {
+    findings.push(finding("error", `State ${state.stateId} source file is missing.`, evidenceReferences(state.evidence).map((entry) => entry.sourceFile).join("|") || state.stateId));
   }
 }
 
@@ -167,8 +181,8 @@ for (const node of nodes) {
     }
   }
   if (!node.evidence?.level) findings.push(finding("error", `Node ${node.nodeId} missing evidence level.`, node.nodeId));
-  if (!node.evidence?.source || (requireLocalEvidenceFiles && !existsRel(node.evidence.source))) {
-    findings.push(finding("error", `Node ${node.nodeId} source file is missing.`, node.evidence?.source || node.nodeId));
+  if (!evidenceReferences(node.evidence).length || (requireLocalEvidenceFiles && !evidenceFilesExist(node.evidence))) {
+    findings.push(finding("error", `Node ${node.nodeId} source file is missing.`, evidenceReferences(node.evidence).map((entry) => entry.sourceFile).join("|") || node.nodeId));
   }
 }
 
@@ -184,8 +198,8 @@ for (const room of rooms) {
     }
   }
   if (!room.evidence?.level) findings.push(finding("error", `Room ${room.roomId} missing evidence level.`, room.roomId));
-  if (!room.evidence?.source || (requireLocalEvidenceFiles && !existsRel(room.evidence.source))) {
-    findings.push(finding("error", `Room ${room.roomId} source file is missing.`, room.evidence?.source || room.roomId));
+  if (!evidenceReferences(room.evidence).length || (requireLocalEvidenceFiles && !evidenceFilesExist(room.evidence))) {
+    findings.push(finding("error", `Room ${room.roomId} source file is missing.`, evidenceReferences(room.evidence).map((entry) => entry.sourceFile).join("|") || room.roomId));
   }
 }
 
