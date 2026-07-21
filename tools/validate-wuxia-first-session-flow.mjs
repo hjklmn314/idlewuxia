@@ -59,6 +59,30 @@ const mobileLayout = screenContract.mobileLayout || {};
 const runtimeMutationPolicy = config.chapterSystem?.resultEffectPolicies?.runtimeMutation || {};
 const navigationPolicy = config.chapterSystem?.navigationPolicy || {};
 const entityInteractionPolicy = config.chapterSystem?.entityInteractionPolicy || {};
+const sessionDefaults = config.sessionDefaults || {};
+
+const sessionDefaultsSchemaPath = path.join(root, "config", "wuxia_chapter_session_defaults.schema.json");
+const sessionDefaultsSchema = JSON.parse(fs.readFileSync(sessionDefaultsSchemaPath, "utf8"));
+const sessionDefaultsAjv = new Ajv2020({ allErrors: true, strict: true });
+const validateSessionDefaults = sessionDefaultsAjv.compile(sessionDefaultsSchema);
+if (!validateSessionDefaults(sessionDefaults)) {
+  for (const error of validateSessionDefaults.errors || []) {
+    findings.push(finding(
+      "error",
+      `Chapter session defaults schema violation: ${error.message || "invalid value"}.`,
+      `sessionDefaults${error.instancePath || ""}`,
+    ));
+  }
+}
+const sessionInitialFlags = Array.isArray(sessionDefaults.initialFlags) ? sessionDefaults.initialFlags : [];
+const screenInitialFlags = Array.isArray(screenContract.defaultStartFlags) ? screenContract.defaultStartFlags : [];
+if (JSON.stringify(sessionInitialFlags) !== JSON.stringify(screenInitialFlags)) {
+  findings.push(finding(
+    "error",
+    "Chapter session initial flags must match the screen startup compatibility contract.",
+    "sessionDefaults.initialFlags",
+  ));
+}
 
 const runtimeMutationSchemaPath = path.join(root, "config", "wuxia_runtime_mutation_policy.schema.json");
 const runtimeMutationSchema = JSON.parse(fs.readFileSync(runtimeMutationSchemaPath, "utf8"));

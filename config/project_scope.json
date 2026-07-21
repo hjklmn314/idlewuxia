@@ -6,6 +6,7 @@
   "activeRuntimeFiles": [
     "index.html",
     "src/styles.css",
+    "src/chapterSession.js",
     "src/conditionEvaluator.js",
     "src/dataClone.js",
     "src/entityInteractionService.js",
@@ -25,6 +26,7 @@
   ],
   "developmentReferenceFiles": [
     "config/wuxia_competitor_first_session_reference.json",
+    "config/wuxia_chapter_session_defaults.schema.json",
     "config/wuxia_evidence_contract.schema.json",
     "config/wuxia_entity_interaction_policy.schema.json",
     "config/wuxia_fb01_entity_reachability_policy.json",
@@ -34,6 +36,7 @@
   "shippingFiles": [
     "index.html",
     "src/styles.css",
+    "src/chapterSession.js",
     "src/conditionEvaluator.js",
     "src/dataClone.js",
     "src/entityInteractionService.js",

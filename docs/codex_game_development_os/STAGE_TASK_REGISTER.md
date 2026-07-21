@@ -43,13 +43,15 @@
 
 `T03-01` 必须等待上述两项完成。所有 G5、G6、G7 工作不得跳过 G4 出口。
 
-ARCH-001 当前进度：ConditionEvaluator、Result preparation、ResultEffectExecutor、NavigationService 与
-EntityInteractionService 切片已完成并接入回归门禁；ChapterSession facade 和 UI adapter 仍未完成，详见
+ARCH-001 当前进度：ConditionEvaluator、Result preparation、ResultEffectExecutor、NavigationService、
+EntityInteractionService 与 ChapterSession 切片已完成并接入回归门禁；只有 UI adapter 切片仍未完成，详见
 `ARCH-001_IMPLEMENTATION_RECORD_20260719.md`。因此任务状态保持 `open`。
 
 2026-07-20 更新：NavigationService 切片 3 已完成并通过真实浏览器手动验收。导航条件和阻断动作已改为 Schema 校验的配置解释，Web/Android 发布闭包为 16 个文件；EntityInteractionService、ChapterSession 与 UI adapter 仍未完成，因此 `ARCH-001` 继续保持 `open`，下一项为 EntityInteractionService。
 
 2026-07-21 更新：EntityInteractionService 切片 4 已完成并通过 540×960、390×844 各 20 步真实浏览器人工验收。实体可见性、选择、动作唯一分支和反馈模板已改为 Schema 校验的配置解释，Web/Android 发布闭包为 17 个文件；ChapterSession 与 UI adapter 仍未完成，因此 `ARCH-001` 继续保持 `open`，下一项为 ChapterSession。
+
+2026-07-22 更新：ChapterSession 切片 5 已完成并通过 540×960、390×844 各 20 步真实 Edge 人工验收。会话状态、命令编排、事件和存档 DTO 已迁移到唯一状态权威 `src/chapterSession.js`，旧工厂缩为兼容 facade；默认旗标改由 Ajv 校验的 `sessionDefaults` 配置驱动。Web/Android 发布闭包为 18 个文件。`ARCH-001` 继续保持 `open`，唯一剩余切片为 UI view-model / intent mapper / browser automation seam。
 
 ## 状态更新规则
 

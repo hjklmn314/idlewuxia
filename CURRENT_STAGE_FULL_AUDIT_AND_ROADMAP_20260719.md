@@ -27,7 +27,7 @@ Codex 证据区：`G:\codex`
 - 358 个配置动作已逐项执行：220 个当前可见且全部被运行时接受，138 个没有真实执行模块的动作被明确隐藏并拒绝，0 个“未实现却返回 accepted”。
 - 421 个结果定义中有 213 个被当前 FB01 分支引用；316 次实际结果出现里有 313 次达到当前 P3 运行时分类，仍有 3 次 P1。
 - 186 个条件定义中有 93 个被当前 FB01 分支引用；这 93 个没有未支持语义，未知条件保持 fail-closed。
-- 15 项运行时完整性回归和 10 项 Choice/结果链专项回归全部通过；此前复现的 5 个 P0 和 2 个 P1 均不再复现。
+- 16 项运行时完整性回归和 10 项 Choice/结果链专项回归全部通过；此前复现的 5 个 P0 和 2 个 P1 均不再复现。
 - 540×960 全新浏览器来源完成真实 UI 首局路径、通用切磋、剧情切磋、DOM、溢出和控制台复验；新来源控制台 error 为 0。
 - Android debug APK 构建、APK/Web 字节追踪和 clean-revision 审计均已通过；最终证据在文档收尾提交后重新生成并绑定。
 - `wuxia:check:fast` 通过且运行前后主流程配置 SHA-256 不变，证明快速检查不再偷偷改写源配置。
@@ -46,10 +46,11 @@ Codex 证据区：`G:\codex`
 
 ### 1.1 当前发布闭包
 
-活动入口是 `src/wuxia-main.js`。ARCH-001 Slice 4 后 Web/APK 发布闭包为 17 个产品文件：
+活动入口是 `src/wuxia-main.js`。ARCH-001 Slice 5 后 Web/APK 发布闭包为 18 个产品文件：
 
 - `index.html`
 - `src/styles.css`
+- `src/chapterSession.js`
 - `src/conditionEvaluator.js`
 - `src/dataClone.js`
 - `src/entityInteractionService.js`
@@ -66,7 +67,7 @@ Codex 证据区：`G:\codex`
 - `config/wuxia_first_session_screen_contract.json`
 - `public/wuxia-brand/icon.svg`
 
-Capacitor 另生成 `cordova.js` 和 `cordova_plugins.js`。每次发布提交后必须重新构建并执行 clean-revision APK 审计，证明 17 个产品文件、2 个平台生成文件与 Web manifest 字节一致且没有额外 Web 资产。
+Capacitor 另生成 `cordova.js` 和 `cordova_plugins.js`。每次发布提交后必须重新构建并执行 clean-revision APK 审计，证明 18 个产品文件、2 个平台生成文件与 Web manifest 字节一致且没有额外 Web 资产。
 
 ### 1.2 当前配置规模
 
@@ -693,3 +694,16 @@ ChoiceDefinition
 - 最终 UI 同步修复后重新生成 40 张截图；36 张与上一轮 SHA-256 一致，4 张 Combat 时间敏感截图以原始分辨率单独复核通过；
 - 本切片判定 `PASS WITH KNOWN LIMITATIONS`，不等于 ARCH-001、T05-01、正式 APK、真机或项目上线完成；
 - 下一切片为 ChapterSession；`COMBAT-002`、Rest/Repair 与真实 CombatSession 继续延期。
+
+## 2026-07-22 ARCH-001 ChapterSession 续施工
+
+- `src/chapterSession.js` 已完成 ARCH-001 切片 5，成为章节会话唯一可写状态权威；`src/wuxiaFirstSessionFlow.js` 缩减为 19 行兼容 facade，不再持有或解释状态；
+- ChapterSession 创建时隔离完整定义、可选初始章节和玩家种子；快照、命令结果、事件与存档 DTO 均脱离内部可变引用，调用方不能通过返回对象反向污染运行中会话；
+- 首局默认旗标从源码迁移到 `sessionDefaults.initialFlags`，由 `config/wuxia_chapter_session_defaults.schema.json` 使用 Ajv Draft 2020-12 实际校验，并与旧屏幕启动兼容字段做一致性门禁；
+- 独立 Standards/Spec 复审发现并推动关闭了章节快照 Definition、`options.initialChapter` 和返回 event 三类引用泄漏；公共命令对约 745 KB 快照的重复深拷贝也已消除；
+- ChapterSession 合同测试覆盖公共接口白名单、状态与节点行为、定义隔离、返回值隔离、存档往返、配置默认旗标及旧 facade 逐命令等价；Runtime integrity 16/16、Choice 10/10、Persistence 和首局 54 事件保持兼容；
+- Web/Android 发布闭包扩大为 18 个产品文件，新增状态权威进入运输闭包，开发期 Schema 不进入产品包；
+- 真实 Edge 在 540×960 与 390×844 各完成 20 步交互，均为 0 failures、0 console problems；人工逐图检查全部 40 张首轮截图，并对 390×844 瞬时过渡帧完整重跑 20 步及复核关键原图；
+- 本切片判定 `PASS WITH KNOWN LIMITATIONS`，ARCH-001 仍为 `open` 且当前进度为 Slice 5/6；下一且唯一剩余架构切片为 UI view-model / intent mapper / browser automation seam；
+- 本结论不等于 358/358、SAVE-001、OBS-001、11 屏×3 尺寸、AssetRegistry、Android 真机、签名 Release 或项目上线完成；
+- `COMBAT-002`、Rest/Repair 与真实 CombatSession 继续延期。

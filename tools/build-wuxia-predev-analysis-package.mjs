@@ -82,8 +82,10 @@ const codeSurfaceRows = collectActiveRuntimeFiles().map((relativePath) => {
     lines: lineCount(relativePath),
     imports: imports.join(" | "),
     publicFunctions: publicFunctions.join(" | "),
-    designRole: relativePath.includes("wuxiaFirstSessionFlow")
-      ? "runtime_interpreter"
+    designRole: relativePath === "src/chapterSession.js"
+      ? "stateful_chapter_session_runtime"
+      : relativePath.includes("wuxiaFirstSessionFlow")
+        ? "chapter_session_compatibility_facade"
       : relativePath.includes("wuxia-main")
         ? "ui_renderer_and_action_router"
         : relativePath === "index.html"
@@ -187,15 +189,15 @@ const assetGovernanceRows = [
 const algorithmRows = [
   {
     algorithmId: "first_session_state_machine",
-    ownerModule: "src/wuxiaFirstSessionFlow.js",
+    ownerModule: "src/chapterSession.js",
     inputData: "states/actions/rewardClasses/chapter/resultEffectPolicies",
-    interface: "createFirstSessionRuntime(contract, options)",
+    interface: "createChapterSession(definitions, options); createFirstSessionRuntime remains a compatibility facade",
     policy: "state transitions and rewards are data interpreted, not UI-authored",
     currentRisk: contentBoundary.passStrict ? "low" : "high_content_hardcode",
   },
   {
     algorithmId: "chapter_room_interaction_executor",
-    ownerModule: "src/wuxiaFirstSessionFlow.js",
+    ownerModule: "src/entityInteractionService.js + src/chapterSession.js",
     inputData: "rooms/npcs/interactables/conditionLookup/resultLookup",
     interface: "selectChapterRoom/selectChapterNpc/interactWithChapterNpc/selectChapterInteractable/interactWithChapterInteractable",
     policy: "NPC/interactable branches execute restored config tokens and keep unknowns visible",
@@ -203,7 +205,7 @@ const algorithmRows = [
   },
   {
     algorithmId: "result_effect_executor",
-    ownerModule: "src/wuxiaFirstSessionFlow.js",
+    ownerModule: "src/resultPreparation.js + src/resultEffectExecutor.js; ChapterSession owns commit adoption",
     inputData: "resultLookup/resultEffectPolicies/rewardAttributeMap/chapterClearPolicy",
     interface: "applyResultEffects through configured action routes",
     policy: "result tokens map to named effect modules with evidence level; unknown stays audit-visible",

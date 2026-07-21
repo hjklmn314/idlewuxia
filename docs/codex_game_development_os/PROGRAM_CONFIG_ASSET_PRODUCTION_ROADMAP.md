@@ -15,6 +15,15 @@
 
 当前第一项转为 `ARCH-001`，给 `T03-01` 提供可测试的模块边界。
 
+### 2026-07-22 当前施工位置
+
+- ARCH-001 的 Condition、Result preparation、Transactional EffectExecutor、NavigationService、EntityInteractionService 与 ChapterSession 已完成，当前为 Slice 5/6；
+- `src/chapterSession.js` 已接管唯一会话状态权威，旧 `wuxiaFirstSessionFlow.js` 仅保留兼容 facade；Web/Android 运输闭包为 18 个产品文件；
+- ChapterSession 的定义、初始章节、快照、事件、命令结果和存档边界已完成隔离，配置默认旗标具备 Schema、Ajv 校验和双来源一致性门禁；
+- 两个移动视口真实 Edge 交互与人工视觉复核通过，但只覆盖本切片回归，不替代 G5 的 11 屏×3 尺寸和 Android 真机验收；
+- ARCH-001 继续保持 `open`。下一施工项是 Slice 6：UI view-model / intent mapper / browser automation seam；完成全量回归后才允许关闭 ARCH-001 并转入 T03-01；
+- COMBAT-002、Rest/Repair 与真实 CombatSession 继续延期。
+
 ## 阶段总览
 
 | Gate | 目标 | 程序 | 配置 | 资产 | 出口 |

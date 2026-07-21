@@ -32,6 +32,11 @@
     ],
     "unknownPolicy": "unknown rows must remain visible to validator and must not silently grant rewards or combat outcomes"
   },
+  "sessionDefaults": {
+    "initialFlags": [
+      "new_install_or_new_save"
+    ]
+  },
   "playerSeed": {
     "officialType": 0,
     "officialAchievement": 0,
