@@ -2524,7 +2524,7 @@ body.wuxia-mode #app {
   padding: max(8px, env(safe-area-inset-top)) 14px 8px;
   background: #1d1d1d;
   border-bottom: 2px solid #050505;
-  grid-template-columns: 78px 1fr 78px;
+  grid-template-columns: minmax(96px, auto) minmax(0, 1fr) minmax(96px, auto);
 }
 
 .wuxia-icon-button {
@@ -2535,6 +2535,7 @@ body.wuxia-mode #app {
   font-size: 21px;
   font-weight: 900;
   text-shadow: 0 2px 0 #000;
+  white-space: nowrap;
 }
 
 .wuxia-title-group h1 {

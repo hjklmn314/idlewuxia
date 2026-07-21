@@ -135,9 +135,43 @@ async function capture(cdp, label) {
       buttonTexts: [...document.querySelectorAll("button")].map((button) => button.textContent.trim()).filter(Boolean).slice(0, 30),
       logTexts: [...document.querySelectorAll(".wuxia-bottom-log, .wuxia-runtime-feedback, .wuxia-room-log p, .wuxia-npc-dialogue p")].map((node) => node.textContent.trim()).filter(Boolean).slice(-10),
       textSample: text.replace(/\\s+/g, " ").trim().slice(0, 500),
-      badMatches
+      badMatches,
+      viewport: {
+        innerWidth: window.innerWidth,
+        innerHeight: window.innerHeight,
+        scrollX: window.scrollX,
+        scrollY: window.scrollY,
+        documentScrollWidth: document.documentElement.scrollWidth,
+        documentScrollHeight: document.documentElement.scrollHeight,
+      },
+      layout: Object.fromEntries([
+        ["top", document.querySelector(".wuxia-top")],
+        ["stage", document.querySelector(".wuxia-stage")],
+        ["screen", document.querySelector(".wuxia-screen")],
+        ["roomLog", document.querySelector(".wuxia-room-log")],
+      ].map(([key, node]) => [key, node ? {
+        rect: Object.fromEntries(["x", "y", "width", "height", "top", "right", "bottom", "left"].map((field) => [field, node.getBoundingClientRect()[field]])),
+        scrollTop: node.scrollTop,
+        scrollHeight: node.scrollHeight,
+        clientHeight: node.clientHeight,
+        scrollWidth: node.scrollWidth,
+        clientWidth: node.clientWidth,
+      } : null])),
+      navigationButtons: [...document.querySelectorAll(".wuxia-top .wuxia-icon-button")].map((node) => ({
+        text: node.textContent.trim(),
+        width: node.getBoundingClientRect().width,
+        height: node.getBoundingClientRect().height,
+        scrollWidth: node.scrollWidth,
+        clientWidth: node.clientWidth,
+      })),
+      activeElement: document.activeElement?.outerHTML?.slice(0, 300) || ""
     };
   })()`);
+  const layoutProblems = [];
+  if (summary.viewport.documentScrollWidth > summary.viewport.innerWidth + 1) layoutProblems.push("document horizontal overflow");
+  if ((summary.navigationButtons || []).some((button) => button.text && button.height > 52)) layoutProblems.push("top navigation label wrapped");
+  if ((summary.navigationButtons || []).some((button) => button.scrollWidth > button.clientWidth + 1)) layoutProblems.push("top navigation label clipped");
+  if (layoutProblems.length) summary.error = layoutProblems.join("; ");
   const png = await cdp.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: false });
   const screenshotPath = path.join(outDir, `${String(results.length + 1).padStart(2, "0")}_${label}.png`);
   fs.writeFileSync(screenshotPath, Buffer.from(png.data, "base64"));
@@ -276,6 +310,7 @@ try {
   cdp = await createCdpClient(target.webSocketDebuggerUrl);
   await cdp.send("Page.enable");
   await cdp.send("Runtime.enable");
+  await cdp.send("Log.enable");
   await cdp.send("Emulation.setDeviceMetricsOverride", {
     width: viewportWidth,
     height: viewportHeight,
@@ -521,8 +556,34 @@ try {
   edge.kill();
 }
 
+const pageConsoleProblems = (cdp?.events || []).flatMap((entry) => {
+  if (entry.method === "Runtime.exceptionThrown") {
+    return [{
+      kind: "exception",
+      level: "error",
+      text: entry.params?.exceptionDetails?.text || entry.params?.exceptionDetails?.exception?.description || "runtime exception",
+    }];
+  }
+  if (entry.method === "Runtime.consoleAPICalled" && ["warning", "error", "assert"].includes(entry.params?.type)) {
+    return [{
+      kind: "console",
+      level: entry.params.type,
+      text: (entry.params.args || []).map((arg) => arg.value ?? arg.description ?? "").join(" "),
+    }];
+  }
+  if (entry.method === "Log.entryAdded" && ["warning", "error"].includes(entry.params?.entry?.level)) {
+    return [{
+      kind: "log",
+      level: entry.params.entry.level,
+      text: entry.params.entry.text || "browser log entry",
+      source: entry.params.entry.source || "",
+    }];
+  }
+  return [];
+});
 const failures = [
   ...results.filter((row) => row.error || row.badMatches?.length),
+  ...pageConsoleProblems.map((entry) => ({ label: "page_console", error: `${entry.level}: ${entry.text}` })),
   ...(runError ? [{ label: "run_error", error: runError.message, stack: runError.stack, captureError: runError.captureError || "" }] : []),
 ];
 const report = {
@@ -533,6 +594,7 @@ const report = {
   steps: results.length,
   failures,
   runError,
+  pageConsoleProblems,
   results,
   edgeWarnings: stderr.join("").split(/\r?\n/).filter(Boolean).slice(-20),
 };
@@ -547,6 +609,7 @@ fs.writeFileSync(path.join(outDir, "real_browser_flow_summary.md"), [
   `- viewport: ${report.viewport}`,
   `- steps: ${report.steps}`,
   `- failures: ${failures.length}`,
+  `- page console problems: ${pageConsoleProblems.length}`,
   "",
   "| Step | State | Screen | Title | Click | Bad | Screenshot |",
   "|---|---|---|---|---|---|---|",

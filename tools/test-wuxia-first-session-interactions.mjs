@@ -23,6 +23,25 @@ function reject(runtime, actionId, text) {
   return result.snapshot;
 }
 
+function createFixtureRuntime(entityIds, options = {}) {
+  const contract = JSON.parse(JSON.stringify(flow));
+  const chapter = contract.activeChapter || contract.chapter1;
+  const room = chapter.rooms.find((candidate) => candidate.roomId === "fb01_15");
+  const npcIds = new Set((chapter.npcs || []).map((npc) => npc.roleId));
+  const interactableIds = new Set((chapter.interactables || []).map((item) => item.interactableId));
+  room.encounterIds = [...new Set([
+    ...(room.encounterIds || []),
+    ...entityIds.filter((entityId) => npcIds.has(entityId)),
+  ])];
+  room.interactableIds = [...new Set([
+    ...(room.interactableIds || []),
+    ...entityIds.filter((entityId) => interactableIds.has(entityId)),
+  ])];
+  const runtime = createFirstSessionRuntime(contract, options);
+  assert(runtime.selectChapterRoom(room.roomId).accepted, "fixture room should be selectable");
+  return runtime;
+}
+
 function completeConfiguredCompete(runtime, roleId) {
   const started = runtime.interactWithChapterNpc(roleId, "compete");
   assert(started.accepted, `${roleId} compete should start`);
@@ -131,7 +150,8 @@ assert(stewardCompete.resolved.event.combatResolution.feedbackLines.some((line) 
 assert(stewardCompete.resolved.event.combatResolution.sideEffects.some((effect) => effect.resultId === "mapbj2" && effect.status === "applied_map_marker"), "changed old steward combat success should set mapbj2 marker");
 const hiddenGateTrigger = runtime.selectChapterInteractable("bfitem2");
 assert(!hiddenGateTrigger.accepted, "hidden gate task trigger bfitem2 must not be selectable as a visible room object");
-assert(hiddenGateTrigger.event.reason === "interactable is hidden by canSee=0", "hidden gate trigger should be rejected by canSee=0");
+assert(hiddenGateTrigger.event.reasonCode === "interactable_hidden", "hidden gate trigger should expose a stable reason code");
+assert(hiddenGateTrigger.event.reason === "该物件当前不可见。", "hidden gate trigger should use configured player feedback");
 
 const selectedFrontYard = runtime.selectChapterRoom("fb01_02");
 assert(selectedFrontYard.accepted, "fb01_02 front yard should be selectable from gate route");
@@ -195,7 +215,8 @@ assert(selectedStudyRoom.event.interactableIds.includes("fb01item_20"), "fb01_06
 assert(selectedStudyRoom.event.interactableIds.includes("fb01item_16"), "fb01_06 should include visible bookcase fb01item_16 from mapItem evidence");
 const hiddenStudyTrigger = runtime.selectChapterInteractable("bfitem3");
 assert(!hiddenStudyTrigger.accepted, "hidden study task trigger bfitem3 must not be selectable as a visible room object");
-assert(hiddenStudyTrigger.event.reason === "interactable is hidden by canSee=0", "hidden study trigger should be rejected by canSee=0");
+assert(hiddenStudyTrigger.event.reasonCode === "interactable_hidden", "hidden study trigger should expose a stable reason code");
+assert(hiddenStudyTrigger.event.reason === "该物件当前不可见。", "hidden study trigger should use configured player feedback");
 const selectedStudyBookcase = runtime.selectChapterInteractable("fb01item_20");
 assert(selectedStudyBookcase.accepted, "fb01item_20 bookcase should be selectable");
 assert(selectedStudyBookcase.event.actions.some((action) => action.actionType === "use" && action.label === "\u7ffb\u52a8"), "fb01item_20 should expose use action label from useName");
@@ -293,7 +314,7 @@ const trainingRoom = nodeRuntime.selectChapterRoom("fb01_15");
 assert(trainingRoom.accepted, "fb01_15 training room should be selectable");
 assert(trainingRoom.event.encounterNames.includes("\u674e\u6559\u5934"), "fb01_15 should expose Li instructor from NPC evidence");
 
-const craftingRuntime = createFirstSessionRuntime(flow, {
+const craftingRuntime = createFixtureRuntime(["fb01r18_1"], {
   initialState: screen.defaultStartState,
   initialFlags: screen.defaultStartFlags,
   initialPlayer: {
@@ -311,7 +332,7 @@ assert(craftingRuntime.snapshot().player.inventory.chunjie5 === 0, "hecheng114 s
 assert(craftingRuntime.snapshot().player.inventory.chunjie7 === 0, "hecheng114 should consume chunjie7");
 assert(craftingRuntime.snapshot().player.inventory.chunjie20celue === 1, "hecheng114 should grant chunjie20celue");
 
-const captureRuntime = createFirstSessionRuntime(flow, {
+const captureRuntime = createFixtureRuntime(["fb01r16_3"], {
   initialState: screen.defaultStartState,
   initialFlags: screen.defaultStartFlags,
   initialPlayer: {
@@ -325,7 +346,7 @@ const captureYin = captureRuntime.interactWithChapterNpc("fb01r16_3", "custom_ca
 assert(!captureYin.accepted, "Yin Quanan capture operation must stay hidden until a real combat policy exists");
 assert(captureYin.event.reason === "combat runtime module is postponed", "capture placeholder must fail closed");
 
-const combatTriggerRuntime = createFirstSessionRuntime(flow, {
+const combatTriggerRuntime = createFixtureRuntime(["fb01r41_1", "fb01r42_1"], {
   initialState: screen.defaultStartState,
   initialFlags: screen.defaultStartFlags,
 });
@@ -334,7 +355,7 @@ assert(!inheritedCombat.accepted, "inheritance combat placeholder must stay hidd
 const revengeCombat = combatTriggerRuntime.interactWithChapterNpc("fb01r42_1", "custom_caozuo");
 assert(!revengeCombat.accepted, "second inheritance combat placeholder must stay hidden while combat work is postponed");
 
-const skillRuntime = createFirstSessionRuntime(flow, {
+const skillRuntime = createFixtureRuntime(["fb01r05_1"], {
   initialState: screen.defaultStartState,
   initialFlags: screen.defaultStartFlags,
   initialPlayer: {
@@ -349,7 +370,7 @@ assert(zhuYuPractice.accepted, "Zhu Yu custom operation should be accepted");
 assert(zhuYuPractice.event.sideEffects.some((effect) => effect.resultId === "skillexp11" && effect.status === "applied_skill_exp_delta"), "skillexp11 should apply skill exp delta");
 assert(skillRuntime.snapshot().player.skillExp.yiqigong === 15, "skillexp11 should add 15 exp to yiqigong");
 
-const markerRuntime = createFirstSessionRuntime(flow, {
+const markerRuntime = createFixtureRuntime(["fb01r16_2", "bfr25_1a"], {
   initialState: screen.defaultStartState,
   initialFlags: screen.defaultStartFlags,
 });
@@ -364,7 +385,7 @@ assert(markerRuntime.snapshot().player.timedMarkers["拜访任务102"]?.value ==
 assert(timedVisit.event.sideEffects.some((effect) => effect.resultId === "bfzhengji1" && effect.status === "skipped_official_merit_official_type_gate"), "bfzhengji1 should record a merit ledger attempt but respect officialType=0");
 assert(markerRuntime.snapshot().player.meritLedger.some((entry) => entry.resultId === "bfzhengji1" && entry.delta === 20 && entry.usedDefaultDelta === true), "bfzhengji1 should use CommonResults default merit delta 20 in ledger");
 
-const meritRuntime = createFirstSessionRuntime(flow, {
+const meritRuntime = createFixtureRuntime(["bfr25_1a"], {
   initialState: screen.defaultStartState,
   initialFlags: screen.defaultStartFlags,
   initialPlayer: {
@@ -380,7 +401,7 @@ assert(meritVisit.event.sideEffects.some((effect) => effect.resultId === "bfzhen
 assert(meritRuntime.snapshot().player.officialAchievement === 120, "official merit should add dispatcher default delta 20");
 assert(meritRuntime.snapshot().player.meritLedger.some((entry) => entry.resultId === "bfzhengji1" && entry.total === 120 && entry.sourceFile.includes("CommonResults.lua")), "merit ledger must preserve dispatcher evidence source");
 
-const seasonalRuntime = createFirstSessionRuntime(flow, {
+const seasonalRuntime = createFixtureRuntime(["fb01r01_1b"], {
   initialState: screen.defaultStartState,
   initialFlags: screen.defaultStartFlags,
 });
@@ -389,7 +410,7 @@ assert(seasonalTalk.accepted, "seasonal-only old steward talk action should fall
 assert(!seasonalTalk.event.resultTokens.includes("bainianweituo"), "bainianweituo must be hidden from normal first-session branch execution");
 assert(!seasonalTalk.event.sideEffects.some((effect) => effect.resultId === "bainianweituo"), "disabled seasonal module must not execute a bainianweituo side effect");
 
-const storyRuntime = createFirstSessionRuntime(flow, {
+const storyRuntime = createFixtureRuntime(["tmnpc01b", "tmnpc01c"], {
   initialState: screen.defaultStartState,
   initialFlags: screen.defaultStartFlags,
   initialPlayer: {
@@ -407,7 +428,7 @@ assert(tangStory.event.feedbackLines.some((line) => line.includes("唐竹")), "t
 const tangRepeatGate = storyRuntime.interactWithChapterNpc("tmnpc01c", "custom_caozuo");
 assert(tangRepeatGate.accepted, "Tang Zhu follow-up operation should resolve from marker-driven config");
 assert(tangRepeatGate.event.sideEffects.some((effect) => effect.resultId === "tmstory02" && effect.status === "applied_story_dialogue_feedback"), "Tang Zhu follow-up must continue into the configured second story result while the marker is below one");
-const tangCompletedRuntime = createFirstSessionRuntime(flow, {
+const tangCompletedRuntime = createFixtureRuntime(["tmnpc01c"], {
   initialState: screen.defaultStartState,
   initialFlags: screen.defaultStartFlags,
   initialPlayer: {
@@ -421,7 +442,7 @@ const tangCompletedRuntime = createFirstSessionRuntime(flow, {
 const tangCompletedGate = tangCompletedRuntime.interactWithChapterNpc("tmnpc01c", "custom_caozuo");
 assert(tangCompletedGate.accepted, "Tang Zhu completed-marker branch should remain interactable");
 assert(tangCompletedGate.event.feedbackLines.some((line) => line.includes("已经找我进修过")), "Tang Zhu completed marker must select the configured restriction text");
-const tangNonMemberRuntime = createFirstSessionRuntime(flow, {
+const tangNonMemberRuntime = createFixtureRuntime(["tmnpc01b"], {
   initialState: screen.defaultStartState,
   initialFlags: screen.defaultStartFlags,
 });

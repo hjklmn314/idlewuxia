@@ -20,11 +20,13 @@
       "owner": "html-web-engine-production-engineer",
       "stateAuthority": "src/wuxiaFirstSessionFlow.js",
       "runtimeModules": [
+        "src/entityInteractionService.js",
         "src/navigationService.js",
         "src/wuxiaFirstSessionFlow.js"
       ],
       "configuration": [
         "config/wuxia_first_session_flow.json",
+        "config/wuxia_entity_interaction_policy.schema.json",
         "config/wuxia_navigation_policy.schema.json",
         "config/wuxia_runtime_mutation_policy.schema.json"
       ],
@@ -46,6 +48,24 @@
       "configuration": [
         "config/wuxia_first_session_flow.json",
         "config/wuxia_navigation_policy.schema.json"
+      ],
+      "status": "modularized-v1-stateless-policy-driven",
+      "nextTaskIds": [
+        "ARCH-001",
+        "T03-01"
+      ]
+    },
+    {
+      "id": "chapter-entity-interaction",
+      "owner": "configuration-driven-runtime",
+      "stateAuthority": "src/wuxiaFirstSessionFlow.js",
+      "runtimeModules": [
+        "src/entityInteractionService.js",
+        "src/wuxiaFirstSessionFlow.js"
+      ],
+      "configuration": [
+        "config/wuxia_first_session_flow.json",
+        "config/wuxia_entity_interaction_policy.schema.json"
       ],
       "status": "modularized-v1-stateless-policy-driven",
       "nextTaskIds": [

@@ -18,6 +18,15 @@ function runCase(id, test) {
   cases.push({ id, status: "pass" });
 }
 
+function createNpcFixtureRuntime(contract, roleIds, options = {}) {
+  const chapter = contract.activeChapter || contract.chapter1;
+  const room = chapter.rooms.find((candidate) => candidate.roomId === "fb01_15");
+  room.encounterIds = [...new Set([...(room.encounterIds || []), ...roleIds])];
+  const runtime = createFirstSessionRuntime(contract, options);
+  assert.equal(runtime.selectChapterRoom(room.roomId).accepted, true);
+  return runtime;
+}
+
 runCase("dispatch_rejection_is_atomic", () => {
   const contract = clone(flow);
   const action = contract.actions.find((item) => item.actionId === "ACTION_FS_001_ORIGIN_WUXUE");
@@ -66,13 +75,32 @@ runCase("event_snapshot_is_a_deep_copy", () => {
 });
 
 runCase("crafting_requires_all_ingredients", () => {
-  const runtime = createFirstSessionRuntime(clone(flow));
+  const contract = clone(flow);
+  const chapter = contract.activeChapter || contract.chapter1;
+  const room = chapter.rooms.find((candidate) => candidate.roomId === "fb01_15");
+  room.encounterIds = [...(room.encounterIds || []), "fb01r18_1"];
+  const runtime = createFirstSessionRuntime(contract);
+  assert.equal(runtime.selectChapterRoom(room.roomId).accepted, true);
   const before = runtime.exportSaveState();
   const result = runtime.interactWithChapterNpc("fb01r18_1", "custom_caozuo");
   const after = runtime.exportSaveState();
   assert.equal(result.accepted, false);
   assert.equal(result.event.reason, "insufficient crafting ingredients");
   assert.deepEqual(after.player.inventory, before.player.inventory);
+});
+
+runCase("entity_interaction_without_room_is_atomic", () => {
+  const runtime = createFirstSessionRuntime(clone(flow));
+  const before = runtime.exportSaveState();
+  const result = runtime.interactWithChapterInteractable("bfitem1", "use");
+  const after = runtime.exportSaveState();
+  assert.equal(result.accepted, false);
+  assert.equal(result.event.reason, "interactable is not in selected room");
+  assert.deepEqual(
+    { ...after, events: [] },
+    { ...before, events: [] },
+    "an interaction without a selected room must not commit gameplay state",
+  );
 });
 
 runCase("late_invalid_effect_rolls_back_the_entire_branch", () => {
@@ -85,7 +113,7 @@ runCase("late_invalid_effect_rolls_back_the_entire_branch", () => {
   branch.resolvedResults
     .find((result) => result.resultId === "quest01")
     .args.Arg3 = "not-a-number";
-  const runtime = createFirstSessionRuntime(contract, {
+  const runtime = createNpcFixtureRuntime(contract, ["fb01r07_1a"], {
     initialPlayer: {
       ...contract.playerSeed,
       markers: { quest01: 0 },
@@ -125,7 +153,7 @@ runCase("room_blocker_effect_failure_is_reported_as_rejection", () => {
 });
 
 runCase("player_marker_conditions_and_deltas_follow_reference_semantics", () => {
-  const runtime = createFirstSessionRuntime(clone(flow), {
+  const runtime = createNpcFixtureRuntime(clone(flow), ["fb01r07_1a"], {
     initialPlayer: {
       ...flow.playerSeed,
       markers: { quest01: 0 },
@@ -138,7 +166,7 @@ runCase("player_marker_conditions_and_deltas_follow_reference_semantics", () => 
 });
 
 runCase("global_feedback_only_action_is_rejected", () => {
-  const runtime = createFirstSessionRuntime(clone(flow));
+  const runtime = createNpcFixtureRuntime(clone(flow), ["fb01r01_1"]);
   const selected = runtime.selectChapterNpc("fb01r01_1");
   const availability = selected.snapshot.chapter.selectedNpcActionAvailability
     .find((item) => item.actionType === "present");
@@ -150,7 +178,7 @@ runCase("global_feedback_only_action_is_rejected", () => {
 });
 
 runCase("combat_result_without_policy_is_hidden", () => {
-  const runtime = createFirstSessionRuntime(clone(flow), {
+  const runtime = createNpcFixtureRuntime(clone(flow), ["fb01r16_3"], {
     initialPlayer: {
       ...flow.playerSeed,
       inventory: { xuan1: 1 },
@@ -166,7 +194,7 @@ runCase("combat_result_without_policy_is_hidden", () => {
 });
 
 runCase("choice_result_opens_data_driven_pending_choice", () => {
-  const runtime = createFirstSessionRuntime(clone(flow));
+  const runtime = createNpcFixtureRuntime(clone(flow), ["tmnpc01d"]);
   const selected = runtime.selectChapterNpc("tmnpc01d");
   const availability = selected.snapshot.chapter.selectedNpcActionAvailability
     .find((item) => item.actionType === "custom_caozuo1");

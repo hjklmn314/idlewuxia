@@ -58,6 +58,7 @@ const rewardClasses = config.rewardClasses || {};
 const mobileLayout = screenContract.mobileLayout || {};
 const runtimeMutationPolicy = config.chapterSystem?.resultEffectPolicies?.runtimeMutation || {};
 const navigationPolicy = config.chapterSystem?.navigationPolicy || {};
+const entityInteractionPolicy = config.chapterSystem?.entityInteractionPolicy || {};
 
 const runtimeMutationSchemaPath = path.join(root, "config", "wuxia_runtime_mutation_policy.schema.json");
 const runtimeMutationSchema = JSON.parse(fs.readFileSync(runtimeMutationSchemaPath, "utf8"));
@@ -149,6 +150,58 @@ if (!blockerResults.length) {
     "Navigation policy does not resolve any configured movement-blocking result.",
     "chapter1.resultLookup",
   ));
+}
+
+const entityInteractionSchemaPath = path.join(root, "config", "wuxia_entity_interaction_policy.schema.json");
+const entityInteractionSchema = JSON.parse(fs.readFileSync(entityInteractionSchemaPath, "utf8"));
+const entityInteractionAjv = new Ajv2020({ allErrors: true, strict: true });
+const validateEntityInteractionPolicy = entityInteractionAjv.compile(entityInteractionSchema);
+if (!validateEntityInteractionPolicy(entityInteractionPolicy)) {
+  for (const error of validateEntityInteractionPolicy.errors || []) {
+    findings.push(finding(
+      "error",
+      `Entity interaction policy schema violation: ${error.message || "invalid value"}.`,
+      `chapterSystem.entityInteractionPolicy${error.instancePath || ""}`,
+    ));
+  }
+}
+const dialogueActionType = entityInteractionPolicy.branchRouting?.dialogueActionType || "";
+const configuredEntityActionTypes = new Set([
+  ...(config.chapter1?.npcs || []).flatMap((npc) => (npc.actions || []).map((action) => action.actionType)),
+  ...(config.chapter1?.interactables || []).flatMap((item) => (item.actions || []).map((action) => action.actionType)),
+]);
+if (!configuredEntityActionTypes.has(dialogueActionType)) {
+  findings.push(finding(
+    "error",
+    "Entity interaction dialogue action type does not resolve any configured action.",
+    "chapterSystem.entityInteractionPolicy.branchRouting.dialogueActionType",
+  ));
+}
+if (!(config.chapter1?.interactables || []).some((item) => (
+  Object.hasOwn(item, entityInteractionPolicy.visibility?.interactableField || "")
+))) {
+  findings.push(finding(
+    "error",
+    "Entity interaction visibility field does not resolve any configured interactable.",
+    "chapterSystem.entityInteractionPolicy.visibility.interactableField",
+  ));
+}
+for (const actionType of Object.keys(entityInteractionPolicy.feedback?.npcGlobalActions || {})) {
+  if (!configuredEntityActionTypes.has(actionType)) {
+    findings.push(finding(
+      "error",
+      `Entity interaction feedback action ${actionType} does not resolve any configured entity action.`,
+      `chapterSystem.entityInteractionPolicy.feedback.npcGlobalActions.${actionType}`,
+    ));
+  }
+  const rule = entityInteractionPolicy.feedback.npcGlobalActions[actionType];
+  if (rule.requiredSourceField && rule.optionalSourceField) {
+    findings.push(finding(
+      "error",
+      `Entity interaction feedback action ${actionType} cannot require and optionally read a source field at the same time.`,
+      `chapterSystem.entityInteractionPolicy.feedback.npcGlobalActions.${actionType}`,
+    ));
+  }
 }
 
 if (mobileLayout.orientation !== "portrait") {

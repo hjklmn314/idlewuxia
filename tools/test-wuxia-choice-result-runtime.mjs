@@ -13,8 +13,17 @@ function runCase(id, test) {
   cases.push({ id, status: "pass" });
 }
 
+function createNpcFixtureRuntime(contract, roleIds, options = {}) {
+  const chapter = options.initialChapter || contract.activeChapter || contract.chapter1;
+  const room = chapter.rooms.find((candidate) => candidate.roomId === "fb01_15");
+  room.encounterIds = [...new Set([...(room.encounterIds || []), ...roleIds])];
+  const runtime = createFirstSessionRuntime(contract, options);
+  assert.equal(runtime.selectChapterRoom(room.roomId).accepted, true);
+  return runtime;
+}
+
 function openTangmenChoice(options = {}) {
-  const runtime = createFirstSessionRuntime(clone(flow), options);
+  const runtime = createNpcFixtureRuntime(clone(flow), ["tmnpc01d"], options);
   assert.equal(runtime.selectChapterNpc("tmnpc01d").accepted, true);
   const opened = runtime.interactWithChapterNpc("tmnpc01d", "custom_caozuo1");
   assert.equal(opened.accepted, true);
@@ -41,7 +50,7 @@ runCase("official_choice_executes_each_configured_continuation", () => {
     { optionId: "option_2", replacementId: "bf2r06_1b", feedback: /镇压刁民/ },
   ];
   for (const expectation of expectations) {
-    const runtime = createFirstSessionRuntime(clone(flow), {
+    const runtime = createNpcFixtureRuntime(clone(flow), ["bf2r06_1"], {
       initialPlayer: { ...flow.playerSeed, officialType: 1 },
     });
     assert.equal(runtime.selectChapterNpc("bf2r06_1").accepted, true);
@@ -83,7 +92,7 @@ runCase("missing_choice_continuation_fails_closed_before_open", () => {
   choiceBranch.resolvedResults
     .find((result) => result.resultId === "tmchoice01")
     .args.Arg6 = "missing_choice_result";
-  const runtime = createFirstSessionRuntime(contract, { initialChapter: contract.chapter1 });
+  const runtime = createNpcFixtureRuntime(contract, ["tmnpc01d"], { initialChapter: contract.chapter1 });
   const selected = runtime.selectChapterNpc("tmnpc01d");
   const availability = selected.snapshot.chapter.selectedNpcActionAvailability
     .find((item) => item.actionType === "custom_caozuo1");

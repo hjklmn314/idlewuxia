@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "idlewuxia.entity_interaction_policy.schema.v1",
+  "title": "Idlewuxia Entity Interaction Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "visibility", "branchRouting", "feedback", "failurePolicy"],
+  "properties": {
+    "schema": { "const": "idlewuxia.entity_interaction_policy.v1" },
+    "visibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["interactableField", "visibleValue"],
+      "properties": {
+        "interactableField": { "$ref": "#/$defs/nonEmptyString" },
+        "visibleValue": { "type": "boolean" }
+      }
+    },
+    "branchRouting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dialogueActionType", "defaultNarrativeConditionToken", "excludedDialogueConditionPrefixes"],
+      "properties": {
+        "dialogueActionType": { "$ref": "#/$defs/nonEmptyString" },
+        "defaultNarrativeConditionToken": { "$ref": "#/$defs/nonEmptyString" },
+        "excludedDialogueConditionPrefixes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonEmptyString" }
+        }
+      }
+    },
+    "feedback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fallbackEntityName",
+        "fallbackInteractableName",
+        "fallbackActionLabel",
+        "noBranchTemplate",
+        "interactableHiddenTemplate",
+        "interactableDescriptionTemplate",
+        "interactableNoReactionTemplate",
+        "npcGlobalActions"
+      ],
+      "properties": {
+        "fallbackEntityName": { "$ref": "#/$defs/nonEmptyString" },
+        "fallbackInteractableName": { "$ref": "#/$defs/nonEmptyString" },
+        "fallbackActionLabel": { "$ref": "#/$defs/nonEmptyString" },
+        "noBranchTemplate": { "$ref": "#/$defs/nonEmptyString" },
+        "interactableHiddenTemplate": { "$ref": "#/$defs/nonEmptyString" },
+        "interactableDescriptionTemplate": { "$ref": "#/$defs/nonEmptyString" },
+        "interactableNoReactionTemplate": { "$ref": "#/$defs/nonEmptyString" },
+        "npcGlobalActions": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": { "$ref": "#/$defs/feedbackRule" }
+        }
+      }
+    },
+    "failurePolicy": { "const": "reject_unknown_hidden_out_of_room_or_unrouted_action" }
+  },
+  "$defs": {
+    "nonEmptyString": { "type": "string", "minLength": 1 },
+    "templateList": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/nonEmptyString" }
+    },
+    "feedbackRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lineTemplates"],
+      "properties": {
+        "requiredSourceField": { "$ref": "#/$defs/nonEmptyString" },
+        "optionalSourceField": { "$ref": "#/$defs/nonEmptyString" },
+        "lineTemplates": { "$ref": "#/$defs/templateList" },
+        "populatedLineTemplates": { "$ref": "#/$defs/templateList" }
+      }
+    }
+  }
+}

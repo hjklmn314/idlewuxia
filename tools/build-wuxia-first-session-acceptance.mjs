@@ -301,15 +301,20 @@ for (const npc of flow.chapter1?.npcs || []) {
     });
   }
 }
+const interactableVisibilityPolicy = flow.chapterSystem?.entityInteractionPolicy?.visibility || {};
+const interactableVisibilityField = interactableVisibilityPolicy.interactableField || "";
+const interactableVisibleValue = interactableVisibilityPolicy.visibleValue;
 for (const item of flow.chapter1?.interactables || []) {
+  const isVisible = Boolean(interactableVisibilityField)
+    && item[interactableVisibilityField] === interactableVisibleValue;
   acceptanceRows.push({
     CheckId: `AC_INTERACTABLE_${item.interactableId}`,
-    Domain: item.canSee ? "chapter1_interactable" : "chapter1_hidden_interactable",
-    Precondition: item.canSee ? "selected room contains visible interactableId" : "selected room contains hidden trigger interactableId",
-    Action: item.canSee ? `select ${item.interactableId}` : `reject ${item.interactableId}`,
-    ExpectedResult: item.canSee
+    Domain: isVisible ? "chapter1_interactable" : "chapter1_hidden_interactable",
+    Precondition: isVisible ? "selected room contains visible interactableId" : "selected room contains hidden trigger interactableId",
+    Action: isVisible ? `select ${item.interactableId}` : `reject ${item.interactableId}`,
+    ExpectedResult: isVisible
       ? `${item.name || item.interactableId}; actions=${(item.actions || []).map((action) => action.label || action.actionType).join("|")}`
-      : `${item.name || item.interactableId}; hidden by canSee=0; not player-selectable`,
+      : `${item.name || item.interactableId}; hidden by configured visibility policy; not player-selectable`,
     EvidenceType: item.evidence?.level || "unknown",
     Automated: ["fb01item_20", "fb01item_16", "bfitem2", "bfitem3"].includes(item.interactableId) ? "yes" : "partial",
     Blocking: item.interactableId?.startsWith("fb01") || item.interactableId?.startsWith("bfitem") ? "yes" : "no",

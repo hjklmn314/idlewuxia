@@ -20,6 +20,41 @@ function createContract({ keyCount, actionHints = ["open"] }) {
     ],
     transitions: [],
     chapterSystem: {
+      navigationPolicy: {
+        schema: "idlewuxia.navigation_policy.v1",
+        roomEntryCondition: {
+          actionName: "玩家要进入房间",
+          targetRoomField: "arg2",
+        },
+        blockerResult: { actionName: "阻止玩家移动" },
+        projectBridge: {
+          mode: "allow_configured_room_selection",
+          mutationPolicy: "navigation_only",
+        },
+        failurePolicy: "reject_unknown_definition_or_unconfigured_route",
+      },
+      entityInteractionPolicy: {
+        schema: "idlewuxia.entity_interaction_policy.v1",
+        visibility: { interactableField: "canSee", visibleValue: true },
+        branchRouting: {
+          dialogueActionType: "talk",
+          defaultNarrativeConditionToken: "words",
+          excludedDialogueConditionPrefixes: ["gorome"],
+        },
+        feedback: {
+          fallbackEntityName: "entity",
+          fallbackInteractableName: "item",
+          fallbackActionLabel: "action",
+          noBranchTemplate: "{actionLabel} has no configured feedback.",
+          interactableHiddenTemplate: "The item is currently hidden.",
+          interactableDescriptionTemplate: "{name}: {description}",
+          interactableNoReactionTemplate: "{name} has no reaction.",
+          npcGlobalActions: {
+            talk: { lineTemplates: ["{name}"] },
+          },
+        },
+        failurePolicy: "reject_unknown_hidden_out_of_room_or_unrouted_action",
+      },
       resultEffectPolicies: {
         inventoryMutation: {
           categoryName: "item_reward_or_cost",
@@ -100,10 +135,16 @@ function observableState(snapshot) {
   return state;
 }
 
+function createRoomRuntime(contract, options = {}) {
+  const runtime = createFirstSessionRuntime(contract, options);
+  assert.equal(runtime.selectChapterRoom("room_condition_test").accepted, true);
+  return runtime;
+}
+
 let negativeMutationCount = 0;
 
 function runNegativeCase() {
-  const runtime = createFirstSessionRuntime(createContract({ keyCount: 0 }));
+  const runtime = createRoomRuntime(createContract({ keyCount: 0 }));
   assert.equal(runtime.selectChapterInteractable("guarded_chest").accepted, true);
   const before = runtime.snapshot();
   const availability = before.chapter1.selectedInteractableActionAvailability.find(
@@ -159,7 +200,7 @@ function runNegativeCase() {
 }
 
 function runUnhintedNegativeCase() {
-  const runtime = createFirstSessionRuntime(createContract({ keyCount: 0, actionHints: [] }));
+  const runtime = createRoomRuntime(createContract({ keyCount: 0, actionHints: [] }));
   assert.equal(runtime.selectChapterInteractable("guarded_chest").accepted, true);
   const before = runtime.snapshot();
   const availability = before.chapter1.selectedInteractableActionAvailability.find(
@@ -198,7 +239,7 @@ function runExactBranchPreventsUnhintedFallbackCase() {
     ],
   });
 
-  const runtime = createFirstSessionRuntime(contract);
+  const runtime = createRoomRuntime(contract);
   assert.equal(runtime.selectChapterInteractable("guarded_chest").accepted, true);
   const before = runtime.snapshot();
   const result = runtime.interactWithChapterInteractable("guarded_chest", "open");
@@ -253,7 +294,7 @@ function runMultiBranchDecisionConsistencyCase() {
     },
   ];
 
-  const runtime = createFirstSessionRuntime(contract);
+  const runtime = createRoomRuntime(contract);
   assert.equal(runtime.selectChapterInteractable("guarded_chest").accepted, true);
   const availability = runtime.snapshot().chapter1.selectedInteractableActionAvailability.find(
     (entry) => entry.actionType === "open",
@@ -272,7 +313,7 @@ function runMultiBranchDecisionConsistencyCase() {
 }
 
 function runPositiveCase() {
-  const runtime = createFirstSessionRuntime(createContract({ keyCount: 1 }));
+  const runtime = createRoomRuntime(createContract({ keyCount: 1 }));
   assert.equal(runtime.selectChapterInteractable("guarded_chest").accepted, true);
   const availability = runtime.snapshot().chapter1.selectedInteractableActionAvailability.find(
     (entry) => entry.actionType === "open",
@@ -287,7 +328,7 @@ function runPositiveCase() {
 
 function runUiAvailabilityContractCase() {
   const contract = createContract({ keyCount: 0 });
-  const runtime = createFirstSessionRuntime(contract);
+  const runtime = createRoomRuntime(contract);
   assert.equal(runtime.selectChapterInteractable("guarded_chest").accepted, true);
   const before = runtime.snapshot();
   const item = before.chapter1.selectedInteractable;

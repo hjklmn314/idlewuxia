@@ -337,17 +337,16 @@ function runtimeRoomEntityIds(room, snapshot) {
   const replacements = chapter?.replacementEntityById || {};
   const seen = new Set();
   const ordered = [];
-  for (const entityId of [...(room?.encounterIds || []), ...(room?.interactableIds || [])]) {
+  const append = (entityId) => {
     const replacementId = replacements[entityId];
-    const resolvedId = replacementId && !hidden.has(replacementId) ? replacementId : entityId;
-    if (!resolvedId || hidden.has(resolvedId) || seen.has(resolvedId)) continue;
+    const resolvedId = replacementId || entityId;
+    if (!resolvedId || hidden.has(resolvedId) || seen.has(resolvedId)) return;
     ordered.push(resolvedId);
     seen.add(resolvedId);
-  }
+  };
+  for (const entityId of [...(room?.encounterIds || []), ...(room?.interactableIds || [])]) append(entityId);
   for (const entityId of dynamicByRoom[room?.roomId || ""] || []) {
-    if (!entityId || hidden.has(entityId) || seen.has(entityId)) continue;
-    ordered.push(entityId);
-    seen.add(entityId);
+    append(entityId);
   }
   return ordered;
 }

@@ -1,5 +1,6 @@
 ﻿import { cloneData } from "./dataClone.js";
 import { createConditionEvaluator } from "./conditionEvaluator.js";
+import { createEntityInteractionService } from "./entityInteractionService.js";
 import { createNavigationService } from "./navigationService.js";
 import { createResultEffectExecutor } from "./resultEffectExecutor.js";
 import { createResultPreparation } from "./resultPreparation.js";
@@ -67,6 +68,20 @@ export function createFirstSessionRuntime(contract, options = {}) {
     choiceResultPolicy,
     seasonalActivityPolicy,
     inventoryMutationPolicy,
+  });
+  const entityInteractionService = createEntityInteractionService({
+    npcLookup: npcMap,
+    interactableLookup: interactableMap,
+    entityInteractionPolicy: contract?.chapterSystem?.entityInteractionPolicy || {},
+    combatActionPolicies,
+    branchEnabled: (branch) => resultPreparation.isBranchEnabled(branch),
+    evaluateBranch: (branch, context) => conditionEvaluator.evaluateBranch(branch, {
+      ...context,
+      player,
+      mapMarkers,
+    }),
+    branchRequiresChoice: (branch) => resultPreparation.requiresChoiceUi(branch),
+    validateBranch: (branch) => resultPreparation.prepare(branch, player),
   });
   const chapterClearPolicy = contract?.chapterSystem?.chapterClearPolicy || {};
   const resultEffectExecutor = createResultEffectExecutor({
@@ -177,26 +192,12 @@ export function createFirstSessionRuntime(contract, options = {}) {
     }
   }
 
-  function dynamicEntityIdsForRoom(roomId) {
-    return [...(addedEntityIdsByRoom.get(roomId) || new Set())].filter((entityId) => !hiddenEntityIds.has(entityId));
-  }
-
   function roomEntityIds(room) {
-    const seen = new Set();
-    const ordered = [];
-    for (const entityId of [...(room?.encounterIds || []), ...(room?.interactableIds || [])]) {
-      const replacementId = replacementEntityById.get(entityId);
-      const resolvedId = replacementId && !hiddenEntityIds.has(replacementId) ? replacementId : entityId;
-      if (!resolvedId || hiddenEntityIds.has(resolvedId) || seen.has(resolvedId)) continue;
-      ordered.push(resolvedId);
-      seen.add(resolvedId);
-    }
-    for (const entityId of dynamicEntityIdsForRoom(room?.roomId || "")) {
-      if (!entityId || seen.has(entityId)) continue;
-      ordered.push(entityId);
-      seen.add(entityId);
-    }
-    return ordered;
+    return entityInteractionService.activeEntityIdsForRoom(room, {
+      hiddenEntityIds,
+      addedEntityIdsByRoom,
+      replacementEntityById,
+    });
   }
 
   function validateResultEffects(branch = {}) {
@@ -205,14 +206,6 @@ export function createFirstSessionRuntime(contract, options = {}) {
 
   function resultRecord(resultId = "") {
     return resultPreparation.resolveRecord(resultId);
-  }
-
-  function branchEnabledInFirstSession(branch = {}) {
-    return resultPreparation.isBranchEnabled(branch);
-  }
-
-  function branchRequiresChoiceUi(branch = {}) {
-    return resultPreparation.requiresChoiceUi(branch);
   }
 
   function narrativeLinesFromResultRecord(record) {
@@ -572,32 +565,38 @@ export function createFirstSessionRuntime(contract, options = {}) {
     return { accepted: true, event, snapshot: snapshot() };
   }
 
-  function currentRoomHasNpc(roleId) {
-    if (!selectedChapterRoomId) return true;
-    const room = roomMap.get(selectedChapterRoomId);
-    return new Set(roomEntityIds(room)).has(roleId) && npcMap.has(roleId);
+  function entityLifecycleState() {
+    return { hiddenEntityIds, addedEntityIdsByRoom, replacementEntityById };
   }
 
-  function currentRoomHasInteractable(interactableId) {
-    if (!selectedChapterRoomId) return true;
-    const room = roomMap.get(selectedChapterRoomId);
-    return new Set(roomEntityIds(room)).has(interactableId) && interactableMap.has(interactableId);
+  function npcSelectionDecision(roleId) {
+    return entityInteractionService.inspectNpcSelection({
+      roleId,
+      currentRoomId: selectedChapterRoomId,
+      room: roomMap.get(selectedChapterRoomId) || null,
+      lifecycle: entityLifecycleState(),
+    });
+  }
+
+  function interactableSelectionDecision(interactableId) {
+    return entityInteractionService.inspectInteractableSelection({
+      interactableId,
+      currentRoomId: selectedChapterRoomId,
+      room: roomMap.get(selectedChapterRoomId) || null,
+      lifecycle: entityLifecycleState(),
+    });
   }
 
   function selectChapterNpc(roleId) {
     const choiceBlock = rejectCommandWhileChoicePending("npcSelection", { roleId });
     if (choiceBlock) return choiceBlock;
+    const decision = npcSelectionDecision(roleId);
+    if (!decision.accepted) {
+      const event = { type: "npcRejected", roleId, reasonCode: decision.reasonCode || "", reason: decision.reason };
+      events.push(event);
+      return { accepted: false, event, snapshot: snapshot() };
+    }
     const npc = npcMap.get(roleId);
-    if (!npc) {
-      const event = { type: "npcRejected", roleId, reason: "unknown npc" };
-      events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
-    }
-    if (!currentRoomHasNpc(roleId)) {
-      const event = { type: "npcRejected", roleId, reason: "npc is not in selected room" };
-      events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
-    }
     selectedChapterNpcId = roleId;
     selectedChapterInteractableId = "";
     const event = {
@@ -615,22 +614,13 @@ export function createFirstSessionRuntime(contract, options = {}) {
   function selectChapterInteractable(interactableId) {
     const choiceBlock = rejectCommandWhileChoicePending("interactableSelection", { interactableId });
     if (choiceBlock) return choiceBlock;
+    const decision = interactableSelectionDecision(interactableId);
+    if (!decision.accepted) {
+      const event = { type: "interactableRejected", interactableId, reasonCode: decision.reasonCode || "", reason: decision.reason };
+      events.push(event);
+      return { accepted: false, event, snapshot: snapshot() };
+    }
     const item = interactableMap.get(interactableId);
-    if (!item) {
-      const event = { type: "interactableRejected", interactableId, reason: "unknown interactable" };
-      events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
-    }
-    if (!currentRoomHasInteractable(interactableId)) {
-      const event = { type: "interactableRejected", interactableId, reason: "interactable is not in selected room" };
-      events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
-    }
-    if (!item.canSee) {
-      const event = { type: "interactableRejected", interactableId, reason: "interactable is hidden by canSee=0" };
-      events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
-    }
     selectedChapterNpcId = "";
     selectedChapterInteractableId = interactableId;
     const event = {
@@ -646,152 +636,14 @@ export function createFirstSessionRuntime(contract, options = {}) {
     return { accepted: true, event, snapshot: snapshot() };
   }
 
-  function branchForNpcAction(npc, actionType) {
-    const branches = (npc?.branches || []).filter(branchEnabledInFirstSession);
-    const exactBranches = branches.filter((branch) => (branch.actionHints || []).includes(actionType));
-    const exact = exactBranches.find((branch) => branchConditionsMet(branch, { actionType }).accepted);
-    if (exact) return exact;
-    // A configured action branch that fails its conditions is not eligible for
-    // a narrative/effect fallback. This prevents post-combat dialogue from
-    // leaking before its comparewin condition has actually been recorded.
-    if (exactBranches.length) return null;
-    if (actionType === "talk") {
-      return talkBranches(npc).find((branch) => (
-        branch.narrativeLines?.length
-        && branchConditionsMet(branch, { actionType }).accepted
-      ))
-        || (npc.defaultNarrativeLines?.length
-          ? {
-            conditionTokens: ["words"],
-            resultTokens: [],
-            narrativeLines: npc.defaultNarrativeLines,
-            evidenceLevel: "lua_confirmed",
-            matchPolicy: "default_words",
-          }
-          : null)
-        || branches[0]
-        || null;
-    }
-    return null;
-  }
-
-  function talkBranches(npc) {
-    return (npc?.branches || [])
-      .filter(branchEnabledInFirstSession)
-      .filter((branch) => !(branch.actionHints || []).length)
-      // `gorome*` is a movement interception condition, not a dialogue route.
-      // Outcome branches must likewise wait for FightResult to supply them.
-      .filter((branch) => !(branch.conditionTokens || []).some((token) => (
-        String(token || "").startsWith("gorome")
-        || ["comparewin", "comparelose", "comparerunaway"].includes(token)
-      )));
-  }
-
-  function configuredBranchDecision(candidateBranches, context = {}, sourceEvidenceLevel = "unknown") {
-    if (!candidateBranches.length) {
-      return {
-        branch: null,
-        available: true,
-        reason: "",
-        checks: [],
-        evidenceLevel: evidenceLevelOrUnknown(sourceEvidenceLevel),
-      };
-    }
-    const evaluations = candidateBranches.map((branch) => ({
-      branch,
-      evaluation: branchConditionsMet(branch, context),
-    }));
-    const accepted = evaluations.find(({ evaluation }) => evaluation.accepted);
-    if (accepted) {
-      return {
-        branch: accepted.branch,
-        available: true,
-        reason: "",
-        checks: clone(accepted.evaluation.checks || []),
-        conditionTokens: clone(accepted.branch.conditionTokens || []),
-        evidenceLevel: evidenceLevelOrUnknown(accepted.branch.evidenceLevel, sourceEvidenceLevel),
-      };
-    }
-    const first = evaluations[0];
-    return {
-      branch: null,
-      available: false,
-      reason: "configured action conditions are not met",
-      checks: clone(first?.evaluation?.checks || []),
-      conditionTokens: clone(first?.branch?.conditionTokens || []),
-      evidenceLevel: evidenceLevelOrUnknown(first?.branch?.evidenceLevel, sourceEvidenceLevel),
-    };
-  }
-
   function npcActionAvailability(npc, actionType) {
-    const action = (npc?.actions || []).find((item) => item.actionType === actionType);
-    if (!action) return { actionType, available: false, reason: "npc action unavailable", checks: [] };
-    const combatPolicy = combatPolicyForAction(actionType);
-    const exactBranches = (npc?.branches || [])
-      .filter(branchEnabledInFirstSession)
-      .filter((branch) => (branch.actionHints || []).includes(actionType));
-    const candidateBranches = exactBranches.length
-      ? exactBranches
-      : (actionType === "talk" ? talkBranches(npc) : []);
-    const sourceEvidenceLevel = evidenceLevelOrUnknown(
-      action.evidenceLevel,
-      action.evidence?.level,
-      npc?.evidence?.level,
-      combatPolicy?.evidence?.level,
+    const { branch: _branch, action: _action, combatPolicy: _combatPolicy, feedbackLines: _feedbackLines, ...availability } = (
+      entityInteractionService.inspectNpcAction({ npc, actionType })
     );
-    const hasUnroutedCombatResult = !combatPolicy && candidateBranches.some((branch) => (
-      (branch.resolvedResults || []).some((result) => result.category === "combat")
-    ));
-    if (hasUnroutedCombatResult) {
-      return {
-        actionType,
-        visible: false,
-        available: false,
-        reason: "combat runtime module is postponed",
-        checks: [],
-        evidenceLevel: sourceEvidenceLevel,
-      };
-    }
-    if (!candidateBranches.length && actionType !== "talk" && !combatPolicy) {
-      return {
-        actionType,
-        visible: false,
-        available: false,
-        reason: "no configured runtime execution branch",
-        checks: [],
-        evidenceLevel: sourceEvidenceLevel,
-      };
-    }
-    const combatOutcomeTokens = combatPolicy
-      ? [combatPolicy.successConditionToken, combatPolicy.failureConditionToken, combatPolicy.runawayConditionToken].filter(Boolean)
-      : [];
-    const decision = configuredBranchDecision(
-      candidateBranches,
-      { actionType, ignoreConditionTokens: combatOutcomeTokens },
-      sourceEvidenceLevel,
-    );
-    if (decision.branch && branchRequiresChoiceUi(decision.branch)) {
-      const validation = validateResultEffects(decision.branch);
-      if (!validation.accepted) {
-        return {
-          actionType,
-          visible: true,
-          available: false,
-          reason: validation.reason,
-          checks: clone(decision.checks || []),
-          evidenceLevel: decision.evidenceLevel,
-        };
-      }
-    }
-    const { branch: _branch, ...availability } = decision;
     return {
       actionType,
       ...availability,
     };
-  }
-
-  function combatPolicyForAction(actionType) {
-    return combatActionPolicies[actionType] || null;
   }
 
   function beginPendingCombat(sourceId, actionType, policy) {
@@ -972,137 +824,47 @@ export function createFirstSessionRuntime(contract, options = {}) {
   }
 
   function globalNpcActionFeedback(npc, action) {
-    const name = npc.name || npc.displayName?.zhCN || "\u5bf9\u65b9";
-    const label = action.label || action.actionType || "\u64cd\u4f5c";
-    if (action.actionType === "sale" && npc.saleList) {
-      return {
-        lines: [`${name}\u6253\u5f00\u4e86\u4ea4\u6613\u5217\u8868\u3002`, `\u53ef\u4ea4\u6613\u7269\u54c1\uff1a${npc.saleList}`],
-        evidenceLevel: "config_confirmed_global_action",
-      };
-    }
-    if (action.actionType === "present") {
-      return {
-        lines: npc.receivePresent
-          ? [`\u8bf7\u9009\u62e9\u8981\u8d60\u9001\u7ed9${name}\u7684\u7269\u54c1\u3002`, `\u4e13\u5c5e\u6536\u793c\u7269\u54c1\uff1a${npc.receivePresent}`]
-          : [`\u8bf7\u9009\u62e9\u8981\u8d60\u9001\u7ed9${name}\u7684\u7269\u54c1\u3002`],
-        evidenceLevel: "config_confirmed_global_action",
-      };
-    }
-    if (action.actionType === "compete") {
-      return {
-        lines: [`\u4f60\u5411${name}\u63d0\u51fa\u5207\u78cb\u3002`],
-        evidenceLevel: "config_confirmed_global_action",
-      };
-    }
-    if (action.actionType === "kill") {
-      return {
-        lines: [`\u4f60\u5411${name}\u53d1\u8d77\u653b\u51fb\u3002`],
-        evidenceLevel: "config_confirmed_global_action",
-      };
-    }
-    if (action.actionType === "apprentice") {
-      return {
-        lines: [`\u4f60\u5411${name}\u63d0\u51fa\u62dc\u5e08\u3002`],
-        evidenceLevel: "config_confirmed_global_action",
-      };
-    }
-    return {
-      lines: [`${label}\u6ca1\u6709\u914d\u7f6e\u53ef\u64ad\u653e\u53cd\u9988\u3002`],
-      evidenceLevel: "unknown_no_branch",
-    };
-  }
-
-  function interactableBranchesForAction(item, actionType) {
-    const branches = (item?.branches || []).filter(branchEnabledInFirstSession);
-    const exactBranches = branches.filter((branch) => (branch.actionHints || []).includes(actionType));
-    if (exactBranches.length) return exactBranches;
-    return branches.filter((branch) => !(branch.actionHints || []).length);
+    return entityInteractionService.feedbackForNpcAction(npc, action);
   }
 
   function interactableActionDecision(item, actionType) {
-    const action = (item?.actions || []).find((candidate) => candidate.actionType === actionType);
-    if (!action) return { actionType, available: false, reason: "interactable action unavailable", checks: [] };
-    const candidateBranches = interactableBranchesForAction(item, actionType);
-    const sourceEvidenceLevel = evidenceLevelOrUnknown(
-      action.evidenceLevel,
-      action.evidence?.level,
-      item?.evidence?.level,
-    );
-    if (!candidateBranches.length) {
-      return {
-        actionType,
-        branch: null,
-        visible: false,
-        available: false,
-        reason: "no configured runtime execution branch",
-        checks: [],
-        evidenceLevel: sourceEvidenceLevel,
-      };
-    }
-    const decision = configuredBranchDecision(candidateBranches, { actionType }, sourceEvidenceLevel);
-    if (decision.branch && branchRequiresChoiceUi(decision.branch)) {
-      const validation = validateResultEffects(decision.branch);
-      if (!validation.accepted) {
-        return {
-          actionType,
-          branch: null,
-          visible: true,
-          available: false,
-          reason: validation.reason,
-          checks: clone(decision.checks || []),
-          evidenceLevel: decision.evidenceLevel,
-        };
-      }
-    }
-    return {
-      actionType,
-      ...decision,
-    };
+    return entityInteractionService.inspectInteractableAction({ item, actionType });
   }
 
   function interactableActionAvailability(item, actionType) {
-    const { branch: _branch, ...availability } = interactableActionDecision(item, actionType);
+    const { branch: _branch, action: _action, ...availability } = interactableActionDecision(item, actionType);
     return availability;
   }
 
   function interactWithChapterNpc(roleId, actionType = "talk") {
     const choiceBlock = rejectCommandWhileChoicePending("npcInteraction", { roleId, actionType });
     if (choiceBlock) return choiceBlock;
+    const selection = npcSelectionDecision(roleId);
+    if (!selection.accepted) {
+      const event = { type: "npcInteractionRejected", roleId, actionType, reasonCode: selection.reasonCode || "", reason: selection.reason };
+      events.push(event);
+      return { accepted: false, event, snapshot: snapshot() };
+    }
     const npc = npcMap.get(roleId);
-    if (!npc) {
-      const event = { type: "npcInteractionRejected", roleId, actionType, reason: "unknown npc" };
-      events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
-    }
-    if (!currentRoomHasNpc(roleId)) {
-      const event = { type: "npcInteractionRejected", roleId, actionType, reason: "npc is not in selected room" };
-      events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
-    }
-    const action = (npc.actions || []).find((item) => item.actionType === actionType);
-    if (!action) {
-      const event = { type: "npcInteractionRejected", roleId, actionType, reason: "npc action unavailable" };
-      events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
-    }
-    const availability = npcActionAvailability(npc, actionType);
-    if (!availability.available) {
+    const decision = entityInteractionService.inspectNpcAction({ npc, actionType });
+    const action = decision.action || (npc.actions || []).find((item) => item.actionType === actionType);
+    if (!decision.available) {
       const event = {
         type: "npcInteractionRejected",
         roleId,
         actionType,
-        reason: availability.reason,
-        feedback: availability.reason,
-        conditionTokens: clone(availability.conditionTokens || []),
-        conditionChecks: clone(availability.checks || []),
-        evidenceLevel: evidenceLevelOrUnknown(availability.evidenceLevel),
+        reason: decision.reason,
+        feedback: decision.reason,
+        conditionTokens: clone(decision.conditionTokens || []),
+        conditionChecks: clone(decision.checks || []),
+        evidenceLevel: evidenceLevelOrUnknown(decision.evidenceLevel),
       };
       events.push(event);
       return { accepted: false, event, snapshot: snapshot() };
     }
-    const branch = branchForNpcAction(npc, actionType);
-    const combatPolicy = combatPolicyForAction(actionType);
-    if (combatPolicy) {
+    const branch = decision.branch;
+    const combatPolicy = decision.combatPolicy;
+    if (decision.executionKind === "combat" && combatPolicy) {
       selectedChapterNpcId = roleId;
       selectedChapterInteractableId = "";
       const fallback = globalNpcActionFeedback(npc, action);
@@ -1201,29 +963,15 @@ export function createFirstSessionRuntime(contract, options = {}) {
   function interactWithChapterInteractable(interactableId, actionType = "use") {
     const choiceBlock = rejectCommandWhileChoicePending("interactableInteraction", { interactableId, actionType });
     if (choiceBlock) return choiceBlock;
+    const selection = interactableSelectionDecision(interactableId);
+    if (!selection.accepted) {
+      const event = { type: "interactableInteractionRejected", interactableId, actionType, reasonCode: selection.reasonCode || "", reason: selection.reason };
+      events.push(event);
+      return { accepted: false, event, snapshot: snapshot() };
+    }
     const item = interactableMap.get(interactableId);
-    if (!item) {
-      const event = { type: "interactableInteractionRejected", interactableId, actionType, reason: "unknown interactable" };
-      events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
-    }
-    if (!currentRoomHasInteractable(interactableId)) {
-      const event = { type: "interactableInteractionRejected", interactableId, actionType, reason: "interactable is not in selected room" };
-      events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
-    }
-    if (!item.canSee) {
-      const event = { type: "interactableInteractionRejected", interactableId, actionType, reason: "interactable is hidden by canSee=0" };
-      events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
-    }
-    const action = (item.actions || []).find((candidate) => candidate.actionType === actionType);
-    if (!action) {
-      const event = { type: "interactableInteractionRejected", interactableId, actionType, reason: "interactable action unavailable" };
-      events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
-    }
-    const decision = interactableActionDecision(item, actionType);
+    const decision = entityInteractionService.inspectInteractableAction({ item, actionType });
+    const action = decision.action || (item.actions || []).find((candidate) => candidate.actionType === actionType);
     if (!decision.available) {
       const event = {
         type: "interactableInteractionRejected",
@@ -1239,10 +987,7 @@ export function createFirstSessionRuntime(contract, options = {}) {
       return { accepted: false, event, snapshot: snapshot() };
     }
     const branch = decision.branch;
-    const interactableName = item.name || item.displayName?.zhCN || "\u7269\u4ef6";
-    const fallbackLine = item.description
-      ? `${interactableName}\uff1a${item.description}`
-      : `${interactableName}\u6ca1\u6709\u66f4\u591a\u53cd\u5e94\u3002`;
+    const fallbackLine = entityInteractionService.feedbackForInteractable(item)[0] || "";
     const resultValidation = branch ? validateResultEffects(branch) : { accepted: true, reason: "ok" };
     if (!resultValidation.accepted) {
       const event = {
