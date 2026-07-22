@@ -40,7 +40,6 @@ export function createEntityInteractionService({
   combatActionPolicies = {},
   branchEnabled = () => true,
   evaluateBranch = () => ({ accepted: false, checks: [] }),
-  branchRequiresChoice = () => false,
   validateBranch = () => ({ accepted: true }),
 } = {}) {
   const npcs = asLookup(npcLookup);
@@ -167,8 +166,8 @@ export function createEntityInteractionService({
     };
   }
 
-  function validateChoiceBranch(decision, actionType) {
-    if (!decision.branch || !branchRequiresChoice(decision.branch)) return decision;
+  function validateExecutableBranch(decision, actionType) {
+    if (!decision.branch) return decision;
     const validation = validateBranch(decision.branch);
     if (validation.accepted) return decision;
     return {
@@ -263,7 +262,7 @@ export function createEntityInteractionService({
     const decision = candidates.length
       ? branchDecision(candidates, { ...context, actionType, ignoreConditionTokens: ignored }, sourceEvidenceLevel)
       : { branch: null, available: true, reason: "", checks: [], conditionTokens: [], evidenceLevel: sourceEvidenceLevel };
-    const validated = validateChoiceBranch(decision, actionType);
+    const validated = validateExecutableBranch(decision, actionType);
     return {
       actionType,
       visible: validated.visible ?? true,
@@ -291,7 +290,7 @@ export function createEntityInteractionService({
       return { actionType, branch: null, visible: false, available: false, reason: "no configured runtime execution branch", checks: [], evidenceLevel: sourceEvidenceLevel };
     }
     const decision = branchDecision(candidates, { ...context, actionType }, sourceEvidenceLevel);
-    const validated = validateChoiceBranch(decision, actionType);
+    const validated = validateExecutableBranch(decision, actionType);
     return { actionType, visible: validated.visible ?? true, ...validated, executionKind: "result", action: cloneData(action) };
   }
 

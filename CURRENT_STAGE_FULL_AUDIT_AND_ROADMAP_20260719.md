@@ -711,6 +711,26 @@ ChoiceDefinition
 - 本结论不等于 358/358、SAVE-001、OBS-001、11 屏×3 尺寸、AssetRegistry、Android 真机、签名 Release 或项目上线完成；
 - `COMBAT-002`、Rest/Repair 与真实 CombatSession 继续延期。
 
+## 2026-07-23 T03-01 全动作状态断言
+
+本轮已完成当前 P0 `T03-01`，并将机器权威生产计划中的状态更新为 `done`。审计和 TDD 施工结果如下：
+
+- 358/358 配置动作均通过独立 `ChapterSession` 夹具完成 availability、dispatch、before/after 语义快照断言；
+- 334 个可达动作与 24 个 intentional dormant fixture 动作全部被计入；
+- 198 个 accepted 动作均有状态差异、叙事反馈、pending choice 或 pending combat 的声明性结果；
+- 160 个 rejected 动作均为零语义状态变化；
+- 0 个 selection failure、0 个 availability/dispatch mismatch、0 个 rejected mutation、0 个 accepted-without-outcome；
+- 首轮 RED 暴露的动态实体夹具缺失、切磋生命周期状态错误、资源不足动作可用性虚报均已修复。
+
+本轮新增的断言策略、Schema、工具及完成记录见：
+`config/wuxia_fb01_action_state_assertion_policy.json`、
+`config/wuxia_fb01_action_state_assertion.schema.json`、
+`tools/audit-wuxia-fb01-action-state-assertions.mjs`、
+`tools/test-wuxia-fb01-action-state-assertions.mjs`、
+`docs/codex_game_development_os/T03-01_COMPLETION_RECORD_20260723.md`。
+
+本轮未实现 `COMBAT-002`、Rest/Repair 或真实 `CombatSession`。G4 仍被 `SAVE-001` 与 `OBS-001` 阻断；G5/G7 的视觉矩阵、AssetRegistry、真机、签名发布、性能、商店、分阶段发布及回滚门禁仍未完成。
+
 ## 2026-07-22 ARCH-001 UI Flow Adapter 续施工
 
 - `src/uiFlowAdapter.js` 与 `src/browserAutomationAdapter.js` 已完成 ARCH-001 切片 6；ChapterSession 继续是唯一可写状态权威，DOM 与浏览器自动化均经统一 Intent Mapper 调用；
@@ -719,5 +739,5 @@ ChoiceDefinition
 - `src/wuxia-main.js` 的 `state.runtime` 旁路为 0，发布闭包扩大为 20 个产品文件；开发 Schema 不进入 Web/APK；
 - `wuxia:check:fast` 通过：Runtime integrity 16/16、Choice 10/10、首局 54 事件、358 动作 `highRisk=0`、内容边界 `high=0`；
 - 人工验收先发现并关闭 390×844 状态属性折行与 Chromium 截图分块两项问题；最终真实 Edge 540×960 与 390×844 各完成 20 步，0 failures、0 console problems，全部 40 张最终截图逐图检查；浏览器工具已增加顶部垂直裁切、状态行折行和截图预热门禁；
-- ARCH-001 更新为 `done`，但 G4 仍被 T03-01、SAVE-001、OBS-001 阻断；下一 P0 为 T03-01；
+- ARCH-001 更新为 `done`；T03-01 已完成，但 G4 仍被 SAVE-001、OBS-001 阻断；下一非延期 P0 为 UI-ARCH-001；
 - `COMBAT-002`、Rest/Repair 与真实 CombatSession 继续延期。

@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "idlewuxia.fb01_action_state_assertion.v1",
+  "type": "object",
+  "required": ["$schema", "contractVersion", "taskId", "flowSchema", "expectedActionCount", "fixturePolicy", "assertionRules", "ignoredSnapshotFields"],
+  "properties": {
+    "$schema": {"const": "idlewuxia.fb01_action_state_assertion_policy.v1"},
+    "contractVersion": {"const": 1},
+    "taskId": {"const": "T03-01"},
+    "flowSchema": {"type": "string", "minLength": 1},
+    "expectedActionCount": {"type": "integer", "minimum": 1},
+    "fixturePolicy": {
+      "type": "object",
+      "required": ["unreachableEntityMode", "initialState", "initialFlags"],
+      "properties": {
+        "unreachableEntityMode": {"const": "synthetic_entity_attachment"},
+        "initialState": {"type": "string", "minLength": 1},
+        "initialFlags": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "assertionRules": {"type": "object", "minProperties": 1},
+    "ignoredSnapshotFields": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

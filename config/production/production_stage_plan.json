@@ -417,7 +417,7 @@
       "title": "358/358 全动作前后状态断言",
       "priority": "P0",
       "gate": "G4",
-      "status": "open",
+      "status": "done",
       "owner": "qa-bot-regression-engineer",
       "dependsOn": [
         "T03-00",
@@ -428,7 +428,15 @@
         "Rejected actions produce zero mutation.",
         "Accepted actions prove an intended state delta or declared narrative-only outcome."
       ],
-      "evidence": []
+      "evidence": [
+        "config/wuxia_fb01_action_state_assertion_policy.json",
+        "config/wuxia_fb01_action_state_assertion.schema.json",
+        "tools/audit-wuxia-fb01-action-state-assertions.mjs",
+        "tools/test-wuxia-fb01-action-state-assertions.mjs",
+        "npm run runtime:action-state-assertions:test",
+        "docs/codex_game_development_os/T03-01_COMPLETION_RECORD_20260723.md",
+        "docs/codex_game_development_os/T03-01_MANUAL_VISUAL_ACCEPTANCE_20260723.md"
+      ]
     },
     {
       "id": "SAVE-001",

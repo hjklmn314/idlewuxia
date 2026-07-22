@@ -117,4 +117,24 @@ G5 出口：
 npm run production:report
 ```
 
+## 2026-07-23 T03-01 completion update
+
+`T03-01` is now `done` in the machine-authoritative production plan. The new configuration-driven action-state contract executes all 358 FB01 actions through isolated public `ChapterSession` fixtures and proves:
+
+- 358/358 availability, dispatch, and semantic before/after assertions;
+- rejected actions have zero semantic mutation;
+- accepted actions have a declared state delta, narrative-only feedback, pending-choice transition, or pending-combat transition;
+- dynamic entities reached through nested configured results are materialized only in in-memory fixtures;
+- resource validation is performed before availability is exposed, so availability and dispatch cannot disagree on insufficient inventory/crafting branches.
+
+Evidence and tools:
+
+- `config/wuxia_fb01_action_state_assertion_policy.json`
+- `config/wuxia_fb01_action_state_assertion.schema.json`
+- `tools/audit-wuxia-fb01-action-state-assertions.mjs`
+- `tools/test-wuxia-fb01-action-state-assertions.mjs`
+- `docs/codex_game_development_os/T03-01_COMPLETION_RECORD_20260723.md`
+
+G4 remains blocked by `SAVE-001` and `OBS-001`. `COMBAT-002` (including Rest/Repair and real `CombatSession`) remains postponed. The next non-postponed P0 is `UI-ARCH-001`, but it must not be treated as a release declaration; T05-01, T05-02, real-device, signed-release, performance, store, rollout, and rollback gates remain open.
+
 会生成当前 Gate、完整任务表、下一批非延期 P0 和资产 disposition。

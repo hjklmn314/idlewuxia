@@ -23,14 +23,17 @@
         "src/chapterSession.js",
         "src/entityInteractionService.js",
         "src/navigationService.js",
-        "src/wuxiaFirstSessionFlow.js"
+        "src/wuxiaFirstSessionFlow.js",
+        "tools/audit-wuxia-fb01-action-state-assertions.mjs"
       ],
       "configuration": [
         "config/wuxia_first_session_flow.json",
         "config/wuxia_chapter_session_defaults.schema.json",
         "config/wuxia_entity_interaction_policy.schema.json",
         "config/wuxia_navigation_policy.schema.json",
-        "config/wuxia_runtime_mutation_policy.schema.json"
+        "config/wuxia_runtime_mutation_policy.schema.json",
+        "config/wuxia_fb01_action_state_assertion_policy.json",
+        "config/wuxia_fb01_action_state_assertion.schema.json"
       ],
       "status": "modularized-v1-stateful-session-with-compatibility-facade",
       "nextTaskIds": [

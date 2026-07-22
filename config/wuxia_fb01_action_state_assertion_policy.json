@@ -1,0 +1,21 @@
+{
+  "$schema": "idlewuxia.fb01_action_state_assertion_policy.v1",
+  "contractVersion": 1,
+  "taskId": "T03-01",
+  "flowSchema": "idlewuxia.first_session_flow.v1",
+  "expectedActionCount": 358,
+  "fixturePolicy": {
+    "unreachableEntityMode": "synthetic_entity_attachment",
+    "initialState": "STATE_FS_008_MAP_EXPLORE",
+    "initialFlags": ["new_install_or_new_save", "chapter_fb01_entered", "map_node_selected"]
+  },
+  "assertionRules": {
+    "availability": "dispatch_result_must_match_configured_availability",
+    "rejected": "semantic_state_delta_must_be_zero",
+    "accepted": "state_delta_or_declared_feedback_must_exist",
+    "narrativeOnly": "feedback_or_narrative_is_a_valid_zero_mutation_outcome",
+    "combat": "pending_combat_transition_is_a_valid_declared_outcome",
+    "choice": "pending_choice_transition_is_a_valid_declared_outcome"
+  },
+  "ignoredSnapshotFields": ["events"]
+}
