@@ -89,4 +89,4 @@
 
 `PASS WITH KNOWN LIMITATIONS / NOT RELEASE READY`
 
-下一个执行任务是 `ARCH-001`，随后进入 `T03-01`。`COMBAT-002` 与 `CombatSession` 保持延期。
+`ARCH-001` 六个切片已完成；当前下一个执行任务是 `T03-01`。`COMBAT-002` 与 `CombatSession` 保持延期。

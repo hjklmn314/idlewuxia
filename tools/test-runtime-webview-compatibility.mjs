@@ -29,7 +29,13 @@ try {
 }
 
 const forbiddenRuntimePatterns = ["structuredClone(", ".at(", ".replaceAll("];
-for (const relativePath of ["src/wuxiaFirstSessionFlow.js", "src/runtimePersistence.js", "src/wuxia-main.js"]) {
+for (const relativePath of [
+  "src/wuxiaFirstSessionFlow.js",
+  "src/runtimePersistence.js",
+  "src/uiFlowAdapter.js",
+  "src/browserAutomationAdapter.js",
+  "src/wuxia-main.js",
+]) {
   const source = fs.readFileSync(path.resolve(relativePath), "utf8");
   for (const pattern of forbiddenRuntimePatterns) {
     assert.equal(

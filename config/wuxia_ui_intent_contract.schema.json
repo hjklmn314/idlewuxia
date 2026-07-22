@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://idlewuxia.local/schema/wuxia_ui_intent_contract.schema.json",
+  "title": "Idlewuxia UI intent contract",
+  "oneOf": [
+    { "$ref": "#/$defs/dispatchAction" },
+    { "$ref": "#/$defs/selectNode" },
+    { "$ref": "#/$defs/selectRoom" },
+    { "$ref": "#/$defs/selectNpc" },
+    { "$ref": "#/$defs/interactNpc" },
+    { "$ref": "#/$defs/selectInteractable" },
+    { "$ref": "#/$defs/interactInteractable" },
+    { "$ref": "#/$defs/resolveChoice" }
+  ],
+  "$defs": {
+    "nonEmptyId": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "dispatchAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "actionId"],
+      "properties": {
+        "type": { "const": "dispatchAction" },
+        "actionId": { "$ref": "#/$defs/nonEmptyId" }
+      }
+    },
+    "selectNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "nodeId"],
+      "properties": {
+        "type": { "const": "selectNode" },
+        "nodeId": { "$ref": "#/$defs/nonEmptyId" }
+      }
+    },
+    "selectRoom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "roomId"],
+      "properties": {
+        "type": { "const": "selectRoom" },
+        "roomId": { "$ref": "#/$defs/nonEmptyId" }
+      }
+    },
+    "selectNpc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "roleId"],
+      "properties": {
+        "type": { "const": "selectNpc" },
+        "roleId": { "$ref": "#/$defs/nonEmptyId" }
+      }
+    },
+    "interactNpc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "roleId", "actionType"],
+      "properties": {
+        "type": { "const": "interactNpc" },
+        "roleId": { "$ref": "#/$defs/nonEmptyId" },
+        "actionType": { "$ref": "#/$defs/nonEmptyId" }
+      }
+    },
+    "selectInteractable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "interactableId"],
+      "properties": {
+        "type": { "const": "selectInteractable" },
+        "interactableId": { "$ref": "#/$defs/nonEmptyId" }
+      }
+    },
+    "interactInteractable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "interactableId", "actionType"],
+      "properties": {
+        "type": { "const": "interactInteractable" },
+        "interactableId": { "$ref": "#/$defs/nonEmptyId" },
+        "actionType": { "$ref": "#/$defs/nonEmptyId" }
+      }
+    },
+    "resolveChoice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "optionId"],
+      "properties": {
+        "type": { "const": "resolveChoice" },
+        "optionId": { "$ref": "#/$defs/nonEmptyId" }
+      }
+    }
+  }
+}

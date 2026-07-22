@@ -81,9 +81,9 @@
 
 ## 7. 与生产标准的关系
 
-本证据只证明 Slice 5 的 Web 发布闭包在两个目标移动视口没有引入可见回归。它不等于：
+本证据只证明 Slice 5 当时的 Web 发布闭包在两个目标移动视口没有引入可见回归。该历史切片单独不等于：
 
-- `ARCH-001` 完成；Slice 6 UI adapter 仍未完成；
+- 当时的 `ARCH-001` 完成；Slice 6 UI adapter 已在后续施工完成；
 - `T05-01` 11 屏×3 尺寸共 33 对完整验收；
 - Android 真机 WebView、性能、内存和离线恢复验收；
 - 358/358 动作证明、SAVE-001、OBS-001；
@@ -98,6 +98,6 @@
 
 ## 9. 未完成项
 
-下一架构切片固定为 UI view-model / intent mapper / browser automation seam。完成 Slice 6 及全部回归后，才可关闭 `ARCH-001`。
+该历史切片结束时，下一架构切片固定为 UI view-model / intent mapper / browser automation seam；该 Slice 6 已在后续施工和全部回归后完成，当前 `ARCH-001` 已关闭。
 
 `COMBAT-002`、Rest/Repair 和真实 CombatSession 继续延期。G4、G5、G7 以及整个项目上线仍未完成。

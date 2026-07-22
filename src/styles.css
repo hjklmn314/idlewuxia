@@ -3773,6 +3773,55 @@ body.wuxia-mode .wuxia-stage {
 }
 
 @media (max-width: 400px) {
+  .wuxia-status-page {
+    padding: 14px 14px 8px;
+    grid-template-columns: minmax(0, 1fr) 130px;
+    gap: 8px;
+  }
+
+  .wuxia-status-main {
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .wuxia-identity {
+    font-size: 18px;
+    white-space: nowrap;
+  }
+
+  .wuxia-identity strong {
+    margin-left: 6px;
+    font-size: 22px;
+  }
+
+  .wuxia-stat-list {
+    gap: 5px;
+  }
+
+  .wuxia-stat-row {
+    gap: 6px;
+    font-size: 18px;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+
+  .wuxia-portrait-box {
+    margin-top: 10px;
+    grid-template-columns: 96px 30px;
+  }
+
+  .wuxia-portrait-box .wuxia-avatar {
+    width: 96px;
+    height: 96px;
+    font-size: 21px;
+  }
+
+  .wuxia-portrait-box button {
+    width: 30px;
+    min-height: 76px;
+    font-size: 18px;
+  }
+
   .wuxia-room-grid {
     grid-template-columns: minmax(0, 0.9fr) minmax(96px, 1fr) minmax(0, 0.9fr);
     gap: 4px;

@@ -106,8 +106,8 @@ flowchart LR
 ## 7. 已知限制与后续
 
 - 项目导航桥继续按现有产品策略允许配置化房间选择；本切片只把它显式分类并禁止其拥有奖励/进度 mutation，没有改变玩家可见路线；
-- Entity 生命周期仍由 Runtime 闭包提供活动实体列表，下一切片提取 `EntityInteractionService`；
-- `ChapterSession` 和 UI intent adapter 尚未提取，`ARCH-001` 必须保持 `open`；
+- 本 Slice 3 历史切片结束时，Entity 生命周期仍由 Runtime 闭包提供活动实体列表；`EntityInteractionService` 已在随后 Slice 4 提取；
+- 本 Slice 3 历史切片结束时 `ChapterSession` 和 UI intent adapter 尚未提取；两者已在随后 Slice 5/6 完成，当前 `ARCH-001` 已关闭；
 - `COMBAT-002`、Rest/Repair 和真实 CombatSession 按用户要求继续延期。
 
 ## 8. 回滚

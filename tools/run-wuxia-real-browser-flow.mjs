@@ -122,6 +122,10 @@ async function waitForWuxia(cdp) {
 }
 
 async function capture(cdp, label) {
+  // Chromium can occasionally return a stale tiled compositor surface in
+  // headless mode. Prime one frame, then sample DOM and persist the next one.
+  await cdp.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: false });
+  await delay(60);
   const summary = await evalValue(cdp, `(() => {
     const text = document.body.innerText || "";
     const badMatches = text.match(/Welcome Back|GALAXY|TURRET|Nova Lite|escapeHtml|锟|undefined|null|\\?\\?/g) || [];
@@ -159,10 +163,18 @@ async function capture(cdp, label) {
       } : null])),
       navigationButtons: [...document.querySelectorAll(".wuxia-top .wuxia-icon-button")].map((node) => ({
         text: node.textContent.trim(),
+        top: node.getBoundingClientRect().top,
+        bottom: node.getBoundingClientRect().bottom,
         width: node.getBoundingClientRect().width,
         height: node.getBoundingClientRect().height,
         scrollWidth: node.scrollWidth,
         clientWidth: node.clientWidth,
+      })),
+      statusRows: [...document.querySelectorAll(".wuxia-stat-row")].map((node) => ({
+        text: node.textContent.trim(),
+        height: node.getBoundingClientRect().height,
+        labelHeight: node.querySelector("span")?.getBoundingClientRect().height || 0,
+        valueHeight: node.querySelector("strong")?.getBoundingClientRect().height || 0,
       })),
       activeElement: document.activeElement?.outerHTML?.slice(0, 300) || ""
     };
@@ -171,6 +183,13 @@ async function capture(cdp, label) {
   if (summary.viewport.documentScrollWidth > summary.viewport.innerWidth + 1) layoutProblems.push("document horizontal overflow");
   if ((summary.navigationButtons || []).some((button) => button.text && button.height > 52)) layoutProblems.push("top navigation label wrapped");
   if ((summary.navigationButtons || []).some((button) => button.scrollWidth > button.clientWidth + 1)) layoutProblems.push("top navigation label clipped");
+  if ((summary.navigationButtons || []).some((button) => (
+    button.top < (summary.layout.top?.rect?.top ?? 0) - 1
+    || button.bottom > (summary.layout.top?.rect?.bottom ?? summary.viewport.innerHeight) + 1
+  ))) layoutProblems.push("top navigation control vertically clipped");
+  if ((summary.statusRows || []).some((row) => row.labelHeight > 30 || row.valueHeight > 30 || row.height > 32)) {
+    layoutProblems.push("character status row wrapped");
+  }
   if (layoutProblems.length) summary.error = layoutProblems.join("; ");
   const png = await cdp.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: false });
   const screenshotPath = path.join(outDir, `${String(results.length + 1).padStart(2, "0")}_${label}.png`);

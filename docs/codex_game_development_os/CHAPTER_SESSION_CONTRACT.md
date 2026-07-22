@@ -1,12 +1,12 @@
 # ChapterSession 模块合同
 
-任务：`ARCH-001 / Slice 5`
+任务：`ARCH-001 / Slice 5`（ChapterSession 合同；当前总任务已完成 Slice 6）
 
 Owner：`subsystem-domain-architect`
 
 独立验收：`qa-bot-regression-engineer`
 
-当前判定：`implemented; ARCH-001 remains open until Slice 6 UI adapter`
+当前判定：`implemented; ARCH-001 completed after Slice 6 UI adapter`
 
 ## 1. 当前现状
 
@@ -106,7 +106,7 @@ TDD 证据：
 已知限制：
 
 - 模块仍是 JavaScript + JSDoc/测试合同，不是编译期 TypeScript；
-- `wuxia-main.js` 仍直接调用 Runtime，UI view-model/intent adapter/automation seam 属于 Slice 6；
+- `wuxia-main.js` 已只通过 `uiFlowAdapter` 发出 Intent 并消费 view-model，浏览器自动化只通过 `browserAutomationAdapter` 进入同一边界；
 - 真实 CombatSession、Rest/Repair 继续延期；
 - `SAVE-001`、`OBS-001`、358/358 动作证明和 11 屏乘 3 尺寸验收未完成。
 

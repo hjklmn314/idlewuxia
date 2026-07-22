@@ -15,7 +15,7 @@
 | TOOL-001 | P0 | G3 | done | production-toolchain-architect | 生产合同验证和报告工具 |
 | CFG-001 | P0 | G3 | done | configuration-data-pipeline | 生产 Schema 与版本化合同 |
 | T03-00 | P0 | G4 | done | level-content-designer | 旧 13/27 已纠偏为 129 可达、10 个受控休眠实体与 24 个受控休眠动作；0 未裁决 |
-| ARCH-001 | P0 | G4 | open | subsystem-domain-architect | 拆分 Runtime 与 UI 巨型模块 |
+| ARCH-001 | P0 | G4 | done | subsystem-domain-architect | 拆分 Runtime 与 UI 巨型模块 |
 | T03-01 | P0 | G4 | open | qa-bot-regression-engineer | 358/358 全动作状态断言 |
 | SAVE-001 | P1 | G4 | open | save-migration-compatibility | 存档迁移、损坏恢复、回滚 |
 | OBS-001 | P1 | G4 | open | analytics-observability-engineer | 运行时事件、日志和回放 |
@@ -38,20 +38,22 @@
 
 ## 当前可开工
 
-1. `ARCH-001`：T03-00 边界已稳定，当前第一项是拆分 Runtime/UI 控制器并建立可测试模块合同。
-2. `T03-01`：依赖 T03-00 与 ARCH-001；架构拆分后完成 358/358 全动作状态断言。
+1. `T03-01`：T03-00 与 ARCH-001 已完成；当前第一项是建立 358/358 全动作前后状态断言。
+2. `SAVE-001`、`OBS-001`：依赖 ARCH-001，仍需分别完成存档恢复/回滚与事件/回放合同。
 
-`T03-01` 必须等待上述两项完成。所有 G5、G6、G7 工作不得跳过 G4 出口。
+G4 仍被 `T03-01`、`SAVE-001` 与 `OBS-001` 阻断。所有 G5、G6、G7 工作不得跳过 G4 出口。
 
 ARCH-001 当前进度：ConditionEvaluator、Result preparation、ResultEffectExecutor、NavigationService、
-EntityInteractionService 与 ChapterSession 切片已完成并接入回归门禁；只有 UI adapter 切片仍未完成，详见
-`ARCH-001_IMPLEMENTATION_RECORD_20260719.md`。因此任务状态保持 `open`。
+EntityInteractionService、ChapterSession 与 UI Adapter 六个切片均已完成并接入回归门禁，详见
+`ARCH-001_IMPLEMENTATION_RECORD_20260719.md`。任务状态为 `done`，但这不代表 G4 或上线完成。
 
-2026-07-20 更新：NavigationService 切片 3 已完成并通过真实浏览器手动验收。导航条件和阻断动作已改为 Schema 校验的配置解释，Web/Android 发布闭包为 16 个文件；EntityInteractionService、ChapterSession 与 UI adapter 仍未完成，因此 `ARCH-001` 继续保持 `open`，下一项为 EntityInteractionService。
+2026-07-20 历史更新：NavigationService 切片 3 已完成并通过真实浏览器手动验收。导航条件和阻断动作已改为 Schema 校验的配置解释，Web/Android 发布闭包当时为 16 个文件；EntityInteractionService、ChapterSession 与 UI adapter 当时仍未完成，因此 `ARCH-001` 当时保持 `open`，下一项为 EntityInteractionService。
 
-2026-07-21 更新：EntityInteractionService 切片 4 已完成并通过 540×960、390×844 各 20 步真实浏览器人工验收。实体可见性、选择、动作唯一分支和反馈模板已改为 Schema 校验的配置解释，Web/Android 发布闭包为 17 个文件；ChapterSession 与 UI adapter 仍未完成，因此 `ARCH-001` 继续保持 `open`，下一项为 ChapterSession。
+2026-07-21 历史更新：EntityInteractionService 切片 4 已完成并通过 540×960、390×844 各 20 步真实浏览器人工验收。实体可见性、选择、动作唯一分支和反馈模板已改为 Schema 校验的配置解释，Web/Android 发布闭包当时为 17 个文件；ChapterSession 与 UI adapter 当时仍未完成，因此 `ARCH-001` 当时保持 `open`，下一项为 ChapterSession。
 
-2026-07-22 更新：ChapterSession 切片 5 已完成并通过 540×960、390×844 各 20 步真实 Edge 人工验收。会话状态、命令编排、事件和存档 DTO 已迁移到唯一状态权威 `src/chapterSession.js`，旧工厂缩为兼容 facade；默认旗标改由 Ajv 校验的 `sessionDefaults` 配置驱动。Web/Android 发布闭包为 18 个文件。`ARCH-001` 继续保持 `open`，唯一剩余切片为 UI view-model / intent mapper / browser automation seam。
+2026-07-22 Slice 5 历史更新：ChapterSession 切片 5 已完成并通过 540×960、390×844 各 20 步真实 Edge 人工验收。会话状态、命令编排、事件和存档 DTO 已迁移到唯一状态权威 `src/chapterSession.js`，旧工厂缩为兼容 facade；默认旗标改由 Ajv 校验的 `sessionDefaults` 配置驱动。Web/Android 发布闭包当时为 18 个文件。`ARCH-001` 当时保持 `open`，唯一剩余切片为 UI view-model / intent mapper / browser automation seam。
+
+2026-07-22 Slice 6 更新：UI ViewModel、8 类严格 Intent Mapper 与 Browser Automation Adapter 已完成。DOM 与浏览器工具不再直接调用 `state.runtime`；Intent Schema 由 Ajv 实际验证，Web/Android 发布闭包为 20 个文件。540×960 与 390×844 各 20 步真实 Edge 最终验收均 0 failure、0 控制台问题，全部最终截图已人工检查。`ARCH-001` 更新为 `done`；下一 P0 为 `T03-01`。`COMBAT-002` 继续延期。
 
 ## 状态更新规则
 

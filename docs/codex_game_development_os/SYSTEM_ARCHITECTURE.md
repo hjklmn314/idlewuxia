@@ -14,7 +14,7 @@
 ```mermaid
 flowchart LR
     A["wuxia_first_session_flow.json"] --> P["chapterSession.js"]
-    C["screen_contract.json"] --> D["wuxia-main.js"]
+    C["screen_contract.json"] --> U["uiFlowAdapter.js"]
     E["runtime_persistence_contract.json"] --> F["runtimePersistence.js"]
     A --> K["conditionEvaluator.js"]
     A --> L["resultPreparation.js"]
@@ -27,7 +27,9 @@ flowchart LR
     N --> P
     O --> P
     P --> B["wuxiaFirstSessionFlow.js compatibility facade"]
-    B --> D
+    B --> U
+    U --> D["wuxia-main.js DOM renderer"]
+    U --> BA["browserAutomationAdapter.js"]
     D --> G["DOM / CSS"]
     B --> F
     H["resultExecutionModules.js"] --> L
@@ -36,13 +38,13 @@ flowchart LR
     I --> J["Capacitor Android"]
 ```
 
-链路可运行；`B` 已收口为兼容入口，`P` 是唯一可写 ChapterSession 状态权威，`D` 仍是待拆分的 UI 巨型模块。
+链路可运行；`B` 已收口为兼容入口，`P` 是唯一可写 ChapterSession 状态权威，`U` 是 DOM 与自动化共用的 ViewModel/Intent 边界，`D` 仍保留 HTML、DOM、持久化生命周期与延期 Combat 展示时间轴，后续由 UI-ARCH-001 继续拆分。
 
 截至 2026-07-22，ARCH-001 已把 Condition 解释器提取为
 `src/conditionEvaluator.js`，把 ResultSet/Choice/SkillConversion/库存预检
 提取为 `src/resultPreparation.js`，把事务提交提取为 `src/resultEffectExecutor.js`，把节点、房间路线和移动阻断解释提取为 `src/navigationService.js`，并把实体可用性、选择和动作预检提取为 `src/entityInteractionService.js`。
 Slice 5 已将会话状态、命令编排、事件和存档 DTO 收口到 `src/chapterSession.js`；
-`wuxiaFirstSessionFlow.js` 只保留兼容 facade。UI adapter 尚未完成，因此 ARCH-001 仍为 `open`。
+`wuxiaFirstSessionFlow.js` 只保留兼容 facade。Slice 6 已新增 `src/uiFlowAdapter.js` 与 `src/browserAutomationAdapter.js`，全部 DOM 交互和浏览器命令经过同一严格 Intent 通道，因此 ARCH-001 已完成；G4 仍由 T03-01、SAVE-001 与 OBS-001 阻断。
 
 Result preparation 的库存/合成识别由
 `chapterSystem.resultEffectPolicies.inventoryMutation` 提供类别、动作、参数位和
@@ -102,7 +104,7 @@ flowchart TB
 | `foundation-runtime` | condition/result/save/event/asset contracts | 部分存在，待拆分 |
 | `first-session-shell` | 11 屏流程、基础反馈和持久化 | 已有纵切 |
 | `chapter-fb01` | 45 房间、116 NPC、23 物件、动作和奖励 | 已配置；T03-00 为 129 可达实体、10 个受控休眠实体、0 未裁决 |
-| `wuxia-ui-shell` | DOM adapter、导航、样式、可访问性 | 巨型模块，待拆 |
+| `wuxia-ui-shell` | ViewModel、Intent、DOM adapter、导航、样式、可访问性 | ViewModel/Intent 已拆；DOM/CSS 待 UI-ARCH-001 |
 | `wuxia-asset-presentation` | Registry、字体、地图、肖像、图标 | 仅 Registry 种子 |
 | `android-release` | bundle、签名、设备、商店、回滚 | debug proof only |
 | `combat-session` | 真实战斗与 Rest/Repair | 延期 |
@@ -115,7 +117,7 @@ flowchart TB
 4. 提取 `NavigationService`。（切片 3 已完成）
 5. 提取 `EntityInteractionService`。（切片 4 已完成）
 6. 提取 `ChapterSession`，旧 `createFirstSessionRuntime` 保留兼容 facade。（切片 5 已完成）
-7. 从 UI 控制器提取 view-model、intent mapper 和 browser automation seam。
+7. 从 UI 控制器提取 view-model、intent mapper 和 browser automation seam。（切片 6 已完成）
 8. 分离 `wuxia.css` 与 dormant legacy CSS，Web Bundle 只运输武侠样式。
 9. 全部回归通过后再允许第二章节 Feature Package。
 

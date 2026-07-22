@@ -34,9 +34,9 @@
       ],
       "status": "modularized-v1-stateful-session-with-compatibility-facade",
       "nextTaskIds": [
-        "ARCH-001",
-        "T03-00",
-        "T03-01"
+        "T03-01",
+        "SAVE-001",
+        "OBS-001"
       ]
     },
     {
@@ -132,16 +132,19 @@
     {
       "id": "ui-flow-adapter",
       "owner": "ui-ux-feedback-designer",
-      "stateAuthority": "src/wuxia-main.js",
+      "stateAuthority": "src/chapterSession.js",
       "runtimeModules": [
+        "src/uiFlowAdapter.js",
+        "src/browserAutomationAdapter.js",
         "src/wuxia-main.js",
         "src/styles.css"
       ],
       "configuration": [
         "config/wuxia_first_session_screen_contract.json",
+        "config/wuxia_ui_intent_contract.schema.json",
         "config/production/ui_experience_registry.json"
       ],
-      "status": "implemented-monolith-unaccepted",
+      "status": "modularized-v1-intent-and-view-model-adapters",
       "nextTaskIds": [
         "UI-ARCH-001",
         "T05-01"

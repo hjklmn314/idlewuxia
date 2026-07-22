@@ -346,7 +346,7 @@
       "title": "拆分 1938 行 Runtime 与 1229 行 UI 控制器",
       "priority": "P0",
       "gate": "G4",
-      "status": "open",
+      "status": "done",
       "owner": "subsystem-domain-architect",
       "dependsOn": [
         "CFG-001"
@@ -378,6 +378,12 @@
         "config/wuxia_chapter_session_defaults.schema.json",
         "docs/codex_game_development_os/CHAPTER_SESSION_CONTRACT.md",
         "docs/codex_game_development_os/ARCH-001_SLICE_5_MANUAL_VISUAL_ACCEPTANCE_20260722.md",
+        "src/uiFlowAdapter.js",
+        "src/browserAutomationAdapter.js",
+        "tools/test-ui-flow-adapter.mjs",
+        "config/wuxia_ui_intent_contract.schema.json",
+        "docs/codex_game_development_os/UI_FLOW_ADAPTER_CONTRACT.md",
+        "docs/codex_game_development_os/ARCH-001_SLICE_6_MANUAL_VISUAL_ACCEPTANCE_20260722.md",
         "config/wuxia_runtime_mutation_policy.schema.json",
         "docs/codex_game_development_os/RESULT_EFFECT_EXECUTOR_CONTRACT.md",
         "docs/codex_game_development_os/ARCH-001_SLICE_2B_MANUAL_VISUAL_ACCEPTANCE_20260719.md",

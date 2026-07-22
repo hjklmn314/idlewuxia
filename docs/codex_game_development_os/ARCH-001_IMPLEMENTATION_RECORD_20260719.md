@@ -5,7 +5,7 @@
 Owner：`subsystem-domain-architect`
 
 独立验收：`qa-bot-regression-engineer`
-当前判定：`OPEN — Slice 5/6 complete`
+当前判定：`PASS WITH KNOWN LIMITATIONS — Slice 6/6 complete`
 
 ## 1. 当前现状
 
@@ -13,26 +13,28 @@ Owner：`subsystem-domain-architect`
 
 - 原 `src/wuxiaFirstSessionFlow.js`：1,938 行，Slice 5 施工前为 1,088 行，当前为 19 行兼容 facade；
 - 当前 `src/chapterSession.js`：1,101 行；
-- `src/wuxia-main.js`：1,229 行；
+- `src/wuxia-main.js`：1,158 行；
+- `src/uiFlowAdapter.js`：88 行；
+- `src/browserAutomationAdapter.js`：51 行；
 - `src/resultExecutionModules.js`：234 行；
 - `src/runtimePersistence.js`：162 行；
 - `src/dataClone.js`：47 行；
-- 7 个直接 Runtime/UI 特征与回归测试，共 1,455 行；
+- Runtime/UI 模块合同、兼容、完整性、交互与浏览器回归测试已全部接入门禁；
 - 当前生产 Roadmap、任务清单、系统架构、追踪矩阵和项目级 `AGENTS.md`。
 
 确认的职责混合：
 
 - Runtime 工厂同时拥有配置索引、Condition 解释、Result 准备与执行、导航、实体生命周期、命令、存档 DTO 和事件；
-- UI 控制器同时拥有配置加载、view-model、HTML 生成、DOM 绑定、战斗时间轴、持久化生命周期和自动化 API；
+- UI 控制器仍拥有配置加载、HTML 生成、DOM 绑定、战斗时间轴和持久化生命周期；ViewModel、Intent 与自动化 API 已移到独立适配器；
 - `resultExecutionModules.js`、`resultPreparation.js`、`resultEffectExecutor.js`、`navigationService.js`、`entityInteractionService.js`、`chapterSession.js` 与 `runtimePersistence.js` 已是独立模块；Result 事务、Navigation、Entity 交互决策和会话状态权威已移出旧 Runtime 工厂；
 - 旧 `createFirstSessionRuntime` 已缩为全部测试、浏览器和存档继续使用的兼容入口，本身不再持有状态。
 
 ## 2. 存在问题
 
-1. ChapterSession 已成为唯一会话状态权威，但 UI 仍直接调用旧 Runtime facade，尚无独立 view-model/intent adapter。
-2. `wuxia-main.js` 仍同时负责 HTML、DOM、持久化生命周期、Combat 展示时间轴和 browser automation seam。
-3. UI 巨型迁移若一次完成，任何导航、反馈、可访问性或自动化差异都难以定位和回滚。
-4. 当前 ARCH-001 验收还没有全部满足：UI Adapter 尚未完成提取。
+1. Slice 6 前 UI 直接调用旧 Runtime facade；现已由单一 UI Flow Adapter 收口。
+2. `wuxia-main.js` 仍负责 HTML、DOM、持久化生命周期和延期 Combat 展示时间轴，这属于后续 `UI-ARCH-001` 范围。
+3. dormant legacy shooting CSS 仍与武侠样式同文件，尚未完成发布样式分包。
+4. `T03-01`、`SAVE-001` 与 `OBS-001` 未完成，因此 G4 和上线仍然阻断。
 
 ## 3. 修改方案
 
@@ -45,11 +47,11 @@ Owner：`subsystem-domain-architect`
 5. ChapterSession + 旧工厂兼容 facade；
 6. UI view-model / intent adapter / automation seam。
 
-当前已完成切片 1、2A、2B、3、4 与 5。每个切片都先写模块合同测试并观察红灯，再实现解释器或状态权威并通过兼容 facade 接入现有 UI；除人工验收发现并修复的顶部标题换行，以及把首局默认旗标从源码迁到等价配置外，没有修改玩家可见文本、数值或具体章节内容。
+当前已完成切片 1、2A、2B、3、4、5 与 6。每个切片都先写模块合同测试并观察红灯，再实现解释器、状态权威或适配器并接入现有 UI；除人工验收发现并修复的顶部标题换行，以及把首局默认旗标从源码迁到等价配置外，没有修改玩家可见文本、数值或具体章节内容。
 
 ## 4. 修改范围
 
-- 新增 Condition、Result preparation、ResultEffectExecutor、NavigationService、EntityInteractionService 与 ChapterSession 模块及各自合同测试；
+- 新增 Condition、Result preparation、ResultEffectExecutor、NavigationService、EntityInteractionService、ChapterSession、UI Flow Adapter 与 Browser Automation Adapter 模块及各自合同测试；
 - `src/chapterSession.js` 接管会话状态、事件、存档和事务提交权；`src/wuxiaFirstSessionFlow.js` 仅保留旧工厂名称兼容 facade；
 - `package.json` 将模块合同测试接入 `task:preflight` 与 `wuxia:check:fast`；
 - 更新生产子系统登记、Roadmap 证据和本记录。
@@ -59,19 +61,19 @@ Owner：`subsystem-domain-architect`
 - 除 Result、Navigation、Entity Interaction 通用 policy 映射和等价迁移的 `sessionDefaults.initialFlags` 外，不修改 `config/wuxia_first_session_flow.json` 中任何具体内容定义；
 - 任何章节、NPC、房间、技能、奖励、战斗或 UI 内容；
 - 存档 DTO、事件名称、快照字段；
-- Android 运输文件；
+- Android 原生项目源码；生成的 Web/Android 运输闭包按白名单同步；
 - 延期的 `COMBAT-002` / CombatSession。
 
 ## 5. 配置变化
 
-产品配置新增通用 `chapterSystem.navigationPolicy`、`chapterSystem.entityInteractionPolicy` 与 `sessionDefaults.initialFlags`；默认旗标具备独立 Draft 2020-12 Schema、Ajv 实际校验及旧启动字段一致性门禁，没有修改具体章节、NPC、房间、奖励或数值内容。
+产品配置新增通用 `chapterSystem.navigationPolicy`、`chapterSystem.entityInteractionPolicy` 与 `sessionDefaults.initialFlags`；开发配置新增 `wuxia_ui_intent_contract.schema.json`。全部 Schema 均由 Ajv 实际执行，没有修改具体章节、NPC、房间、奖励、UI 文案或数值内容。
 
 生产治理登记变化：
 
 - `chapter-runtime`、`condition-evaluation`、`result-effect-execution`、`chapter-navigation` 与 `chapter-entity-interaction` 的状态权威统一登记为 `src/chapterSession.js`；各无状态服务只拥有对应算法；
 - 新增 `chapter-navigation`、`chapter-entity-interaction` 子系统及对应 policy Schema，ChapterSession 默认配置 Schema 进入开发期治理配置；
-- Chapter Runtime 登记为 `modularized-v1-stateful-session-with-compatibility-facade`；只有 UI flow adapter 仍是未验收 monolith，ARCH-001 因 Slice 6 未完成保持 `open`；
-- ARCH-001 已登记切片 1、2A、2B、3、4、5 的源码、Schema、测试、合同、施工记录和人工视觉证据作为部分证据。
+- Chapter Runtime 登记为 `modularized-v1-stateful-session-with-compatibility-facade`；UI flow adapter 登记为 `modularized-v1-intent-and-view-model-adapters`；
+- ARCH-001 已登记全部六个切片的源码、Schema、测试、合同、施工记录和人工视觉证据，状态更新为 `done`。
 
 ## 6. 代码变化
 
@@ -125,20 +127,15 @@ TDD 证据：
 
 ## 8. 风险
 
-- Result preparation 与 Effect commit 已独立；兼容 facade 仍是唯一 Runtime 状态权威，Executor 只拥有一次调用期间的隔离草稿；
-- Navigation 与实体交互决策已无状态提取；ChapterSession 生命周期与 Runtime 状态权威边界仍待下一切片收口；
-- UI 仍直接调用 Runtime，尚未形成单一 intent adapter；
+- Result preparation 与 Effect commit 已独立；ChapterSession 是唯一 Runtime 状态权威，Executor 只拥有一次调用期间的隔离草稿；
+- Navigation 与实体交互决策已无状态提取；UI 和浏览器自动化通过单一 Intent Adapter 调用 ChapterSession；
+- UI HTML/DOM、持久化生命周期、延期 Combat 展示时间轴和 dormant CSS 仍待 `UI-ARCH-001` 继续拆分；
 - JSDoc 提供当前 JavaScript 类型合同，但不是编译期 TypeScript；
-- 已完成切片只证明 Condition、Result、Navigation、Entity Interaction 与 ChapterSession 边界，不等于 ARCH-001 完成，更不等于 G4 或上线完成。
+- ARCH-001 六个边界已完成，但不等于 G4 或上线完成。
 
 ## 9. 未完成项
 
-ARCH-001 后续固定顺序：
-
-1. Result preparation、transactional EffectExecutor、NavigationService、EntityInteractionService 与 ChapterSession 已完成；
-2. 下一步提取 UI view-model、intent mapper 与 browser automation seam；
-3. 全部合同与浏览器回归后，才把 ARCH-001 从 `open` 更新为 `done`；
-4. 之后才能开始依赖它的 `T03-01` 358/358 全动作断言。
+ARCH-001 六个切片已全部完成。下一 P0 为 `T03-01` 358/358 全动作前后状态断言；`SAVE-001`、`OBS-001`、`UI-ARCH-001`、`T05-01`、`T05-02` 与发行门禁仍未完成。
 
 Slice 1 历史回滚（其余切片按各自合同和追加记录独立回滚）：
 
@@ -210,3 +207,22 @@ Slice 4 回滚必须成组执行：恢复 Runtime/UI 的旧实体解析，删除
 - 下一切片为 UI view-model / intent mapper / browser automation seam；`COMBAT-002`、Rest/Repair 与真实 CombatSession 继续延期。
 
 Slice 5 回滚必须成组执行：恢复旧 `wuxiaFirstSessionFlow.js` 实现，删除 ChapterSession、默认值 Schema、合同测试与合同文档，并同步撤销 Runtime 配置默认值、发布白名单、生产注册、工具分类和 Roadmap 证据；禁止形成双状态权威或半迁移。
+
+### Slice 6：UI Flow Adapter 与 Browser Automation Adapter
+
+- 新增 `src/uiFlowAdapter.js`，把屏幕解析、动态房间标题、独立 ViewModel、8 类严格 Intent 校验与 ChapterSession 命令映射提取为无 DOM 模块；
+- 新增 `src/browserAutomationAdapter.js`，浏览器工具与 DOM 使用同一 Intent 通道；自动化命令不再复制领域调用和结果映射；
+- `src/wuxia-main.js` 中 `state.runtime` 命中降为 0，控制器只持有 `state.ui`，HTML/DOM 不可绕过适配器直接写领域状态；
+- 新增 `config/wuxia_ui_intent_contract.schema.json`，由 Ajv Draft 2020-12 实际编译；Runtime 支持类型、Schema `$defs` 与非空白 ID 规则双向对齐；
+- 严格信封拒绝未知类型、空 ID、缺字段和额外字段，拒绝路径不调用 ChapterSession，因而保持零 mutation；
+- `present()` 返回的屏幕定义和快照与适配器内部隔离；浏览器命令每次只触发一次 Intent 和一次 render；
+- 新增 `tools/test-ui-flow-adapter.mjs`，保留 UI 模块和自动化模块两轮 `ERR_MODULE_NOT_FOUND` 红灯证据，随后 8 类 Intent、Schema、隔离、拒绝和旁路禁令全部转绿；
+- `task:preflight`、`wuxia:check:fast` 与旧 WebView 兼容门禁已接入新模块；358 动作仍为 `highRisk=0`，内容边界 `high=0`，首局 54 事件保持兼容；
+- Web/Android 发布闭包从 18 增至 20 个产品文件，Schema 仅作开发合同不运输；www/Android unexpected=0，freshness findings=0；
+- 浏览器工具增加顶部导航按钮垂直裁切、状态属性行折行和截图预热门禁；人工验收发现的 390×844 状态行折行已先红后绿，Chromium 合成表面分块轮已作废；
+- 最终 540×960 与 390×844 各 20 步真实 Edge 均 0 failures、0 控制台问题，终态 `STATE_FS_008_MAP_EXPLORE`；全部 40 张最终截图逐图打开，异常显示帧另做单图或同状态 PNG SHA 复核；
+- 详细合同见 `UI_FLOW_ADAPTER_CONTRACT.md`，人工证据见 `ARCH-001_SLICE_6_MANUAL_VISUAL_ACCEPTANCE_20260722.md`；
+- 本切片与 ARCH-001 结论均为 `PASS WITH KNOWN LIMITATIONS`；下一 P0 为 `T03-01`，G4 和上线仍未完成；
+- `COMBAT-002`、Rest/Repair 与真实 CombatSession 继续延期。
+
+Slice 6 回滚必须成组执行：恢复 `wuxia-main.js` 的旧直接 Runtime 调用和内联自动化 API，删除两个适配器、Intent Schema、合同测试与合同文档，并同步撤销发布白名单、生产登记、Roadmap 状态和浏览器门禁；禁止形成 DOM 与自动化双命令通道。

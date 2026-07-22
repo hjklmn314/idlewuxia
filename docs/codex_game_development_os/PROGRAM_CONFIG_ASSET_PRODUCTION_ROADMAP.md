@@ -13,15 +13,15 @@
 - 未裁决实体与动作均为 0；
 - 不在此任务中实现 COMBAT-002。
 
-当前第一项转为 `ARCH-001`，给 `T03-01` 提供可测试的模块边界。
+`ARCH-001` 已关闭并已为动作断言提供可测试模块边界；当前第一项为 `T03-01`。
 
 ### 2026-07-22 当前施工位置
 
-- ARCH-001 的 Condition、Result preparation、Transactional EffectExecutor、NavigationService、EntityInteractionService 与 ChapterSession 已完成，当前为 Slice 5/6；
-- `src/chapterSession.js` 已接管唯一会话状态权威，旧 `wuxiaFirstSessionFlow.js` 仅保留兼容 facade；Web/Android 运输闭包为 18 个产品文件；
+- ARCH-001 的 Condition、Result preparation、Transactional EffectExecutor、NavigationService、EntityInteractionService、ChapterSession 与 UI Flow Adapter 六个切片均已完成；
+- `src/chapterSession.js` 已接管唯一会话状态权威，旧 `wuxiaFirstSessionFlow.js` 仅保留兼容 facade；`src/uiFlowAdapter.js` 与 `src/browserAutomationAdapter.js` 已切断 DOM/自动化对 Runtime 的直接调用；Web/Android 运输闭包为 20 个产品文件；
 - ChapterSession 的定义、初始章节、快照、事件、命令结果和存档边界已完成隔离，配置默认旗标具备 Schema、Ajv 校验和双来源一致性门禁；
 - 两个移动视口真实 Edge 交互与人工视觉复核通过，但只覆盖本切片回归，不替代 G5 的 11 屏×3 尺寸和 Android 真机验收；
-- ARCH-001 继续保持 `open`。下一施工项是 Slice 6：UI view-model / intent mapper / browser automation seam；完成全量回归后才允许关闭 ARCH-001 并转入 T03-01；
+- ARCH-001 已在全量回归、双尺寸真实浏览器复验和独立复审后关闭；下一 P0 施工项为 `T03-01`：358/358 动作 before/after 状态断言；
 - COMBAT-002、Rest/Repair 与真实 CombatSession 继续延期。
 
 ## 阶段总览
@@ -41,7 +41,7 @@
 
 施工顺序：
 
-1. `ARCH-001` Characterization Tests 与通用服务提取。
+1. `ARCH-001` Characterization Tests 与通用服务提取（已完成）。
 2. `T03-01` 358/358 动作 before/after assertion。
 3. `SAVE-001` 存档迁移、损坏恢复、回滚。
 4. `OBS-001` intent/result/delta 事件和回放。

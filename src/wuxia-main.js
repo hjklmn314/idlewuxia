@@ -1,7 +1,9 @@
 ﻿import { createFirstSessionRuntime, summarizeFirstSessionContract } from "./wuxiaFirstSessionFlow.js";
+import { createBrowserAutomationAdapter } from "./browserAutomationAdapter.js";
 import { cloneData } from "./dataClone.js";
 import { evidenceSummary } from "./evidenceContract.js";
 import { createRuntimePersistence } from "./runtimePersistence.js";
+import { createUiFlowAdapter } from "./uiFlowAdapter.js";
 
 const CONFIG_FILES = {
   wuxiaFirstSessionFlow: "./config/wuxia_first_session_flow.json",
@@ -11,7 +13,7 @@ const CONFIG_FILES = {
 
 const state = {
   config: null,
-  runtime: null,
+  ui: null,
   persistence: null,
   persistenceLifecycleInstalled: false,
   combatPlayback: {
@@ -856,7 +858,7 @@ function renderMapSelection(event) {
     button.classList.toggle("is-selected", selected);
     button.setAttribute("aria-pressed", String(selected));
   });
-  const snapshot = state.runtime.snapshot();
+  const snapshot = state.ui.snapshot();
   const screen = state.config?.wuxiaScreenContract?.screens?.[snapshot.state?.screenId];
   const presentation = screen?.body?.find((block) => block.type === "chapterNodeRoute")?.selectionPresentation || {};
   const name = event.displayText?.zhCN || "";
@@ -885,7 +887,7 @@ function renderMapSelection(event) {
   bindRoomNavigation(summary, presentation);
   const actionButton = summary?.querySelector(".wuxia-node-action");
   actionButton?.addEventListener("click", () => {
-    state.runtime.dispatch(actionButton.dataset.wuxiaActionId);
+    state.ui.execute({ type: "dispatchAction", actionId: actionButton.dataset.wuxiaActionId });
     render();
   });
   const log = document.querySelector(".wuxia-log");
@@ -897,7 +899,7 @@ function renderMapSelection(event) {
 }
 
 function syncSelectedRoomUi(roomId, presentation = {}) {
-  const snapshot = state.runtime.snapshot();
+  const snapshot = state.ui.snapshot();
   const block = mapExploreBlockForSnapshot(snapshot);
   const explore = document.querySelector(".wuxia-room-explore");
   if (explore && block) {
@@ -920,7 +922,7 @@ function syncSelectedRoomUi(roomId, presentation = {}) {
 
 function selectRoomFromUi(roomId, presentation = {}) {
   if (!roomId) return;
-  const result = state.runtime.selectChapterRoom(roomId);
+  const result = state.ui.execute({ type: "selectRoom", roomId });
   if (!result.accepted) {
     render();
     return;
@@ -932,10 +934,10 @@ function selectRoomFromUi(roomId, presentation = {}) {
   const beforeNodeId = document.body.dataset.wuxiaSelectedNode || "";
   const nextNodeId = result.event.parentNodeId || beforeNodeId;
   if (nextNodeId && nextNodeId !== beforeNodeId) {
-    const nodeResult = state.runtime.selectChapterNode(nextNodeId);
+    const nodeResult = state.ui.execute({ type: "selectNode", nodeId: nextNodeId });
     if (nodeResult.accepted) {
       renderMapSelection(nodeResult.event);
-      state.runtime.selectChapterRoom(roomId);
+      state.ui.execute({ type: "selectRoom", roomId });
       syncSelectedRoomUi(roomId, presentation);
     }
     return;
@@ -951,27 +953,27 @@ function bindRoomNavigation(summary, presentation = {}) {
 
 function selectNpcFromUi(roleId) {
   if (!roleId) return;
-  const result = state.runtime.selectChapterNpc(roleId);
+  const result = state.ui.execute({ type: "selectNpc", roleId });
   if (!result.accepted) return;
   render();
 }
 
 function interactNpcFromUi(roleId, actionType) {
   if (!roleId || !actionType) return;
-  state.runtime.interactWithChapterNpc(roleId, actionType);
+  state.ui.execute({ type: "interactNpc", roleId, actionType });
   render();
 }
 
 function selectItemFromUi(interactableId) {
   if (!interactableId) return;
-  const result = state.runtime.selectChapterInteractable(interactableId);
+  const result = state.ui.execute({ type: "selectInteractable", interactableId });
   if (!result.accepted) return;
   render();
 }
 
 function interactItemFromUi(interactableId, actionType) {
   if (!interactableId || !actionType) return;
-  state.runtime.interactWithChapterInteractable(interactableId, actionType);
+  state.ui.execute({ type: "interactInteractable", interactableId, actionType });
   render();
 }
 
@@ -998,7 +1000,7 @@ function bindNavButton(button, label, actionId) {
   button.dataset.wuxiaActionId = actionId || "";
   button.onclick = actionId
     ? () => {
-        state.runtime.dispatch(actionId);
+        state.ui.execute({ type: "dispatchAction", actionId });
         render();
       }
     : null;
@@ -1041,7 +1043,7 @@ function syncCombatPlayback(snapshot, screen, flowContract) {
     // after its timeline finishes; developer stepping belongs in tooling only.
     if (block.autoResolve === true && resolutionActionId && state.combatPlayback.resolvedKey !== state.combatPlayback.key) {
       state.combatPlayback.resolvedKey = state.combatPlayback.key;
-      const result = state.runtime.dispatch(resolutionActionId);
+      const result = state.ui.execute({ type: "dispatchAction", actionId: resolutionActionId });
       if (!result.accepted) console.error("Configured combat auto-resolution failed", result.event);
       render();
     }
@@ -1055,106 +1057,29 @@ function syncCombatPlayback(snapshot, screen, flowContract) {
 }
 
 function installAutomationApi() {
-  window.__idleWuxiaAutomation = {
-    dispatchAction(actionId) {
-      const result = state.runtime?.dispatch(actionId);
-      render();
-      return {
-        clicked: Boolean(result?.accepted),
-        reason: result?.event?.reason || "",
-        actionId,
-        text: result?.event?.feedback || actionId,
-        automation: true,
-      };
-    },
-    selectNode(nodeId) {
-      const result = state.runtime?.selectChapterNode(nodeId);
-      render();
-      return {
-        clicked: Boolean(result?.accepted),
-        reason: result?.event?.reason || "",
-        nodeId,
-        text: result?.event?.displayText?.zhCN || result?.event?.displayText?.rawCompetitorText || nodeId,
-        automation: true,
-      };
-    },
-    selectRoom(roomId) {
-      const result = state.runtime?.selectChapterRoom(roomId);
-      render();
-      return {
-        clicked: Boolean(result?.accepted),
-        reason: result?.event?.reason || "",
-        roomId,
-        text: result?.event?.name || roomId,
-        automation: true,
-      };
-    },
-    selectNpc(roleId) {
-      const result = state.runtime?.selectChapterNpc(roleId);
-      render();
-      return {
-        clicked: Boolean(result?.accepted),
-        reason: result?.event?.reason || "",
-        roleId,
-        text: result?.event?.name || roleId,
-        automation: true,
-      };
-    },
-    interactNpc(roleId, actionType) {
-      const result = state.runtime?.interactWithChapterNpc(roleId, actionType);
-      render();
-      return {
-        clicked: Boolean(result?.accepted),
-        reason: result?.event?.reason || "",
-        roleId,
-        actionType,
-        text: result?.event?.feedback || actionType,
-        automation: true,
-      };
-    },
-    resolveChoice(optionId) {
-      const result = state.runtime?.resolvePendingChoice(optionId);
-      render();
-      return {
-        clicked: Boolean(result?.accepted),
-        reason: result?.event?.reason || "",
-        optionId,
-        text: result?.event?.feedback || result?.event?.optionLabel || optionId,
-        automation: true,
-      };
-    },
-    snapshot() {
-      return state.runtime?.snapshot();
-    },
-    persistenceStatus() {
-      return state.persistence?.status() || { status: "unavailable" };
-    },
-    clearSave() {
-      return state.persistence?.clear() || { status: "unavailable" };
-    },
-  };
+  window.__idleWuxiaAutomation = createBrowserAutomationAdapter({
+    uiFlowAdapter: state.ui,
+    render,
+    persistence: state.persistence,
+  });
 }
 
 function render() {
-  const runtime = state.runtime;
+  const ui = state.ui;
   const flowContract = state.config?.wuxiaFirstSessionFlow;
   const screenContract = state.config?.wuxiaScreenContract;
-  if (!runtime || !flowContract || !screenContract) return;
+  if (!ui || !flowContract || !screenContract) return;
 
-  const snapshot = runtime.snapshot();
-  const screenId = snapshot.state?.screenId || screenContract.defaultStartScreen;
-  const screen = screenContract.screens?.[screenId];
+  const presentation = ui.present();
+  const { snapshot, screenId, screen } = presentation;
   if (!screen) throw new Error(`Missing screen contract: ${screenId}`);
 
   const title = document.querySelector("#wuxiaScreenTitle");
   const step = document.querySelector("#wuxiaFlowStep");
   const stage = document.querySelector(".wuxia-stage");
   if (!stage) return;
-  const dynamicRoomTitle = screen.body?.some((block) => block.type === "roomExplore")
-    ? roomTitle(activeChapterFromSnapshot(snapshot)?.selectedRoom) || ""
-    : "";
-  if (title) title.textContent = dynamicRoomTitle || screen.nav?.center || screen.title || "";
-  if (step) step.textContent = dynamicRoomTitle || screen.title || "";
+  if (title) title.textContent = presentation.title;
+  if (step) step.textContent = presentation.step;
   bindNavButton(document.querySelector("[data-wuxia-action='back']"), screen.nav?.left || "", screen.navActions?.left || "");
   bindNavButton(document.querySelector("[data-wuxia-action='home']"), screen.nav?.right || "", screen.navActions?.right || "");
 
@@ -1170,13 +1095,13 @@ function render() {
     button.addEventListener("click", () => {
       const actionId = button.dataset.wuxiaActionId;
       if (!actionId) return;
-      state.runtime.dispatch(actionId);
+      state.ui.execute({ type: "dispatchAction", actionId });
       render();
     });
   });
   stage.querySelectorAll("[data-wuxia-node-id]").forEach((button) => {
     button.addEventListener("click", () => {
-      const result = state.runtime.selectChapterNode(button.dataset.wuxiaNodeId);
+      const result = state.ui.execute({ type: "selectNode", nodeId: button.dataset.wuxiaNodeId });
       renderMapSelection(result.event);
     });
   });
@@ -1184,7 +1109,7 @@ function render() {
   bindNpcNavigation(stage);
   stage.querySelectorAll("[data-wuxia-choice-option]").forEach((button) => {
     button.addEventListener("click", () => {
-      state.runtime.resolvePendingChoice(button.dataset.wuxiaChoiceOption);
+      state.ui.execute({ type: "resolveChoice", optionId: button.dataset.wuxiaChoiceOption });
       render();
     });
   });
@@ -1213,7 +1138,11 @@ async function init() {
       initialSaveState: restored.state,
     }));
     state.persistence = attached;
-    state.runtime = attached.runtime;
+    state.ui = createUiFlowAdapter({
+      session: attached.runtime,
+      flowContract: state.config.wuxiaFirstSessionFlow,
+      screenContract: state.config.wuxiaScreenContract,
+    });
     installPersistenceLifecycle(state.config.wuxiaRuntimePersistence);
     installAutomationApi();
     console.info("Wuxia first-session contract", summarizeFirstSessionContract(state.config.wuxiaFirstSessionFlow));

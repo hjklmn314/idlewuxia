@@ -84,6 +84,10 @@ const codeSurfaceRows = collectActiveRuntimeFiles().map((relativePath) => {
     publicFunctions: publicFunctions.join(" | "),
     designRole: relativePath === "src/chapterSession.js"
       ? "stateful_chapter_session_runtime"
+      : relativePath === "src/uiFlowAdapter.js"
+        ? "ui_view_model_and_intent_mapper"
+      : relativePath === "src/browserAutomationAdapter.js"
+        ? "browser_automation_adapter"
       : relativePath.includes("wuxiaFirstSessionFlow")
         ? "chapter_session_compatibility_facade"
       : relativePath.includes("wuxia-main")
@@ -210,6 +214,14 @@ const algorithmRows = [
     interface: "applyResultEffects through configured action routes",
     policy: "result tokens map to named effect modules with evidence level; unknown stays audit-visible",
     currentRisk: `p2Rows=${p2Closure.totalP2Rows ?? "unknown"}; resultRows=${resultCoverage.rows ?? "unknown"}`,
+  },
+  {
+    algorithmId: "ui_flow_adapter",
+    ownerModule: "src/uiFlowAdapter.js + src/browserAutomationAdapter.js",
+    inputData: "ChapterSession snapshot + first-session screen contract + typed UI intent",
+    interface: "present/snapshot/execute; browser commands delegate through the same execute seam",
+    policy: "DOM renders detached view models and cannot call domain commands directly",
+    currentRisk: "UI-ARCH-001 CSS isolation and 11x3 visual acceptance remain open",
   },
 ];
 
