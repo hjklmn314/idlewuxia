@@ -135,6 +135,19 @@ Evidence and tools:
 - `tools/test-wuxia-fb01-action-state-assertions.mjs`
 - `docs/codex_game_development_os/T03-01_COMPLETION_RECORD_20260723.md`
 
-G4 remains blocked by `SAVE-001` and `OBS-001`. `COMBAT-002` (including Rest/Repair and real `CombatSession`) remains postponed. The next non-postponed P0 is `UI-ARCH-001`, but it must not be treated as a release declaration; T05-01, T05-02, real-device, signed-release, performance, store, rollout, and rollback gates remain open.
+G4 remains blocked by `SAVE-001` and `OBS-001`. `COMBAT-002` (including Rest/Repair and real `CombatSession`) remains postponed. `UI-ARCH-001` is now complete; the next non-postponed G5 work is `QA-UI-001`/`T05-01` and `T05-02`. This is not a release declaration; real-device, signed-release, performance, store, rollout, and rollback gates remain open.
 
 会生成当前 Gate、完整任务表、下一批非延期 P0 和资产 disposition。
+
+## 2026-07-23 UI-ARCH-001 完成
+
+`UI-ARCH-001` 已在机器权威生产计划中更新为 `done`。本轮完成：
+
+- 新增 `src/wuxiaDomAdapter.js`，统一 DOM 查询、事件绑定、移动布局、Choice 焦点、持久化生命周期和 UI Intent 回调；
+- `src/wuxia-main.js` 不再直接调用 DOM API，继续只负责配置驱动渲染与 Runtime 编排；
+- 将混合 `src/styles.css` 拆为运输用 `src/wuxia.css` 与非运输参考 `src/legacy-shooting.css`；
+- `index.html`、Project Scope、Subsystem Registry、所有相关校验工具和 Web 构建闭包已同步；
+- UI 架构合同测试、Runtime integrity、全量 `wuxia:check:fast`、Web freshness/APK traceability 合同测试均通过；
+- 540×960 与 390×844 两个真实 Edge 交互流程各 20 步、0 failures、0 page console problems，40 张截图人工复核通过。
+
+完成记录：`docs/codex_game_development_os/UI-ARCH-001_COMPLETION_RECORD_20260723.md`；手动验收：`docs/codex_game_development_os/UI-ARCH-001_MANUAL_VISUAL_ACCEPTANCE_20260723.md`。

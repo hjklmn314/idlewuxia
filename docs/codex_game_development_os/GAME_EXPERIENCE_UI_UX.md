@@ -72,8 +72,8 @@
 
 ## UI 架构问题
 
-- `wuxia-main.js` 仍集中处理 DOM、持久化装配和延期待替的战斗播放；状态命令、UI view-model 与浏览器自动化入口已分别下沉到 `ChapterSession`、`uiFlowAdapter` 和 `browserAutomationAdapter`，不再由 DOM 直接调用 Runtime。
-- `styles.css` 仍含大量 dormant 射击样式。
+- `wuxia-main.js` 仍负责配置驱动 HTML 生成和延期 Combat 播放编排；DOM、事件绑定、移动布局和持久化生命周期已由 `wuxiaDomAdapter.js` 统一拥有。状态命令、UI view-model 与浏览器自动化入口仍分别下沉到 `ChapterSession`、`uiFlowAdapter` 和 `browserAutomationAdapter`。
+- `wuxia.css` 已与 `legacy-shooting.css` 分包，后者不进入 Wuxia shipping closure。
 - 当前浏览器运行证明不是 33 组合的完整矩阵。
 - 反馈虽已有拒绝原因和结果日志，但 358 动作尚未全部绑定 before/after assertion。
 

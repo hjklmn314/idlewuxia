@@ -741,3 +741,12 @@ ChoiceDefinition
 - 人工验收先发现并关闭 390×844 状态属性折行与 Chromium 截图分块两项问题；最终真实 Edge 540×960 与 390×844 各完成 20 步，0 failures、0 console problems，全部 40 张最终截图逐图检查；浏览器工具已增加顶部垂直裁切、状态行折行和截图预热门禁；
 - ARCH-001 更新为 `done`；T03-01 已完成，但 G4 仍被 SAVE-001、OBS-001 阻断；下一非延期 P0 为 UI-ARCH-001；
 - `COMBAT-002`、Rest/Repair 与真实 CombatSession 继续延期。
+
+## 2026-07-23 UI-ARCH-001 完成
+
+- 预审计确认 UI Flow/Intent 合同已可用，但 `wuxia-main.js` 仍拥有 DOM 绑定、移动布局和持久化生命周期，混合 `styles.css` 仍把 dormant shooting CSS 带入运输闭包；
+- 新增 `src/wuxiaDomAdapter.js`，统一 DOM 所有权和事件绑定；`src/wuxia-main.js` 已无直接 `document.*`、`querySelector*`、`.onclick` 或 DOM 事件绑定；
+- 新增运输用 `src/wuxia.css`，历史 `src/legacy-shooting.css` 保留但不进入 `shippingFiles`、Web 或 Android 闭包；
+- 新增 UI 架构合同测试和 CSS/DOM 边界门禁；`production:validate` 0 findings，`wuxia:check:fast` 全链路通过；
+- 真实 Edge 540×960、390×844 各 20 步均 0 failures/0 console problems，40 张截图人工复核通过；
+- 机器权威任务 `UI-ARCH-001` 已更新为 `done`；下一非延期 G5 工作为 `QA-UI-001`、`T05-01` 与 `T05-02`；G4 仍由 `SAVE-001`、`OBS-001` 阻断，`COMBAT-002` 继续延期。

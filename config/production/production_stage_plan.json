@@ -477,7 +477,7 @@
       "title": "UI 定义、导航、交互和反馈适配器拆分",
       "priority": "P0",
       "gate": "G5",
-      "status": "open",
+      "status": "done",
       "owner": "ui-interaction-editor",
       "dependsOn": [
         "ARCH-001",
@@ -488,7 +488,16 @@
         "DOM bindings are isolated from domain state.",
         "Legacy shooting CSS is excluded from the Wuxia shipping style bundle."
       ],
-      "evidence": []
+      "evidence": [
+        "src/wuxiaDomAdapter.js",
+        "src/wuxia.css",
+        "src/legacy-shooting.css",
+        "config/project_scope.json",
+        "tools/test-wuxia-ui-architecture.mjs",
+        "npm run runtime:ui-architecture:test",
+        "docs/codex_game_development_os/UI-ARCH-001_COMPLETION_RECORD_20260723.md",
+        "docs/codex_game_development_os/UI-ARCH-001_MANUAL_VISUAL_ACCEPTANCE_20260723.md"
+      ]
     },
     {
       "id": "T05-01",

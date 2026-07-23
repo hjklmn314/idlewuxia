@@ -1,0 +1,1722 @@
+:root {
+  color-scheme: dark;
+  --text: #f8fbff;
+  --muted: #aebdd1;
+  --line: rgba(255, 255, 255, 0.14);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; min-height: 100%; background: #111820; color: var(--text); }
+body { display: flex; justify-content: center; min-height: 100dvh; overflow: hidden; }
+button { border: 0; color: inherit; font: inherit; cursor: pointer; }
+button:focus { outline: none; }
+button:focus-visible { outline: 2px solid rgba(234, 194, 122, 0.72); outline-offset: 2px; }
+#app { width: min(100vw, 696px); height: 100dvh; min-height: 100dvh; position: relative; overflow: hidden; }
+@media (min-width: 760px) {
+  body { align-items: center; min-height: 100vh; }
+  #app { height: min(940px, 100vh); border-left: 1px solid var(--line); border-right: 1px solid var(--line); box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45); }
+}
+body.wuxia-mode {
+  background: #111820;
+}
+
+.wuxia-shell {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: none;
+  overflow: hidden;
+  color: #f6ead2;
+  background: linear-gradient(180deg, #172630 0%, #0f171d 46%, #1e1b15 100%);
+}
+
+body.wuxia-mode .wuxia-shell {
+  display: flex;
+  flex-direction: column;
+}
+
+.wuxia-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(17, 24, 32, 0.1), rgba(17, 24, 32, 0.78)),
+    radial-gradient(circle at 48% 18%, rgba(232, 181, 104, 0.22), transparent 32%),
+    linear-gradient(135deg, rgba(95, 122, 119, 0.3), transparent 38%);
+  pointer-events: none;
+}
+
+.wuxia-bg::after {
+  content: "";
+  position: absolute;
+  left: -18%;
+  right: -18%;
+  bottom: 0;
+  height: 31%;
+  background:
+    linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.56)),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.4) 0 28px, rgba(25,30,28,0.32) 28px 48px);
+  clip-path: polygon(0 72%, 12% 55%, 22% 70%, 33% 42%, 47% 67%, 57% 38%, 69% 62%, 82% 50%, 100% 75%, 100% 100%, 0 100%);
+}
+
+.wuxia-top {
+  position: relative;
+  z-index: 1;
+  min-height: 76px;
+  padding: max(14px, env(safe-area-inset-top)) 14px 10px;
+  display: grid;
+  grid-template-columns: 64px 1fr 64px;
+  align-items: center;
+  gap: 8px;
+  background: rgba(10, 14, 18, 0.86);
+  border-bottom: 1px solid rgba(237, 207, 151, 0.32);
+}
+
+.wuxia-title-group {
+  text-align: center;
+  min-width: 0;
+}
+
+.wuxia-kicker,
+.wuxia-section-title {
+  color: #e8c779;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.wuxia-title-group h1 {
+  margin: 2px 0 0;
+  font-size: 24px;
+  line-height: 1.1;
+  font-weight: 900;
+  color: #fff6d7;
+}
+
+.wuxia-icon-button,
+.wuxia-primary-button {
+  min-height: 40px;
+  border: 1px solid rgba(238, 208, 148, 0.36);
+  background: rgba(25, 31, 32, 0.82);
+  color: #fff0c6;
+  font-weight: 850;
+}
+
+.wuxia-stage {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+  padding: 14px;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: 12px;
+}
+
+.wuxia-character-card,
+.wuxia-task-card,
+.wuxia-map-panel,
+.wuxia-detail-panel {
+  border: 1px solid rgba(238, 208, 148, 0.2);
+  background: rgba(18, 27, 29, 0.82);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.28);
+}
+
+.wuxia-character-card {
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 78px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.wuxia-avatar {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, #caa36f, #6b4736);
+  color: #fff7dd;
+  font-weight: 900;
+  border: 2px solid #f0d493;
+}
+
+.wuxia-character-copy {
+  display: grid;
+  gap: 5px;
+}
+
+.wuxia-character-copy strong {
+  font-size: 22px;
+}
+
+.wuxia-character-copy span {
+  color: rgba(246, 234, 210, 0.78);
+  font-size: 13px;
+}
+
+.wuxia-bars {
+  display: grid;
+  gap: 5px;
+}
+
+.wuxia-bars span {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+.wuxia-bars i {
+  display: block;
+  height: 100%;
+  background: #e9535e;
+}
+
+.wuxia-bars span:nth-child(2) i {
+  background: #5db7e8;
+}
+
+.wuxia-task-card {
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 1fr 112px;
+  gap: 10px;
+  align-items: center;
+}
+
+.wuxia-task-card p,
+.wuxia-detail-panel p {
+  margin: 4px 0 0;
+  color: rgba(246, 234, 210, 0.86);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.wuxia-primary-button {
+  background: linear-gradient(180deg, #be8b4e, #8b5c32);
+  color: #fff7d6;
+}
+
+.wuxia-map-panel {
+  min-height: 0;
+  padding: 12px;
+  overflow: hidden;
+}
+
+.wuxia-map-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.wuxia-map-head small {
+  color: rgba(246, 234, 210, 0.65);
+}
+
+.wuxia-node-list {
+  height: 100%;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  padding-bottom: 6px;
+}
+
+.wuxia-node-button {
+  min-height: 58px;
+  padding: 10px 12px;
+  text-align: left;
+  border: 1px solid rgba(238, 208, 148, 0.22);
+  background: linear-gradient(90deg, rgba(63, 79, 75, 0.92), rgba(37, 45, 43, 0.86));
+  color: #fff1cb;
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.wuxia-node-button.is-selected {
+  border-color: #f0ca73;
+  background: linear-gradient(90deg, rgba(126, 81, 45, 0.96), rgba(71, 52, 39, 0.9));
+}
+
+.wuxia-node-index {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.26);
+  color: #eecb77;
+  font-weight: 900;
+}
+
+.wuxia-node-main {
+  min-width: 0;
+}
+
+.wuxia-node-main strong {
+  display: block;
+  font-size: 16px;
+}
+
+.wuxia-node-main small {
+  display: block;
+  margin-top: 2px;
+  color: rgba(246, 234, 210, 0.64);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wuxia-node-tag {
+  color: #f7da91;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.wuxia-detail-panel {
+  padding: 12px;
+}
+
+.wuxia-detail-panel h2 {
+  margin: 4px 0 0;
+  font-size: 20px;
+  color: #fff4c7;
+}
+
+.wuxia-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.wuxia-badge {
+  padding: 4px 7px;
+  background: rgba(237, 198, 116, 0.14);
+  border: 1px solid rgba(237, 198, 116, 0.22);
+  color: #f6e0a4;
+  font-size: 12px;
+}
+
+body.wuxia-mode {
+  background: #050505;
+}
+
+body.wuxia-mode #app {
+  width: min(100vw, 600px);
+  background: #0b0d0e;
+}
+
+.wuxia-shell {
+  color: #f4f4f0;
+  background: #080808;
+}
+
+.wuxia-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(80, 88, 92, 0.3) 0 2px, transparent 2px calc(100% - 2px), rgba(80, 88, 92, 0.3) calc(100% - 2px)),
+    radial-gradient(ellipse at center, #465056 0%, #22292d 54%, #111 100%);
+  opacity: 0.82;
+}
+
+.wuxia-bg {
+  background:
+    linear-gradient(180deg, transparent 0 74%, rgba(0, 0, 0, 0.45) 74%),
+    radial-gradient(ellipse at center, rgba(95, 112, 120, 0.7), rgba(20, 24, 28, 0.92));
+}
+
+.wuxia-top {
+  min-height: 58px;
+  padding: max(8px, env(safe-area-inset-top)) 14px 8px;
+  background: #1d1d1d;
+  border-bottom: 2px solid #050505;
+  grid-template-columns: minmax(96px, auto) minmax(0, 1fr) minmax(96px, auto);
+}
+
+.wuxia-icon-button {
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: #e9e9e6;
+  font-size: 21px;
+  font-weight: 900;
+  text-shadow: 0 2px 0 #000;
+  white-space: nowrap;
+}
+
+.wuxia-title-group h1 {
+  margin: 0;
+  color: #f1f1ed;
+  font-size: 24px;
+  text-shadow: 0 2px 0 #000;
+}
+
+.wuxia-kicker {
+  display: none;
+}
+
+.wuxia-stage {
+  padding: 0;
+}
+
+.wuxia-screen {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+
+.wuxia-story-panel {
+  margin: 38px 28px 0;
+  padding: 22px 24px;
+  color: #ecece8;
+  font-size: 23px;
+  line-height: 1.42;
+  text-shadow: 0 2px 0 #000;
+  background: rgba(18, 27, 28, 0.5);
+  border: 2px solid rgba(239, 239, 230, 0.12);
+}
+
+.wuxia-story-panel p {
+  margin: 0 0 10px;
+}
+
+.wuxia-choice-list {
+  margin: 24px 28px 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.wuxia-choice-list button {
+  min-height: 64px;
+  border: 4px solid #111;
+  background: linear-gradient(#e8e8e8, #c9c9c9);
+  color: #161616;
+  font-size: 24px;
+  font-weight: 950;
+}
+
+.wuxia-runtime-feedback {
+  margin: 16px 28px 0;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.52);
+  border-left: 5px solid #1fe66f;
+  color: #e7e0bf;
+  font-size: 18px;
+  line-height: 1.35;
+  text-shadow: 0 2px 0 #000;
+}
+
+.wuxia-status-page {
+  min-height: 278px;
+  padding: 18px 28px 8px;
+  display: grid;
+  grid-template-columns: 1fr 160px;
+  gap: 16px;
+}
+
+.wuxia-status-main {
+  display: grid;
+  align-content: start;
+  gap: 11px;
+}
+
+.wuxia-identity {
+  font-size: 23px;
+  color: #e6e6e1;
+  text-shadow: 0 2px 0 #000;
+}
+
+.wuxia-identity strong {
+  margin-left: 18px;
+  font-size: 26px;
+}
+
+.wuxia-stat-list {
+  display: grid;
+  gap: 8px;
+}
+
+.wuxia-stat-row {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  font-size: 22px;
+  line-height: 1;
+  color: #ddd;
+  text-shadow: 0 2px 0 #000;
+}
+
+.wuxia-stat-row strong {
+  color: #dcdcdc;
+}
+
+.wuxia-portrait-box {
+  position: relative;
+  align-self: start;
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1fr 34px;
+  align-items: center;
+}
+
+.wuxia-portrait-box .wuxia-avatar {
+  width: 118px;
+  height: 118px;
+  border: 5px solid #050505;
+  background: linear-gradient(135deg, #f4d29d, #dca878);
+  color: #333;
+  font-size: 24px;
+}
+
+.wuxia-portrait-box button {
+  width: 34px;
+  min-height: 84px;
+  background: #050505;
+  color: #e9e9e4;
+  font-size: 21px;
+  font-weight: 900;
+  writing-mode: vertical-rl;
+}
+
+.wuxia-task-strip {
+  margin: 8px 28px 0;
+  min-height: 104px;
+  border: 5px solid #111;
+  background: linear-gradient(#efefef, #dcdcdc);
+  color: #171717;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 14px 38px;
+}
+
+.wuxia-task-strip span {
+  justify-self: center;
+  min-width: 150px;
+  padding: 8px 24px;
+  border-radius: 999px;
+  background: #050505;
+  color: #22e26d;
+  font-size: 30px;
+  font-weight: 950;
+  text-align: center;
+}
+
+.wuxia-task-strip strong {
+  justify-self: center;
+  color: #202020;
+  font-size: 18px;
+}
+
+.wuxia-bottom-log {
+  margin: auto 0 0;
+  min-height: 98px;
+  padding: 14px 18px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #bca300;
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.wuxia-modal-card {
+  width: min(78%, 420px);
+  margin: 170px auto 0;
+  padding: 22px 30px;
+  background: #e7e7e7;
+  border: 3px solid #222;
+  color: #111;
+  display: grid;
+  gap: 8px;
+  text-align: center;
+}
+
+.wuxia-modal-card div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.wuxia-bottom-actions {
+  margin-top: auto;
+  padding: 18px 28px max(20px, env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: center;
+  gap: 34px;
+}
+
+.wuxia-primary-button,
+.wuxia-secondary-button {
+  min-width: 142px;
+  min-height: 52px;
+  border: 3px solid #111;
+  background: linear-gradient(#efefef, #d5d5d5);
+  color: #222;
+  font-size: 24px;
+  font-weight: 950;
+  box-shadow: none;
+}
+
+.wuxia-secondary-button {
+  background: linear-gradient(#eeeeee, #d0d0d0);
+}
+
+.wuxia-task-list {
+  padding: 14px;
+  display: grid;
+  gap: 14px;
+}
+
+.wuxia-task-row {
+  min-height: 94px;
+  padding: 14px 22px;
+  border: 4px solid #151515;
+  background: #e9e9e9;
+  color: #101010;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  text-align: left;
+}
+
+.wuxia-task-row span {
+  font-size: 24px;
+  color: #16b74d;
+  font-weight: 950;
+}
+
+.wuxia-task-row small {
+  font-size: 18px;
+  color: #111;
+}
+
+.wuxia-task-row > div {
+  display: grid;
+  justify-items: end;
+  gap: 5px;
+}
+
+.wuxia-task-row em {
+  color: #42655a;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.wuxia-task-progress {
+  position: relative;
+  width: min(148px, 36vw);
+  height: 16px;
+  overflow: hidden;
+  border: 1px solid #1d1d1d;
+  background: #555;
+}
+
+.wuxia-task-progress span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #27c970, #8ce67e);
+  transition: width 180ms ease-out;
+}
+
+.wuxia-task-progress strong {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #111;
+  font-size: 10px;
+  font-weight: 950;
+  text-shadow: 0 1px rgba(255, 255, 255, 0.45);
+}
+
+.wuxia-task-row.is-locked {
+  background: rgba(80, 80, 80, 0.75);
+  color: #ddd;
+}
+
+.wuxia-task-row.is-locked span,
+.wuxia-task-row.is-locked small {
+  color: #ddd;
+}
+
+.wuxia-resource-grid,
+.wuxia-entry-grid,
+.wuxia-chapter-cards {
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.wuxia-resource-grid div,
+.wuxia-entry-grid button,
+.wuxia-chapter-cards button {
+  min-height: 74px;
+  border: 3px solid #111;
+  background: #d8d8d8;
+  color: #111;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.wuxia-map-copy {
+  margin: 24px 22px 0;
+  color: #73b9bc;
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.wuxia-chapter-route {
+  margin: 18px 28px 0;
+  padding: 12px;
+  border: 2px solid rgba(224, 224, 214, 0.28);
+  background: rgba(0, 0, 0, 0.24);
+  display: grid;
+  gap: 10px;
+}
+
+.wuxia-chapter-route header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #f1e8bd;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.wuxia-chapter-route header small {
+  color: #9edbd9;
+}
+
+.wuxia-route-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.wuxia-route-list button {
+  min-height: 54px;
+  padding: 6px 8px;
+  border: 2px solid rgba(0, 214, 223, 0.55);
+  background: rgba(4, 13, 15, 0.86);
+  color: #eef4ed;
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  column-gap: 6px;
+  align-items: center;
+  text-align: left;
+}
+
+.wuxia-route-list button.is-selected,
+.wuxia-route-list button[aria-pressed="true"] {
+  border-color: #ffe08a;
+  background: linear-gradient(135deg, rgba(82, 54, 24, 0.94), rgba(16, 36, 36, 0.92));
+  box-shadow: 0 0 0 2px rgba(255, 224, 138, 0.28), 0 8px 20px rgba(0, 0, 0, 0.28);
+}
+
+.wuxia-route-list button.is-selected span,
+.wuxia-route-list button[aria-pressed="true"] span {
+  background: #ffe08a;
+  color: #1d2017;
+}
+
+.wuxia-route-list button.is-selected strong,
+.wuxia-route-list button[aria-pressed="true"] strong {
+  color: #fff1b6;
+}
+
+.wuxia-route-list button span {
+  grid-row: span 2;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  background: #1f2f2f;
+  color: #f2db8a;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.wuxia-route-list button strong {
+  color: #f4f4ec;
+  font-size: 16px;
+}
+
+.wuxia-route-list button small {
+  color: #8bd8d5;
+  font-size: 12px;
+}
+
+.wuxia-node-summary {
+  min-height: 42px;
+  padding: 8px 10px;
+  background: rgba(18, 30, 30, 0.72);
+  color: #d5f4ef;
+  display: grid;
+  gap: 2px;
+  font-size: 15px;
+}
+
+.wuxia-node-summary strong {
+  color: #ffe59a;
+}
+
+.wuxia-node-detail-grid {
+  display: grid;
+  gap: 5px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 224, 138, 0.18);
+}
+
+.wuxia-node-fact {
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.wuxia-node-fact span {
+  color: #92dad8;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.wuxia-node-fact strong {
+  min-width: 0;
+  color: #f3ead0;
+  font-size: 13px;
+  line-height: 1.28;
+  overflow-wrap: anywhere;
+}
+
+.wuxia-node-action {
+  width: 100%;
+  min-height: 40px;
+  margin-top: 6px;
+  border: 2px solid rgba(255, 224, 138, 0.72);
+  background: linear-gradient(135deg, #b18442, #5a3c24);
+  color: #fff7d7;
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.wuxia-node-action:active {
+  transform: translateY(1px);
+  filter: brightness(1.12);
+}
+
+.wuxia-exits {
+  margin: 18px auto 0;
+  width: 180px;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.wuxia-exits button {
+  min-width: 130px;
+  min-height: 48px;
+  border: 2px solid #4b4b4b;
+  background: #050505;
+  color: #eeeeee;
+  font-size: 24px;
+}
+
+.wuxia-exits button:nth-child(2) {
+  color: #00d6df;
+  border-color: #00a3b5;
+}
+
+.wuxia-presence {
+  margin: 26px 44px 0;
+  color: #9a9a9a;
+  display: grid;
+  gap: 10px;
+}
+
+.wuxia-presence span {
+  font-size: 20px;
+}
+
+.wuxia-presence button {
+  width: 126px;
+  min-height: 48px;
+  background: #8b8e46;
+  border: 4px solid #111;
+  color: #f6f6ef;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.wuxia-log,
+.wuxia-combat-log {
+  margin-top: auto;
+  min-height: 146px;
+  padding: 12px 18px;
+  background: rgba(25, 25, 25, 0.95);
+  color: #38c4cf;
+  font-size: 20px;
+  line-height: 1.32;
+}
+
+.wuxia-log p,
+.wuxia-combat-log p {
+  margin: 0 0 4px;
+}
+
+.wuxia-combat-stage {
+  min-height: 374px;
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.32)),
+    radial-gradient(ellipse at center, #555, #1c1c1c);
+}
+
+.wuxia-combatant {
+  position: absolute;
+  top: 22px;
+  width: 180px;
+  color: #eee;
+  font-size: 18px;
+  text-shadow: 0 2px 0 #000;
+}
+
+.wuxia-combatant.left {
+  left: 20px;
+}
+
+.wuxia-combatant.right {
+  right: 20px;
+  text-align: right;
+}
+
+.wuxia-combatant span {
+  display: block;
+  height: 14px;
+  margin-top: 3px;
+  border: 2px solid #222;
+}
+
+.wuxia-combatant .hp {
+  background: linear-gradient(90deg, #c01518 70%, #595959 70%);
+}
+
+.wuxia-combatant .mp {
+  background: #d5d000;
+}
+
+.wuxia-fighter {
+  position: absolute;
+  top: 190px;
+  width: 54px;
+  height: 84px;
+  display: grid;
+  place-items: center;
+  background: #f1df20;
+  color: #222;
+  border-radius: 45% 45% 35% 35%;
+  font-weight: 900;
+}
+
+.wuxia-fighter.left {
+  left: 205px;
+}
+
+.wuxia-fighter.right {
+  right: 205px;
+}
+
+/* Competitor first-session flow overrides: hide product-debug action rows and keep actions where the reference screen has them. */
+.wuxia-screen-status .wuxia-bottom-actions,
+.wuxia-screen-chapterCards .wuxia-bottom-actions,
+.wuxia-screen-npc .wuxia-bottom-actions {
+  display: none;
+}
+
+.wuxia-task-strip {
+  cursor: pointer;
+}
+
+.wuxia-task-strip:active {
+  transform: translateY(1px);
+  filter: brightness(0.95);
+}
+
+.wuxia-screen-modal .wuxia-bottom-actions {
+  margin-top: 18px;
+  padding: 0;
+}
+
+.wuxia-screen-modal .wuxia-primary-button,
+.wuxia-screen-modal .wuxia-secondary-button {
+  min-width: 140px;
+  min-height: 45px;
+  font-size: 22px;
+}
+
+.wuxia-screen-taskList::before {
+  content: "褰撳墠鍙繘琛岀殑浠诲姟";
+  display: block;
+  padding: 14px 20px 0;
+  color: #f0f0ed;
+  font-size: 24px;
+  font-weight: 950;
+  text-shadow: 0 2px 0 #000;
+}
+
+.wuxia-screen-chapterCards .wuxia-chapter-cards {
+  margin-top: 86px;
+}
+
+.wuxia-screen-chapterCards .wuxia-chapter-cards button {
+  min-height: 118px;
+  background: linear-gradient(180deg, #2c3537, #14191b);
+  color: #f2e8c7;
+  text-align: left;
+  padding: 18px 22px;
+}
+
+.wuxia-screen-chapterCards .wuxia-chapter-cards strong {
+  display: block;
+  font-size: 28px;
+}
+
+.wuxia-screen-chapterCards .wuxia-chapter-cards small {
+  display: block;
+  margin-top: 8px;
+  font-size: 18px;
+  color: #b9c0bd;
+}
+
+.wuxia-screen-hub .wuxia-entry-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.wuxia-screen-combat .wuxia-bottom-actions {
+  justify-content: space-between;
+  padding-left: 42px;
+  padding-right: 42px;
+}
+
+.wuxia-room-browser {
+  margin-top: 12px;
+  padding: 12px;
+  border: 2px solid rgba(230, 218, 186, 0.35);
+  background: rgba(14, 18, 18, 0.55);
+}
+
+.wuxia-room-browser header {
+  margin-bottom: 10px;
+  color: #f0e5bf;
+  font-size: clamp(15px, 3.8vw, 20px);
+  font-weight: 900;
+}
+
+.wuxia-room-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  max-height: min(28vh, 260px);
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.wuxia-room-button {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 2px solid #131313;
+  background: linear-gradient(180deg, #f2f0e9, #c9c9c9);
+  color: #111;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wuxia-room-button span {
+  display: grid;
+  place-items: center;
+  min-width: 28px;
+  height: 28px;
+  background: #202a27;
+  color: #f3e8bb;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.wuxia-room-button strong {
+  overflow: hidden;
+  font-size: clamp(15px, 4.1vw, 22px);
+  font-weight: 950;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wuxia-room-button.is-selected {
+  border-color: #29e976;
+  box-shadow: inset 0 0 0 2px rgba(41, 233, 118, 0.35);
+}
+
+.wuxia-room-detail {
+  margin-top: 10px;
+  padding: 10px;
+  background: rgba(34, 43, 42, 0.82);
+  border-left: 5px solid #29e976;
+  color: #f7f0d5;
+}
+
+.wuxia-room-detail > strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: clamp(17px, 4.8vw, 24px);
+  line-height: 1.1;
+}
+
+.wuxia-room-facts {
+  display: grid;
+  gap: 6px;
+}
+
+.wuxia-room-facts .wuxia-node-fact {
+  grid-template-columns: minmax(52px, 0.32fr) minmax(0, 1fr);
+  padding: 7px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.wuxia-room-facts .wuxia-node-fact:first-child {
+  border-top: 0;
+}
+
+@media (max-width: 560px) {
+  .wuxia-room-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wuxia-screen-mapExplore {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.wuxia-room-explore {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  color: #f1f1ec;
+  background:
+    linear-gradient(180deg, rgba(46, 58, 62, 0.94), rgba(24, 31, 33, 0.96) 68%, rgba(12, 16, 17, 0.98)),
+    radial-gradient(circle at 50% 10%, rgba(255, 255, 255, 0.05), transparent 36%);
+}
+
+.wuxia-room-viewport {
+  padding: clamp(14px, 3.8vw, 22px) clamp(14px, 4.2vw, 24px) 10px;
+  min-height: clamp(248px, 34vh, 320px);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 12px;
+}
+
+.wuxia-room-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 0 2px;
+}
+
+.wuxia-room-title strong {
+  color: #ffffff;
+  font-size: clamp(26px, 7.2vw, 38px);
+  font-weight: 950;
+  text-shadow: 2px 3px 0 #000;
+}
+
+.wuxia-room-title span {
+  color: rgba(235, 235, 230, 0.72);
+  font-size: clamp(13px, 3.2vw, 16px);
+  text-align: right;
+}
+
+.wuxia-room-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(112px, 1.15fr) minmax(0, 1fr);
+  grid-template-rows: minmax(48px, auto) minmax(72px, 1fr) minmax(48px, auto);
+  grid-template-areas:
+    ". up ."
+    "left current right"
+    ". down .";
+  align-items: center;
+  justify-items: center;
+  gap: 8px;
+  min-height: clamp(184px, 27vh, 260px);
+  border: 2px solid rgba(0, 0, 0, 0.55);
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+    linear-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+    rgba(34, 44, 46, 0.72);
+  background-size: 36px 36px;
+  box-shadow: inset 0 0 48px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.wuxia-room-current {
+  grid-area: current;
+  min-width: 112px;
+  min-height: 68px;
+  padding: 14px 18px;
+  display: grid;
+  place-items: center;
+  border: 3px solid #111;
+  background: linear-gradient(180deg, #f7f7f3, #d5d5d0);
+  color: #111;
+  font-size: clamp(24px, 7vw, 36px);
+  font-weight: 950;
+  text-align: center;
+}
+
+.wuxia-room-direction {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 8px 12px;
+  border: 3px solid #111;
+  background: linear-gradient(180deg, #f1f1ee, #cfcfca);
+  color: #111;
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  align-items: center;
+  gap: 8px;
+  font-weight: 950;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.45);
+}
+
+.wuxia-room-direction small {
+  display: grid;
+  place-items: center;
+  min-width: 28px;
+  height: 28px;
+  background: #101617;
+  color: #f1e6ba;
+  font-size: 16px;
+}
+
+.wuxia-room-direction strong {
+  overflow: hidden;
+  font-size: clamp(15px, 4.4vw, 22px);
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wuxia-room-direction em {
+  grid-column: 2;
+  overflow: visible;
+  color: #000000;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 850;
+  line-height: 1.15;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+.wuxia-room-direction.is-locked {
+  border-color: #76565a;
+  background: linear-gradient(180deg, #aaa6a0, #777570);
+  color: #40383a;
+}
+
+.wuxia-room-direction-stack {
+  display: flex;
+  width: 100%;
+  max-width: 180px;
+  gap: 6px;
+}
+
+.wuxia-room-direction-stack.dir-up { grid-area: up; flex-direction: row; }
+.wuxia-room-direction-stack.dir-down { grid-area: down; flex-direction: row; }
+.wuxia-room-direction-stack.dir-left { grid-area: left; flex-direction: column; }
+.wuxia-room-direction-stack.dir-right { grid-area: right; flex-direction: column; }
+.wuxia-room-direction-stack.dir-none { grid-area: down; flex-direction: row; }
+
+.wuxia-room-direction:active,
+.wuxia-npc-button:active,
+.wuxia-npc-action:active {
+  transform: translateY(2px);
+  filter: brightness(1.08);
+}
+
+.wuxia-room-presence {
+  padding: 8px 18px;
+  border-top: 2px solid rgba(0, 0, 0, 0.55);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.55);
+  background: rgba(10, 12, 13, 0.64);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 12px;
+}
+
+.wuxia-room-presence > span {
+  color: rgba(240, 240, 236, 0.78);
+  font-size: clamp(18px, 5vw, 25px);
+  font-weight: 900;
+}
+
+.wuxia-room-presence > div {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.wuxia-room-presence em {
+  color: #e6e2d7;
+  font-size: clamp(18px, 5vw, 25px);
+  font-style: normal;
+  font-weight: 900;
+}
+
+.wuxia-npc-button {
+  min-height: 48px;
+  padding: 8px 16px;
+  border: 3px solid #111;
+  background: linear-gradient(180deg, #eeeee9, #cfcfca);
+  color: #111;
+  font-size: clamp(18px, 5vw, 25px);
+  font-weight: 950;
+}
+
+.wuxia-npc-button.is-selected {
+  color: #10c75c;
+  box-shadow: inset 0 0 0 3px rgba(16, 199, 92, 0.35);
+}
+
+.wuxia-npc-panel {
+  margin: 8px 18px 0;
+  padding: 10px 12px;
+  border: 3px solid #111;
+  background: #ededdf;
+  color: #111;
+  display: grid;
+  gap: 10px;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.38);
+}
+
+.wuxia-npc-panel header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.wuxia-npc-panel header strong {
+  font-size: clamp(22px, 6.2vw, 32px);
+  font-weight: 950;
+}
+
+.wuxia-npc-panel header span {
+  color: #343434;
+  font-size: clamp(13px, 3.6vw, 18px);
+  font-weight: 800;
+  text-align: right;
+}
+
+.wuxia-npc-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.wuxia-npc-action,
+.wuxia-item-action {
+  min-height: 48px;
+  border: 3px solid #111;
+  background: linear-gradient(180deg, #ffe59a, #d7a64a);
+  color: #111;
+  font-size: clamp(18px, 5vw, 25px);
+  font-weight: 950;
+}
+
+.wuxia-npc-action,
+.wuxia-item-action {
+  display: grid;
+  align-content: center;
+  gap: 2px;
+}
+
+.wuxia-npc-action small,
+.wuxia-item-action small {
+  display: block;
+  overflow: hidden;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wuxia-npc-action.is-locked,
+.wuxia-item-action.is-locked {
+  border-color: #6f594d;
+  background: linear-gradient(180deg, #c2b6a2, #8a806f);
+  color: #4b3e38;
+  cursor: not-allowed;
+  opacity: 0.82;
+}
+
+.wuxia-npc-dialogue {
+  padding: 10px 12px;
+  border-left: 6px solid #2dff7b;
+  background: #182021;
+  color: #fff8cf;
+  font-size: clamp(17px, 4.6vw, 23px);
+  line-height: 1.35;
+}
+
+.wuxia-npc-dialogue p {
+  margin: 0 0 6px;
+}
+
+.wuxia-room-log {
+  margin-top: auto;
+  min-height: 128px;
+  max-height: 22vh;
+  overflow: auto;
+  padding: 12px 18px;
+  background: rgba(8, 10, 10, 0.94);
+  color: #e4d108;
+  font-size: clamp(18px, 5.2vw, 27px);
+  line-height: 1.36;
+}
+
+.wuxia-room-log p {
+  margin: 0 0 4px;
+}
+
+@media (max-height: 760px) {
+  .wuxia-room-viewport {
+    min-height: 258px;
+    padding-top: 10px;
+    padding-bottom: 6px;
+  }
+
+  .wuxia-room-grid {
+    min-height: 206px;
+  }
+
+  .wuxia-room-title span {
+    display: none;
+  }
+
+  .wuxia-room-current {
+    min-height: 54px;
+    min-width: 104px;
+    padding: 8px 14px;
+  }
+
+  .wuxia-room-direction {
+    min-height: 46px;
+    min-width: 96px;
+    padding: 5px 8px;
+  }
+
+  .wuxia-room-presence {
+    padding-block: 6px;
+  }
+
+  .wuxia-npc-panel {
+    margin-top: 6px;
+    gap: 8px;
+  }
+
+  .wuxia-npc-action,
+  .wuxia-npc-button {
+    min-height: 42px;
+  }
+
+  .wuxia-room-log {
+    min-height: 108px;
+    max-height: 22vh;
+  }
+}
+
+
+/* Player combat follows the recorded Fangzhi Jianghu vertical composition:
+   compact status strips, a shared scene, units in the field, then prose log. */
+.wuxia-combat-runtime {
+  display: grid;
+  grid-template-rows: minmax(420px, 1fr) minmax(215px, auto);
+  gap: 0;
+  min-height: 640px;
+  background: #050505;
+}
+
+.wuxia-combat-runtime-stage {
+  position: relative;
+  min-height: clamp(420px, 54svh, 560px);
+  overflow: hidden;
+  background: linear-gradient(180deg, #080909 0 27%, #252525 27% 65%, #303030 65% 100%);
+  border-bottom: 2px solid #121212;
+}
+
+.wuxia-runtime-scene-backdrop { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.wuxia-runtime-scene-backdrop::before {
+  content: "";
+  position: absolute;
+  left: 8%; right: 8%; top: 24%; height: 32%;
+  background: linear-gradient(#232323, #171717);
+  clip-path: polygon(0 34%, 6% 18%, 19% 23%, 24% 9%, 39% 16%, 50% 2%, 63% 16%, 76% 9%, 81% 23%, 94% 18%, 100% 34%, 94% 36%, 94% 100%, 6% 100%, 6% 36%);
+  opacity: .96;
+}
+.wuxia-runtime-scene-backdrop::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0; height: 39%;
+  background: linear-gradient(180deg, #353535 0 7%, #2b2b2b 7% 100%);
+  clip-path: polygon(0 7%, 22% 2%, 49% 7%, 72% 1%, 100% 8%, 100% 100%, 0 100%);
+}
+.wuxia-runtime-scene-backdrop i,
+.wuxia-runtime-scene-backdrop b,
+.wuxia-runtime-scene-backdrop em { position: absolute; display: block; z-index: 1; background: #111; opacity: .88; }
+.wuxia-runtime-scene-backdrop i { width: 11%; height: 36%; left: 24%; top: 30%; }
+.wuxia-runtime-scene-backdrop b { width: 11%; height: 36%; right: 24%; top: 30%; }
+.wuxia-runtime-scene-backdrop em { width: 16%; height: 9%; left: 42%; top: 39%; }
+
+.wuxia-runtime-unit {
+  position: absolute;
+  z-index: 4;
+  top: 6%;
+  width: min(36%, 205px);
+  color: #f2f2f2;
+  text-shadow: 1px 1px 0 #000;
+}
+.wuxia-runtime-unit.left { left: 4%; }
+.wuxia-runtime-unit.right { right: 4%; }
+.wuxia-runtime-unit header { display: flex; justify-content: space-between; gap: 5px; margin: 0 2px 3px; font-size: clamp(14px, 4vw, 21px); font-weight: 900; }
+.wuxia-runtime-unit header small { align-self: end; font-size: clamp(10px, 2.6vw, 13px); color: #f3eecf; }
+.wuxia-combat-bar { position: relative; height: 17px; margin-top: 3px; border: 2px solid #2b2b2b; background: #727272; overflow: hidden; box-shadow: 0 1px 0 #000; }
+.wuxia-combat-bar i { position: absolute; inset: 0 auto 0 0; display: block; background: #ec1111; }
+.wuxia-combat-bar.mp { background: #746f00; }
+.wuxia-combat-bar.mp i { background: #e7dd05; }
+.wuxia-combat-bar span,
+.wuxia-combat-bar strong { position: relative; z-index: 1; padding: 0 4px; color: #fff; font-size: clamp(10px, 2.7vw, 13px); font-weight: 900; line-height: 13px; }
+.wuxia-combat-bar strong { float: right; }
+.wuxia-runtime-buffs { display: flex; gap: 3px; min-height: 0; margin-top: 4px; }
+.wuxia-runtime-buffs:has(em) { display: none; }
+.wuxia-runtime-buffs span { display: inline-grid; place-items: center; min-width: 19px; height: 19px; padding: 0 3px; border: 1px solid #ecd463; background: #4c2525; color: #fff0ad; font-size: 10px; font-weight: 900; }
+
+.wuxia-runtime-fighter { position: absolute; z-index: 3; bottom: 15%; width: 100px; height: 150px; }
+.wuxia-runtime-fighter.left { left: 29%; }
+.wuxia-runtime-fighter.right { right: 29%; transform: scaleX(-1); }
+.wuxia-runtime-fighter-shadow { position: absolute; left: 15%; right: 15%; bottom: 0; height: 13px; border-radius: 50%; background: rgba(0,0,0,.58); filter: blur(2px); }
+.wuxia-runtime-fighter-body { position: absolute; left: 23%; bottom: 11px; width: 58px; height: 113px; background: #ffe629; clip-path: polygon(48% 0, 67% 14%, 62% 32%, 95% 38%, 89% 49%, 61% 46%, 77% 73%, 64% 100%, 45% 99%, 48% 75%, 29% 97%, 12% 93%, 24% 65%, 34% 46%, 4% 48%, 0 37%, 36% 30%, 31% 12%); box-shadow: 0 0 13px rgba(255,222,0,.32); }
+.wuxia-runtime-fighter-body span { display: none; }
+.wuxia-runtime-fighter.right .wuxia-runtime-fighter-body { background: #ffde29; }
+
+.wuxia-runtime-hitline { position: absolute; z-index: 2; left: 41%; right: 41%; top: 57%; height: 2px; background: linear-gradient(90deg, transparent, #f8dc66, transparent); }
+.wuxia-runtime-floaters { position: absolute; z-index: 5; left: 28%; right: 28%; top: 48%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; pointer-events: none; }
+.wuxia-runtime-floaters span { color: #f54636; font-size: clamp(20px, 6vw, 32px); font-weight: 950; text-shadow: 2px 2px 0 #000; text-align: center; animation: wuxia-float-up 650ms ease-out both; }
+.wuxia-runtime-floaters span.skill { color: #f5e362; font-size: clamp(15px, 4.6vw, 23px); }
+
+.wuxia-combat-runtime-log { min-height: 215px; padding: 15px 16px 20px; border-top: 1px solid #494949; background: #0a0a0a; color: #a8a8a8; font-size: clamp(15px, 4.1vw, 19px); line-height: 1.34; }
+.wuxia-combat-runtime-log p { margin: 0 0 5px; }
+.wuxia-combat-runtime-log p.damage { color: #f03526; }
+.wuxia-combat-runtime-log p.hint { color: #e1d642; }
+
+@keyframes wuxia-float-up {
+  from { opacity: 0; transform: translateY(14px) scale(0.84); }
+  28% { opacity: 1; transform: translateY(-4px) scale(1.06); }
+  to { opacity: 1; transform: translateY(-18px) scale(1); }
+}
+
+/* Data-driven portrait shell. Values are supplied from mobileLayout in the screen contract. */
+body.wuxia-mode {
+  --wuxia-safe-top: env(safe-area-inset-top, 0px);
+  --wuxia-safe-right: env(safe-area-inset-right, 0px);
+  --wuxia-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --wuxia-safe-left: env(safe-area-inset-left, 0px);
+  --wuxia-content-max-width: 600px;
+  min-height: 100svh;
+  min-height: 100dvh;
+}
+
+body.wuxia-mode #app {
+  width: min(100vw, var(--wuxia-content-max-width));
+  height: 100svh;
+  height: 100dvh;
+  min-height: 100svh;
+  min-height: 100dvh;
+}
+
+body.wuxia-mode .wuxia-shell {
+  min-height: 100%;
+  padding-inline: var(--wuxia-safe-left) var(--wuxia-safe-right);
+  box-sizing: border-box;
+}
+
+body.wuxia-mode .wuxia-top {
+  padding-top: max(8px, var(--wuxia-safe-top));
+}
+
+body.wuxia-mode .wuxia-stage {
+  min-height: 0;
+  overflow: auto;
+  padding-bottom: var(--wuxia-safe-bottom);
+  overscroll-behavior: contain;
+}
+
+@media (max-width: 400px) {
+  .wuxia-status-page {
+    padding: 14px 14px 8px;
+    grid-template-columns: minmax(0, 1fr) 130px;
+    gap: 8px;
+  }
+
+  .wuxia-status-main {
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .wuxia-identity {
+    font-size: 18px;
+    white-space: nowrap;
+  }
+
+  .wuxia-identity strong {
+    margin-left: 6px;
+    font-size: 22px;
+  }
+
+  .wuxia-stat-list {
+    gap: 5px;
+  }
+
+  .wuxia-stat-row {
+    gap: 6px;
+    font-size: 18px;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+
+  .wuxia-portrait-box {
+    margin-top: 10px;
+    grid-template-columns: 96px 30px;
+  }
+
+  .wuxia-portrait-box .wuxia-avatar {
+    width: 96px;
+    height: 96px;
+    font-size: 21px;
+  }
+
+  .wuxia-portrait-box button {
+    width: 30px;
+    min-height: 76px;
+    font-size: 18px;
+  }
+
+  .wuxia-room-grid {
+    grid-template-columns: minmax(0, 0.9fr) minmax(96px, 1fr) minmax(0, 0.9fr);
+    gap: 4px;
+  }
+
+  .wuxia-room-direction-stack { gap: 3px; }
+  .wuxia-room-direction { min-height: 46px; padding: 5px; grid-template-columns: 22px 1fr; gap: 4px; }
+  .wuxia-room-direction small { min-width: 20px; height: 20px; font-size: 12px; }
+  .wuxia-room-direction.is-locked { min-height: 64px; }
+  .wuxia-room-direction em {
+    grid-column: 1 / -1;
+    overflow: visible;
+    font-size: 11px;
+    line-height: 1.2;
+    text-align: center;
+    text-overflow: clip;
+    white-space: normal;
+  }
+  .wuxia-room-current { min-width: 88px; min-height: 54px; padding: 8px; font-size: 22px; }
+}
+
+.wuxia-choice-backdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding:
+    max(18px, var(--wuxia-safe-top))
+    max(18px, var(--wuxia-safe-right))
+    max(18px, var(--wuxia-safe-bottom))
+    max(18px, var(--wuxia-safe-left));
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, .72);
+  backdrop-filter: blur(2px);
+}
+
+.wuxia-choice-dialog {
+  width: min(100%, 480px);
+  max-height: min(78dvh, 680px);
+  overflow: auto;
+  padding: clamp(20px, 6vw, 32px);
+  border: 2px solid #d7cd97;
+  border-radius: 4px;
+  box-sizing: border-box;
+  background:
+    linear-gradient(rgba(247, 241, 215, .96), rgba(226, 217, 178, .98)),
+    #eee4bc;
+  color: #17150f;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .62);
+}
+
+.wuxia-choice-dialog p {
+  margin: 0;
+  white-space: pre-wrap;
+  font-size: clamp(17px, 4.5vw, 22px);
+  font-weight: 700;
+  line-height: 1.62;
+}
+
+.wuxia-choice-options {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.wuxia-choice-options button {
+  min-height: 48px;
+  padding: 11px 16px;
+  border: 1px solid #272218;
+  border-radius: 3px;
+  background: #272218;
+  color: #f6edc7;
+  font: inherit;
+  font-size: clamp(16px, 4.2vw, 20px);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.wuxia-choice-options button:focus-visible {
+  outline: 3px solid #b23224;
+  outline-offset: 3px;
+}
+
+.wuxia-choice-options button:active {
+  transform: translateY(1px);
+  background: #4d1e17;
+}

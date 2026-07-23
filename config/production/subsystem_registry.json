@@ -140,17 +140,19 @@
         "src/uiFlowAdapter.js",
         "src/browserAutomationAdapter.js",
         "src/wuxia-main.js",
-        "src/styles.css"
+        "src/wuxiaDomAdapter.js",
+        "src/wuxia.css"
       ],
       "configuration": [
         "config/wuxia_first_session_screen_contract.json",
         "config/wuxia_ui_intent_contract.schema.json",
         "config/production/ui_experience_registry.json"
       ],
-      "status": "modularized-v1-intent-and-view-model-adapters",
+      "status": "modularized-v2-intent-view-model-dom-and-css-boundaries",
       "nextTaskIds": [
-        "UI-ARCH-001",
-        "T05-01"
+        "T05-01",
+        "T05-02",
+        "QA-UI-001"
       ]
     },
     {

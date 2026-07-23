@@ -4,6 +4,7 @@ import { cloneData } from "./dataClone.js";
 import { evidenceSummary } from "./evidenceContract.js";
 import { createRuntimePersistence } from "./runtimePersistence.js";
 import { createUiFlowAdapter } from "./uiFlowAdapter.js";
+import { createWuxiaDomAdapter } from "./wuxiaDomAdapter.js";
 
 const CONFIG_FILES = {
   wuxiaFirstSessionFlow: "./config/wuxia_first_session_flow.json",
@@ -14,6 +15,7 @@ const CONFIG_FILES = {
 const state = {
   config: null,
   ui: null,
+  dom: null,
   persistence: null,
   persistenceLifecycleInstalled: false,
   combatPlayback: {
@@ -59,14 +61,10 @@ async function loadConfig() {
 }
 
 function renderConfigError(error) {
-  const stage = document.querySelector(".wuxia-stage");
-  if (!stage) return;
-  stage.innerHTML = `
-    <section class="wuxia-story-panel" role="alert">
-      <p>配置加载失败。</p>
-      <p>${escapeHtml(error?.message || error)}</p>
-    </section>
-  `;
+  if (!state.dom) {
+    state.dom = createWuxiaDomAdapter({ execute: () => ({ accepted: false }), persistence: null });
+  }
+  state.dom.showConfigError(escapeHtml(error?.message || error));
 }
 
 function playerStatValue(item, player) {
@@ -825,39 +823,22 @@ function renderPendingChoice(choice) {
 }
 
 function bindPendingChoiceDialog(stage, choice) {
-  if (!choice) return;
-  const screen = stage.querySelector(".wuxia-screen");
-  if (screen) {
-    screen.inert = true;
-    screen.setAttribute("aria-hidden", "true");
-  }
-  const dialog = stage.querySelector(".wuxia-choice-dialog");
-  const buttons = [...(dialog?.querySelectorAll("[data-wuxia-choice-option]") || [])];
-  if (!dialog || !buttons.length) return;
-  dialog.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      event.preventDefault();
-      return;
-    }
-    if (event.key !== "Tab") return;
-    const currentIndex = buttons.indexOf(document.activeElement);
-    const nextIndex = event.shiftKey
-      ? (currentIndex <= 0 ? buttons.length - 1 : currentIndex - 1)
-      : (currentIndex >= buttons.length - 1 ? 0 : currentIndex + 1);
-    event.preventDefault();
-    buttons[nextIndex].focus();
+  if (choice) state.dom.bindPendingChoiceDialog(stage, choice, (optionId) => {
+    state.ui.execute({ type: "resolveChoice", optionId });
+    render();
   });
-  window.requestAnimationFrame(() => buttons[0]?.focus());
 }
 
 function renderMapSelection(event) {
   if (!event || event.type !== "nodeSelected") return;
-  document.body.dataset.wuxiaSelectedNode = event.nodeId || "";
-  document.querySelectorAll(".wuxia-route-list [data-wuxia-node-id]").forEach((button) => {
-    const selected = button.dataset.wuxiaNodeId === event.nodeId;
-    button.classList.toggle("is-selected", selected);
-    button.setAttribute("aria-pressed", String(selected));
-  });
+  state.dom.setBodyClass("wuxia-mode");
+  state.dom.setSelected(
+    ".wuxia-route-list [data-wuxia-node-id]",
+    (button) => button.dataset.wuxiaNodeId === event.nodeId,
+  );
+  for (const button of state.dom.queryAll(".wuxia-route-list [data-wuxia-node-id]")) {
+    button.setAttribute("aria-pressed", String(button.dataset.wuxiaNodeId === event.nodeId));
+  }
   const snapshot = state.ui.snapshot();
   const screen = state.config?.wuxiaScreenContract?.screens?.[snapshot.state?.screenId];
   const presentation = screen?.body?.find((block) => block.type === "chapterNodeRoute")?.selectionPresentation || {};
@@ -874,49 +855,41 @@ function renderMapSelection(event) {
   const action = event.primaryAction || null;
   const actionId = action?.actionId || "";
   const actionLabel = action?.label?.zhCN || action?.label || "";
-  const summary = document.querySelector(".wuxia-node-summary");
+  const summary = state.dom.query(".wuxia-node-summary");
   if (summary) {
-    summary.innerHTML = `
+    state.dom.setInnerHtml(".wuxia-node-summary", `
       <strong>${escapeHtml(name)}</strong>
       <span>${escapeHtml(summaryText)}</span>
       ${renderNodeDetail(event, presentation)}
       ${renderRoomBrowser(event.rooms || [], state.config?.wuxiaFirstSessionFlow || {}, presentation)}
       ${actionId ? `<button class="wuxia-node-action" type="button" data-wuxia-action-id="${escapeHtml(actionId)}">${escapeHtml(actionLabel)}</button>` : ""}
-    `;
+    `);
   }
   bindRoomNavigation(summary, presentation);
-  const actionButton = summary?.querySelector(".wuxia-node-action");
-  actionButton?.addEventListener("click", () => {
-    state.ui.execute({ type: "dispatchAction", actionId: actionButton.dataset.wuxiaActionId });
-    render();
-  });
-  const log = document.querySelector(".wuxia-log");
+  const log = state.dom.query(".wuxia-log");
   if (log && presentation.logLines?.length) {
-    log.innerHTML = presentation.logLines
+    state.dom.setInnerHtml(".wuxia-log", presentation.logLines
       .map((line) => `<p>${escapeHtml(line.replace("{name}", name))}</p>`)
-      .join("");
+      .join(""));
   }
 }
 
 function syncSelectedRoomUi(roomId, presentation = {}) {
   const snapshot = state.ui.snapshot();
   const block = mapExploreBlockForSnapshot(snapshot);
-  const explore = document.querySelector(".wuxia-room-explore");
+  const explore = state.dom.query(".wuxia-room-explore");
   if (explore && block) {
-    explore.outerHTML = renderRoomExplore(block, state.config?.wuxiaFirstSessionFlow || {}, snapshot);
-    bindRoomNavigation(document.querySelector(".wuxia-stage"), block);
-    bindNpcNavigation(document.querySelector(".wuxia-stage"));
+    state.dom.replace(".wuxia-room-explore", renderRoomExplore(block, state.config?.wuxiaFirstSessionFlow || {}, snapshot));
+    bindRoomNavigation(state.dom.query(".wuxia-stage"), block);
     return;
   }
-  const summary = document.querySelector(".wuxia-node-summary");
+  const summary = state.dom.query(".wuxia-node-summary");
   if (!summary) return;
   const roomById = roomByIdForFlow();
   const room = roomById.get(roomId);
-  summary.querySelectorAll(".wuxia-room-button").forEach((item) => {
-    item.classList.toggle("is-selected", item.dataset.wuxiaRoomId === roomId);
-  });
-  const detail = summary.querySelector(".wuxia-room-detail");
-  if (detail) detail.outerHTML = renderRoomDetail(room, roomById, presentation);
+  state.dom.setSelected(".wuxia-room-button", (item) => item.dataset.wuxiaRoomId === roomId, summary);
+  const detail = state.dom.query(".wuxia-room-detail", summary);
+  if (detail) state.dom.replace(".wuxia-room-detail", renderRoomDetail(room, roomById, presentation));
   bindRoomNavigation(summary, presentation);
 }
 
@@ -927,11 +900,11 @@ function selectRoomFromUi(roomId, presentation = {}) {
     render();
     return;
   }
-  if (document.querySelector(".wuxia-room-explore")) {
+  if (state.dom.query(".wuxia-room-explore")) {
     render();
     return;
   }
-  const beforeNodeId = document.body.dataset.wuxiaSelectedNode || "";
+  const beforeNodeId = state.dom.query("body").dataset.wuxiaSelectedNode || "";
   const nextNodeId = result.event.parentNodeId || beforeNodeId;
   if (nextNodeId && nextNodeId !== beforeNodeId) {
     const nodeResult = state.ui.execute({ type: "selectNode", nodeId: nextNodeId });
@@ -946,8 +919,16 @@ function selectRoomFromUi(roomId, presentation = {}) {
 }
 
 function bindRoomNavigation(summary, presentation = {}) {
-  summary?.querySelectorAll(".wuxia-room-button, .wuxia-room-exit, .wuxia-room-direction").forEach((button) => {
-    button.onclick = () => selectRoomFromUi(button.dataset.wuxiaRoomId, presentation);
+  if (!summary) return;
+  state.dom.bindRenderedInteractions(summary, {
+    onDispatchAction: (actionId) => { state.ui.execute({ type: "dispatchAction", actionId }); render(); },
+    onSelectNode: (nodeId) => { const result = state.ui.execute({ type: "selectNode", nodeId }); renderMapSelection(result.event); },
+    onResolveChoice: (optionId) => { state.ui.execute({ type: "resolveChoice", optionId }); render(); },
+    onSelectRoom: (roomId) => selectRoomFromUi(roomId, presentation),
+    onSelectNpc: selectNpcFromUi,
+    onInteractNpc: interactNpcFromUi,
+    onSelectInteractable: selectItemFromUi,
+    onInteractInteractable: interactItemFromUi,
   });
 }
 
@@ -978,53 +959,20 @@ function interactItemFromUi(interactableId, actionType) {
 }
 
 function bindNpcNavigation(scope) {
-  scope?.querySelectorAll(".wuxia-npc-button").forEach((button) => {
-    button.onclick = () => selectNpcFromUi(button.dataset.wuxiaNpcId);
-  });
-  scope?.querySelectorAll(".wuxia-npc-action").forEach((button) => {
-    button.onclick = () => interactNpcFromUi(button.dataset.wuxiaNpcId, button.dataset.wuxiaNpcAction);
-  });
-  scope?.querySelectorAll(".wuxia-item-button").forEach((button) => {
-    button.onclick = () => selectItemFromUi(button.dataset.wuxiaInteractableId);
-  });
-  scope?.querySelectorAll(".wuxia-item-action").forEach((button) => {
-    button.onclick = () => interactItemFromUi(button.dataset.wuxiaInteractableId, button.dataset.wuxiaInteractableAction);
-  });
-}
-
-function bindNavButton(button, label, actionId) {
-  if (!button) return;
-  button.textContent = label || "";
-  button.hidden = !label;
-  button.disabled = !actionId;
-  button.dataset.wuxiaActionId = actionId || "";
-  button.onclick = actionId
-    ? () => {
-        state.ui.execute({ type: "dispatchAction", actionId });
-        render();
-      }
-    : null;
+  bindRoomNavigation(scope);
 }
 
 function applyMobileLayout(layout = {}) {
-  const root = document.documentElement;
-  if (layout.contentMaxWidthPx) root.style.setProperty("--wuxia-content-max-width", `${layout.contentMaxWidthPx}px`);
-  for (const [key, value] of Object.entries(layout.safeArea || {})) {
-    if (value) root.style.setProperty(`--wuxia-safe-${key}`, value);
-  }
-  document.body.dataset.wuxiaOrientation = layout.orientation || "portrait";
-  document.body.dataset.wuxiaSafeArea = String(Boolean(layout.safeArea?.enabled));
+  state.dom.applyMobileLayout(layout);
 }
 
 function installPersistenceLifecycle(contract = {}) {
   if (state.persistenceLifecycleInstalled) return;
   state.persistenceLifecycleInstalled = true;
-  for (const eventName of contract.autosave?.lifecycleEvents || []) {
-    window.addEventListener(eventName, () => {
-      if (eventName === "visibilitychange" && document.visibilityState !== "hidden") return;
-      state.persistence?.flush();
-    });
-  }
+  state.dom.installPersistenceLifecycle(
+    { lifecycleEvents: contract.autosave?.lifecycleEvents || [] },
+    () => state.persistence?.flush(),
+  );
 }
 
 function syncCombatPlayback(snapshot, screen, flowContract) {
@@ -1073,54 +1021,28 @@ function render() {
   const presentation = ui.present();
   const { snapshot, screenId, screen } = presentation;
   if (!screen) throw new Error(`Missing screen contract: ${screenId}`);
-
-  const title = document.querySelector("#wuxiaScreenTitle");
-  const step = document.querySelector("#wuxiaFlowStep");
-  const stage = document.querySelector(".wuxia-stage");
-  if (!stage) return;
-  if (title) title.textContent = presentation.title;
-  if (step) step.textContent = presentation.step;
-  bindNavButton(document.querySelector("[data-wuxia-action='back']"), screen.nav?.left || "", screen.navActions?.left || "");
-  bindNavButton(document.querySelector("[data-wuxia-action='home']"), screen.nav?.right || "", screen.navActions?.right || "");
-
-  document.body.dataset.runtime = "wuxia";
-  document.body.dataset.wuxiaState = snapshot.currentState || "";
-  document.body.dataset.wuxiaScreen = screenId;
-  document.body.dataset.wuxiaMode = screen.mode || "status";
-  stage.dataset.screenMode = screen.mode || "status";
-  stage.innerHTML = `${renderScreenBody(screen, screenContract, flowContract, snapshot)}${renderPendingChoice(snapshot.pendingChoice)}`;
+  const stage = state.dom.present({
+    presentation,
+    markup: `${renderScreenBody(screen, screenContract, flowContract, snapshot)}${renderPendingChoice(snapshot.pendingChoice)}`,
+    onDispatchAction: (actionId) => { state.ui.execute({ type: "dispatchAction", actionId }); render(); },
+    onSelectNode: (nodeId) => {
+      const result = state.ui.execute({ type: "selectNode", nodeId });
+      if (result.accepted) renderMapSelection(result.event);
+    },
+    onResolveChoice: (optionId) => { state.ui.execute({ type: "resolveChoice", optionId }); render(); },
+    onSelectRoom: (roomId) => selectRoomFromUi(roomId, mapExploreBlockForSnapshot(snapshot) || {}),
+    onSelectNpc: selectNpcFromUi,
+    onInteractNpc: interactNpcFromUi,
+    onSelectInteractable: selectItemFromUi,
+    onInteractInteractable: interactItemFromUi,
+  });
   syncCombatPlayback(snapshot, screen, flowContract);
-
-  stage.querySelectorAll("[data-wuxia-action-id]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const actionId = button.dataset.wuxiaActionId;
-      if (!actionId) return;
-      state.ui.execute({ type: "dispatchAction", actionId });
-      render();
-    });
-  });
-  stage.querySelectorAll("[data-wuxia-node-id]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const result = state.ui.execute({ type: "selectNode", nodeId: button.dataset.wuxiaNodeId });
-      renderMapSelection(result.event);
-    });
-  });
-  bindRoomNavigation(stage, mapExploreBlockForSnapshot(snapshot) || {});
-  bindNpcNavigation(stage);
-  stage.querySelectorAll("[data-wuxia-choice-option]").forEach((button) => {
-    button.addEventListener("click", () => {
-      state.ui.execute({ type: "resolveChoice", optionId: button.dataset.wuxiaChoiceOption });
-      render();
-    });
-  });
   bindPendingChoiceDialog(stage, snapshot.pendingChoice);
 }
 
 async function init() {
   try {
-    document.body.classList.add("wuxia-mode");
     state.config = await loadConfig();
-    applyMobileLayout(state.config.wuxiaScreenContract?.mobileLayout || {});
     let storage = null;
     try {
       storage = window.localStorage;
@@ -1143,6 +1065,12 @@ async function init() {
       flowContract: state.config.wuxiaFirstSessionFlow,
       screenContract: state.config.wuxiaScreenContract,
     });
+    state.dom = createWuxiaDomAdapter({
+      execute: (intent) => state.ui.execute(intent),
+      persistence: state.persistence,
+    });
+    state.dom.setBodyClass("wuxia-mode");
+    applyMobileLayout(state.config.wuxiaScreenContract?.mobileLayout || {});
     installPersistenceLifecycle(state.config.wuxiaRuntimePersistence);
     installAutomationApi();
     console.info("Wuxia first-session contract", summarizeFirstSessionContract(state.config.wuxiaFirstSessionFlow));

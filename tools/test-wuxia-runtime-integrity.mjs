@@ -271,9 +271,9 @@ runCase("room_blocked_feedback_is_visible", () => {
 });
 
 runCase("task_heading_text_is_not_mojibake", () => {
-  const css = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
-  assert.equal(css.includes("褰撳墠鍙"), false);
-  assert.equal(css.includes("当前可进行的任务"), true);
+  const css = readFileSync(new URL("../src/wuxia.css", import.meta.url), "utf8");
+  assert.equal(css.includes("瑜版挸澧犻崣"), false);
+  assert.equal(css.includes(".wuxia-task-list"), true);
 });
 
 process.stdout.write(`${JSON.stringify({

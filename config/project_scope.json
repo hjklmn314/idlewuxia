@@ -5,7 +5,8 @@
   "htmlEntry": "index.html",
   "activeRuntimeFiles": [
     "index.html",
-    "src/styles.css",
+    "src/wuxia.css",
+    "src/wuxiaDomAdapter.js",
     "src/browserAutomationAdapter.js",
     "src/chapterSession.js",
     "src/conditionEvaluator.js",
@@ -34,11 +35,13 @@
     "config/wuxia_fb01_entity_reachability_policy.json",
     "config/wuxia_navigation_policy.schema.json",
     "config/wuxia_runtime_mutation_policy.schema.json",
-    "config/wuxia_ui_intent_contract.schema.json"
+    "config/wuxia_ui_intent_contract.schema.json",
+    "src/legacy-shooting.css"
   ],
   "shippingFiles": [
     "index.html",
-    "src/styles.css",
+    "src/wuxia.css",
+    "src/wuxiaDomAdapter.js",
     "src/browserAutomationAdapter.js",
     "src/chapterSession.js",
     "src/conditionEvaluator.js",

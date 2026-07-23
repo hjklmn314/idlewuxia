@@ -38,7 +38,7 @@ flowchart LR
     I --> J["Capacitor Android"]
 ```
 
-链路可运行；`B` 已收口为兼容入口，`P` 是唯一可写 ChapterSession 状态权威，`U` 是 DOM 与自动化共用的 ViewModel/Intent 边界，`D` 仍保留 HTML、DOM、持久化生命周期与延期 Combat 展示时间轴，后续由 UI-ARCH-001 继续拆分。
+链路可运行；`B` 已收口为兼容入口，`P` 是唯一可写 ChapterSession 状态权威，`U` 是 DOM 与自动化共用的 ViewModel/Intent 边界，`D` 通过 `wuxiaDomAdapter.js` 统一承载 DOM、移动布局和交互绑定；延期 Combat 展示时间轴仍保留在入口编排层。
 
 截至 2026-07-22，ARCH-001 已把 Condition 解释器提取为
 `src/conditionEvaluator.js`，把 ResultSet/Choice/SkillConversion/库存预检
@@ -104,7 +104,7 @@ flowchart TB
 | `foundation-runtime` | condition/result/save/event/asset contracts | 部分存在，待拆分 |
 | `first-session-shell` | 11 屏流程、基础反馈和持久化 | 已有纵切 |
 | `chapter-fb01` | 45 房间、116 NPC、23 物件、动作和奖励 | 已配置；T03-00 为 129 可达实体、10 个受控休眠实体、0 未裁决 |
-| `wuxia-ui-shell` | ViewModel、Intent、DOM adapter、导航、样式、可访问性 | ViewModel/Intent 已拆；DOM/CSS 待 UI-ARCH-001 |
+| `wuxia-ui-shell` | ViewModel、Intent、DOM adapter、导航、样式、可访问性 | UI-ARCH-001 已完成 DOM/CSS 边界；33 格视觉矩阵仍待 T05-01 |
 | `wuxia-asset-presentation` | Registry、字体、地图、肖像、图标 | 仅 Registry 种子 |
 | `android-release` | bundle、签名、设备、商店、回滚 | debug proof only |
 | `combat-session` | 真实战斗与 Rest/Repair | 延期 |

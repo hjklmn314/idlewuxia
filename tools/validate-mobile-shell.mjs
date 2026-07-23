@@ -14,7 +14,7 @@ const files = {
   styles: fs.readFileSync(path.join(root, "android", "app", "src", "main", "res", "values", "styles.xml"), "utf8"),
   manifest: fs.readFileSync(path.join(root, "android", "app", "src", "main", "AndroidManifest.xml"), "utf8"),
   index: fs.readFileSync(path.join(root, "index.html"), "utf8"),
-  css: fs.readFileSync(path.join(root, "src", "styles.css"), "utf8"),
+  css: fs.readFileSync(path.join(root, "src", "wuxia.css"), "utf8"),
   uiShell: fs.readFileSync(path.join(root, "config", "ui_shell_contract.json"), "utf8"),
 };
 
@@ -105,7 +105,7 @@ check(
   "web shell uses dynamic viewport and safe areas",
   has("css", ["height: 100dvh", "env(safe-area-inset-top)", "env(safe-area-inset-bottom)", ".control-panel", ".topbar"]),
   "CSS must size to mobile dynamic viewport and respect safe-area insets.",
-  { file: "src/styles.css" },
+  { file: "src/wuxia.css" },
 );
 check(
   "mobile layout contract exists",
@@ -125,7 +125,7 @@ check(
     "--card-price-size",
   ]),
   "Bottom tabs/cards should be controlled through shared mobile layout variables.",
-  { file: "src/styles.css" },
+  { file: "src/wuxia.css" },
 );
 check(
   "bottom panel consumes layout variables",
@@ -138,19 +138,19 @@ check(
     "font-size: var(--card-price-size)",
   ]),
   "Control panel, tabs, and upgrade cards must consume shared mobile variables.",
-  { file: "src/styles.css" },
+  { file: "src/wuxia.css" },
 );
 check(
   "bottom tabs are touch scroll safe",
   has("css", [".bottom-tabs", "overflow-x: auto", "touch-action: pan-x", "-webkit-overflow-scrolling: touch", "scroll-snap-type: x mandatory"]),
   "Bottom tab strip must keep native horizontal touch behavior available on narrow devices.",
-  { file: "src/styles.css" },
+  { file: "src/wuxia.css" },
 );
 check(
   "upgrade rails are touch scroll safe",
   has("css", [".upgrade-grid", ".mini-grid", ".slot-row", "overflow-x: auto", "touch-action: pan-x", "scroll-snap-type: x proximity"]),
   "Upgrade cards and slot chips must scroll horizontally on mobile instead of clipping.",
-  { file: "src/styles.css" },
+  { file: "src/wuxia.css" },
 );
 
 const targetDevices = [

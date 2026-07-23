@@ -49,7 +49,7 @@ function findCurrentLine(fileText, pattern) {
 const files = {
   main: read(path.join(root, "src", "main.js")),
   index: read(path.join(root, "index.html")),
-  styles: read(path.join(root, "src", "styles.css")),
+  styles: read(path.join(root, "src", "wuxia.css")),
   originalJs: read(originalJsPath),
   economy: readJson(path.join(root, "config", "original_economy_constants.json")),
   uiUnlocks: readJson(path.join(root, "config", "original_ui_unlocks.json")),

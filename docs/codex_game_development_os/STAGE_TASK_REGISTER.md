@@ -19,7 +19,7 @@
 | T03-01 | P0 | G4 | open | qa-bot-regression-engineer | 358/358 全动作状态断言 |
 | SAVE-001 | P1 | G4 | open | save-migration-compatibility | 存档迁移、损坏恢复、回滚 |
 | OBS-001 | P1 | G4 | open | analytics-observability-engineer | 运行时事件、日志和回放 |
-| UI-ARCH-001 | P0 | G5 | open | ui-interaction-editor | UI 定义、导航和反馈适配器 |
+| UI-ARCH-001 | P0 | G5 | done | ui-interaction-editor | UI 定义、导航和反馈适配器 |
 | QA-UI-001 | P0 | G5 | open | qa-bot-regression-engineer | Browser Surface 与 Modal Sweep |
 | T05-01 | P0 | G5 | open | qa-bot-regression-engineer | 11 屏×3 尺寸验收 |
 | T05-02 | P0 | G5 | open | asset-content-pipeline | AssetRegistry 接入 Runtime |

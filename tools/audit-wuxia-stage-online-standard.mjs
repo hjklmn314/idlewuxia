@@ -112,7 +112,7 @@ function issue(row) {
 const indexPath = path.join(root, "index.html");
 const activeEntryPath = path.join(root, "src", "wuxia-main.js");
 const legacyEntryPath = path.join(root, "src", "main.js");
-const stylesPath = path.join(root, "src", "styles.css");
+const stylesPath = path.join(root, "src", "wuxia.css");
 const screenPath = path.join(root, "config", "wuxia_first_session_screen_contract.json");
 const flowPath = path.join(root, "config", "wuxia_first_session_flow.json");
 const interactionSummaryPath = path.join(root, "outputs", "wuxia_fb01_interaction_coverage", "summary.json");
@@ -283,7 +283,7 @@ const highRiskByStatus = Object.entries(countBy(highRiskRows, "status"))
 const sourceTexts = [
   { source: "index.html", text: indexHtml },
   { source: "src/wuxia-main.js", text: activeMain },
-  { source: "src/styles.css", text: styles },
+  { source: "src/wuxia.css", text: styles },
 ];
 const assetRefs = [];
 for (const { source, text } of sourceTexts) {

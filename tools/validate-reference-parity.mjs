@@ -5,7 +5,7 @@ const root = path.resolve(".");
 const outputDir = path.join(root, "outputs");
 const mainPath = path.join(root, "src", "main.js");
 const indexPath = path.join(root, "index.html");
-const stylesPath = path.join(root, "src", "styles.css");
+const stylesPath = path.join(root, "src", "wuxia.css");
 const unlocksPath = path.join(root, "config", "original_ui_unlocks.json");
 const economyPath = path.join(root, "config", "original_economy_constants.json");
 

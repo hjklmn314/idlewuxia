@@ -9,7 +9,7 @@
 | 结果真实执行 | `resultExecutionModules.js` | result definitions | feedback IDs | result coverage + state delta | T03-01 |
 | 地图/NPC 可达 | Navigation/Entity service 目标模块 | chapter rooms/entities/actions | map/portrait/icon slots | reachability + browser crawl | T03-00 |
 | 存档恢复 | `runtimePersistence.js` / SaveService 目标 | persistence contract | 无 | migration/corruption/rollback | SAVE-001 |
-| 11 屏 UI | `uiFlowAdapter.js` + `browserAutomationAdapter.js`（已建立边界） | screen + UI experience registry | fonts/map/icons | 当前切片双尺寸回归；完整 33 visual pairs 仍属后续 | UI-ARCH-001, T05-01 |
+| 11 屏 UI | `uiFlowAdapter.js` + `browserAutomationAdapter.js` + `wuxiaDomAdapter.js`（UI-ARCH-001 已完成） | screen + UI experience registry | fonts/map/icons | 当前切片双尺寸回归；完整 33 visual pairs 仍属后续 | T05-01, QA-UI-001 |
 | 资产运输 | AssetRegistry resolver 目标模块 | asset registry | owned files | hash/license/budget/APK bytes | T05-02, ASSET-* |
 | Android 发布 | build/audit/release tools | identity/web/release contracts | launcher/store assets | signed bundle/device/store | REL-001..003 |
 | 战斗/Rest/Repair | CombatSession 目标模块 | combat definitions | combat feedback assets | deterministic combat tests | COMBAT-002 postponed |
