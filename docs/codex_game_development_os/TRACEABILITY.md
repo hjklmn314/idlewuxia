@@ -54,3 +54,10 @@
 9. 未完成项。
 
 同时记录任务 ID、起止 commit、配置 hash、生成物路径、门禁结果和 rollback 方案。
+## QA-UI-001 traceability entry (2026-07-23)
+
+| Requirement | Configuration authority | Runtime/tool authority | Evidence | Verdict |
+|---|---|---|---|---|
+| Registry-driven browser surface sweep | `config/production/ui_experience_registry.json` | `tools/run-wuxia-browser-surface-sweep.mjs` | `outputs/wuxia_visual_matrix/20260723_qa_ui_001_final/` | Tool pass; product revise |
+| Choice-result modal acceptance | `config/wuxia_browser_modal_probe.json` | `tools/audit-wuxia-choice-result-browser.mjs` | per-viewport screenshot + DOM failure bundles | Blocked by legitimate route |
+| 11 screens x 3 viewports | UI registry | browser sweep | sweep report + coverage gaps | T05-01 open |

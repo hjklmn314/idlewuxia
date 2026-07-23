@@ -1,0 +1,16 @@
+{
+  "$schema": "idlewuxia.browser_modal_probe.v1",
+  "probeId": "first-session-choice-result",
+  "purpose": "Stable real-browser modal acceptance specimen for the configured choice-result path.",
+  "roleId": "tmnpc01d",
+  "actionType": "custom_caozuo1",
+  "resultId": "tmchoice01",
+  "sourceFile": "res/script/map/mapConditionAndResult/fb01.lua",
+  "sourceRecord": "tmchoice01",
+  "sourceKind": "lua",
+  "acceptance": {
+    "requiresVisibleDialog": true,
+    "requiresChoiceResolution": true,
+    "requiresZeroConsoleProblems": true
+  }
+}

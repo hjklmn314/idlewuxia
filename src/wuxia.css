@@ -1582,7 +1582,7 @@ body.wuxia-mode .wuxia-stage {
   overscroll-behavior: contain;
 }
 
-@media (max-width: 400px) {
+@media (max-width: 440px) {
   .wuxia-status-page {
     padding: 14px 14px 8px;
     grid-template-columns: minmax(0, 1fr) 130px;

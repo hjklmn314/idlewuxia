@@ -36,6 +36,8 @@
     "production:report": "node tools/generate-production-report.mjs",
     "production:inventory": "node tools/build-production-evidence-inventory.mjs",
     "production:ui-matrix": "node tools/generate-wuxia-ui-acceptance-matrix.mjs",
+    "wuxia:qa:ui-sweep": "node tools/run-wuxia-browser-surface-sweep.mjs",
+    "wuxia:qa:ui-sweep:test": "node tools/test-wuxia-browser-surface-sweep.mjs",
     "task:preflight": "npm run baseline:test && npm run production:test && npm run production:validate && npm run web:freshness:test && npm run apk:traceability:test && npm run runtime:compatibility:test && npm run runtime:condition-contract:test && npm run runtime:result-preparation:test && npm run runtime:result-effect-executor:test && npm run runtime:navigation-service:test && npm run runtime:entity-interaction-service:test && npm run runtime:chapter-session:test && npm run runtime:ui-flow-adapter:test && npm run runtime:ui-architecture:test && npm run runtime:persistence:test && npm run runtime:integrity:test && npm run runtime:choice-result:test && npm run runtime:evidence-contract:test && npm run runtime:entity-reachability:test && npm run runtime:action-state-assertions:test && npm run runtime:condition-negative && npm run runtime:first-session-simulator:test && npm run scope:validate && npm run android:identity && npm run wuxia:validate:active-entry && npm run wuxia:validate:evidence && npm run wuxia:validate:first-session:runtime",
     "validate": "node tools/validate-config.mjs",
     "validate:reference-parity": "node tools/validate-reference-parity.mjs",

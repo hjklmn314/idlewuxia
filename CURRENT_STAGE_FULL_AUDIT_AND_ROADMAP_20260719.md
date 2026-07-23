@@ -750,3 +750,12 @@ ChoiceDefinition
 - 新增 UI 架构合同测试和 CSS/DOM 边界门禁；`production:validate` 0 findings，`wuxia:check:fast` 全链路通过；
 - 真实 Edge 540×960、390×844 各 20 步均 0 failures/0 console problems，40 张截图人工复核通过；
 - 机器权威任务 `UI-ARCH-001` 已更新为 `done`；下一非延期 G5 工作为 `QA-UI-001`、`T05-01` 与 `T05-02`；G4 仍由 `SAVE-001`、`OBS-001` 阻断，`COMBAT-002` 继续延期。
+## 2026-07-23 continuation audit
+
+The next G5 implementation checkpoint is recorded in the three QA-UI-001
+documents dated 20260723. The registry-driven sweep and real-browser evidence
+bundle are implemented, but the product verdict is `REVISE / BLOCKED`: the
+configured choice-result NPC is not in the default room, and the conditional
+NPC/Chapter Loop surfaces are not reachable through the baseline route. No
+runtime state injection or combat implementation was used. G5 and T05-01
+therefore remain open.

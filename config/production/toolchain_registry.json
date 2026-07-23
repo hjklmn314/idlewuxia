@@ -56,11 +56,12 @@
     },
     {
       "id": "browser-11x3-matrix",
-      "command": "not-yet-implemented",
+      "command": "npm run wuxia:qa:ui-sweep",
       "artifact": "outputs/wuxia_visual_matrix",
       "stage": "G5",
-      "status": "blocked",
-      "taskId": "QA-UI-001"
+      "status": "enabled-with-known-runtime-gaps",
+      "taskId": "QA-UI-001",
+      "notes": "Registry-driven real-browser sweep is enabled; conditional screen coverage and configured modal route remain explicit blockers for T05-01."
     },
     {
       "id": "web-bundle-freshness",

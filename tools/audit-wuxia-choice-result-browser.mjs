@@ -6,11 +6,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const outDir = path.join(root, "outputs", "t02_03a_choice_result");
 const args = Object.fromEntries(process.argv.slice(2).map((entry) => {
   const [key, ...parts] = entry.replace(/^--/, "").split("=");
   return [key, parts.join("=")];
 }));
+const outDir = path.resolve(root, args["out-dir"] || path.join("outputs", "t02_03a_choice_result"));
 const require = createRequire(import.meta.url);
 const playwright = args["module-root"]
   ? require(path.join(args["module-root"], "playwright-core"))
@@ -78,14 +78,10 @@ async function openChoice(page, baseUrl) {
       `entry action ${actionId} must be accepted: ${JSON.stringify(outcome)}`,
     );
   }
-  assert.equal(
-    (await page.evaluate(() => window.__idleWuxiaAutomation.selectNpc("tmnpc01d"))).clicked,
-    true,
-  );
-  assert.equal(
-    (await page.evaluate(() => window.__idleWuxiaAutomation.interactNpc("tmnpc01d", "custom_caozuo1"))).clicked,
-    true,
-  );
+  const selectOutcome = await page.evaluate(() => window.__idleWuxiaAutomation.selectNpc("tmnpc01d"));
+  assert.equal(selectOutcome.clicked, true, `choice probe NPC selection failed: ${JSON.stringify(selectOutcome)}`);
+  const interactOutcome = await page.evaluate(() => window.__idleWuxiaAutomation.interactNpc("tmnpc01d", "custom_caozuo1"));
+  assert.equal(interactOutcome.clicked, true, `choice probe NPC action failed: ${JSON.stringify(interactOutcome)}`);
   await page.locator(".wuxia-choice-dialog").waitFor({ state: "visible" });
 }
 
@@ -97,15 +93,25 @@ const browser = await playwright.chromium.launch({
   headless: true,
   executablePath: edgePath,
 });
-const viewports = [
+const defaultViewports = [
   { width: 360, height: 800 },
   { width: 390, height: 844 },
   { width: 540, height: 960 },
 ];
+const viewports = (args["viewport-ids"] || "")
+  .split(",")
+  .map((value) => value.trim())
+  .filter(Boolean)
+  .map((value) => {
+    const match = /^(\d+)x(\d+)$/.exec(value);
+    if (!match) throw new Error(`Invalid viewport id: ${value}`);
+    return { width: Number(match[1]), height: Number(match[2]) };
+  });
+const selectedViewports = viewports.length ? viewports : defaultViewports;
 const cases = [];
 
 try {
-  for (const viewport of viewports) {
+  for (const viewport of selectedViewports) {
     const context = await browser.newContext({ viewport });
     await context.addInitScript(() => window.localStorage.clear());
     const page = await context.newPage();
@@ -114,7 +120,8 @@ try {
       if (message.type() === "error") consoleErrors.push(message.text());
     });
     page.on("pageerror", (error) => consoleErrors.push(String(error)));
-    await openChoice(page, baseUrl);
+    try {
+      await openChoice(page, baseUrl);
 
     const evidence = await page.evaluate(() => {
       const dialog = document.querySelector(".wuxia-choice-dialog");
@@ -184,7 +191,27 @@ try {
       consoleErrors,
       screenshot: path.relative(root, screenshot).replaceAll("\\", "/"),
     });
-    await context.close();
+    } catch (error) {
+      const failureEvidence = await page.evaluate(() => ({
+        state: document.body?.dataset?.wuxiaState || "",
+        screen: document.body?.dataset?.wuxiaScreen || "",
+        bodyHtml: document.body?.outerHTML || "",
+        viewport: { width: window.innerWidth, height: window.innerHeight },
+        documentScrollWidth: document.documentElement.scrollWidth,
+      })).catch((captureError) => ({ captureError: String(captureError) }));
+      const screenshot = path.join(outDir, `choice_failure_${viewport.width}x${viewport.height}.png`);
+      await page.screenshot({ path: screenshot, fullPage: true }).catch(() => {});
+      cases.push({
+        viewport,
+        status: "fail",
+        error: error?.message || String(error),
+        evidence: failureEvidence,
+        consoleErrors,
+        screenshot: path.relative(root, screenshot).replaceAll("\\", "/"),
+      });
+    } finally {
+      await context.close();
+    }
   }
 } finally {
   await browser.close();
@@ -194,7 +221,7 @@ try {
 const report = {
   schema: "idlewuxia.choice_result_browser_acceptance.v1",
   generatedAt: new Date().toISOString(),
-  status: "pass",
+  status: cases.every((entry) => entry.status === "pass") ? "pass" : "fail",
   cases,
 };
 fs.writeFileSync(
@@ -203,3 +230,4 @@ fs.writeFileSync(
   "utf8",
 );
 process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
+if (report.status !== "pass") process.exitCode = 1;

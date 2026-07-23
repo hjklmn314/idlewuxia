@@ -122,3 +122,20 @@ flowchart TB
 9. 全部回归通过后再允许第二章节 Feature Package。
 
 每步必须是可回滚的小提交；不得同时改内容数值与模块边界。
+## 2026-07-23 UI acceptance boundary
+
+The UI production boundary now includes a registry-driven browser sweep. The
+runner consumes the Wuxia screen/viewport registry and emits real-browser
+evidence without becoming a second runtime authority:
+
+```text
+UI registry + first-session flow + modal probe
+              -> browser surface sweep
+              -> real browser flow
+              -> screenshot + DOM + state + console + viewport
+              -> acceptance report / blocker
+```
+
+The sweep is a QA adapter only. It cannot unlock NPCs, mutate save state, or
+replace runtime conditions. A missing route is therefore a product blocker,
+not a test shortcut.

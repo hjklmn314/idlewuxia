@@ -89,3 +89,12 @@ UI/UX Gate 只有在以下条件全部满足时才为 PASS：
 - 返回、刷新、后台恢复和存档恢复保持当前任务；
 - 颜色、字体、触控尺寸和文本对比度满足移动端可读性；
 - 视觉证据由独立 QA 复核，不由实现者单独签字。
+## 2026-07-23 acceptance update
+
+The first-session baseline is visually coherent at 360x800, 390x844, and
+412x915 after the compact status-row breakpoint correction. Browser evidence
+now records the complete diagnostic bundle (screenshot, DOM, state, viewport,
+console, overflow). `UI_NpcInteraction` and `UI_ChapterLoop` are conditional
+surfaces and remain coverage gaps until reached through legitimate configured
+conditions. The configured choice-result probe currently reports the same
+route blocker at all three viewports; no dialog is fabricated.

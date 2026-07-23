@@ -191,6 +191,16 @@ async function capture(cdp, label) {
     layoutProblems.push("character status row wrapped");
   }
   if (layoutProblems.length) summary.error = layoutProblems.join("; ");
+  if (process.env.WUXIA_CAPTURE_DOM === "1") {
+    const dom = await evalValue(cdp, `(() => ({
+      state: document.body?.dataset?.wuxiaState || "",
+      screen: document.body?.dataset?.wuxiaScreen || "",
+      bodyClass: document.body?.className || "",
+      activeElement: document.activeElement?.outerHTML?.slice(0, 500) || "",
+      html: document.body?.outerHTML || ""
+    }))()`);
+    summary.domSnapshot = dom;
+  }
   const png = await cdp.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: false });
   const screenshotPath = path.join(outDir, `${String(results.length + 1).padStart(2, "0")}_${label}.png`);
   fs.writeFileSync(screenshotPath, Buffer.from(png.data, "base64"));

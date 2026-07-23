@@ -36,6 +36,7 @@
     "config/wuxia_navigation_policy.schema.json",
     "config/wuxia_runtime_mutation_policy.schema.json",
     "config/wuxia_ui_intent_contract.schema.json",
+    "config/wuxia_browser_modal_probe.json",
     "src/legacy-shooting.css"
   ],
   "shippingFiles": [

@@ -151,3 +151,10 @@ G4 remains blocked by `SAVE-001` and `OBS-001`. `COMBAT-002` (including Rest/Rep
 - 540×960 与 390×844 两个真实 Edge 交互流程各 20 步、0 failures、0 page console problems，40 张截图人工复核通过。
 
 完成记录：`docs/codex_game_development_os/UI-ARCH-001_COMPLETION_RECORD_20260723.md`；手动验收：`docs/codex_game_development_os/UI-ARCH-001_MANUAL_VISUAL_ACCEPTANCE_20260723.md`。
+## QA-UI-001 implementation checkpoint (2026-07-23)
+
+The browser-surface runner and failure-evidence contract are now present and
+registered in the toolchain. This does not advance G5: T05-01 remains open
+until the six conditional screen pairs are exercised and the configured modal
+route resolves without state injection. T05-02 (AssetRegistry) and the
+explicitly postponed COMBAT-002 remain unchanged.
