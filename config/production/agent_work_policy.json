@@ -1,0 +1,179 @@
+{
+  "$schema": "idlewuxia.agent_work_policy.v1",
+  "policyId": "idlewuxia-agent-work-and-acceptance-v1",
+  "version": "1.0.0",
+  "controllerRole": "game-dev-os-orchestrator",
+  "independentAcceptanceRole": "qa-bot-regression-engineer",
+  "manualAcceptanceOwner": "project-lead",
+  "statuses": [
+    "planned",
+    "assigned",
+    "in_progress",
+    "awaiting_gate_1",
+    "gate_1_revise",
+    "awaiting_gate_2",
+    "gate_2_revise",
+    "manual_acceptance",
+    "accepted",
+    "blocked",
+    "deferred",
+    "rolled_back"
+  ],
+  "gates": {
+    "gate1Engineering": {
+      "name": "工程证据门",
+      "owner": "qa-bot-regression-engineer",
+      "required": [
+        "task_contract",
+        "impact_map",
+        "authoritative_config_and_schema",
+        "static_and_semantic_validation",
+        "unit_and_integration_tests",
+        "build_or_packaging_check",
+        "scope_and_forbidden_content_check",
+        "rollback_procedure",
+        "known_failures_and_unfinished_items"
+      ],
+      "passRules": [
+        "no_new_p0_or_p1_findings",
+        "all_required_checks_have_reproducible_commands",
+        "accepted_behavior_has_before_after_or_declared_narrative_delta",
+        "changed_files_are_within_task_scope"
+      ],
+      "failRules": [
+        "missing_authority",
+        "missing_test_evidence",
+        "unexplained_regression",
+        "reference_or_forbidden_asset_leak",
+        "unrehearsed_rollback"
+      ]
+    },
+    "gate2StrictAcceptance": {
+      "name": "独立严格验收门",
+      "owner": "project-lead",
+      "requiresGate1": true,
+      "required": [
+        "gate_1_pass_report",
+        "full_related_system_regression",
+        "manual_visual_acceptance",
+        "target_platform_or_explicit_equivalent_acceptance",
+        "configuration_asset_runtime_chain_review",
+        "no_cascade_diff_review",
+        "rollback_or_revert_rehearsal"
+      ],
+      "passRules": [
+        "no_open_p0_or_p1_in_task_or_related_chain",
+        "all_required_viewports_or_devices_are_inspected",
+        "console_and_runtime_errors_are_zero",
+        "manual_observation_matches_configured_state",
+        "unrelated_known_mismatches_are_explicitly_separated",
+        "release_claims_are_not_inferred_from_prototype_evidence"
+      ],
+      "failRules": [
+        "single_path_only",
+        "visual_evidence_missing",
+        "device_or_equivalent_evidence_missing_when_required",
+        "related_config_or_asset_chain_not_checked",
+        "cascade_regression",
+        "agent_self_acceptance_without_independent_review"
+      ]
+    },
+    "finalManualAcceptance": {
+      "name": "主控最终人工验收",
+      "owner": "project-lead",
+      "requiresGate2": true,
+      "required": [
+        "manual_screenshot_inventory",
+        "related_system_config_asset_review",
+        "no_cascade_result",
+        "final_signoff"
+      ],
+      "passRules": [
+        "every_affected_viewport_or_device_has_a_manual_verdict",
+        "all_related_systems_are_rechecked",
+        "only_strict_pass_can_advance_task_status"
+      ],
+      "failRules": [
+        "missing_manual_signoff",
+        "unreviewed_related_chain",
+        "unexplained_regression"
+      ]
+    }
+  },
+  "handoffRequiredFields": [
+    "task_id",
+    "from_role",
+    "to_role",
+    "stage",
+    "known_facts",
+    "assumptions",
+    "approved_decisions",
+    "changed_files",
+    "config_version",
+    "interfaces",
+    "data_contracts",
+    "tests_run",
+    "test_results",
+    "known_failures",
+    "risks",
+    "next_action",
+    "acceptance_owner"
+  ],
+  "noCascadePolicy": {
+    "requiredBeforeChange": [
+      "baseline_status_and_revision",
+      "related_file_inventory",
+      "consumer_list",
+      "rollback_point"
+    ],
+    "requiredAfterChange": [
+      "changed_file_diff_review",
+      "related_system_regression",
+      "shipping_scope_regression",
+      "manual_or_device_recheck"
+    ],
+    "stopOn": [
+      "unexpected_shared_contract_change",
+      "unrelated_runtime_behavior_change",
+      "new_forbidden_content",
+      "generated_artifact_staged"
+    ]
+  },
+  "currentAssignments": [
+    {
+      "id": "GOV-001",
+      "task": "建立智能体施工、两道审计门和主控手动验收规范",
+      "owner": "project-lead",
+      "acceptanceOwner": "qa-bot-regression-engineer",
+      "status": "accepted"
+    },
+    {
+      "id": "AUDIT-AGENT-001",
+      "task": "审计现有治理文件与两道门缺口",
+      "owner": "governance-audit-agent",
+      "acceptanceOwner": "project-lead",
+      "status": "assigned"
+    },
+    {
+      "id": "ASSET-002-AUDIT",
+      "task": "审计 Android 图标/启动页资源和构建阻断",
+      "owner": "asset002-audit-agent",
+      "acceptanceOwner": "project-lead",
+      "status": "assigned"
+    },
+    {
+      "id": "QA-GATE-001",
+      "task": "设计两道门 QA 证据矩阵与无级联验收规则",
+      "owner": "qa-gate-agent",
+      "acceptanceOwner": "project-lead",
+      "status": "assigned"
+    },
+    {
+      "id": "ASSET-002",
+      "task": "Android 图标、Adaptive Icon、启动页资产生产",
+      "owner": "asset-content-pipeline-agent",
+      "acceptanceOwner": "project-lead",
+      "status": "blocked"
+    }
+  ]
+}
