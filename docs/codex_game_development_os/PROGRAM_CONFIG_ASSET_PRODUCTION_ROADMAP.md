@@ -158,3 +158,28 @@ registered in the toolchain. This does not advance G5: T05-01 remains open
 until the six conditional screen pairs are exercised and the configured modal
 route resolves without state injection. T05-02 (AssetRegistry) and the
 explicitly postponed COMBAT-002 remain unchanged.
+
+## QA-UI-001 / T05-01 closure checkpoint (2026-07-25)
+
+The localhost-only, configuration-declared Tangmen evidence route now reaches
+the real `tmnpc01a -> tmnpc01b -> tmnpc01c -> tmnpc01d` replacement chain and
+opens `tmchoice01` without adding a static NPC or changing the production
+player seed. The active 30 UI registry pairs pass, `UI_NpcInteraction` and
+`UI_ChapterLoop` each have 3/3 conditional viewport evidence, and the modal
+has 3/3 viewport evidence. QA-UI-001 and T05-01 are marked `done` in the
+authoritative stage plan. The three `UI_EarlyCombat` pairs remain postponed by
+COMBAT-002. The validation report explicitly lists the historical
+`FIRST_SESSION_SIMULATION_LIFECYCLE` mismatch as unrelated and excluded from
+this verdict. T05-02 AssetRegistry is the next non-postponed task; this does
+not declare commercial release readiness.
+
+## T05-02 AssetRegistry closure checkpoint (2026-07-25)
+
+T05-02 is now complete for the runtime/build-gate scope. The production asset
+authority projects only approved shipping records into
+`config/wuxia_runtime_asset_registry.json`; `src/assetRegistry.js` resolves
+logical IDs and rejects missing, unapproved, malformed or unsupported assets.
+The validator proves projection parity, file hash/byte integrity, shipping
+scope membership and absence of reference-only tokens before Web materialization.
+The next production work is ASSET-002..006; those tasks must create and accept
+new project-owned assets and cannot be closed by adding reference files.

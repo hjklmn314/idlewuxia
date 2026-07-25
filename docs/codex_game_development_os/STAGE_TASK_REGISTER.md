@@ -20,8 +20,8 @@
 | SAVE-001 | P1 | G4 | open | save-migration-compatibility | 存档迁移、损坏恢复、回滚 |
 | OBS-001 | P1 | G4 | open | analytics-observability-engineer | 运行时事件、日志和回放 |
 | UI-ARCH-001 | P0 | G5 | done | ui-interaction-editor | UI 定义、导航和反馈适配器 |
-| QA-UI-001 | P0 | G5 | open | qa-bot-regression-engineer | Browser Surface 与 Modal Sweep |
-| T05-01 | P0 | G5 | open | qa-bot-regression-engineer | 11 屏×3 尺寸验收 |
+| QA-UI-001 | P0 | G5 | done | qa-bot-regression-engineer | Browser Surface 与 Modal Sweep |
+| T05-01 | P0 | G5 | done | qa-bot-regression-engineer | 11 屏×3 尺寸验收 |
 | T05-02 | P0 | G5 | open | asset-content-pipeline | AssetRegistry 接入 Runtime |
 | ASSET-002 | P1 | G5 | open | asset-content-pipeline | Android 图标与启动页 |
 | ASSET-003 | P1 | G5 | open | asset-content-pipeline | 中文字体授权、子集和预算 |
@@ -71,3 +71,15 @@ remains open; the six conditional screen/viewport pairs are explicit coverage
 gaps. See `QA-UI-001_PREIMPLEMENTATION_AUDIT_20260723.md`,
 `QA-UI-001_IMPLEMENTATION_RECORD_20260723.md`, and
 `QA-UI-001_MANUAL_VISUAL_ACCEPTANCE_20260723.md`.
+
+## 2026-07-25 QA-UI-001 / T05-01 closure
+
+The prior blocker is closed by the localhost-only, configuration-declared
+`tmnpc01a -> tmnpc01b -> tmnpc01c -> tmnpc01d` route in
+`config/wuxia_browser_evidence_routes.json`. The real-browser sweep completed
+all 30 active screen/viewport pairs, all three `tmnpc01d -> tmchoice01` modal
+pairs, and both conditional screens at all three configured viewports with
+zero blockers and zero page console problems. The three `UI_EarlyCombat`
+pairs remain postponed under `COMBAT-002`; this closure does not waive that
+postponement or any release gate. See the 2026-07-25 completion and manual
+visual acceptance records.

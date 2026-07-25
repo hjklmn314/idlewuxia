@@ -1,5 +1,8 @@
 # QA-UI-001 Manual Visual Acceptance
 
+Historical snapshot dated 2026-07-23. Current acceptance is recorded in
+`QA-UI-001_T05-01_MANUAL_VISUAL_ACCEPTANCE_20260725.md`.
+
 ## Evidence set
 
 Run directory:

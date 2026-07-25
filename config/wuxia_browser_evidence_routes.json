@@ -1,0 +1,53 @@
+{
+  "$schema": "idlewuxia.browser_evidence_routes.v1",
+  "contractVersion": 1,
+  "runtimeScope": "browser_evidence_only",
+  "hostPolicy": {
+    "allowedHostnames": ["127.0.0.1", "localhost"],
+    "requireFreshContext": true
+  },
+  "routes": [
+    {
+      "routeId": "tmnpc01d-choice-result",
+      "purpose": "Reproduce the configured Tangmen NPC replacement chain before opening tmchoice01.",
+      "initialPlayerPatch": {
+        "sectId": "tangmen",
+        "inheritableMarkers": {
+          "唐门内功进修": "0"
+        }
+      },
+      "steps": [
+        {"type": "dispatchAction", "actionId": "ACTION_FS_001_ORIGIN_SCHOLAR"},
+        {"type": "dispatchAction", "actionId": "ACTION_FS_001_ORIGIN_RESULT_CONTINUE"},
+        {"type": "dispatchAction", "actionId": "ACTION_FS_002_TITLE_START"},
+        {"type": "dispatchAction", "actionId": "ACTION_FS_003_CHARACTER_STATUS"},
+        {"type": "dispatchAction", "actionId": "ACTION_FS_004_IDLE_CONFIRM"},
+        {"type": "dispatchAction", "actionId": "ACTION_FS_005_IDLE_TASK_CLICK_POOL_FISH"},
+        {"type": "dispatchAction", "actionId": "ACTION_FS_005_IDLE_TASK_LIST_CONTINUE"},
+        {"type": "dispatchAction", "actionId": "ACTION_FS_007_CHAPTER_CARD_ENTRY"},
+        {"type": "selectNode", "nodeId": "NODE_FB01_TRAINING_FIELDS"},
+        {"type": "selectRoom", "roomId": "fb01_15"},
+        {"type": "selectNpc", "roleId": "tmnpc01a"},
+        {"type": "interactNpc", "roleId": "tmnpc01a", "actionType": "talk"},
+        {"type": "selectNpc", "roleId": "tmnpc01b"},
+        {"type": "interactNpc", "roleId": "tmnpc01b", "actionType": "custom_caozuo"},
+        {"type": "selectNpc", "roleId": "tmnpc01c"},
+        {"type": "interactNpc", "roleId": "tmnpc01c", "actionType": "custom_caozuo"},
+        {"type": "selectNpc", "roleId": "tmnpc01d"},
+        {"type": "interactNpc", "roleId": "tmnpc01d", "actionType": "custom_caozuo1"}
+      ],
+      "expected": {
+        "chapterId": "fb01",
+        "roomId": "fb01_15",
+        "roleId": "tmnpc01d",
+        "actionType": "custom_caozuo1",
+        "choiceId": "tmchoice01",
+        "replacementChain": [
+          ["tmnpc01a", "tmnpc01b"],
+          ["tmnpc01b", "tmnpc01c"],
+          ["tmnpc01c", "tmnpc01d"]
+        ]
+      }
+    }
+  ]
+}

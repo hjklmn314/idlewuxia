@@ -62,6 +62,15 @@
 | Choice-result modal acceptance | `config/wuxia_browser_modal_probe.json` | `tools/audit-wuxia-choice-result-browser.mjs` | per-viewport screenshot + DOM failure bundles | Blocked by legitimate route |
 | 11 screens x 3 viewports | UI registry | browser sweep | sweep report + coverage gaps | T05-01 open |
 
+## QA-UI-001 / T05-01 closure entry (2026-07-25)
+
+| Requirement | Configuration authority | Runtime/tool authority | Evidence | Verdict |
+|---|---|---|---|---|
+| Tangmen NPC replacement route | `config/wuxia_browser_evidence_routes.json` | `src/browserEvidenceRoute.js`, `tools/audit-wuxia-choice-result-browser.mjs` | `outputs/wuxia_visual_matrix/20260725_qa_ui_001_tmnpc01d_final/modal/` | Pass; 3/3 modal viewports |
+| UI_NpcInteraction and UI_ChapterLoop | `config/production/ui_experience_registry.json` + configured action IDs | `tools/run-wuxia-real-browser-flow.mjs --scenario chapter-loop-screens` | `outputs/wuxia_visual_matrix/20260725_qa_ui_001_tmnpc01d_final/conditional/` | Pass; 6/6 active conditional pairs |
+| Active UI matrix | UI registry | `tools/run-wuxia-browser-surface-sweep.mjs` | `outputs/wuxia_visual_matrix/20260725_qa_ui_001_tmnpc01d_final/browser_surface_sweep_report.json` | Pass; 30 active pairs, 0 gaps, 0 blockers |
+| Unrelated first-session simulation mismatch | T03-01 historical diagnostic | sweep `validationScope.knownUnrelatedMismatches` | validation report field `FIRST_SESSION_SIMULATION_LIFECYCLE` | Tracked separately; excluded from verdict |
+
 ## T02-02 traceability entry (2026-07-25)
 
 | Requirement | Configuration authority | Runtime/tool authority | Evidence | Verdict |

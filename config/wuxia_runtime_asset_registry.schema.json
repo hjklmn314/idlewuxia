@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://idlewuxia.local/schema/wuxia_runtime_asset_registry.v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "registryId", "version", "assets", "bindings"],
+  "properties": {
+    "$schema": { "const": "idlewuxia.runtime_asset_registry.v1" },
+    "registryId": { "type": "string", "minLength": 1 },
+    "version": { "type": "integer", "minimum": 1 },
+    "assets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "format", "path", "adoption", "approval", "sha256", "bytes"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+          "kind": { "type": "string", "minLength": 1 },
+          "format": { "type": "string", "enum": ["svg", "webp", "png", "woff2"] },
+          "path": { "type": "string", "pattern": "^(?!/)(?!.*\\.\\.)[^\\\\]+$" },
+          "adoption": { "const": "ship" },
+          "approval": { "const": "approved" },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "bytes": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "bindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["selector", "attribute"],
+        "properties": {
+          "selector": { "type": "string", "minLength": 1 },
+          "assetId": { "type": "string", "minLength": 1 },
+          "assetAttribute": { "type": "string", "minLength": 1 },
+          "attribute": { "type": "string", "enum": ["src", "href"] }
+        },
+        "oneOf": [
+          {
+            "required": ["assetId"],
+            "properties": { "assetId": { "type": "string", "minLength": 1 } }
+          },
+          {
+            "required": ["assetAttribute"],
+            "properties": { "assetAttribute": { "type": "string", "minLength": 1 } }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -22,8 +22,9 @@ const crawlRouteRoomIds = argValue("--route-room-ids", "").split(",").map((value
 const crawlExpectedVisibleNpcId = argValue("--expected-visible-npc-id", "");
 const routeUnlockPlanPath = argValue("--route-unlock-plan", "");
 const routeGateEvidence = argValue("--route-gate-evidence", "");
+const evidenceRouteId = argValue("--evidence-route-id", process.env.WUXIA_EVIDENCE_ROUTE || "");
 const edgePath = process.env.EDGE_PATH || "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe";
-const url = process.env.WUXIA_URL || `http://127.0.0.1:5187/?real-browser-flow=20260707&scenario=${encodeURIComponent(scenario)}`;
+const url = process.env.WUXIA_URL || `http://127.0.0.1:5187/?real-browser-flow=20260707&scenario=${encodeURIComponent(scenario)}${evidenceRouteId ? `&evidenceRoute=${encodeURIComponent(evidenceRouteId)}` : ""}`;
 const port = Number(process.env.EDGE_DEBUG_PORT || 9227);
 const viewportWidth = Number(argValue("--viewport-width", process.env.WUXIA_VIEWPORT_WIDTH || "540"));
 const viewportHeight = Number(argValue("--viewport-height", process.env.WUXIA_VIEWPORT_HEIGHT || "960"));
@@ -428,6 +429,34 @@ try {
     await clickAndCapture(cdp, "fightable_steward_selected", () => clickSelector(cdp, '[data-wuxia-npc-id="fb01r01_1a"]'), "STATE_FS_008_MAP_EXPLORE");
     await clickAndCapture(cdp, "early_combat_screen", () => clickSelector(cdp, '[data-wuxia-npc-id="fb01r01_1a"][data-wuxia-npc-action="compete"]'), "STATE_FS_009_EARLY_COMBAT");
     await waitForCombatAutoResolveAndCapture(cdp, "combat_returned_to_map", "STATE_FS_008_MAP_EXPLORE");
+  } else if (scenario === "chapter-loop-screens") {
+    await clickAndCapture(cdp, "npc_interaction_screen", () => evalValue(cdp, `(() => {
+      const result = window.__idleWuxiaAutomation?.dispatchAction?.("ACT_CH1_SELECT_TRAINING_FIELDS");
+      return { clicked: Boolean(result?.clicked), actionId: "ACT_CH1_SELECT_TRAINING_FIELDS", reason: result?.reason || "" };
+    })()`), "STATE_FS_010_NPC_INTERACTION");
+    // The configured back action deliberately requires combat_result_recorded.
+    // Re-run the fresh baseline for the settlement-loop action instead of
+    // mutating flags or bypassing the action contract in the same session.
+    await evalValue(cdp, "window.__idleWuxiaAutomation?.clearSave?.()");
+    await cdp.send("Page.navigate", { url });
+    await waitForWuxia(cdp);
+    for (const actionId of [
+      "ACTION_FS_001_ORIGIN_SCHOLAR",
+      "ACTION_FS_001_ORIGIN_RESULT_CONTINUE",
+      "ACTION_FS_002_TITLE_START",
+      "ACTION_FS_003_CHARACTER_STATUS",
+      "ACTION_FS_004_IDLE_CONFIRM",
+      "ACTION_FS_005_IDLE_TASK_CLICK_POOL_FISH",
+      "ACTION_FS_005_IDLE_TASK_LIST_CONTINUE",
+      "ACTION_FS_007_CHAPTER_CARD_ENTRY",
+    ]) {
+      const outcome = await evalValue(cdp, `window.__idleWuxiaAutomation?.dispatchAction?.(${JSON.stringify(actionId)})`);
+      if (!outcome?.clicked) throw new Error(`fresh conditional route action rejected: ${actionId}`);
+    }
+    await clickAndCapture(cdp, "chapter_loop_screen", () => evalValue(cdp, `(() => {
+      const result = window.__idleWuxiaAutomation?.dispatchAction?.("ACT_CH1_SELECT_SETTLEMENT_LOOP");
+      return { clicked: Boolean(result?.clicked), actionId: "ACT_CH1_SELECT_SETTLEMENT_LOOP", reason: result?.reason || "" };
+    })()`), "STATE_FS_011_CHAPTER_LOOP_RETURN");
   } else if (scenario !== "entity-actions" && scenario !== "route-unlock-plan" && scenario !== "interaction-contract") {
     await clickAndCapture(cdp, "gate_room", () => clickSelector(cdp, '[data-wuxia-room-id="fb01_01"]'), "STATE_FS_008_MAP_EXPLORE");
     await clickAndCapture(cdp, "old_steward_selected", () => clickSelector(cdp, '[data-wuxia-npc-id="fb01r01_1"]'), "STATE_FS_008_MAP_EXPLORE");

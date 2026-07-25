@@ -504,7 +504,7 @@
       "title": "11 屏乘 3 尺寸视觉与交互验收",
       "priority": "P0",
       "gate": "G5",
-      "status": "open",
+      "status": "done",
       "owner": "qa-bot-regression-engineer",
       "dependsOn": [
         "UI-ARCH-001",
@@ -515,14 +515,21 @@
         "Console error and warning counts are zero.",
         "No critical overflow, blocked controls or invisible feedback remains."
       ],
-      "evidence": []
+      "evidence": [
+        "tools/run-wuxia-browser-surface-sweep.mjs",
+        "tools/run-wuxia-real-browser-flow.mjs",
+        "tools/audit-wuxia-choice-result-browser.mjs",
+        "config/wuxia_browser_evidence_routes.json",
+        "docs/codex_game_development_os/QA-UI-001_T05-01_COMPLETION_RECORD_20260725.md",
+        "docs/codex_game_development_os/QA-UI-001_T05-01_MANUAL_VISUAL_ACCEPTANCE_20260725.md"
+      ]
     },
     {
       "id": "T05-02",
       "title": "自有 AssetRegistry 接入运行时",
       "priority": "P0",
       "gate": "G5",
-      "status": "open",
+      "status": "done",
       "owner": "asset-content-pipeline",
       "dependsOn": [
         "ASSET-001",
@@ -533,14 +540,25 @@
         "Missing or unapproved assets fail activation.",
         "Build contains no reference-only asset."
       ],
-      "evidence": []
+      "evidence": [
+        "src/assetRegistry.js",
+        "config/wuxia_runtime_asset_registry.json",
+        "config/wuxia_runtime_asset_registry.schema.json",
+        "tools/validate-wuxia-asset-registry.mjs",
+        "tools/test-wuxia-asset-registry.mjs",
+        "npm run runtime:asset-registry:test",
+        "npm run wuxia:validate:asset-registry",
+        "npm run build:web",
+        "docs/codex_game_development_os/T05-02_ASSET_REGISTRY_COMPLETION_RECORD_20260725.md",
+        "docs/codex_game_development_os/T05-02_ASSET_REGISTRY_MANUAL_VISUAL_ACCEPTANCE_20260725.md"
+      ]
     },
     {
       "id": "QA-UI-001",
       "title": "项目化 Browser Surface 与 Modal Sweep",
       "priority": "P0",
       "gate": "G5",
-      "status": "open",
+      "status": "done",
       "owner": "qa-bot-regression-engineer",
       "dependsOn": [
         "UX-001",
@@ -551,7 +569,12 @@
         "Failure captures screenshot, DOM, state, console and viewport.",
         "The runner is deterministic and returns non-zero on blockers."
       ],
-      "evidence": []
+      "evidence": [
+        "tools/run-wuxia-browser-surface-sweep.mjs",
+        "tools/audit-wuxia-choice-result-browser.mjs",
+        "tools/test-wuxia-browser-surface-sweep.mjs",
+        "docs/codex_game_development_os/QA-UI-001_T05-01_COMPLETION_RECORD_20260725.md"
+      ]
     },
     {
       "id": "ASSET-002",

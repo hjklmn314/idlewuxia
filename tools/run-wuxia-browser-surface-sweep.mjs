@@ -112,6 +112,17 @@ const plan = {
 fs.mkdirSync(outDir, { recursive: true });
 fs.writeFileSync(path.join(outDir, "sweep_plan.json"), `${JSON.stringify(plan, null, 2)}\n`, "utf8");
 
+const knownUnrelatedMismatches = [
+  {
+    id: "FIRST_SESSION_SIMULATION_LIFECYCLE",
+    status: "tracked_separately",
+    source: "docs/codex_game_development_os/T03-01_COMPLETION_RECORD_20260723.md",
+    currentEvidence: "historical lifecycle-state mismatch; current T02-02 simulation report records mismatches=0",
+    excludedFromVerdict: true,
+    reason: "This is a first-session/combat lifecycle diagnostic and is unrelated to the tmnpc01d route or UI surface acceptance.",
+  },
+];
+
 if (dryRun) {
   const report = {
     schema: "idlewuxia.browser_surface_sweep.v1",
@@ -131,6 +142,10 @@ if (dryRun) {
       deterministicRoute: "baseline configured first-session route",
       postponedScreensExcludedFromBlockers: postponedScreens.map((screen) => screen.id),
     },
+    validationScope: {
+      knownUnrelatedMismatches,
+      excludedFromVerdict: knownUnrelatedMismatches.map((entry) => entry.id),
+    },
   };
   fs.writeFileSync(path.join(outDir, "browser_surface_sweep_report.json"), `${JSON.stringify(report, null, 2)}\n`, "utf8");
   console.log(JSON.stringify({ status: report.status, mode: report.mode, summary: plan.summary, outDir: report.outDir }, null, 2));
@@ -139,6 +154,7 @@ if (dryRun) {
 
 const blockers = [];
 const viewportRuns = [];
+const conditionalRuns = [];
 const observedScreens = new Set();
 
 for (const [index, viewport] of viewports.entries()) {
@@ -189,6 +205,54 @@ for (const [index, viewport] of viewports.entries()) {
   });
 }
 
+// UI_NpcInteraction and UI_ChapterLoop are entered by configured chapter-node
+// actions rather than the baseline map route. Run that route independently so
+// its six active viewport pairs are real-browser evidence, not inferred coverage.
+for (const [index, viewport] of viewports.entries()) {
+  const viewportOut = path.join(outDir, "conditional", viewport.id);
+  fs.mkdirSync(viewportOut, { recursive: true });
+  const execution = spawnSync(process.execPath, [
+    runner,
+    "--scenario", "chapter-loop-screens",
+    "--viewport-width", String(viewport.width),
+    "--viewport-height", String(viewport.height),
+    "--out-dir", safeRelative(viewportOut),
+  ], {
+    cwd: root,
+    encoding: "utf8",
+    env: { ...process.env, WUXIA_CAPTURE_DOM: "1", EDGE_DEBUG_PORT: String(basePort + 100 + index) },
+  });
+  const summaryPath = path.join(viewportOut, "real_browser_flow_summary.json");
+  let summary = null;
+  try { summary = JSON.parse(fs.readFileSync(summaryPath, "utf8")); }
+  catch (error) { blockers.push({ type: "missing_conditional_flow_summary", viewportId: viewport.id, message: error.message }); }
+  if (execution.status !== 0) blockers.push({ type: "conditional_flow_process_failed", viewportId: viewport.id, exitCode: execution.status, stderr: String(execution.stderr || "").slice(-2000) });
+  for (const entry of summary?.results || []) {
+    if (entry.screen) observedScreens.add(entry.screen);
+    const screenshotExists = entry.screenshot && fs.existsSync(path.join(root, entry.screenshot));
+    const hasDom = Boolean(entry.domSnapshot?.html && entry.domSnapshot?.state && entry.domSnapshot?.screen);
+    const hasViewport = entry.viewport?.innerWidth === viewport.width && entry.viewport?.innerHeight === viewport.height;
+    if (!screenshotExists) blockers.push({ type: "missing_conditional_screenshot_evidence", viewportId: viewport.id, label: entry.label });
+    if (!hasDom) blockers.push({ type: "missing_conditional_dom_evidence", viewportId: viewport.id, label: entry.label });
+    if (!hasViewport) blockers.push({ type: "conditional_viewport_observation_mismatch", viewportId: viewport.id, label: entry.label, observed: entry.viewport });
+  }
+  for (const failure of summary?.failures || []) blockers.push({ type: "conditional_flow_failure", viewportId: viewport.id, failure });
+  for (const problem of summary?.pageConsoleProblems || []) blockers.push({ type: "conditional_console_problem", viewportId: viewport.id, problem });
+  conditionalRuns.push({
+    viewportId: viewport.id,
+    width: viewport.width,
+    height: viewport.height,
+    exitCode: execution.status ?? -1,
+    steps: summary?.steps || 0,
+    failures: summary?.failures || [],
+    pageConsoleProblems: summary?.pageConsoleProblems || [],
+    observedScreens: [...new Set((summary?.results || []).map((entry) => entry.screen).filter(Boolean))],
+    summaryPath: safeRelative(summaryPath),
+    stdoutTail: String(execution.stdout || "").trim().slice(-1000),
+    stderrTail: String(execution.stderr || "").trim().slice(-1000),
+  });
+}
+
 const coverageGaps = activeScreens.flatMap((screen) => viewports
   .filter(() => !observedScreens.has(screen.id))
   .map((viewport) => ({ caseId: `${screen.id}__${viewport.id}`, screenId: screen.id, viewportId: viewport.id, reason: "screen_not_observed_by_baseline_route" })));
@@ -218,6 +282,7 @@ const report = {
   outDir: safeRelative(outDir),
   plan,
   viewportRuns,
+  conditionalRuns,
   modal: {
     exitCode: modalExecution.status ?? -1,
     cases: modalReport?.cases?.length || 0,
@@ -231,7 +296,12 @@ const report = {
     runnerConsumesRegistry: true,
     failureEvidence: "screenshot + DOM + state + console + viewport",
     deterministicRoute: "baseline configured first-session route",
+    conditionalRoutes: ["chapter-loop-screens"],
     postponedScreensExcludedFromBlockers: postponedScreens.map((screen) => screen.id),
+  },
+  validationScope: {
+    knownUnrelatedMismatches,
+    excludedFromVerdict: knownUnrelatedMismatches.map((entry) => entry.id),
   },
 };
 fs.writeFileSync(path.join(outDir, "browser_surface_sweep_report.json"), `${JSON.stringify(report, null, 2)}\n`, "utf8");
@@ -244,9 +314,11 @@ fs.writeFileSync(path.join(outDir, "browser_surface_sweep_report.md"), [
   `- selected viewports: ${plan.summary.selectedViewports}`,
   `- matrix cases planned: ${plan.summary.matrixCases}`,
   `- observed screens: ${report.observedScreens.length}`,
+  `- conditional viewport runs: ${report.conditionalRuns.length}`,
   `- coverage gaps: ${report.coverageGaps.length}`,
   `- modal cases: ${report.modal.cases}`,
   `- blockers: ${report.blockers.length}`,
+  `- unrelated mismatches excluded from verdict: ${report.validationScope.excludedFromVerdict.join(", ") || "none"}`,
   "",
   "Coverage gaps are reported for T05-01; they are not silently treated as passed evidence.",
   "",

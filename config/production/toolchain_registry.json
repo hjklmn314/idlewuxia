@@ -59,9 +59,18 @@
       "command": "npm run wuxia:qa:ui-sweep",
       "artifact": "outputs/wuxia_visual_matrix",
       "stage": "G5",
-      "status": "enabled-with-known-runtime-gaps",
+      "status": "enabled",
       "taskId": "QA-UI-001",
-      "notes": "Registry-driven real-browser sweep is enabled; conditional screen coverage and configured modal route remain explicit blockers for T05-01."
+      "notes": "Registry-driven real-browser sweep passes 30 active pairs; three UI_EarlyCombat pairs remain postponed by COMBAT-002."
+    },
+    {
+      "id": "runtime-asset-registry-gate",
+      "command": "npm run wuxia:validate:asset-registry",
+      "artifact": "outputs/asset_registry_validation.json",
+      "stage": "G5",
+      "status": "enabled",
+      "taskId": "T05-02",
+      "notes": "Checks production-to-runtime projection parity, ownership, hashes, scope, formats and forbidden reference leakage."
     },
     {
       "id": "web-bundle-freshness",

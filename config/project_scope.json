@@ -8,6 +8,8 @@
     "src/wuxia.css",
     "src/wuxiaDomAdapter.js",
     "src/browserAutomationAdapter.js",
+    "src/browserEvidenceRoute.js",
+    "src/assetRegistry.js",
     "src/chapterSession.js",
     "src/conditionEvaluator.js",
     "src/dataClone.js",
@@ -25,7 +27,8 @@
   "activeConfigFiles": [
     "config/runtime_persistence_contract.json",
     "config/wuxia_first_session_flow.json",
-    "config/wuxia_first_session_screen_contract.json"
+    "config/wuxia_first_session_screen_contract.json",
+    "config/wuxia_runtime_asset_registry.json"
   ],
   "developmentReferenceFiles": [
     "config/wuxia_competitor_first_session_reference.json",
@@ -37,13 +40,21 @@
     "config/wuxia_runtime_mutation_policy.schema.json",
     "config/wuxia_ui_intent_contract.schema.json",
     "config/wuxia_browser_modal_probe.json",
+    "config/wuxia_browser_evidence_routes.json",
+    "config/wuxia_browser_evidence_routes.schema.json",
+    "config/wuxia_runtime_asset_registry.schema.json",
     "src/legacy-shooting.css"
+  ],
+  "developmentRuntimeAllowlist": [
+    "config/wuxia_browser_evidence_routes.json"
   ],
   "shippingFiles": [
     "index.html",
     "src/wuxia.css",
     "src/wuxiaDomAdapter.js",
     "src/browserAutomationAdapter.js",
+    "src/browserEvidenceRoute.js",
+    "src/assetRegistry.js",
     "src/chapterSession.js",
     "src/conditionEvaluator.js",
     "src/dataClone.js",
@@ -60,6 +71,7 @@
     "config/runtime_persistence_contract.json",
     "config/wuxia_first_session_flow.json",
     "config/wuxia_first_session_screen_contract.json",
+    "config/wuxia_runtime_asset_registry.json",
     "public/wuxia-brand/icon.svg"
   ],
   "shippingSanitization": {

@@ -159,11 +159,13 @@
       "id": "asset-registry",
       "owner": "asset-content-pipeline",
       "stateAuthority": "config/production/asset_registry.json",
-      "runtimeModules": [],
+      "runtimeModules": [
+        "src/assetRegistry.js"
+      ],
       "configuration": [
         "config/production/asset_registry.json"
       ],
-      "status": "registry-seed-only",
+      "status": "runtime-resolver-v1-build-gated",
       "nextTaskIds": [
         "T05-02",
         "ASSET-002"

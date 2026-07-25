@@ -8,6 +8,7 @@
   "sourceFile": "res/script/map/mapConditionAndResult/fb01.lua",
   "sourceRecord": "tmchoice01",
   "sourceKind": "lua",
+  "evidenceRouteId": "tmnpc01d-choice-result",
   "acceptance": {
     "requiresVisibleDialog": true,
     "requiresChoiceResolution": true,

@@ -1,0 +1,24 @@
+{
+  "$schema": "idlewuxia.runtime_asset_registry.v1",
+  "registryId": "idlewuxia-assets-v1",
+  "version": 1,
+  "assets": [
+    {
+      "id": "brand-icon-primary",
+      "kind": "brand-icon",
+      "format": "svg",
+      "path": "public/wuxia-brand/icon.svg",
+      "adoption": "ship",
+      "approval": "approved",
+      "sha256": "8f565a0bbcef1c2d58e69df534534374c595555d6da95247ef1275950fb99146",
+      "bytes": 616
+    }
+  ],
+  "bindings": [
+    {
+      "selector": "link[data-wuxia-asset]",
+      "assetAttribute": "data-wuxia-asset",
+      "attribute": "href"
+    }
+  ]
+}

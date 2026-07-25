@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://idlewuxia.local/schemas/browser_evidence_routes.v1.json",
+  "type": "object",
+  "required": ["$schema", "contractVersion", "runtimeScope", "hostPolicy", "routes"],
+  "properties": {
+    "$schema": {"const": "idlewuxia.browser_evidence_routes.v1"},
+    "contractVersion": {"const": 1},
+    "runtimeScope": {"const": "browser_evidence_only"},
+    "hostPolicy": {
+      "type": "object",
+      "required": ["allowedHostnames", "requireFreshContext"],
+      "properties": {
+        "allowedHostnames": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1},
+        "requireFreshContext": {"const": true}
+      },
+      "additionalProperties": false
+    },
+    "routes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["routeId", "purpose", "initialPlayerPatch", "steps", "expected"],
+        "properties": {
+          "routeId": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+          "purpose": {"type": "string", "minLength": 1},
+          "initialPlayerPatch": {
+            "type": "object",
+            "required": ["sectId", "inheritableMarkers"],
+            "properties": {
+              "sectId": {"const": "tangmen"},
+              "inheritableMarkers": {"type": "object", "required": ["唐门内功进修"], "properties": {"唐门内功进修": {"anyOf": [{"type": "string"}, {"type": "number"}]}}, "additionalProperties": {"anyOf": [{"type": "string"}, {"type": "number"}]}}
+            },
+            "additionalProperties": false
+          },
+          "steps": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": {"enum": ["dispatchAction", "selectNode", "selectRoom", "selectNpc", "interactNpc"]},
+                "actionId": {"type": "string"},
+                "nodeId": {"type": "string"},
+                "roomId": {"type": "string"},
+                "roleId": {"type": "string"},
+                "actionType": {"type": "string"}
+              },
+              "additionalProperties": false
+            }
+          },
+          "expected": {
+            "type": "object",
+            "required": ["chapterId", "roomId", "roleId", "actionType", "choiceId"],
+            "properties": {
+              "chapterId": {"type": "string"},
+              "roomId": {"type": "string"},
+              "roleId": {"type": "string"},
+              "actionType": {"type": "string"},
+              "choiceId": {"type": "string"},
+              "replacementChain": {"type": "array"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

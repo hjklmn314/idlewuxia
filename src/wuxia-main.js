@@ -5,11 +5,14 @@ import { evidenceSummary } from "./evidenceContract.js";
 import { createRuntimePersistence } from "./runtimePersistence.js";
 import { createUiFlowAdapter } from "./uiFlowAdapter.js";
 import { createWuxiaDomAdapter } from "./wuxiaDomAdapter.js";
+import { applyEvidencePlayerPatch, resolveBrowserEvidenceRoute } from "./browserEvidenceRoute.js";
+import { createAssetRegistry } from "./assetRegistry.js";
 
 const CONFIG_FILES = {
   wuxiaFirstSessionFlow: "./config/wuxia_first_session_flow.json",
   wuxiaScreenContract: "./config/wuxia_first_session_screen_contract.json",
   wuxiaRuntimePersistence: "./config/runtime_persistence_contract.json",
+  wuxiaRuntimeAssetRegistry: "./config/wuxia_runtime_asset_registry.json",
 };
 
 const state = {
@@ -57,7 +60,20 @@ async function loadConfig() {
       return [key, await response.json()];
     }),
   );
-  return Object.fromEntries(entries);
+  const config = Object.fromEntries(entries);
+  const params = new URLSearchParams(window.location.search);
+  const routeId = params.get("evidenceRoute") || "";
+  if (routeId && ["127.0.0.1", "localhost"].includes(window.location.hostname)) {
+    const response = await fetch("./config/wuxia_browser_evidence_routes.json");
+    if (!response.ok) throw new Error("Failed to load browser evidence route contract");
+    config.wuxiaBrowserEvidenceRoutes = await response.json();
+    config.wuxiaBrowserEvidenceRoute = resolveBrowserEvidenceRoute(config.wuxiaBrowserEvidenceRoutes, {
+      hostname: window.location.hostname,
+      routeId,
+    });
+    if (!config.wuxiaBrowserEvidenceRoute) throw new Error(`Unknown browser evidence route: ${routeId}`);
+  }
+  return config;
 }
 
 function renderConfigError(error) {
@@ -1043,6 +1059,8 @@ function render() {
 async function init() {
   try {
     state.config = await loadConfig();
+    state.assetRegistry = createAssetRegistry(state.config.wuxiaRuntimeAssetRegistry);
+    state.assetRegistry.applyBindings(document);
     let storage = null;
     try {
       storage = window.localStorage;
@@ -1053,11 +1071,17 @@ async function init() {
       storage,
       contract: state.config.wuxiaRuntimePersistence,
     });
-    const restored = persistenceController.restore(state.config.wuxiaFirstSessionFlow?.schema || "");
+    const evidenceRoute = state.config.wuxiaBrowserEvidenceRoute || null;
+    const restored = evidenceRoute
+      ? { state: null, status: "fresh_evidence_route" }
+      : persistenceController.restore(state.config.wuxiaFirstSessionFlow?.schema || "");
     const attached = persistenceController.attach(createFirstSessionRuntime(state.config.wuxiaFirstSessionFlow, {
       initialState: state.config.wuxiaScreenContract?.defaultStartState,
       initialFlags: state.config.wuxiaScreenContract?.defaultStartFlags,
       initialSaveState: restored.state,
+      initialPlayer: evidenceRoute
+        ? applyEvidencePlayerPatch(state.config.wuxiaFirstSessionFlow?.playerSeed, evidenceRoute)
+        : undefined,
     }));
     state.persistence = attached;
     state.ui = createUiFlowAdapter({

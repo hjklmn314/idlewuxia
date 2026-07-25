@@ -1,12 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
 import { materializeWebBundle } from "./lib/web-bundle-freshness.mjs";
+import { validateRuntimeAssetRegistrySchema, validateWuxiaAssetRegistry } from "./validate-wuxia-asset-registry.mjs";
 
 const root = path.resolve(".");
 const output = path.join(root, "www");
 const scope = JSON.parse(
   fs.readFileSync(path.join(root, "config", "project_scope.json"), "utf8").replace(/^\uFEFF/, ""),
 );
+const assetSchema = validateRuntimeAssetRegistrySchema();
+const assetValidation = validateWuxiaAssetRegistry();
+if (!assetSchema.valid || !assetValidation.valid) {
+  throw new Error("Runtime asset registry validation failed:\n" + JSON.stringify({ assetSchema, assetValidation }, null, 2));
+}
 const sourceFiles = new Map();
 
 for (const relativePath of scope.shippingFiles || []) {

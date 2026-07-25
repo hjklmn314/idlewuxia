@@ -4,6 +4,10 @@
 
 `REVISE / PRODUCT GATE BLOCKED`.
 
+This is the 2026-07-23 historical snapshot. It is superseded by
+`QA-UI-001_T05-01_COMPLETION_RECORD_20260725.md`; the route and coverage
+blockers described below are no longer current.
+
 The deterministic tool contract is implemented and verified. The product
 acceptance is not closed: the configured choice-result specimen cannot be
 reached from the supported baseline route without injecting runtime state.

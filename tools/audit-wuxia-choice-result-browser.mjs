@@ -17,6 +17,10 @@ const playwright = args["module-root"]
   : require("playwright-core");
 const edgePath = args["browser-path"]
   || "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe";
+const modalProbe = JSON.parse(fs.readFileSync(path.join(root, "config", "wuxia_browser_modal_probe.json"), "utf8"));
+const evidenceRoutes = JSON.parse(fs.readFileSync(path.join(root, "config", "wuxia_browser_evidence_routes.json"), "utf8"));
+const evidenceRoute = (evidenceRoutes.routes || []).find((route) => route.routeId === modalProbe.evidenceRouteId);
+if (!evidenceRoute) throw new Error(`Missing configured evidence route ${modalProbe.evidenceRouteId || ""}`);
 
 const contentTypes = {
   ".html": "text/html; charset=utf-8",
@@ -66,22 +70,25 @@ const entryActions = [
 ];
 
 async function openChoice(page, baseUrl) {
-  await page.goto(baseUrl, { waitUntil: "networkidle" });
-  for (const actionId of entryActions) {
-    const outcome = await page.evaluate(
-      (id) => window.__idleWuxiaAutomation.dispatchAction(id),
-      actionId,
-    );
+  const routeUrl = `${baseUrl}?evidenceRoute=${encodeURIComponent(evidenceRoute.routeId)}`;
+  await page.goto(routeUrl, { waitUntil: "networkidle" });
+  for (const step of evidenceRoute.steps) {
+    const outcome = await page.evaluate((routeStep) => {
+      const automation = window.__idleWuxiaAutomation;
+      if (!automation || typeof automation[routeStep.type] !== "function") return { clicked: false, reason: `unsupported route step ${routeStep.type}` };
+      const args = routeStep.type === "dispatchAction" ? [routeStep.actionId]
+        : routeStep.type === "selectNode" ? [routeStep.nodeId]
+          : routeStep.type === "selectRoom" ? [routeStep.roomId]
+            : routeStep.type === "selectNpc" ? [routeStep.roleId]
+              : [routeStep.roleId, routeStep.actionType];
+      return automation[routeStep.type](...args);
+    }, step);
     assert.equal(
       outcome.clicked,
       true,
-      `entry action ${actionId} must be accepted: ${JSON.stringify(outcome)}`,
+      `configured evidence route step ${JSON.stringify(step)} must be accepted: ${JSON.stringify(outcome)}`,
     );
   }
-  const selectOutcome = await page.evaluate(() => window.__idleWuxiaAutomation.selectNpc("tmnpc01d"));
-  assert.equal(selectOutcome.clicked, true, `choice probe NPC selection failed: ${JSON.stringify(selectOutcome)}`);
-  const interactOutcome = await page.evaluate(() => window.__idleWuxiaAutomation.interactNpc("tmnpc01d", "custom_caozuo1"));
-  assert.equal(interactOutcome.clicked, true, `choice probe NPC action failed: ${JSON.stringify(interactOutcome)}`);
   await page.locator(".wuxia-choice-dialog").waitFor({ state: "visible" });
 }
 
@@ -181,6 +188,7 @@ try {
     assert.deepEqual(consoleErrors, []);
 
     const screenshot = path.join(outDir, `choice_${viewport.width}x${viewport.height}.png`);
+    await page.evaluate(() => window.__idleWuxiaAutomation.clearSave());
     await openChoice(page, baseUrl);
     await page.screenshot({ path: screenshot, fullPage: true });
     cases.push({

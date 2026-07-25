@@ -26,6 +26,7 @@ assert.ok(plan.configuredEntryActionIds.includes("ACTION_FS_001_ORIGIN_WUXUE"));
 assert.ok(plan.configuredEntryActionIds.includes("ACTION_FS_007_CHAPTER_CARD_ENTRY"));
 assert.equal(report.acceptance.runnerConsumesRegistry, true);
 assert.match(report.acceptance.failureEvidence, /screenshot.*DOM.*state.*console.*viewport/);
+assert.deepEqual(report.validationScope.excludedFromVerdict, ["FIRST_SESSION_SIMULATION_LIFECYCLE"]);
 const source = fs.readFileSync(path.join(root, "tools", "run-wuxia-browser-surface-sweep.mjs"), "utf8");
 assert.doesNotMatch(source, /gameCanvas|fireTesla|bossNovaReactor|left-rail|right-rail/);
 console.log(`Wuxia browser surface sweep contract tests: PASS (matrix=${plan.summary.matrixCases}, active=${plan.summary.activeCases}, postponed=${plan.summary.postponedCases})`);

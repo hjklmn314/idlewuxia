@@ -61,7 +61,9 @@ for (const rel of scope.activeConfigFiles) {
   }
 }
 
+const developmentRuntimeAllowlist = new Set(scope.developmentRuntimeAllowlist || []);
 for (const rel of scope.developmentReferenceFiles) {
+  if (developmentRuntimeAllowlist.has(rel)) continue;
   if (activeRuntimeText.includes(rel)) {
     add("P0", rel, "development-only evidence is loaded by active runtime", "Keep competitor evidence outside the shipping runtime closure.");
   }

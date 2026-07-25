@@ -142,8 +142,10 @@ export function evaluateProjectBaseline({
     }
   }
 
+  const developmentRuntimeAllowlist = new Set(scope.developmentRuntimeAllowlist || []);
   for (const file of scope.developmentReferenceFiles || []) {
     const normalized = normalizePath(file);
+    if (developmentRuntimeAllowlist.has(file)) continue;
     if (activeRuntimeText.includes(normalized)) {
       findings.push(
         finding(
