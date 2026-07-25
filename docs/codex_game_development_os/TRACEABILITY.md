@@ -61,3 +61,11 @@
 | Registry-driven browser surface sweep | `config/production/ui_experience_registry.json` | `tools/run-wuxia-browser-surface-sweep.mjs` | `outputs/wuxia_visual_matrix/20260723_qa_ui_001_final/` | Tool pass; product revise |
 | Choice-result modal acceptance | `config/wuxia_browser_modal_probe.json` | `tools/audit-wuxia-choice-result-browser.mjs` | per-viewport screenshot + DOM failure bundles | Blocked by legitimate route |
 | 11 screens x 3 viewports | UI registry | browser sweep | sweep report + coverage gaps | T05-01 open |
+
+## T02-02 traceability entry (2026-07-25)
+
+| Requirement | Configuration authority | Runtime/tool authority | Evidence | Verdict |
+|---|---|---|---|---|
+| Truthful interactable acceptance semantics | `config/wuxia_first_session_flow.json -> chapterSystem.entityInteractionPolicy.execution` | `src/entityInteractionService.js`, `src/chapterSession.js` | `tools/audit-wuxia-t02-02-interaction-semantics.mjs`, `tools/test-wuxia-t02-02-interaction-semantics.mjs` | Pass; 0 accepted unsupported, narrative-only and rejected-feedback separated |
+| Feedback-only configured actions | `feedbackRejectionConditionActions`, `feedbackRejectionConditionTokens` | `classifyBranchOutcome()` + `interactionResponse()` | `outputs/t02_02_interaction_semantics/t02_02_interaction_semantics_report.json` | Pass; default 2 executed narrative-only, 1 rejected feedback |
+| First-session simulation separation | existing simulator report | T02-02 audit report `relatedFirstSessionSimulation` | `outputs/idlewuxia_migration/wuxia_first_session_flow_simulation.json` and T03-01 record | Excluded from T02-02 verdict |

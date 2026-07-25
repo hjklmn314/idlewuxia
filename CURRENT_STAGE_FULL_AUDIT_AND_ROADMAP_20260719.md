@@ -759,3 +759,22 @@ configured choice-result NPC is not in the default room, and the conditional
 NPC/Chapter Loop surfaces are not reachable through the baseline route. No
 runtime state injection or combat implementation was used. G5 and T05-01
 therefore remain open.
+
+## 2026-07-25 T02-02 re-audit and implementation checkpoint
+
+The earlier T02-02 completion claim was stale: the fresh runtime audit found
+feedback-only interactable branches that had been reported as accepted without
+an explicit execution semantic. The current implementation adds the
+configuration-driven `executed / rejected / deferred / unsupported` status
+contract and `stateChanged`/`outcomeKind` fields. Default reachable audit now
+records two legitimate `executed / narrative_only` observations
+(`fb01item_14/use`, `fb01item_20/use`) and one truthful rejected feedback path
+(`fb01item_7/give`); branch probes cover the remaining conditional feedback
+paths. No accepted action is marked `unsupported`.
+
+Machine evidence is written to the ignored output
+`outputs/t02_02_interaction_semantics/`. The first-session simulation is
+reported separately with `excludedFromVerdict=true`; its historical combat
+lifecycle mismatch remains a T03-01/Combat scope item and is not used to pass
+or fail T02-02. `COMBAT-002`, Rest/Repair, full 358-action state assertions,
+T05-01/T05-02, device and commercial release gates remain open.

@@ -4,7 +4,7 @@
   "title": "Idlewuxia Entity Interaction Policy",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema", "visibility", "branchRouting", "feedback", "failurePolicy"],
+  "required": ["schema", "visibility", "branchRouting", "feedback", "execution", "failurePolicy"],
   "properties": {
     "schema": { "const": "idlewuxia.entity_interaction_policy.v1" },
     "visibility": {
@@ -56,6 +56,38 @@
           "type": "object",
           "minProperties": 1,
           "additionalProperties": { "$ref": "#/$defs/feedbackRule" }
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "executedStatus",
+        "rejectedStatus",
+        "deferredStatus",
+        "unsupportedStatus",
+        "narrativeOnlyOutcome",
+        "feedbackRejectionConditionActions",
+        "feedbackRejectionConditionTokens"
+      ],
+      "properties": {
+        "executedStatus": { "const": "executed" },
+        "rejectedStatus": { "const": "rejected" },
+        "deferredStatus": { "const": "deferred" },
+        "unsupportedStatus": { "const": "unsupported" },
+        "narrativeOnlyOutcome": { "const": "narrative_only" },
+        "feedbackRejectionConditionActions": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "feedbackRejectionConditionTokens": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
         }
       }
     },

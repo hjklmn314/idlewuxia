@@ -31076,6 +31076,43 @@
           }
         }
       },
+      "execution": {
+        "executedStatus": "executed",
+        "rejectedStatus": "rejected",
+        "deferredStatus": "deferred",
+        "unsupportedStatus": "unsupported",
+        "narrativeOnlyOutcome": "narrative_only",
+        "feedbackRejectionConditionActions": [
+          "玩家属性小于",
+          "玩家物品小于",
+          "玩家武功等级小于",
+          "玩家武功等级小于玩家等级"
+        ],
+        "feedbackRejectionConditionTokens": [
+          "qixiaoyu1",
+          "itemxiaoyu4",
+          "itemdayu1",
+          "itemdayu2",
+          "skilldayu3",
+          "skilldayu7",
+          "skilldayu8",
+          "skillxiaoyu2",
+          "skillxiaoyu3",
+          "skillxiaoyu4",
+          "skillxiaoyu7",
+          "skillxiaoyu8",
+          "skilljydayu2",
+          "skilljydayu3",
+          "skilljydayu4",
+          "skilljydayu7",
+          "skilljydayu8",
+          "skilljydengyu2",
+          "skilljydengyu3",
+          "skilljydengyu4",
+          "skilljydengyu7",
+          "skilljydengyu8"
+        ]
+      },
       "failurePolicy": "reject_unknown_hidden_out_of_room_or_unrouted_action"
     },
     "resultEffectPolicies": {

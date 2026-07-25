@@ -217,11 +217,19 @@ export function runActionStateAssertions({
       eventType: event.type || "",
       eventFeedback: event.feedback || "",
       sideEffectCount: (event.sideEffects || []).length,
+      executionStatus: result?.executionStatus || event.executionStatus || "",
+      outcomeKind: result?.outcomeKind || event.outcomeKind || "",
+      stateChanged: result?.stateChanged === true || event.stateChanged === true,
     };
     if (!availability) {
       rowReport.failureCode = "MISSING_AVAILABILITY";
       findings.push({ code: rowReport.failureCode, entityId: row.entityId, actionType: row.actionType });
-    } else if (accepted !== available) {
+    } else if (accepted !== available && !(
+      available
+      && !accepted
+      && rowReport.executionStatus === "rejected"
+      && rowReport.outcomeKind === "rejected_feedback"
+    )) {
       rowReport.failureCode = "AVAILABILITY_DISPATCH_MISMATCH";
       findings.push({ code: rowReport.failureCode, entityId: row.entityId, actionType: row.actionType, available, accepted, reason: event.reason || "" });
     } else if (!accepted && semanticChanged) {

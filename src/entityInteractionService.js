@@ -36,6 +36,7 @@ function renderTemplate(template = "", values = {}) {
 export function createEntityInteractionService({
   npcLookup,
   interactableLookup,
+  conditionLookup,
   entityInteractionPolicy = {},
   combatActionPolicies = {},
   branchEnabled = () => true,
@@ -44,6 +45,7 @@ export function createEntityInteractionService({
 } = {}) {
   const npcs = asLookup(npcLookup);
   const interactables = asLookup(interactableLookup);
+  const conditions = asLookup(conditionLookup);
   const policy = cloneData(entityInteractionPolicy || {});
   const combatPolicies = cloneData(combatActionPolicies || {});
   const visibilityField = String(policy.visibility?.interactableField || "");
@@ -51,6 +53,16 @@ export function createEntityInteractionService({
   const defaultNarrativeConditionToken = String(policy.branchRouting?.defaultNarrativeConditionToken || "");
   const excludedDialogueConditionPrefixes = policy.branchRouting?.excludedDialogueConditionPrefixes || [];
   const feedbackPolicy = policy.feedback || {};
+  const executionPolicy = policy.execution || {};
+  const executionSemantics = {
+    executedStatus: executionPolicy.executedStatus || "executed",
+    rejectedStatus: executionPolicy.rejectedStatus || "rejected",
+    deferredStatus: executionPolicy.deferredStatus || "deferred",
+    unsupportedStatus: executionPolicy.unsupportedStatus || "unsupported",
+    narrativeOnlyOutcome: executionPolicy.narrativeOnlyOutcome || "narrative_only",
+  };
+  const feedbackRejectionConditionActions = new Set(executionPolicy.feedbackRejectionConditionActions || []);
+  const feedbackRejectionConditionTokens = new Set(executionPolicy.feedbackRejectionConditionTokens || []);
   const configured = Boolean(
     policy.schema === "idlewuxia.entity_interaction_policy.v1"
     && visibilityField
@@ -146,12 +158,16 @@ export function createEntityInteractionService({
     const evaluations = candidateBranches.map((branch) => ({ branch, evaluation: evaluateBranch(branch, context) }));
     const accepted = evaluations.find(({ evaluation }) => evaluation.accepted);
     if (accepted) {
+      const selectedBranch = cloneData(accepted.branch);
+      selectedBranch.conditionDefinitions = (selectedBranch.conditionTokens || [])
+        .map((token) => cloneData(conditions.get(token)))
+        .filter(Boolean);
       return {
-        branch: cloneData(accepted.branch),
+        branch: selectedBranch,
         available: true,
         reason: "",
         checks: cloneData(accepted.evaluation.checks || []),
-        conditionTokens: cloneData(accepted.branch.conditionTokens || []),
+        conditionTokens: cloneData(selectedBranch.conditionTokens || []),
         evidenceLevel: evidenceLevel(accepted.branch.evidenceLevel, sourceEvidenceLevel),
       };
     }
@@ -302,6 +318,39 @@ export function createEntityInteractionService({
     return [renderTemplate(template, { name, description: item.description || "" })];
   }
 
+  function classifyBranchOutcome(branch = {}, sideEffects = []) {
+    const statuses = sideEffects.flatMap((effect) => [
+      effect?.status || "",
+      ...(effect?.followupSideEffects || []).map((followup) => followup?.status || ""),
+    ]).filter(Boolean);
+    const hasNonNarrativeEffect = statuses.some((status) => (
+      status.startsWith("applied_")
+      && !["applied_text_feedback", "applied_story_dialogue_feedback"].includes(status)
+    ) || status.startsWith("resolved_") || status === "pending_combat" || status === "opened_choice");
+    const hasNarrativeEffect = statuses.some((status) => [
+      "applied_text_feedback",
+      "applied_story_dialogue_feedback",
+    ].includes(status));
+    const hasConfiguredFeedbackRejection = !hasNonNarrativeEffect
+      && (hasNarrativeEffect || (branch.narrativeLines || []).length > 0)
+      && (
+        (branch.conditionTokens || []).some((token) => feedbackRejectionConditionTokens.has(String(token)))
+        || (branch.conditionDefinitions || []).some((condition) => (
+          feedbackRejectionConditionActions.has(String(condition?.action || condition?.arg1 || ""))
+        ))
+      );
+    return {
+      executionStatus: hasConfiguredFeedbackRejection
+        ? executionSemantics.rejectedStatus
+        : executionSemantics.executedStatus,
+      outcomeKind: !hasNonNarrativeEffect && (hasNarrativeEffect || (branch.narrativeLines || []).length)
+        ? (hasConfiguredFeedbackRejection ? "rejected_feedback" : executionSemantics.narrativeOnlyOutcome)
+        : "state_effect",
+      stateChanged: hasNonNarrativeEffect,
+      sideEffectStatuses: statuses,
+    };
+  }
+
   return Object.freeze({
     contractVersion: "idlewuxia.entity_interaction_service.v1",
     activeEntityIdsForRoom,
@@ -311,5 +360,7 @@ export function createEntityInteractionService({
     inspectInteractableAction,
     feedbackForNpcAction,
     feedbackForInteractable,
+    executionSemantics,
+    classifyBranchOutcome,
   });
 }

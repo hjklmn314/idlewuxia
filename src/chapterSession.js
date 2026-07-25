@@ -74,6 +74,7 @@ export function createChapterSession(sourceContract, options = {}) {
   const entityInteractionService = createEntityInteractionService({
     npcLookup: npcMap,
     interactableLookup: interactableMap,
+    conditionLookup,
     entityInteractionPolicy: contract?.chapterSystem?.entityInteractionPolicy || {},
     combatActionPolicies,
     branchEnabled: (branch) => resultPreparation.isBranchEnabled(branch),
@@ -741,6 +742,35 @@ export function createChapterSession(sourceContract, options = {}) {
     ]).filter(Boolean);
   }
 
+  function interactionExecutionStatusForRejection(reason = "") {
+    const text = String(reason || "");
+    if (/postponed|deferred/i.test(text)) return entityInteractionService.executionSemantics.deferredStatus;
+    if (/no configured runtime execution branch|unsupported/i.test(text)) return entityInteractionService.executionSemantics.unsupportedStatus;
+    return entityInteractionService.executionSemantics.rejectedStatus;
+  }
+
+  function interactionResponse(accepted, event = {}) {
+    const executionStatus = event.executionStatus
+      || (accepted
+        ? entityInteractionService.executionSemantics.executedStatus
+        : interactionExecutionStatusForRejection(event.reason));
+    const outcomeKind = event.outcomeKind || "";
+    const stateChanged = event.stateChanged === true
+      || (accepted && !outcomeKind.includes("narrative") && (event.sideEffects || []).some((effect) => (
+        effect.status?.startsWith("applied_")
+        && !["applied_text_feedback", "applied_story_dialogue_feedback"].includes(effect.status)
+      )));
+    const enrichedEvent = { ...event, executionStatus, outcomeKind, stateChanged };
+    return {
+      accepted,
+      executionStatus,
+      outcomeKind,
+      stateChanged,
+      event: enrichedEvent,
+      snapshot: snapshot(),
+    };
+  }
+
   function resolvePendingChoice(optionId = "") {
     if (!pendingChoice) {
       const event = { type: "choiceResolutionRejected", optionId, reason: "no pending choice" };
@@ -845,7 +875,7 @@ export function createChapterSession(sourceContract, options = {}) {
     if (!selection.accepted) {
       const event = { type: "npcInteractionRejected", roleId, actionType, reasonCode: selection.reasonCode || "", reason: selection.reason };
       events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
+      return interactionResponse(false, event);
     }
     const npc = npcMap.get(roleId);
     const decision = entityInteractionService.inspectNpcAction({ npc, actionType });
@@ -862,7 +892,7 @@ export function createChapterSession(sourceContract, options = {}) {
         evidenceLevel: evidenceLevelOrUnknown(decision.evidenceLevel),
       };
       events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
+      return interactionResponse(false, event);
     }
     const branch = decision.branch;
     const combatPolicy = decision.combatPolicy;
@@ -883,15 +913,21 @@ export function createChapterSession(sourceContract, options = {}) {
         sideEffects: [{ status: "pending_combat", actionType }],
         evidence: clone(npc.evidence || {}),
         evidenceLevel: combatPolicy.evidence?.level || fallback.evidenceLevel,
+        executionStatus: entityInteractionService.executionSemantics.deferredStatus,
+        outcomeKind: "pending_combat",
+        stateChanged: true,
       };
       events.push(event);
       const transition = beginPendingCombat(roleId, actionType, combatPolicy);
       if (!transition.accepted) {
         event.type = "npcInteractionRejected";
         event.reason = transition.event?.reason || transition.reason || "combat transition rejected";
-        return { accepted: false, event, snapshot: snapshot() };
+        event.executionStatus = interactionExecutionStatusForRejection(event.reason);
+        event.outcomeKind = "";
+        event.stateChanged = false;
+        return interactionResponse(false, event);
       }
-      return { accepted: true, event, snapshot: snapshot() };
+      return interactionResponse(true, event);
     }
     const resultValidation = branch ? validateResultEffects(branch) : { accepted: true, reason: "ok" };
     if (!resultValidation.accepted) {
@@ -906,7 +942,7 @@ export function createChapterSession(sourceContract, options = {}) {
         evidenceLevel: evidenceLevelOrUnknown(branch?.evidenceLevel, npc?.evidence?.level),
       };
       events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
+      return interactionResponse(false, event);
     }
     const fallback = branch?.narrativeLines?.length ? null : globalNpcActionFeedback(npc, action);
     const executionBranch = resultValidation.preparedBranch || branch;
@@ -928,7 +964,7 @@ export function createChapterSession(sourceContract, options = {}) {
         evidenceLevel: evidenceLevelOrUnknown(branch?.evidenceLevel, npc?.evidence?.level),
       };
       events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
+      return interactionResponse(false, event);
     }
     const sideEffects = transaction.sideEffects;
     const sideEffectFeedbackLines = sideEffects.flatMap((effect) => [
@@ -958,8 +994,17 @@ export function createChapterSession(sourceContract, options = {}) {
         fallback?.evidenceLevel,
       ),
     };
+    const executionSemantics = entityInteractionService.classifyBranchOutcome(executionBranch, sideEffects);
+    Object.assign(event, executionSemantics);
+    if (executionSemantics.executionStatus === entityInteractionService.executionSemantics.rejectedStatus) {
+      event.type = "npcInteractionRejected";
+      event.reasonCode = "configured_feedback_rejection";
+      event.reason = "configured feedback branch rejected interaction";
+      events.push(event);
+      return interactionResponse(false, event);
+    }
     events.push(event);
-    return { accepted: true, event, snapshot: snapshot() };
+    return interactionResponse(true, event);
   }
 
   function interactWithChapterInteractable(interactableId, actionType = "use") {
@@ -969,7 +1014,7 @@ export function createChapterSession(sourceContract, options = {}) {
     if (!selection.accepted) {
       const event = { type: "interactableInteractionRejected", interactableId, actionType, reasonCode: selection.reasonCode || "", reason: selection.reason };
       events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
+      return interactionResponse(false, event);
     }
     const item = interactableMap.get(interactableId);
     const decision = entityInteractionService.inspectInteractableAction({ item, actionType });
@@ -986,7 +1031,7 @@ export function createChapterSession(sourceContract, options = {}) {
         evidenceLevel: evidenceLevelOrUnknown(decision.evidenceLevel),
       };
       events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
+      return interactionResponse(false, event);
     }
     const branch = decision.branch;
     const fallbackLine = entityInteractionService.feedbackForInteractable(item)[0] || "";
@@ -1003,7 +1048,7 @@ export function createChapterSession(sourceContract, options = {}) {
         evidenceLevel: evidenceLevelOrUnknown(branch?.evidenceLevel, item?.evidence?.level),
       };
       events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
+      return interactionResponse(false, event);
     }
     const executionBranch = resultValidation.preparedBranch || branch;
     const transaction = executionBranch
@@ -1024,7 +1069,7 @@ export function createChapterSession(sourceContract, options = {}) {
         evidenceLevel: evidenceLevelOrUnknown(branch?.evidenceLevel, item?.evidence?.level),
       };
       events.push(event);
-      return { accepted: false, event, snapshot: snapshot() };
+      return interactionResponse(false, event);
     }
     const sideEffects = transaction.sideEffects;
     const sideEffectFeedbackLines = sideEffects.flatMap((effect) => [
@@ -1054,8 +1099,17 @@ export function createChapterSession(sourceContract, options = {}) {
         item?.evidence?.level,
       ),
     };
+    const executionSemantics = entityInteractionService.classifyBranchOutcome(executionBranch, sideEffects);
+    Object.assign(event, executionSemantics);
+    if (executionSemantics.executionStatus === entityInteractionService.executionSemantics.rejectedStatus) {
+      event.type = "interactableInteractionRejected";
+      event.reasonCode = "configured_feedback_rejection";
+      event.reason = "configured feedback branch rejected interaction";
+      events.push(event);
+      return interactionResponse(false, event);
+    }
     events.push(event);
-    return { accepted: true, event, snapshot: snapshot() };
+    return interactionResponse(true, event);
   }
 
   function detachedCommand(command) {

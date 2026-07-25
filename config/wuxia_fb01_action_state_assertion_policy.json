@@ -12,8 +12,9 @@
   "assertionRules": {
     "availability": "dispatch_result_must_match_configured_availability",
     "rejected": "semantic_state_delta_must_be_zero",
-    "accepted": "state_delta_or_declared_feedback_must_exist",
-    "narrativeOnly": "feedback_or_narrative_is_a_valid_zero_mutation_outcome",
+    "accepted": "accepted_true_requires_executed_or_deferred_status_and_declared_outcome",
+    "rejectedFeedback": "feedback_only_condition_failure_requires_rejected_status_and_zero_semantic_mutation",
+    "narrativeOnly": "feedback_or_narrative_is_a_valid_zero_mutation_outcome_only_when_execution_status_is_executed",
     "combat": "pending_combat_transition_is_a_valid_declared_outcome",
     "choice": "pending_choice_transition_is_a_valid_declared_outcome"
   },
