@@ -19,7 +19,7 @@
 
 ## 人工签字
 
-主控：`project-lead`  
-Gate 1：`PASS`  
-Gate 2：`PASS`  
+主控：`project-lead`
+Gate 1：`PASS`
+Gate 2：`PASS`
 Final manual acceptance：`PASS`（仅 GOV-001；ASSET-002 保持 BLOCKED）
