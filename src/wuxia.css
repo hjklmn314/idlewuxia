@@ -1526,14 +1526,40 @@ body.wuxia-mode #app {
 .wuxia-runtime-fighter.left { left: 29%; }
 .wuxia-runtime-fighter.right { right: 29%; transform: scaleX(-1); }
 .wuxia-runtime-fighter-shadow { position: absolute; left: 15%; right: 15%; bottom: 0; height: 13px; border-radius: 50%; background: rgba(0,0,0,.58); filter: blur(2px); }
-.wuxia-runtime-fighter-body { position: absolute; left: 23%; bottom: 11px; width: 58px; height: 113px; background: #ffe629; clip-path: polygon(48% 0, 67% 14%, 62% 32%, 95% 38%, 89% 49%, 61% 46%, 77% 73%, 64% 100%, 45% 99%, 48% 75%, 29% 97%, 12% 93%, 24% 65%, 34% 46%, 4% 48%, 0 37%, 36% 30%, 31% 12%); box-shadow: 0 0 13px rgba(255,222,0,.32); }
-.wuxia-runtime-fighter-body span { display: none; }
-.wuxia-runtime-fighter.right .wuxia-runtime-fighter-body { background: #ffde29; }
+.wuxia-runtime-fighter-body { position: absolute; left: 19%; bottom: 11px; width: 64px; height: 118px; image-rendering: pixelated; filter: drop-shadow(0 3px 0 rgba(0,0,0,.5)); }
+.wuxia-runtime-fighter-body::before {
+  content: ""; position: absolute; left: 20px; top: 0; width: 25px; height: 25px;
+  background: var(--fighter-skin); border: 4px solid #1a1c25;
+  box-shadow: -8px 8px 0 #1a1c25, 14px 15px 0 var(--fighter-accent), 8px 25px 0 #1a1c25;
+  clip-path: polygon(20% 0, 78% 0, 100% 26%, 90% 75%, 60% 100%, 15% 86%, 0 38%);
+}
+.wuxia-runtime-fighter-body::after {
+  content: ""; position: absolute; left: 11px; top: 34px; width: 45px; height: 62px;
+  background: var(--fighter-coat); border: 4px solid #1a1c25;
+  clip-path: polygon(20% 0, 80% 0, 100% 25%, 76% 100%, 27% 100%, 0 27%);
+  box-shadow: -10px 25px 0 -5px var(--fighter-coat), 37px 51px 0 -6px #1a1c25;
+}
+.wuxia-runtime-fighter-body span { position: absolute; z-index: 2; left: 24px; top: 10px; display: block; color: #f6e8c6; font-size: 11px; font-weight: 900; text-shadow: 1px 1px 0 #1a1c25; }
+.wuxia-runtime-fighter.is-attack .wuxia-runtime-fighter-body { animation: wuxia-combat-lunge 260ms steps(2, end) both; }
+.wuxia-runtime-fighter.is-damage .wuxia-runtime-fighter-body,
+.wuxia-runtime-fighter.is-hit .wuxia-runtime-fighter-body { animation: wuxia-combat-hit 230ms steps(2, end) both; }
+.wuxia-runtime-fighter.is-heal .wuxia-runtime-fighter-body,
+.wuxia-runtime-fighter.is-buff .wuxia-runtime-fighter-body,
+.wuxia-runtime-fighter.is-shield .wuxia-runtime-fighter-body { filter: drop-shadow(0 0 8px var(--combat-cue-color)); }
 
 .wuxia-runtime-hitline { position: absolute; z-index: 2; left: 41%; right: 41%; top: 57%; height: 2px; background: linear-gradient(90deg, transparent, #f8dc66, transparent); }
 .wuxia-runtime-floaters { position: absolute; z-index: 5; left: 28%; right: 28%; top: 48%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; pointer-events: none; }
 .wuxia-runtime-floaters span { color: #f54636; font-size: clamp(20px, 6vw, 32px); font-weight: 950; text-shadow: 2px 2px 0 #000; text-align: center; animation: wuxia-float-up 650ms ease-out both; }
 .wuxia-runtime-floaters span.skill { color: #f5e362; font-size: clamp(15px, 4.6vw, 23px); }
+.wuxia-runtime-floaters span.heal,
+.wuxia-runtime-floaters span.shield,
+.wuxia-runtime-floaters span.buff,
+.wuxia-runtime-floaters span.debuff,
+.wuxia-runtime-floaters span.resource { color: #86efac; }
+.wuxia-runtime-floaters span.miss,
+.wuxia-runtime-floaters span.block,
+.wuxia-runtime-floaters span.buffResisted,
+.wuxia-runtime-floaters span.buffImmune { color: #cbd5e1; font-size: clamp(15px, 4.6vw, 23px); }
 
 .wuxia-combat-runtime-log { min-height: 215px; padding: 15px 16px 20px; border-top: 1px solid #494949; background: #0a0a0a; color: #a8a8a8; font-size: clamp(15px, 4.1vw, 19px); line-height: 1.34; }
 .wuxia-combat-runtime-log p { margin: 0 0 5px; }
@@ -1651,6 +1677,16 @@ body.wuxia-mode .wuxia-stage {
     white-space: normal;
   }
   .wuxia-room-current { min-width: 88px; min-height: 54px; padding: 8px; font-size: 22px; }
+}
+@keyframes wuxia-combat-lunge {
+  0% { transform: translateX(0); }
+  45% { transform: translateX(15px); }
+  100% { transform: translateX(0); }
+}
+@keyframes wuxia-combat-hit {
+  0%, 100% { transform: translateX(0); filter: brightness(1); }
+  35% { transform: translateX(-7px); filter: brightness(1.8) drop-shadow(0 0 8px var(--combat-cue-color)); }
+  70% { transform: translateX(5px); filter: brightness(.75); }
 }
 
 .wuxia-choice-backdrop {

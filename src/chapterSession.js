@@ -5,6 +5,7 @@ import { createNavigationService } from "./navigationService.js";
 import { createResultEffectExecutor } from "./resultEffectExecutor.js";
 import { createResultPreparation } from "./resultPreparation.js";
 import { isValidPendingChoice } from "./resultExecutionModules.js";
+import { createCombatSession } from "./combatSession.js";
 
 function resolveActiveChapter(contract, options = {}) {
   return (
@@ -63,6 +64,7 @@ export function createChapterSession(sourceContract, options = {}) {
   const choiceResultPolicy = resultEffectPolicies.choiceResult || {};
   const resultSetPolicy = resultEffectPolicies.resultSet || {};
   const skillConversionPolicy = resultEffectPolicies.skillConversion || {};
+  const combatContent = cloneData(options.combatContent || contract?.combatContent || null);
   const resultPreparation = createResultPreparation({
     resultLookup,
     resultSetPolicy,
@@ -143,6 +145,7 @@ export function createChapterSession(sourceContract, options = {}) {
   }
   let mapMarkers = { ...(saveState.mapMarkers || options.initialMapMarkers || {}) };
   let pendingCombat = cloneData(saveState.pendingCombat || null);
+  let activeCombatSession = null;
   let pendingChoice = isValidPendingChoice(saveState.pendingChoice)
     ? cloneData(saveState.pendingChoice)
     : null;
@@ -651,6 +654,26 @@ export function createChapterSession(sourceContract, options = {}) {
 
   function beginPendingCombat(sourceId, actionType, policy) {
     if (!policy?.startActionId) return { accepted: false, reason: "missing combat start action policy" };
+    let combatSnapshot = null;
+    let combatPresentation = null;
+    let combatResult = null;
+    if (combatContent) {
+      try {
+        activeCombatSession = createCombatSession(combatContent, {
+          encounterId: policy.encounterId || combatContent.rules?.defaultEncounterId,
+          seed: policy.seed,
+        });
+        combatSnapshot = activeCombatSession.runToEnd({ maxSteps: policy.maxSteps || 256 });
+        combatResult = cloneData(combatSnapshot.result || null);
+        combatPresentation = activeCombatSession.presentation({
+          previewId: policy.previewId || `combat_${sourceId}`,
+          sceneTheme: policy.sceneTheme || "wuxia_courtyard",
+        });
+      } catch (error) {
+        activeCombatSession = null;
+        return { accepted: false, reason: `combat runtime rejected: ${error?.message || String(error)}` };
+      }
+    }
     pendingCombat = {
       sourceId,
       sourceKind: "npc",
@@ -662,6 +685,11 @@ export function createChapterSession(sourceContract, options = {}) {
       failureConditionToken: policy.failureConditionToken || "",
       runawayConditionToken: policy.runawayConditionToken || "",
       startedFromState: currentState,
+      encounterId: policy.encounterId || combatSnapshot?.encounterId || "",
+      combatOutcome: combatResult?.outcome || "",
+      combatResult,
+      combatSnapshot,
+      combatPresentation,
       evidence: clone(policy.evidence || {}),
     };
     const transition = dispatch(policy.startActionId);
@@ -671,6 +699,14 @@ export function createChapterSession(sourceContract, options = {}) {
 
   function resolvePendingCombat(outcome = "success") {
     if (!pendingCombat) return { accepted: false, reason: "no pending combat", sideEffects: [] };
+    const actualOutcome = pendingCombat.combatOutcome === "victory"
+      ? "success"
+      : pendingCombat.combatOutcome === "defeat"
+        ? "failure"
+        : pendingCombat.combatOutcome === "runaway"
+          ? "runaway"
+          : outcome;
+    outcome = actualOutcome;
     const source = npcMap.get(pendingCombat.sourceId) || null;
     const outcomeToken = outcome === "success"
       ? pendingCombat.successConditionToken
@@ -722,6 +758,7 @@ export function createChapterSession(sourceContract, options = {}) {
     const resolution = {
       accepted: true,
       outcome,
+      combatOutcome: pendingCombat.combatOutcome || "",
       outcomeToken,
       sourceId: pendingCombat.sourceId,
       matchedOutcomeBranch: Boolean(branch),
@@ -732,6 +769,7 @@ export function createChapterSession(sourceContract, options = {}) {
     };
     events.push({ type: "combatResolved", ...clone(resolution) });
     pendingCombat = null;
+    activeCombatSession = null;
     return resolution;
   }
 

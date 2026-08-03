@@ -23,6 +23,19 @@ function isStringArrayRecord(value) {
     && Object.values(value).every((item) => isStringArray(item));
 }
 
+function validCombatSnapshot(value) {
+  return isRecord(value)
+    && value.schema === "idlewuxia.combat_runtime.v1"
+    && typeof value.encounterId === "string"
+    && Array.isArray(value.playerUnitIds)
+    && Array.isArray(value.enemyUnitIds)
+    && Array.isArray(value.units)
+    && value.units.every((unit) => isRecord(unit) && typeof unit.unitId === "string" && Number.isFinite(Number(unit.hp)) && Number.isFinite(Number(unit.hpMax)))
+    && Array.isArray(value.events)
+    && value.events.every(isRecord)
+    && ["idle", "active", "finished"].includes(value.status);
+}
+
 function validRuntimeStateShape(state) {
   return isRecord(state)
     && typeof state.currentState === "string"
@@ -41,7 +54,8 @@ function validRuntimeStateShape(state) {
     && isStringArrayRecord(state.addedEntityIdsByRoom)
     && isStringRecord(state.replacementEntityById)
     && isStringRecord(state.mapMarkers)
-    && (state.pendingCombat === null || isRecord(state.pendingCombat))
+    && (state.pendingCombat === null || (isRecord(state.pendingCombat)
+      && (state.pendingCombat.combatSnapshot === undefined || state.pendingCombat.combatSnapshot === null || validCombatSnapshot(state.pendingCombat.combatSnapshot))))
     && (
       state.pendingChoice === undefined
       || state.pendingChoice === null

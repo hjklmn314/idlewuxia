@@ -31353,6 +31353,9 @@
         "successConditionToken": "comparewin",
         "failureConditionToken": "comparelose",
         "runawayConditionToken": "comparerunaway",
+        "encounterId": "encounter_first_session_old_steward",
+        "previewId": "first_session_old_steward",
+        "maxSteps": 256,
         "resolutionPolicy": "combat_result_then_condition_dispatch",
         "evidence": {
           "level": "lua_confirmed",
