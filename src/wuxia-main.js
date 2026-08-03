@@ -13,6 +13,7 @@ const CONFIG_FILES = {
   wuxiaScreenContract: "./config/wuxia_first_session_screen_contract.json",
   wuxiaRuntimePersistence: "./config/runtime_persistence_contract.json",
   wuxiaRuntimeAssetRegistry: "./config/wuxia_runtime_asset_registry.json",
+  wuxiaCombatContent: "./config/wuxia_combat_content.json",
 };
 
 const state = {
@@ -26,6 +27,8 @@ const state = {
     startedAt: 0,
     timer: null,
     resolvedKey: "",
+    lastAudioSeq: -1,
+    audioContext: null,
   },
 };
 
@@ -125,6 +128,7 @@ function renderCombatRuntimeUnit(unit, side) {
       </header>
       ${renderCombatBar("HP", unit?.hp ?? 0, unit?.hpMax ?? 1, "hp")}
       ${renderCombatBar("MP", unit?.mp ?? 0, unit?.mpMax ?? 1, "mp")}
+      ${unit?.shield ? renderCombatBar("盾", unit?.shield ?? 0, Math.max(1, unit?.shield ?? 0), "shield") : ""}
       <div class="wuxia-runtime-buffs">
         ${buffs.length ? buffs.map((buff) => `<span title="${escapeHtml(buff.description || buff.name || buff.buffId || "")}">${escapeHtml(buff.iconLabel || buff.name || buff.buffId || "")}</span>`).join("") : `<em>${escapeHtml(unit?.emptyBuffText || "")}</em>`}
       </div>
@@ -132,10 +136,11 @@ function renderCombatRuntimeUnit(unit, side) {
   `;
 }
 
-function renderCombatFighter(unit, side) {
+function renderCombatFighter(unit, side, activeKind = "", cueColor = "") {
   const visual = unit?.visual || {};
+  const palette = visual.palette || {};
   return `
-    <div class="wuxia-runtime-fighter ${escapeHtml(side)} ${escapeHtml(visual.pose || "guard")}" data-wuxia-fighter="${escapeHtml(side)}">
+    <div class="wuxia-runtime-fighter ${escapeHtml(side)} ${escapeHtml(visual.pose || "guard")} ${escapeHtml(activeKind ? `is-${activeKind}` : "")}" data-wuxia-fighter="${escapeHtml(side)}" style="--combat-cue-color:${escapeHtml(cueColor || "#f3d28b")};--fighter-coat:${escapeHtml(palette.coat || (side === "left" ? "#234765" : "#5c2f33"))};--fighter-accent:${escapeHtml(palette.accent || (side === "left" ? "#d6a85c" : "#d08b6e"))};--fighter-skin:${escapeHtml(palette.skin || "#d99a6c")}">
       <div class="wuxia-runtime-fighter-shadow" aria-hidden="true"></div>
       <div class="wuxia-runtime-fighter-body" aria-label="${escapeHtml(unit?.name || "")}">
         <span>${escapeHtml(visual.symbol || "")}</span>
@@ -165,6 +170,7 @@ function combatEventTimeMs(event) {
 }
 
 function combatPreviewForSnapshot(block, flowContract, snapshot) {
+  if (snapshot?.pendingCombat?.combatPresentation) return snapshot.pendingCombat.combatPresentation;
   const preview = combatPreviewForBlock(block, flowContract);
   if (!preview) return null;
   const sourceId = snapshot?.pendingCombat?.sourceId || "";
@@ -197,6 +203,7 @@ function currentCombatElapsedMs(snapshot, preview) {
     state.combatPlayback.key = key;
     state.combatPlayback.startedAt = Date.now();
     state.combatPlayback.resolvedKey = "";
+    state.combatPlayback.lastAudioSeq = -1;
   }
   return Math.max(0, Date.now() - state.combatPlayback.startedAt);
 }
@@ -206,9 +213,43 @@ function replayCombatUnits(preview, visibleEvents) {
   const right = cloneData(preview.units?.right || {});
   for (const event of visibleEvents) {
     const value = Number(event?.value || 0);
+    if (event.kind === "heal") {
+      const targetSide = event.targetSide || "left";
+      const unit = targetSide === "right" ? right : left;
+      unit.hp = Math.min(Number(unit.hpMax || unit.hp || 0), Number(unit.hp || 0) + value);
+      continue;
+    }
+    if (event.kind === "shield") {
+      const targetSide = event.targetSide || "left";
+      const unit = targetSide === "right" ? right : left;
+      unit.shield = Number(unit.shield || 0) + value;
+      continue;
+    }
+    if (event.kind === "resource") {
+      const targetSide = event.targetSide || "left";
+      const unit = targetSide === "right" ? right : left;
+      const delta = Number(event.value || 0);
+      unit.mp = Math.max(0, Math.min(Number(unit.mpMax || unit.mp || 0), Number(unit.mp || 0) + delta));
+      continue;
+    }
+    if (["buff", "debuff", "buffRemoved", "buffImmune"].includes(event.kind)) {
+      const targetSide = event.targetSide || "left";
+      const unit = targetSide === "right" ? right : left;
+      if (Array.isArray(event.buffs)) unit.buffs = cloneData(event.buffs);
+      continue;
+    }
+    if (event.kind === "defeat") {
+      const targetSide = event.targetSide || "left";
+      const unit = targetSide === "right" ? right : left;
+      unit.hp = 0;
+      unit.alive = false;
+      continue;
+    }
     if (value >= 0) continue;
     const targetSide = event.targetSide || (event.actor === left.name ? "right" : "left");
     const unit = targetSide === "right" ? right : left;
+    const absorbed = Math.max(0, Number(event.absorbed || 0));
+    unit.shield = Math.max(0, Number(unit.shield || 0) - absorbed);
     unit.hp = Math.max(0, Number(unit.hp || 0) + value);
   }
   return { left, right };
@@ -222,6 +263,12 @@ function renderCombatRuntime(block, flowContract, snapshot) {
   const visibleEvents = events.filter((event) => combatEventTimeMs(event) <= elapsedMs);
   const { left, right } = replayCombatUnits(preview, visibleEvents);
   const latestFloaters = visibleEvents.slice(-2);
+  const latestEvent = visibleEvents.length ? visibleEvents[visibleEvents.length - 1] : null;
+  const latestCueColor = latestEvent?.cue?.color || "";
+  const latestEventSource = latestEvent?.sourceUnitId || "";
+  const latestEventTarget = latestEvent?.targetUnitId || "";
+  const leftActiveKind = latestEventSource === left.unitId ? "attack" : latestEventTarget === left.unitId ? latestEvent?.kind || "hit" : "";
+  const rightActiveKind = latestEventSource === right.unitId ? "attack" : latestEventTarget === right.unitId ? latestEvent?.kind || "hit" : "";
   const scene = preview.scene || {};
   const totalDurationMs = Math.max(0, ...events.map(combatEventTimeMs));
   return `
@@ -229,10 +276,10 @@ function renderCombatRuntime(block, flowContract, snapshot) {
       <div class="wuxia-combat-runtime-stage" data-wuxia-scene-theme="${escapeHtml(scene.theme || "courtyard")}">
         <div class="wuxia-runtime-scene-backdrop" aria-hidden="true"><i></i><b></b><em></em></div>
         ${renderCombatRuntimeUnit(left, "left")}
-        ${renderCombatFighter(left, "left")}
+        ${renderCombatFighter(left, "left", leftActiveKind, latestCueColor)}
         <div class="wuxia-runtime-hitline" aria-hidden="true"></div>
         ${renderCombatRuntimeUnit(right, "right")}
-        ${renderCombatFighter(right, "right")}
+        ${renderCombatFighter(right, "right", rightActiveKind, latestCueColor)}
         <div class="wuxia-runtime-floaters">
           ${latestFloaters.map((event) => `<span class="${escapeHtml(event.kind || "event")}">${escapeHtml(event.floatText || event.text || "")}</span>`).join("")}
         </div>
@@ -269,6 +316,34 @@ function compactList(values, names = []) {
 
 function evidenceText(evidence) {
   return evidenceSummary(evidence);
+}
+
+function playCombatAudioCue(event, combatContent) {
+  if (!event || !combatContent || event.seq === undefined || event.seq === state.combatPlayback.lastAudioSeq) return;
+  state.combatPlayback.lastAudioSeq = event.seq;
+  const cue = (combatContent.audioCues || []).find((item) => item.audioCueId === event.audioCueId);
+  if (!cue || typeof window === "undefined") return;
+  try {
+    const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextCtor) return;
+    state.combatPlayback.audioContext ||= new AudioContextCtor();
+    const context = state.combatPlayback.audioContext;
+    if (context.state === "suspended") context.resume().catch(() => {});
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    const now = context.currentTime;
+    const duration = Math.max(0.035, Number(cue.durationMs || 80) / 1000);
+    oscillator.type = cue.wave || "sine";
+    oscillator.frequency.setValueAtTime(Number(cue.frequency || 240), now);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.055, now + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    oscillator.connect(gain).connect(context.destination);
+    oscillator.start(now);
+    oscillator.stop(now + duration + 0.01);
+  } catch {
+    // Audio is a best-effort presentation adapter; event IDs remain authoritative.
+  }
 }
 
 function renderNodeFact(label, values, emptyText = "") {
@@ -1001,6 +1076,8 @@ function syncCombatPlayback(snapshot, screen, flowContract) {
   const preview = combatPreviewForSnapshot(block, flowContract, snapshot);
   const duration = Math.max(0, ...(preview?.events || []).map(combatEventTimeMs));
   const elapsed = currentCombatElapsedMs(snapshot, preview);
+  const visibleEvents = (preview?.events || []).filter((event) => combatEventTimeMs(event) <= elapsed);
+  playCombatAudioCue(visibleEvents.length ? visibleEvents[visibleEvents.length - 1] : null, state.config?.wuxiaCombatContent);
   if (elapsed >= duration) {
     const resolutionActionId = block.resolveActionId || snapshot?.pendingCombat?.resolveActionId || "";
     // Player combat is continuous. Resolution is a config-selected transition
@@ -1082,6 +1159,7 @@ async function init() {
       initialPlayer: evidenceRoute
         ? applyEvidencePlayerPatch(state.config.wuxiaFirstSessionFlow?.playerSeed, evidenceRoute)
         : undefined,
+      combatContent: state.config.wuxiaCombatContent,
     }));
     state.persistence = attached;
     state.ui = createUiFlowAdapter({

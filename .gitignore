@@ -3,6 +3,7 @@ www/
 outputs/
 fangzhijianghu/
 archive/
+backups/
 
 # Generated native/web build state.
 android/.gradle/
