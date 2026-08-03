@@ -7,7 +7,8 @@ export const COMBAT_CAPABILITIES = Object.freeze({
   effectKinds: Object.freeze(["damage", "heal", "shield", "applyBuff", "removeBuff", "resource", "statModifier", "multiHit"]),
   targetSelectors: Object.freeze(["self", "single_enemy", "single_ally", "lowest_hp_ally", "random_enemy", "all_enemies", "all_allies"]),
   buffControls: Object.freeze(["stun", "silence", "root", "taunt"]),
-  buffFeatures: Object.freeze(["stat_modifiers", "damage_over_time", "heal_over_time", "shield", "stack", "refresh", "replace", "unique", "stun", "silence", "root", "taunt", "reflect", "immunity", "cleanse"]),
+  // Shield and cleanse are effect/skill capabilities, not persistent buff declaration features.
+  buffFeatures: Object.freeze(["stat_modifiers", "damage_over_time", "heal_over_time", "stack", "refresh", "replace", "unique", "stun", "silence", "root", "taunt", "reflect", "immunity"]),
 });
 
 function record(value) {

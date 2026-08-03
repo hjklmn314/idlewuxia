@@ -38,6 +38,8 @@ config/wuxia_combat_content.json
 
 效果类型：`damage`、`heal`、`shield`、`applyBuff`、`removeBuff`、`resource`、`statModifier`、`multiHit`。
 
+说明：`shield` 与 `cleanse` 是技能/效果能力，不是持久 Buff 声明字段；它们分别由 `shield`、`removeBuff` effect 驱动，并由属性测试覆盖。Buff 能力矩阵只统计真正挂在 Buff 定义上的持续效果、控制、堆叠、反射、免疫和属性修正。
+
 目标选择：自身、单体敌人、单体友军、最低生命友军、随机敌人、全体敌人、全体友军；带嘲讽时单体敌人优先命中嘲讽目标。
 
 ### 3.3 Buff 与战斗状态
@@ -96,7 +98,7 @@ npm.cmd run runtime:action-state-assertions:test
 ## 5. 本阶段测试证据
 
 - `runtime:combat-content:validate`：PASS；3 factions、3 units、26 skills、16 buffs、2 encounters、28 cues、5 audio cues；0 findings。
-- `runtime:combat-module:audit`：PASS；逐技能/逐 Buff probe、Schema/运行时引用、支持能力对照和运行时代码具体 ID 硬编码扫描均通过；未编写的通用能力会在 `unAuthoredSupported` 中显式列出。
+- `runtime:combat-module:audit`：PASS；逐技能/逐 Buff probe、Schema/运行时引用、支持能力对照和运行时代码具体 ID 硬编码扫描均通过；`shield`/`cleanse` 已作为 effect 路径覆盖，Buff feature 与技能/effect 能力不混淆。
 - `runtime:combat-session:test`：PASS；first-session victory、ambush defeat；advanced mechanics reflect/silence/root/statModifier/true damage/area targeting/ally targeting/lowest-hp ally/taunt/runaway 全部 PASS。
 - `runtime:combat-attributes:test`：PASS；派生属性、暴击、吸血、命中/闪避、格挡、抗性/穿透、受伤倍率、真伤绕过、死亡目标保护、全体目标集合校验、终结事件计数全部 PASS。
 - `runtime:combat-chapter-integration:test`：PASS；真实 `NPC compete -> combatSnapshot finished -> victory -> configured outcome branch -> map`。
