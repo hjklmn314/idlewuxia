@@ -169,7 +169,7 @@ const report = {
     attributeContract: attributeContract.unresolvedFormulaRefs.length === 0 && attributeContract.missingRuntimeAttributes.length === 0,
   },
   knownBoundaries: [
-    "Probe acceptance proves configured interpreter paths, not full player-facing manual action UI.",
+    "Manual player turns, explicit target commands, rejection semantics and deterministic resume have focused runtime tests; browser/device visual acceptance remains a separate gate.",
     "Asset and audio cues are contract-level definitions; real-device mix, latency, and visual quality still require device and screenshot gates.",
     "Coverage is limited to authored content currently present in wuxia_combat_content.json; un-authored capability types remain explicit backlog rather than implicit completion.",
   ],

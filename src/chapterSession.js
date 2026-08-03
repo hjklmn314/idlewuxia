@@ -657,14 +657,24 @@ export function createChapterSession(sourceContract, options = {}) {
     let combatSnapshot = null;
     let combatPresentation = null;
     let combatResult = null;
+    let combatControl = null;
+    const runtimeMode = policy.runtimeMode || "manual_player_turns";
     if (combatContent) {
       try {
         activeCombatSession = createCombatSession(combatContent, {
           encounterId: policy.encounterId || combatContent.rules?.defaultEncounterId,
           seed: policy.seed,
         });
-        combatSnapshot = activeCombatSession.runToEnd({ maxSteps: policy.maxSteps || 256 });
+        if (runtimeMode === "manual_player_turns") {
+          activeCombatSession.start();
+          combatSnapshot = activeCombatSession.advanceUntilPlayerInput({ maxSteps: policy.maxSteps || 256 }).snapshot;
+        } else if (runtimeMode === "simulation") {
+          combatSnapshot = activeCombatSession.runToEnd({ maxSteps: policy.maxSteps || 256 });
+        } else {
+          throw new Error(`unsupported combat runtime mode ${runtimeMode}`);
+        }
         combatResult = cloneData(combatSnapshot.result || null);
+        combatControl = cloneData(activeCombatSession.combatControlState());
         combatPresentation = activeCombatSession.presentation({
           previewId: policy.previewId || `combat_${sourceId}`,
           sceneTheme: policy.sceneTheme || "wuxia_courtyard",
@@ -678,18 +688,21 @@ export function createChapterSession(sourceContract, options = {}) {
       sourceId,
       sourceKind: "npc",
       actionType,
-      // The map action policy owns resolution. The player UI must not invent a
-      // separate "continue" command after the configured timeline completes.
+      runtimeMode,
+      autoResolveOnFinish: policy.autoResolveOnFinish === true,
       resolveActionId: policy.resolveActionId || "",
       successConditionToken: policy.successConditionToken || "",
       failureConditionToken: policy.failureConditionToken || "",
       runawayConditionToken: policy.runawayConditionToken || "",
       startedFromState: currentState,
       encounterId: policy.encounterId || combatSnapshot?.encounterId || "",
+      previewId: policy.previewId || `combat_${sourceId}`,
+      sceneTheme: policy.sceneTheme || "wuxia_courtyard",
       combatOutcome: combatResult?.outcome || "",
       combatResult,
       combatSnapshot,
       combatPresentation,
+      combatControl,
       evidence: clone(policy.evidence || {}),
     };
     const transition = dispatch(policy.startActionId);
@@ -697,15 +710,86 @@ export function createChapterSession(sourceContract, options = {}) {
     return transition;
   }
 
+  function restoreActivePendingCombat() {
+    if (!pendingCombat) return { accepted: false, reason: "no pending combat" };
+    if (activeCombatSession) return { accepted: true, session: activeCombatSession };
+    if (!combatContent || !pendingCombat.combatSnapshot) return { accepted: false, reason: "combat runtime snapshot unavailable" };
+    try {
+      activeCombatSession = createCombatSession(combatContent, {
+        encounterId: pendingCombat.encounterId || pendingCombat.combatSnapshot.encounterId,
+        runtimeSnapshot: pendingCombat.combatSnapshot,
+      });
+      return { accepted: true, session: activeCombatSession };
+    } catch (error) {
+      activeCombatSession = null;
+      return { accepted: false, reason: `combat runtime restore rejected: ${error?.message || String(error)}` };
+    }
+  }
+
+  function refreshPendingCombatRuntime() {
+    if (!pendingCombat || !activeCombatSession) return null;
+    pendingCombat.combatSnapshot = cloneData(activeCombatSession.snapshot());
+    pendingCombat.combatResult = cloneData(pendingCombat.combatSnapshot.result || null);
+    pendingCombat.combatOutcome = pendingCombat.combatResult?.outcome || "";
+    pendingCombat.combatControl = cloneData(activeCombatSession.combatControlState());
+    pendingCombat.combatPresentation = activeCombatSession.presentation({
+      previewId: pendingCombat.previewId || `combat_${pendingCombat.sourceId}`,
+      sceneTheme: pendingCombat.sceneTheme || "wuxia_courtyard",
+    });
+    return clone(pendingCombat);
+  }
+
+  function submitCombatAction(unitId, skillId, targetIds = []) {
+    if (pendingChoice) return { accepted: false, reason: "pending choice must be resolved first", snapshot: snapshot() };
+    if (!pendingCombat || pendingCombat.runtimeMode !== "manual_player_turns") return { accepted: false, reason: "manual combat is not active", snapshot: snapshot() };
+    if (typeof unitId !== "string" || !unitId.trim() || typeof skillId !== "string" || !skillId.trim() || !Array.isArray(targetIds) || targetIds.some((id) => typeof id !== "string" || !id.trim())) {
+      return { accepted: false, reason: "invalid combat command", snapshot: snapshot() };
+    }
+    const restored = restoreActivePendingCombat();
+    if (!restored.accepted) return { accepted: false, reason: restored.reason, snapshot: snapshot() };
+    const result = activeCombatSession.submitPlayerAction(unitId, skillId, targetIds);
+    if (!result.accepted) {
+      events.push({ type: "combatCommandRejected", unitId, skillId, targetIds: clone(targetIds), reason: result.reason || "combat command rejected" });
+      return { accepted: false, reason: result.reason || "combat command rejected", control: clone(activeCombatSession.combatControlState()), snapshot: snapshot() };
+    }
+    const combat = refreshPendingCombatRuntime();
+    const event = { type: "combatCommandApplied", unitId, skillId, targetIds: clone(targetIds), outcome: combat?.combatOutcome || "", autoAdvancedSteps: result.autoAdvancedSteps || 0 };
+    events.push(event);
+    return { accepted: true, event, control: clone(combat?.combatControl || {}), snapshot: snapshot() };
+  }
+
+  function attemptCombatRunaway(unitId) {
+    if (pendingChoice) return { accepted: false, reason: "pending choice must be resolved first", snapshot: snapshot() };
+    if (!pendingCombat || pendingCombat.runtimeMode !== "manual_player_turns") return { accepted: false, reason: "manual combat is not active", snapshot: snapshot() };
+    if (typeof unitId !== "string" || !unitId.trim()) return { accepted: false, reason: "invalid combat command", snapshot: snapshot() };
+    const restored = restoreActivePendingCombat();
+    if (!restored.accepted) return { accepted: false, reason: restored.reason, snapshot: snapshot() };
+    const result = activeCombatSession.attemptRunaway(unitId);
+    if (!result.accepted) {
+      events.push({ type: "combatRunawayRejected", unitId, reason: result.reason || "combat runaway rejected" });
+      return { accepted: false, reason: result.reason || "combat runaway rejected", control: clone(activeCombatSession.combatControlState()), snapshot: snapshot() };
+    }
+    if (!result.success && activeCombatSession.snapshot().status === "active") activeCombatSession.advanceUntilPlayerInput();
+    const combat = refreshPendingCombatRuntime();
+    const event = { type: "combatRunawayApplied", unitId, success: result.success === true, outcome: combat?.combatOutcome || "" };
+    events.push(event);
+    return { accepted: true, event, control: clone(combat?.combatControl || {}), snapshot: snapshot() };
+  }
+
   function resolvePendingCombat(outcome = "success") {
     if (!pendingCombat) return { accepted: false, reason: "no pending combat", sideEffects: [] };
+    if (pendingCombat.runtimeMode === "manual_player_turns" && !pendingCombat.combatOutcome) {
+      return { accepted: false, reason: "combat_not_finished", sideEffects: [] };
+    }
     const actualOutcome = pendingCombat.combatOutcome === "victory"
       ? "success"
       : pendingCombat.combatOutcome === "defeat"
         ? "failure"
         : pendingCombat.combatOutcome === "runaway"
           ? "runaway"
-          : outcome;
+          : pendingCombat.combatOutcome
+            ? "failure"
+            : outcome;
     outcome = actualOutcome;
     const source = npcMap.get(pendingCombat.sourceId) || null;
     const outcomeToken = outcome === "success"
@@ -1172,6 +1256,8 @@ export function createChapterSession(sourceContract, options = {}) {
     interactWithChapterNpc: detachedCommand(interactWithChapterNpc),
     selectChapterInteractable: detachedCommand(selectChapterInteractable),
     interactWithChapterInteractable: detachedCommand(interactWithChapterInteractable),
+    submitCombatAction: detachedCommand(submitCombatAction),
+    attemptCombatRunaway: detachedCommand(attemptCombatRunaway),
     resolvePendingCombat: detachedCommand(resolvePendingCombat),
     resolvePendingChoice: detachedCommand(resolvePendingChoice),
   };

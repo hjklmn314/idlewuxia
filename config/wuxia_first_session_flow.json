@@ -31355,6 +31355,8 @@
         "runawayConditionToken": "comparerunaway",
         "encounterId": "encounter_first_session_old_steward",
         "previewId": "first_session_old_steward",
+        "runtimeMode": "manual_player_turns",
+        "autoResolveOnFinish": true,
         "maxSteps": 256,
         "resolutionPolicy": "combat_result_then_condition_dispatch",
         "evidence": {

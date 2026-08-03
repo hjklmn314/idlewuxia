@@ -318,8 +318,9 @@
           "previewId": "first_session_old_steward",
           "source": "flow.combatPreviews",
           "waitingText": "战斗开始……",
-          "autoResolve": true,
-          "resolutionPolicy": "configured_timeline_then_pending_combat_resolve",
+          "autoResolveOnFinish": true,
+          "resultDelayMs": 650,
+          "resolutionPolicy": "authoritative_combat_result_then_configured_resolution",
           "evidence": {
             "level": "lua_confirmed",
             "source": "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/06_effective_lua/effective_plain_best/src/app/models/map/MapHandle/Modules/CommonModule/FightResult.lua",

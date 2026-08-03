@@ -45,6 +45,7 @@ const session = createChapterSession(contract, { initialState: "opening" });
 assert.deepEqual(
   Object.keys(session).sort(),
   [
+    "attemptCombatRunaway",
     "dispatch",
     "exportSaveState",
     "interactWithChapterInteractable",
@@ -56,8 +57,9 @@ assert.deepEqual(
     "selectChapterNpc",
     "selectChapterRoom",
     "snapshot",
+    "submitCombatAction",
   ],
-  "ChapterSession must expose only the established domain command/query surface",
+  "ChapterSession must expose only the established domain command/query surface, including truthful player-combat commands",
 );
 
 const before = session.snapshot();

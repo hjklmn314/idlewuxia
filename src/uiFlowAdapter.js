@@ -9,6 +9,8 @@ export const UI_INTENT_TYPES = Object.freeze([
   "selectInteractable",
   "interactInteractable",
   "resolveChoice",
+  "submitCombatAction",
+  "attemptCombatRunaway",
 ]);
 
 const INTENT_CONTRACTS = Object.freeze({
@@ -20,6 +22,8 @@ const INTENT_CONTRACTS = Object.freeze({
   selectInteractable: { method: "selectChapterInteractable", fields: ["interactableId"] },
   interactInteractable: { method: "interactWithChapterInteractable", fields: ["interactableId", "actionType"] },
   resolveChoice: { method: "resolvePendingChoice", fields: ["optionId"] },
+  submitCombatAction: { method: "submitCombatAction", fields: ["unitId", "skillId"], arrayFields: ["targetIds"] },
+  attemptCombatRunaway: { method: "attemptCombatRunaway", fields: ["unitId"] },
 });
 
 function rejectedIntent(reason, intentType = "") {
@@ -72,17 +76,22 @@ export function createUiFlowAdapter({ session, flowContract, screenContract }) {
     const intentType = typeof intent?.type === "string" ? intent.type : "";
     const contract = INTENT_CONTRACTS[intentType];
     if (!contract) return rejectedIntent("unsupported_ui_intent", intentType);
-    const allowedKeys = new Set(["type", ...contract.fields]);
+    const arrayFields = contract.arrayFields || [];
+    const allowedKeys = new Set(["type", ...contract.fields, ...arrayFields]);
     if (
       !intent
       || Object.keys(intent).some((key) => !allowedKeys.has(key))
       || contract.fields.some((field) => typeof intent[field] !== "string" || !intent[field].trim())
+      || arrayFields.some((field) => !Array.isArray(intent[field]) || intent[field].some((item) => typeof item !== "string" || !item.trim()))
     ) {
       return rejectedIntent("invalid_ui_intent", intentType);
     }
     const method = session[contract.method];
     if (typeof method !== "function") return rejectedIntent("unsupported_session_command", intentType);
-    return cloneData(method(...contract.fields.map((field) => intent[field])));
+    return cloneData(method(
+      ...contract.fields.map((field) => intent[field]),
+      ...arrayFields.map((field) => intent[field]),
+    ));
   }
 
   return Object.freeze({ execute, present, snapshot });

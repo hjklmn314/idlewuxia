@@ -26,6 +26,8 @@ const state = {
     key: "",
     startedAt: 0,
     timer: null,
+    feedbackTimer: null,
+    feedbackUntil: 0,
     resolvedKey: "",
     lastAudioSeq: -1,
     audioContext: null,
@@ -165,6 +167,7 @@ function combatPreviewForBlock(block, flowContract) {
 }
 
 function combatEventTimeMs(event) {
+  if (Number.isFinite(Number(event?.timeMs))) return Math.max(0, Number(event.timeMs));
   const value = Number.parseFloat(String(event?.time || "0").replace("s", ""));
   return Number.isFinite(value) ? Math.max(0, value * 1000) : 0;
 }
@@ -206,6 +209,22 @@ function currentCombatElapsedMs(snapshot, preview) {
     state.combatPlayback.lastAudioSeq = -1;
   }
   return Math.max(0, Date.now() - state.combatPlayback.startedAt);
+}
+
+function armCombatFeedback() {
+  const lifetime = Math.max(
+    0,
+    Number(state.config?.wuxiaCombatContent?.rules?.presentation?.floatingTextLifetimeMs ?? 0),
+  );
+  if (state.combatPlayback.feedbackTimer) clearTimeout(state.combatPlayback.feedbackTimer);
+  state.combatPlayback.feedbackUntil = Date.now() + lifetime;
+  state.combatPlayback.feedbackTimer = lifetime > 0
+    ? setTimeout(() => {
+      state.combatPlayback.feedbackTimer = null;
+      state.combatPlayback.feedbackUntil = 0;
+      render();
+    }, lifetime)
+    : null;
 }
 
 function replayCombatUnits(preview, visibleEvents) {
@@ -259,10 +278,22 @@ function renderCombatRuntime(block, flowContract, snapshot) {
   const preview = combatPreviewForSnapshot(block, flowContract, snapshot);
   if (!preview) return `<section class="wuxia-combat-runtime is-missing">Missing combat preview: ${escapeHtml(block.previewId || "")}</section>`;
   const events = Array.isArray(preview.events) ? preview.events : [];
-  const elapsedMs = currentCombatElapsedMs(snapshot, preview);
-  const visibleEvents = events.filter((event) => combatEventTimeMs(event) <= elapsedMs);
-  const { left, right } = replayCombatUnits(preview, visibleEvents);
-  const latestFloaters = visibleEvents.slice(-2);
+  const liveRuntime = snapshot?.pendingCombat?.combatSnapshot || null;
+  const liveUnits = Array.isArray(liveRuntime?.units) ? liveRuntime.units : [];
+  const liveLeft = liveUnits.find((unit) => liveRuntime?.playerUnitIds?.includes(unit.unitId)) || null;
+  const liveRight = liveUnits.find((unit) => liveRuntime?.enemyUnitIds?.includes(unit.unitId)) || null;
+  const left = liveLeft ? { ...(preview.units?.left || {}), ...liveLeft } : cloneData(preview.units?.left || {});
+  const right = liveRight ? { ...(preview.units?.right || {}), ...liveRight } : cloneData(preview.units?.right || {});
+  const visibleEvents = events;
+  // Floating combat text is transient presentation, never persisted replay
+  // authority. Old save events remain in the log, but do not cover the field
+  // after a reload or after the configured feedback lifetime ends.
+  const latestImpactEvent = [...visibleEvents].reverse().find((event) => !["skill", "skillResolved"].includes(event.kind))
+    || visibleEvents[visibleEvents.length - 1]
+    || null;
+  const latestFloaters = Date.now() < state.combatPlayback.feedbackUntil && latestImpactEvent
+    ? [latestImpactEvent]
+    : [];
   const latestEvent = visibleEvents.length ? visibleEvents[visibleEvents.length - 1] : null;
   const latestCueColor = latestEvent?.cue?.color || "";
   const latestEventSource = latestEvent?.sourceUnitId || "";
@@ -270,9 +301,29 @@ function renderCombatRuntime(block, flowContract, snapshot) {
   const leftActiveKind = latestEventSource === left.unitId ? "attack" : latestEventTarget === left.unitId ? latestEvent?.kind || "hit" : "";
   const rightActiveKind = latestEventSource === right.unitId ? "attack" : latestEventTarget === right.unitId ? latestEvent?.kind || "hit" : "";
   const scene = preview.scene || {};
-  const totalDurationMs = Math.max(0, ...events.map(combatEventTimeMs));
+  const control = snapshot?.pendingCombat?.combatControl || {};
+  const available = control?.availableActions || { skills: [], canRunaway: false };
+  const actionRows = control?.requiresPlayerInput
+    ? available.skills.map((skill) => {
+      const candidates = Array.isArray(skill.targetCandidates) ? skill.targetCandidates : [];
+      const targetRows = skill.targetSelection === "player_select" ? candidates : [{ unitId: "", name: "" }];
+      return targetRows.map((target) => {
+        const targetIds = target.unitId ? target.unitId : "";
+        const label = target.name ? `${skill.name}·${target.name}` : skill.name;
+        const unavailable = !skill.available;
+        return `<button type="button" class="wuxia-combat-skill" ${unavailable ? "disabled" : ""} data-wuxia-combat-unit-id="${escapeHtml(control.actorId || "")}" data-wuxia-combat-skill-id="${escapeHtml(skill.skillId || "")}" data-wuxia-combat-target-ids="${escapeHtml(targetIds)}" title="${escapeHtml(skill.reason || skill.kind || "")}"><strong>${escapeHtml(label)}</strong><small>${escapeHtml(unavailable ? skill.reason || "不可用" : (skill.targetSelection === "player_select" ? "选定目标" : skill.kind || ""))}</small></button>`;
+      }).join("");
+    }).join("")
+    : "";
+  const controlText = liveRuntime?.status === "finished"
+    ? (liveRuntime?.outcome === "victory" ? "胜负已定，正在结算……" : "战斗结束，正在结算……")
+    : control?.requiresPlayerInput
+      ? `${control.actorName || "我方"}行动：选择招式和目标`
+      : control?.actorName
+        ? `${control.actorName}行动中……`
+        : (block.waitingText || "战斗准备中……");
   return `
-    <section class="wuxia-combat-runtime" data-testid="combat-runtime" data-wuxia-preview-id="${escapeHtml(preview.previewId || block.previewId || "")}" data-wuxia-combat-playing="${elapsedMs < totalDurationMs}">
+    <section class="wuxia-combat-runtime" data-testid="combat-runtime" data-wuxia-preview-id="${escapeHtml(preview.previewId || block.previewId || "")}" data-wuxia-combat-status="${escapeHtml(liveRuntime?.status || "preview")}">
       <div class="wuxia-combat-runtime-stage" data-wuxia-scene-theme="${escapeHtml(scene.theme || "courtyard")}">
         <div class="wuxia-runtime-scene-backdrop" aria-hidden="true"><i></i><b></b><em></em></div>
         ${renderCombatRuntimeUnit(left, "left")}
@@ -287,6 +338,11 @@ function renderCombatRuntime(block, flowContract, snapshot) {
       <div class="wuxia-combat-runtime-log">
         ${visibleEvents.length ? visibleEvents.slice(-4).map(renderCombatLogEvent).join("") : `<p>${escapeHtml(block.waitingText || "")}</p>`}
       </div>
+      <section class="wuxia-combat-command-panel" aria-label="战斗指令">
+        <p class="wuxia-combat-turn" aria-live="polite">${escapeHtml(controlText)}</p>
+        ${actionRows ? `<div class="wuxia-combat-action-grid">${actionRows}</div>` : ""}
+        ${control?.requiresPlayerInput && available.canRunaway ? `<button type="button" class="wuxia-combat-runaway" data-wuxia-combat-unit-id="${escapeHtml(control.actorId || "")}">尝试脱离</button>` : ""}
+      </section>
     </section>
   `;
 }
@@ -1071,30 +1127,42 @@ function syncCombatPlayback(snapshot, screen, flowContract) {
   if (!block) {
     if (state.combatPlayback.timer) clearTimeout(state.combatPlayback.timer);
     state.combatPlayback.timer = null;
+    if (state.combatPlayback.feedbackTimer) clearTimeout(state.combatPlayback.feedbackTimer);
+    state.combatPlayback.feedbackTimer = null;
+    state.combatPlayback.feedbackUntil = 0;
     return;
   }
   const preview = combatPreviewForSnapshot(block, flowContract, snapshot);
-  const duration = Math.max(0, ...(preview?.events || []).map(combatEventTimeMs));
-  const elapsed = currentCombatElapsedMs(snapshot, preview);
-  const visibleEvents = (preview?.events || []).filter((event) => combatEventTimeMs(event) <= elapsed);
-  playCombatAudioCue(visibleEvents.length ? visibleEvents[visibleEvents.length - 1] : null, state.config?.wuxiaCombatContent);
-  if (elapsed >= duration) {
+  const runtime = snapshot?.pendingCombat?.combatSnapshot || null;
+  const events = preview?.events || [];
+  playCombatAudioCue(events.length ? events[events.length - 1] : null, state.config?.wuxiaCombatContent);
+  if (runtime?.status === "finished") {
     const resolutionActionId = block.resolveActionId || snapshot?.pendingCombat?.resolveActionId || "";
-    // Player combat is continuous. Resolution is a config-selected transition
-    // after its timeline finishes; developer stepping belongs in tooling only.
-    if (block.autoResolve === true && resolutionActionId && state.combatPlayback.resolvedKey !== state.combatPlayback.key) {
-      state.combatPlayback.resolvedKey = state.combatPlayback.key;
-      const result = state.ui.execute({ type: "dispatchAction", actionId: resolutionActionId });
-      if (!result.accepted) console.error("Configured combat auto-resolution failed", result.event);
-      render();
+    // The result transition remains configuration-owned, but it may only happen
+    // after the authoritative CombatSession has reached a terminal state.
+    const key = `${snapshot?.currentState || ""}:${snapshot?.pendingCombat?.sourceId || ""}:${runtime.outcome || ""}:${events.length}`;
+    if (block.autoResolveOnFinish === true && resolutionActionId && state.combatPlayback.resolvedKey !== key) {
+      state.combatPlayback.resolvedKey = key;
+      state.combatPlayback.timer = setTimeout(() => {
+        state.combatPlayback.timer = null;
+        const current = state.ui.snapshot();
+        if (current?.pendingCombat?.combatSnapshot?.status !== "finished") return;
+        const result = state.ui.execute({ type: "dispatchAction", actionId: resolutionActionId });
+        if (!result.accepted) console.error("Configured combat auto-resolution failed", result.event);
+        render();
+      }, Math.max(0, Number(block.resultDelayMs ?? 650)));
     }
     return;
   }
-  if (state.combatPlayback.timer) return;
-  state.combatPlayback.timer = setTimeout(() => {
+  if (state.combatPlayback.timer) {
+    clearTimeout(state.combatPlayback.timer);
     state.combatPlayback.timer = null;
-    render();
-  }, 110);
+  }
+  if (!runtime) {
+    // The legacy preview remains visible only for evidence routes without a
+    // battle runtime. Production combat does not use a timeline for authority.
+    return;
+  }
 }
 
 function installAutomationApi() {
@@ -1128,6 +1196,16 @@ function render() {
     onInteractNpc: interactNpcFromUi,
     onSelectInteractable: selectItemFromUi,
     onInteractInteractable: interactItemFromUi,
+    onSubmitCombatAction: (unitId, skillId, targetIds) => {
+      const result = state.ui.execute({ type: "submitCombatAction", unitId, skillId, targetIds });
+      if (result.accepted) armCombatFeedback();
+      render();
+    },
+    onAttemptCombatRunaway: (unitId) => {
+      const result = state.ui.execute({ type: "attemptCombatRunaway", unitId });
+      if (result.accepted) armCombatFeedback();
+      render();
+    },
   });
   syncCombatPlayback(snapshot, screen, flowContract);
   bindPendingChoiceDialog(stage, snapshot.pendingChoice);

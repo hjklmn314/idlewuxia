@@ -1462,7 +1462,7 @@ body.wuxia-mode #app {
    compact status strips, a shared scene, units in the field, then prose log. */
 .wuxia-combat-runtime {
   display: grid;
-  grid-template-rows: minmax(420px, 1fr) minmax(215px, auto);
+  grid-template-rows: minmax(390px, 1fr) minmax(150px, auto) auto;
   gap: 0;
   min-height: 640px;
   background: #050505;
@@ -1548,7 +1548,7 @@ body.wuxia-mode #app {
 .wuxia-runtime-fighter.is-shield .wuxia-runtime-fighter-body { filter: drop-shadow(0 0 8px var(--combat-cue-color)); }
 
 .wuxia-runtime-hitline { position: absolute; z-index: 2; left: 41%; right: 41%; top: 57%; height: 2px; background: linear-gradient(90deg, transparent, #f8dc66, transparent); }
-.wuxia-runtime-floaters { position: absolute; z-index: 5; left: 28%; right: 28%; top: 48%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; pointer-events: none; }
+.wuxia-runtime-floaters { position: absolute; z-index: 5; left: 28%; right: 28%; top: 48%; display: flex; justify-content: center; pointer-events: none; }
 .wuxia-runtime-floaters span { color: #f54636; font-size: clamp(20px, 6vw, 32px); font-weight: 950; text-shadow: 2px 2px 0 #000; text-align: center; animation: wuxia-float-up 650ms ease-out both; }
 .wuxia-runtime-floaters span.skill { color: #f5e362; font-size: clamp(15px, 4.6vw, 23px); }
 .wuxia-runtime-floaters span.heal,
@@ -1561,10 +1561,25 @@ body.wuxia-mode #app {
 .wuxia-runtime-floaters span.buffResisted,
 .wuxia-runtime-floaters span.buffImmune { color: #cbd5e1; font-size: clamp(15px, 4.6vw, 23px); }
 
-.wuxia-combat-runtime-log { min-height: 215px; padding: 15px 16px 20px; border-top: 1px solid #494949; background: #0a0a0a; color: #a8a8a8; font-size: clamp(15px, 4.1vw, 19px); line-height: 1.34; }
+.wuxia-combat-runtime-log { min-height: 150px; padding: 15px 16px 12px; border-top: 1px solid #494949; background: #0a0a0a; color: #a8a8a8; font-size: clamp(15px, 4.1vw, 19px); line-height: 1.34; }
 .wuxia-combat-runtime-log p { margin: 0 0 5px; }
 .wuxia-combat-runtime-log p.damage { color: #f03526; }
 .wuxia-combat-runtime-log p.hint { color: #e1d642; }
+
+/* The command panel renders only Runtime-approved actions.  It never names a
+   concrete skill or unit: every button comes from CombatSession control data. */
+.wuxia-combat-command-panel { padding: 10px 12px max(14px, env(safe-area-inset-bottom)); border-top: 1px solid #5b4d30; background: linear-gradient(180deg, #17140f, #090909); }
+.wuxia-combat-turn { min-height: 20px; margin: 0 0 8px; color: #f3df9a; font-size: clamp(13px, 3.8vw, 17px); font-weight: 800; text-align: center; }
+.wuxia-combat-action-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+.wuxia-combat-skill,
+.wuxia-combat-runaway { min-height: 48px; border: 1px solid #b58c42; background: linear-gradient(180deg, #42351d, #20190d); color: #f7e8bb; font: inherit; text-align: left; touch-action: manipulation; }
+.wuxia-combat-skill { display: grid; gap: 1px; padding: 7px 9px; }
+.wuxia-combat-skill strong { font-size: clamp(13px, 3.7vw, 17px); }
+.wuxia-combat-skill small { color: #b7a887; font-size: 11px; }
+.wuxia-combat-skill:active:not(:disabled),
+.wuxia-combat-runaway:active:not(:disabled) { transform: translateY(1px); filter: brightness(1.18); }
+.wuxia-combat-skill:disabled { border-color: #4d4635; background: #1d1c19; color: #777166; opacity: 1; }
+.wuxia-combat-runaway { display: block; width: 100%; margin-top: 7px; padding: 8px 12px; border-color: #7f4d42; color: #d7b4a8; text-align: center; }
 
 @keyframes wuxia-float-up {
   from { opacity: 0; transform: translateY(14px) scale(0.84); }

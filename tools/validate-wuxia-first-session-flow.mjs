@@ -60,6 +60,19 @@ const runtimeMutationPolicy = config.chapterSystem?.resultEffectPolicies?.runtim
 const navigationPolicy = config.chapterSystem?.navigationPolicy || {};
 const entityInteractionPolicy = config.chapterSystem?.entityInteractionPolicy || {};
 const sessionDefaults = config.sessionDefaults || {};
+const combatActionPolicies = config.chapterSystem?.combatActionPolicies || {};
+
+for (const [actionType, policy] of Object.entries(combatActionPolicies)) {
+  if (!policy?.encounterId || !policy?.startActionId || !policy?.resolveActionId) {
+    findings.push(finding("error", `Combat action policy ${actionType} requires encounterId, startActionId and resolveActionId.`, `chapterSystem.combatActionPolicies.${actionType}`));
+  }
+  if (policy?.runtimeMode !== "manual_player_turns") {
+    findings.push(finding("error", `Combat action policy ${actionType} must use manual_player_turns; simulation is not a shipping player-combat mode.`, `chapterSystem.combatActionPolicies.${actionType}.runtimeMode`));
+  }
+  if (policy?.autoResolveOnFinish !== true) {
+    findings.push(finding("error", `Combat action policy ${actionType} must explicitly allow only terminal result auto-resolution.`, `chapterSystem.combatActionPolicies.${actionType}.autoResolveOnFinish`));
+  }
+}
 
 const sessionDefaultsSchemaPath = path.join(root, "config", "wuxia_chapter_session_defaults.schema.json");
 const sessionDefaultsSchema = JSON.parse(fs.readFileSync(sessionDefaultsSchemaPath, "utf8"));
@@ -308,10 +321,10 @@ for (const [screenId, screen] of Object.entries(screens)) {
   if (screen.mode === "combat") {
     const combatBlocks = (screen.body || []).filter((block) => block.type === "combatRuntime");
     if (screen.primaryText || screen.primaryActionId || screen.secondaryText || screen.secondaryActionId) {
-      findings.push(finding("error", `Combat screen ${screenId} exposes a manual primary/secondary action. Player combat must resolve from its configured timeline.`, screenId));
+      findings.push(finding("error", `Combat screen ${screenId} exposes a generic primary/secondary action. Combat commands must be supplied by the authoritative combat runtime.`, screenId));
     }
-    if (combatBlocks.length !== 1 || combatBlocks[0].autoResolve !== true) {
-      findings.push(finding("error", `Combat screen ${screenId} must declare exactly one autoResolve combatRuntime block.`, screenId));
+    if (combatBlocks.length !== 1 || combatBlocks[0].autoResolveOnFinish !== true) {
+      findings.push(finding("error", `Combat screen ${screenId} must declare exactly one combatRuntime block with configured autoResolveOnFinish.`, screenId));
     }
   }
 }

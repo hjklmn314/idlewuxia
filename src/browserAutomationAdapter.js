@@ -43,6 +43,8 @@ export function createBrowserAutomationAdapter({ uiFlowAdapter, render, persiste
     selectInteractable: (interactableId) => execute({ type: "selectInteractable", interactableId }),
     interactInteractable: (interactableId, actionType) => execute({ type: "interactInteractable", interactableId, actionType }),
     resolveChoice: (optionId) => execute({ type: "resolveChoice", optionId }),
+    submitCombatAction: (unitId, skillId, targetIds = []) => execute({ type: "submitCombatAction", unitId, skillId, targetIds }),
+    attemptCombatRunaway: (unitId) => execute({ type: "attemptCombatRunaway", unitId }),
     snapshot: () => uiFlowAdapter.snapshot(),
     persistenceStatus: () => persistence?.status() || { status: "unavailable" },
     clearSave: () => persistence?.clear() || { status: "unavailable" },

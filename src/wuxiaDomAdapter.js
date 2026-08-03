@@ -65,7 +65,11 @@ export function createWuxiaDomAdapter({
     onInteractNpc,
     onSelectInteractable,
     onInteractInteractable,
+    onSubmitCombatAction,
+    onAttemptCombatRunaway,
   }) {
+    const submitCombatAction = typeof onSubmitCombatAction === "function" ? onSubmitCombatAction : () => {};
+    const attemptCombatRunaway = typeof onAttemptCombatRunaway === "function" ? onAttemptCombatRunaway : () => {};
     bindAll(stage, "[data-wuxia-action-id]", (button) => {
       button.addEventListener("click", () => onDispatchAction(button.dataset.wuxiaActionId));
     });
@@ -93,6 +97,16 @@ export function createWuxiaDomAdapter({
         button.dataset.wuxiaInteractableAction,
       ));
     });
+    bindAll(stage, ".wuxia-combat-skill", (button) => {
+      button.addEventListener("click", () => submitCombatAction(
+        button.dataset.wuxiaCombatUnitId,
+        button.dataset.wuxiaCombatSkillId,
+        button.dataset.wuxiaCombatTargetIds ? button.dataset.wuxiaCombatTargetIds.split(",").filter(Boolean) : [],
+      ));
+    });
+    bindAll(stage, ".wuxia-combat-runaway", (button) => {
+      button.addEventListener("click", () => attemptCombatRunaway(button.dataset.wuxiaCombatUnitId));
+    });
   }
 
   function bindTopButton(button, label, actionId, onDispatchAction) {
@@ -105,7 +119,7 @@ export function createWuxiaDomAdapter({
     };
   }
 
-  function present({ presentation, markup, onDispatchAction, onSelectNode, onResolveChoice, onSelectRoom, onSelectNpc, onInteractNpc, onSelectInteractable, onInteractInteractable }) {
+  function present({ presentation, markup, onDispatchAction, onSelectNode, onResolveChoice, onSelectRoom, onSelectNpc, onInteractNpc, onSelectInteractable, onInteractInteractable, onSubmitCombatAction, onAttemptCombatRunaway }) {
     const title = query("#wuxiaScreenTitle");
     const step = query("#wuxiaFlowStep");
     const stage = query(".wuxia-stage");
@@ -129,6 +143,8 @@ export function createWuxiaDomAdapter({
       onInteractNpc,
       onSelectInteractable,
       onInteractInteractable,
+      onSubmitCombatAction,
+      onAttemptCombatRunaway,
     });
     return stage;
   }

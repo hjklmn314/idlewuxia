@@ -10,7 +10,9 @@
     { "$ref": "#/$defs/interactNpc" },
     { "$ref": "#/$defs/selectInteractable" },
     { "$ref": "#/$defs/interactInteractable" },
-    { "$ref": "#/$defs/resolveChoice" }
+    { "$ref": "#/$defs/resolveChoice" },
+    { "$ref": "#/$defs/submitCombatAction" },
+    { "$ref": "#/$defs/attemptCombatRunaway" }
   ],
   "$defs": {
     "nonEmptyId": { "type": "string", "minLength": 1, "pattern": "\\S" },
@@ -86,6 +88,26 @@
       "properties": {
         "type": { "const": "resolveChoice" },
         "optionId": { "$ref": "#/$defs/nonEmptyId" }
+      }
+    },
+    "submitCombatAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "unitId", "skillId", "targetIds"],
+      "properties": {
+        "type": { "const": "submitCombatAction" },
+        "unitId": { "$ref": "#/$defs/nonEmptyId" },
+        "skillId": { "$ref": "#/$defs/nonEmptyId" },
+        "targetIds": { "type": "array", "items": { "$ref": "#/$defs/nonEmptyId" } }
+      }
+    },
+    "attemptCombatRunaway": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "unitId"],
+      "properties": {
+        "type": { "const": "attemptCombatRunaway" },
+        "unitId": { "$ref": "#/$defs/nonEmptyId" }
       }
     }
   }

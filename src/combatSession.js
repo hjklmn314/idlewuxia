@@ -36,8 +36,11 @@ function indexById(rows, key) {
   return new Map(list(rows).filter((row) => row?.[key]).map((row) => [row[key], row]));
 }
 
-function createSeededRandom(seed = 1) {
-  let state = (integer(seed, 1) >>> 0) || 1;
+function createSeededRandom(seed = 1, restoredState = undefined) {
+  // A resumed battle must continue the same deterministic random stream.  The
+  // content seed chooses a new encounter stream; a persisted rngState resumes
+  // that stream without re-running previous turns.
+  let state = (integer(restoredState ?? seed, 1) >>> 0) || 1;
   return {
     next() {
       state ^= state << 13;
@@ -355,7 +358,13 @@ export function createCombatSession(content, options = {}) {
   const encounterId = options.encounterId || rules.defaultEncounterId || source.encounters[0]?.encounterId;
   const encounter = maps.encounters.get(encounterId);
   if (!encounter) throw new Error(`Unknown combat encounter ${encounterId}`);
-  const random = createSeededRandom(options.seed ?? encounter.seed ?? 1);
+  const restoredSnapshot = options.runtimeSnapshot && record(options.runtimeSnapshot)
+    ? cloneData(options.runtimeSnapshot)
+    : null;
+  const random = createSeededRandom(
+    options.seed ?? restoredSnapshot?.seed ?? encounter.seed ?? 1,
+    restoredSnapshot?.rngState,
+  );
   const units = new Map();
   const playerUnitIds = list(encounter.playerUnitIds);
   const enemyUnitIds = list(encounter.enemyUnitIds);
@@ -378,7 +387,7 @@ export function createCombatSession(content, options = {}) {
     events: [],
     eventLimitReached: false,
     result: null,
-    seed: number(options.seed ?? encounter.seed, 1),
+    seed: number(options.seed ?? restoredSnapshot?.seed ?? encounter.seed, 1),
     actionQueue: {},
   };
 
@@ -529,6 +538,22 @@ export function createCombatSession(content, options = {}) {
     if (selector === "single_ally") return [allies.sort((a, b) => a.hp - b.hp)[0] || source];
     const taunter = enemies.find((unit) => unit.buffs.some((active) => maps.buffs.get(active.buffId)?.control === "taunt"));
     return [taunter || enemies.sort((a, b) => a.hp - b.hp)[0]].filter(Boolean);
+  }
+
+  function targetCandidatesFor(source, selector) {
+    const all = [...units.values()].filter(alive);
+    const allies = all.filter((unit) => unit.factionId === source?.factionId);
+    const enemies = all.filter((unit) => isHostile(source, unit));
+    switch (selector) {
+      case "self": return source ? [source] : [];
+      case "single_ally":
+      case "lowest_hp_ally":
+      case "all_allies": return allies;
+      case "single_enemy":
+      case "random_enemy":
+      case "all_enemies": return enemies;
+      default: return enemies;
+    }
   }
 
   function applyBuff(source, target, buffId, chance = 1, timeMs = 0) {
@@ -754,6 +779,17 @@ export function createCombatSession(content, options = {}) {
     state.turnIndex = 0;
   }
 
+  function prepareNextRoundIfNeeded() {
+    if (state.turnOrder.length && state.turnIndex < state.turnOrder.length) return false;
+    state.round += 1;
+    if (state.round > integer(rules.maxRounds, 40)) {
+      finish("draw", "max_rounds");
+      return true;
+    }
+    rebuildTurnOrder();
+    return true;
+  }
+
   function tickBuffs(unit, trigger, timeMs) {
     for (const active of [...unit.buffs]) {
       const definition = maps.buffs.get(active.buffId);
@@ -761,7 +797,7 @@ export function createCombatSession(content, options = {}) {
       if (periodic?.trigger === trigger) {
         const source = units.get(active.sourceUnitId) || unit;
         executeEffect(source, unit, periodic, null, timeMs);
-        emit({ eventType: "periodic", kind: "periodic", sourceUnitId: source.unitId, targetUnitId: unit.unitId, buffId: active.buffId, value: 0, text: `${formatName(unit)}的${definition?.name || active.buffId}生效`, timeMs: timeMs + 1 });
+        emit({ eventType: "periodic", kind: "periodic", sourceUnitId: source.unitId, targetUnitId: unit.unitId, buffId: active.buffId, buff: cloneData(definition || {}), value: 0, text: `${formatName(unit)}的${definition?.name || active.buffId}生效`, timeMs: timeMs + 1 });
       }
       if (trigger === "turn_end") active.duration -= 1;
     }
@@ -825,7 +861,10 @@ export function createCombatSession(content, options = {}) {
     if (state.status !== "active") return { accepted: false, reason: "combat_not_active", snapshot: snapshot() };
     const preOutcome = checkOutcome();
     if (preOutcome) { finish(preOutcome, "pre_turn_check"); return { accepted: true, outcome: preOutcome, snapshot: snapshot() }; }
-    if (!state.turnOrder.length || state.turnIndex >= state.turnOrder.length) { state.round += 1; if (state.round > integer(rules.maxRounds, 40)) { finish("draw", "max_rounds"); return { accepted: true, outcome: "draw", snapshot: snapshot() }; } rebuildTurnOrder(); }
+    if (!state.turnOrder.length || state.turnIndex >= state.turnOrder.length) {
+      prepareNextRoundIfNeeded();
+      if (state.status !== "active") return { accepted: true, outcome: state.outcome || "draw", snapshot: snapshot() };
+    }
     const actor = units.get(state.turnOrder[state.turnIndex++]);
     if (!actor || !alive(actor)) return step(actionOverride);
     const timeMs = state.eventSeq * 720;
@@ -836,7 +875,9 @@ export function createCombatSession(content, options = {}) {
       emit({ eventType: "stunned", kind: "stunned", targetUnitId: actor.unitId, value: 0, text: `${formatName(actor)}被点穴，无法行动`, timeMs });
       actionResult = { accepted: true, skipped: true, reason: "stunned" };
     } else {
-      const action = actionOverride || chooseAiAction(actor);
+      const queued = list(state.actionQueue?.[actor.unitId]).shift() || null;
+      if (state.actionQueue?.[actor.unitId]?.length === 0) delete state.actionQueue[actor.unitId];
+      const action = actionOverride || queued || chooseAiAction(actor);
       actionResult = resolveSkill(actor, action.skillId || rules.defaultActionId, action.targetIds || [], timeMs);
       if (!actionResult.accepted && action.skillId !== rules.defaultActionId) actionResult = resolveSkill(actor, rules.defaultActionId, [], timeMs + 80);
     }
@@ -863,10 +904,26 @@ export function createCombatSession(content, options = {}) {
     if (encounter.rules?.allowRunaway === false) return { accepted: false, reason: "runaway_disabled", snapshot: snapshot() };
     const actor = units.get(unitId);
     if (!alive(actor) || !playerUnitIds.includes(unitId)) return { accepted: false, reason: "invalid_runaway_actor", snapshot: snapshot() };
+    const turn = currentTurn();
+    if (turn.actorId !== unitId || !turn.requiresPlayerInput) return { accepted: false, reason: "not_current_player_turn", snapshot: snapshot() };
+    if (turn.rooted) return { accepted: false, reason: "rooted", snapshot: snapshot() };
+    const timeMs = state.eventSeq * 720;
+    tickBuffs(actor, "turn_start", timeMs);
+    if (!alive(actor)) {
+      const outcome = checkOutcome();
+      if (outcome) finish(outcome, "runaway_turn_start");
+      return { accepted: false, reason: "runaway_actor_defeated", snapshot: snapshot() };
+    }
     const chance = clamp(number(encounter.rules?.runawayChance, 1), 0, 1);
     const success = random.next() <= chance;
-    emit({ eventType: "runawayAttempt", kind: "runawayAttempt", sourceUnitId: unitId, value: chance, success, text: success ? `${formatName(actor)}成功脱离战斗` : `${formatName(actor)}未能脱离战斗`, timeMs: state.eventSeq * 720 });
+    emit({ eventType: "runawayAttempt", kind: "runawayAttempt", sourceUnitId: unitId, value: chance, success, text: success ? `${formatName(actor)}成功脱离战斗` : `${formatName(actor)}未能脱离战斗`, timeMs });
     if (success) finish("runaway", "runaway_success");
+    else {
+      state.turnIndex += 1;
+      tickBuffs(actor, "turn_end", timeMs + 360);
+      const outcome = checkOutcome();
+      if (outcome) finish(outcome, "runaway_failed_turn_end");
+    }
     return { accepted: true, success, outcome: state.outcome || "", snapshot: snapshot() };
   }
 
@@ -884,8 +941,102 @@ export function createCombatSession(content, options = {}) {
         cooldown: integer(unit.cooldowns[skill.skillId], 0),
         available: canUseSkill(unit, skill).accepted,
         reason: canUseSkill(unit, skill).reason || "",
+        targetSelection: ["single_enemy", "single_ally"].includes(skill.target || "single_enemy") ? "player_select" : "runtime_select",
+        targetCandidates: targetCandidatesFor(unit, skill.target || "single_enemy").map((target) => ({
+          unitId: target.unitId,
+          name: target.name || target.unitId,
+          side: side(target.unitId),
+          alive: alive(target),
+        })),
       })),
       canRunaway: state.status === "active" && encounter.rules?.allowRunaway !== false,
+    };
+  }
+
+  function currentTurn() {
+    if (state.status !== "active") {
+      return {
+        status: state.status,
+        round: state.round,
+        actorId: "",
+        side: "",
+        requiresPlayerInput: false,
+        reason: state.status === "finished" ? "combat_finished" : "combat_not_started",
+      };
+    }
+    const nextActorId = state.turnOrder.slice(state.turnIndex).find((unitId) => alive(units.get(unitId))) || "";
+    const actor = units.get(nextActorId);
+    const controlled = Boolean(actor?.buffs.some((buff) => maps.buffs.get(buff.buffId)?.control === "stun"));
+    const rooted = Boolean(actor?.buffs.some((buff) => maps.buffs.get(buff.buffId)?.control === "root"));
+    const playerTurn = Boolean(actor && playerUnitIds.includes(actor.unitId));
+    return {
+      status: state.status,
+      round: state.round,
+      actorId: actor?.unitId || "",
+      actorName: actor?.name || actor?.unitId || "",
+      side: actor ? side(actor.unitId) : "",
+      controlled,
+      rooted,
+      requiresPlayerInput: playerTurn && !controlled,
+      reason: actor ? (controlled ? "controlled" : (playerTurn ? "player_turn" : "enemy_turn")) : "turn_order_refresh_required",
+    };
+  }
+
+  function combatControlState() {
+    const turn = currentTurn();
+    const actions = turn.requiresPlayerInput ? availableActions(turn.actorId) : { unitId: turn.actorId || "", skills: [], canRunaway: false };
+    return {
+      ...turn,
+      availableActions: actions,
+      status: state.status,
+      outcome: state.outcome,
+    };
+  }
+
+  function advanceUntilPlayerInput(options = {}) {
+    if (state.status === "idle") start();
+    const maxSteps = Math.max(1, integer(options.maxSteps, Math.max(8, units.size * 8)));
+    let steps = 0;
+    while (state.status === "active" && steps < maxSteps) {
+      const turn = currentTurn();
+      if (turn.requiresPlayerInput) break;
+      if (turn.reason === "turn_order_refresh_required") {
+        prepareNextRoundIfNeeded();
+        continue;
+      }
+      step();
+      steps += 1;
+    }
+    if (state.status === "active" && steps >= maxSteps) finish("draw", "manual_turn_progress_limit");
+    return { accepted: true, steps, control: combatControlState(), snapshot: snapshot() };
+  }
+
+  function submitPlayerAction(unitId, skillId, targetIds = []) {
+    if (state.status === "idle") start();
+    const turn = currentTurn();
+    if (!turn.requiresPlayerInput || turn.actorId !== unitId) {
+      return { accepted: false, reason: "not_current_player_turn", control: combatControlState(), snapshot: snapshot() };
+    }
+    const unit = units.get(unitId);
+    const skill = maps.skills.get(skillId);
+    if (!skillBelongsToUnit(unit, skillId)) return { accepted: false, reason: "skill_not_equipped", control: combatControlState(), snapshot: snapshot() };
+    const usable = canUseSkill(unit, skill);
+    if (!usable.accepted) return { accepted: false, reason: usable.reason, control: combatControlState(), snapshot: snapshot() };
+    const targetValidation = validateRequestedTargets(unit, skill, targetIds);
+    if (!targetValidation.accepted) return { accepted: false, reason: targetValidation.reason, control: combatControlState(), snapshot: snapshot() };
+    const result = step({ skillId, targetIds: list(targetIds) });
+    if (!result.accepted) return { ...result, control: combatControlState() };
+    const advanced = state.status === "active" ? advanceUntilPlayerInput() : { steps: 0, control: combatControlState() };
+    return {
+      accepted: true,
+      actorId: unitId,
+      skillId,
+      targetIds: list(targetIds),
+      action: result.action,
+      outcome: state.outcome || "",
+      autoAdvancedSteps: advanced.steps || 0,
+      control: combatControlState(),
+      snapshot: snapshot(),
     };
   }
 
@@ -916,13 +1067,56 @@ export function createCombatSession(content, options = {}) {
       round: state.round,
       turnIndex: state.turnIndex,
       turnOrder: cloneData(state.turnOrder),
+      eventSeq: state.eventSeq,
+      eventLimitReached: state.eventLimitReached,
       seed: state.seed,
       rngState: random.state(),
       units: cloneData([...units.values()].map((unit) => ({ ...unit, effectiveAttributes: effectiveAttributes(unit), _activeSkillId: undefined }))),
+      actionQueue: cloneData(state.actionQueue),
       events: cloneData(state.events),
       result: cloneData(state.result),
     };
   }
+
+  function restoreRuntimeSnapshot(snapshotValue) {
+    if (!record(snapshotValue) || snapshotValue.schema !== "idlewuxia.combat_runtime.v1") throw new Error("unsupported combat runtime snapshot");
+    if (snapshotValue.encounterId !== encounterId) throw new Error("combat snapshot encounter mismatch");
+    if (JSON.stringify(list(snapshotValue.playerUnitIds)) !== JSON.stringify(playerUnitIds)
+      || JSON.stringify(list(snapshotValue.enemyUnitIds)) !== JSON.stringify(enemyUnitIds)) {
+      throw new Error("combat snapshot roster mismatch");
+    }
+    const snapshotUnits = new Map(list(snapshotValue.units).filter((unit) => unit?.unitId).map((unit) => [unit.unitId, unit]));
+    if (snapshotUnits.size !== units.size) throw new Error("combat snapshot unit count mismatch");
+    for (const [unitId, unit] of units) {
+      const restored = snapshotUnits.get(unitId);
+      if (!restored || !Number.isFinite(Number(restored.hp)) || !Number.isFinite(Number(restored.mp))) {
+        throw new Error(`combat snapshot unit invalid: ${unitId}`);
+      }
+      unit.hp = clamp(number(restored.hp, unit.hp), 0, Math.max(1, number(restored.hpMax, unit.hpMax)));
+      unit.hpMax = Math.max(1, number(restored.hpMax, unit.hpMax));
+      unit.mp = clamp(number(restored.mp, unit.mp), 0, Math.max(0, number(restored.mpMax, unit.mpMax)));
+      unit.mpMax = Math.max(0, number(restored.mpMax, unit.mpMax));
+      unit.shield = Math.max(0, number(restored.shield, 0));
+      unit.alive = restored.alive !== false && unit.hp > 0;
+      unit.buffs = cloneData(list(restored.buffs));
+      unit.cooldowns = cloneData(record(restored.cooldowns) ? restored.cooldowns : {});
+      unit.runtimeModifiers = cloneData(list(restored.runtimeModifiers));
+      unit.actionCount = Math.max(0, integer(restored.actionCount, 0));
+    }
+    state.status = ["idle", "active", "finished"].includes(snapshotValue.status) ? snapshotValue.status : "idle";
+    state.outcome = typeof snapshotValue.outcome === "string" ? snapshotValue.outcome : "";
+    state.round = Math.max(0, integer(snapshotValue.round, 0));
+    state.turnIndex = Math.max(0, integer(snapshotValue.turnIndex, 0));
+    state.turnOrder = list(snapshotValue.turnOrder).filter((unitId) => units.has(unitId));
+    state.events = cloneData(list(snapshotValue.events));
+    state.eventSeq = Math.max(integer(snapshotValue.eventSeq, state.events.length), state.events.reduce((max, event) => Math.max(max, integer(event?.seq, -1) + 1), 0));
+    state.eventLimitReached = Boolean(snapshotValue.eventLimitReached);
+    state.actionQueue = cloneData(record(snapshotValue.actionQueue) ? snapshotValue.actionQueue : {});
+    state.result = cloneData(snapshotValue.result || null);
+    if (state.status === "active" && !state.turnOrder.length) rebuildTurnOrder();
+  }
+
+  if (restoredSnapshot) restoreRuntimeSnapshot(restoredSnapshot);
 
   return Object.freeze({
     start,
@@ -930,6 +1124,10 @@ export function createCombatSession(content, options = {}) {
     runToEnd,
     attemptRunaway,
     availableActions,
+    currentTurn,
+    combatControlState,
+    advanceUntilPlayerInput,
+    submitPlayerAction,
     queueAction,
     snapshot,
     validate: () => validateCombatContent(source),

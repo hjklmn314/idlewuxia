@@ -80,6 +80,8 @@ const commandSession = {
   selectChapterInteractable: (interactableId) => ({ accepted: true, event: { interactableId, name: interactableId } }),
   interactWithChapterInteractable: (interactableId, actionType) => ({ accepted: true, event: { interactableId, actionType, feedback: actionType } }),
   resolvePendingChoice: (optionId) => ({ accepted: true, event: { optionId, optionLabel: optionId } }),
+  submitCombatAction: (unitId, skillId, targetIds) => ({ accepted: true, event: { unitId, skillId, targetIds } }),
+  attemptCombatRunaway: (unitId) => ({ accepted: true, event: { unitId } }),
 };
 for (const method of Object.keys(commandSession)) {
   if (method === "snapshot") continue;
@@ -99,6 +101,8 @@ const intentCases = [
   [{ type: "selectInteractable", interactableId: "i" }, ["selectChapterInteractable", "i"]],
   [{ type: "interactInteractable", interactableId: "i", actionType: "look" }, ["interactWithChapterInteractable", "i", "look"]],
   [{ type: "resolveChoice", optionId: "o" }, ["resolvePendingChoice", "o"]],
+  [{ type: "submitCombatAction", unitId: "u", skillId: "s", targetIds: ["t"] }, ["submitCombatAction", "u", "s", ["t"]]],
+  [{ type: "attemptCombatRunaway", unitId: "u" }, ["attemptCombatRunaway", "u"]],
 ];
 for (const [intent, expectedCall] of intentCases) {
   assert.equal(commandAdapter.execute(intent).accepted, true);
@@ -110,6 +114,8 @@ for (const [intent] of intentCases) assert.equal(validateIntent(intent), true, J
 assert.equal(validateIntent({ type: "dispatchAction", actionId: "a", injected: true }), false);
 assert.equal(validateIntent({ type: "dispatchAction", actionId: "   " }), false, "schema must reject whitespace-only IDs");
 assert.equal(validateIntent({ type: "dispatchAction", actionId: "  a  " }), true, "schema must preserve runtime acceptance of padded IDs");
+assert.equal(validateIntent({ type: "submitCombatAction", unitId: "u", skillId: "s", targetIds: [] }), true);
+assert.equal(validateIntent({ type: "submitCombatAction", unitId: "u", skillId: "s", targetIds: [" "] }), false);
 assert.equal(commandAdapter.execute({ type: "dispatchAction", actionId: "   " }).accepted, false);
 assert.equal(commandAdapter.execute({ type: "dispatchAction", actionId: "  a  " }).accepted, true);
 assert.deepEqual(
@@ -136,7 +142,9 @@ assert.equal(automation.interactNpc("p", "talk").clicked, true);
 assert.equal(automation.selectInteractable("i").clicked, true);
 assert.equal(automation.interactInteractable("i", "look").clicked, true);
 assert.equal(automation.resolveChoice("o").clicked, true);
-assert.equal(renderCount, 8, "each automation command must render exactly once");
+assert.equal(automation.submitCombatAction("u", "s", ["t"]).clicked, true);
+assert.equal(automation.attemptCombatRunaway("u").clicked, true);
+assert.equal(renderCount, 10, "each automation command must render exactly once");
 assert.equal(automation.snapshot().currentState, "opening");
 assert.deepEqual(automation.persistenceStatus(), { status: "ready" });
 assert.deepEqual(automation.clearSave(), { status: "cleared" });
