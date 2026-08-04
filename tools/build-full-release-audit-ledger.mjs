@@ -6,9 +6,17 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outputDir = path.join(root, "outputs", "full_release_audit_20260804");
+const cliArgs = process.argv.slice(2);
 const textExtensions = new Set([".js", ".mjs", ".cjs", ".json", ".md", ".html", ".css", ".xml", ".gradle", ".properties", ".yml", ".yaml", ".txt", ".csv", ".ps1", ".java", ".svg", ".gitignore"]);
 const codeExtensions = new Set([".js", ".mjs", ".cjs", ".html", ".css", ".ps1", ".java", ".gradle"]);
 const resourceExtensions = new Set([".png", ".jpg", ".jpeg", ".webp", ".svg", ".ogg", ".mp3", ".wav", ".woff", ".woff2", ".ttf", ".otf"]);
+
+function argValue(name, fallback) {
+  const index = cliArgs.indexOf(name);
+  if (index >= 0 && cliArgs[index + 1]) return cliArgs[index + 1];
+  const inline = cliArgs.find((entry) => entry.startsWith(`${name}=`));
+  return inline ? inline.slice(name.length + 1) : fallback;
+}
 
 function git(args, options = {}) {
   return execFileSync("git", args, { cwd: root, encoding: options.encoding ?? "utf8", maxBuffer: 128 * 1024 * 1024 });
@@ -58,7 +66,9 @@ const projectFiles = [...new Set([
   ...git(["ls-files", "-co", "--exclude-standard", "-z"], { encoding: "buffer" }).toString("utf8").split("\0").filter(Boolean),
 ])].sort();
 const trackedSet = new Set(tracked.map((value) => value.replaceAll("\\", "/")));
-const recentLog = git(["log", "--since=5.days", "--date=iso-strict", "--pretty=format:%H%x09%ad%x09%an%x09%s", "--name-status"]);
+const requestedHistoryHead = argValue("--history-head", "HEAD");
+const historyHead = git(["rev-parse", "--verify", `${requestedHistoryHead}^{commit}`]).trim();
+const recentLog = git(["log", historyHead, "--since=5.days", "--date=iso-strict", "--pretty=format:%H%x09%ad%x09%an%x09%s", "--name-status"]);
 const recentLines = recentLog.split(/\r?\n/);
 const recentCommits = [];
 let activeCommit = null;
@@ -153,6 +163,7 @@ const report = {
   schema: "idlewuxia.full_release_audit_ledger.v1",
   generatedAt: new Date().toISOString(),
   authorityRoot: root.replaceAll("\\", "/"),
+  historyHead,
   coverage: {
     trackedFiles: tracked.length,
     projectFilesRead: projectFiles.length,

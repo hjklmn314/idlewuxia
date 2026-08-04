@@ -18,7 +18,7 @@
 
 ### Gate 1 — 完整读取与静态契约
 
-- 326 个正式项目文件逐字节读取，3,541,217 bytes，89,678 文本行。
+- 326 个正式项目文件逐字节读取，3,542,347 bytes，89,690 文本行。
 - 67 个配置文件全部 JSON 解析；全部 JS/MJS/CJS 执行语法检查。
 - 4 个最近五日提交、30 个唯一变更文件全部纳入历史覆盖。
 - 资源磁盘枚举由 74 降为 47；27 个非法 Android 本地 PNG 已隔离并留有哈希清单。
@@ -88,6 +88,7 @@ Gate 2 verdict：**PASS FOR CURRENT AUTHORED RUNTIME AND DEBUG BUILD；NOT A REL
 | VISUAL-016 | P0 | 自动路线 PASS 被误当成人工视觉完成 | T05-01 降为 blocked；10 个资产槽和人工失败写入权威 Roadmap。 |
 | FLOW-COMBAT-017 | P0 | 外门、大院和大厅节点按钮直接进入战斗屏，但没有创建 pending CombatSession | 三个节点改为进入 NPC 交互；真实战斗只由配置化 NPC 动作建立；修复 repair 生成器和旧全链交互测试。 |
 | RELEASE-AUDIT-018 | P0 | 旧 online-standard 工具只检查代码引用，未把必需资产槽和人工视觉失败纳入发布失败 | 接入生产 AssetRegistry 与 T05-01 状态；当前正确报告 11 个 P0（10 个资产槽、1 个人工视觉）和 1 个 P1（3 条未授权战斗结果）。 |
+| CI-ANDROID-019 | P0 | 首次 clean-checkout Actions 的 `./gradlew` 因 Git 模式为 `100644` 返回 126 | 将 `android/gradlew` 以 `100755` 纳入 Git；不在 CI 内临时 chmod，确保仓库本身可复现。 |
 
 ## 4. 当前仍未关闭的上线阻断
 
