@@ -1,5 +1,12 @@
 # QA-UI-001 / T05-01 Completion Record — 2026-07-25
 
+> Superseded on 2026-08-04: the automation/tooling portion (`QA-UI-001`) was
+> corrected and rerun as 33/33 active screen-viewport pairs with zero blockers,
+> but the strict human visual gate failed. `T05-01` is therefore `blocked`, not
+> complete. See `FULL_RELEASE_AUDIT_20260804.md`. The original record below is
+> retained as historical evidence and must not be used as a current release
+> approval.
+
 ## Current state
 
 `QA-UI-001` and `T05-01` are complete for the active Wuxia UI surface. The

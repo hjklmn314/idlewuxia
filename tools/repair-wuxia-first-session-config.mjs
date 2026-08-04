@@ -365,23 +365,23 @@ if (chapterCardAction) {
 const chapterNodeRoutes = {
   NODE_FB01_OUTER_GATE: {
     actionId: "ACT_CH1_SELECT_OUTER_GATE",
-    toState: "STATE_FS_009_EARLY_COMBAT",
+    toState: "STATE_FS_010_NPC_INTERACTION",
     label: "进入武馆外门",
-    feedback: "你进入武馆外门，按房间、人物与门槛配置处理当前节点。",
+    feedback: "你进入武馆外门，选择房间与人物后再发起交谈、切磋或其他配置交互。",
     grantState: "chapter_node_outer_gate_selected",
   },
   NODE_FB01_FRONT_YARD: {
     actionId: "ACT_CH1_SELECT_FRONT_YARD",
-    toState: "STATE_FS_009_EARLY_COMBAT",
+    toState: "STATE_FS_010_NPC_INTERACTION",
     label: "进入武馆大院",
-    feedback: "你进入武馆大院，按 fb01 房间链路继续推进。",
+    feedback: "你进入武馆大院，选择房间与人物后再按 fb01 配置推进。",
     grantState: "chapter_node_front_yard_selected",
   },
   NODE_FB01_MAIN_HALL: {
     actionId: "ACT_CH1_SELECT_MAIN_HALL",
-    toState: "STATE_FS_009_EARLY_COMBAT",
+    toState: "STATE_FS_010_NPC_INTERACTION",
     label: "挑战大厅",
-    feedback: "你进入大厅挑战节点，按 fb01 张风与通关奖励配置判定。",
+    feedback: "你进入大厅，选择张风并通过配置交互发起挑战；节点选择本身不会伪造战斗。",
     grantState: "chapter_node_main_hall_selected",
   },
   NODE_FB01_OWNER_WING: {

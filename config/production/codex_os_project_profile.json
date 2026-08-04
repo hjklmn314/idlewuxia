@@ -67,13 +67,8 @@
   },
   "postponedScope": [
     {
-      "id": "COMBAT-002",
-      "reason": "Explicitly postponed by product owner.",
-      "resumeAuthority": "product-owner-explicit"
-    },
-    {
-      "id": "CombatSession",
-      "reason": "Real combat session replacement remains coupled to postponed combat scope.",
+      "id": "REST-REPAIR-001",
+      "reason": "Product owner explicitly deferred Rest/Repair while prioritizing the complete combat module.",
       "resumeAuthority": "product-owner-explicit"
     }
   ],

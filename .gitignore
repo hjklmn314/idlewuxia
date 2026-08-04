@@ -18,6 +18,7 @@ public/generated-ui/
 *.apk
 *.aab
 *.jar
+!android/gradle/wrapper/gradle-wrapper.jar
 *.db
 *.sqlite
 *.db-*

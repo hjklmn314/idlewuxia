@@ -83,6 +83,13 @@
       "settleMs": 240,
       "floatingTextLifetimeMs": 900,
       "minimumFeedbackEvents": 1,
+      "eventOffsetsMs": {
+        "block": 20,
+        "defeat": 100,
+        "lifesteal": 30,
+        "reflect": 45,
+        "periodicSummary": 1
+      },
       "cueIds": {
         "default": "cue_basic_strike",
         "miss": "cue_miss",
@@ -181,7 +188,7 @@
   "buffs": [
     { "buffId": "buff_guarded", "name": "守势", "iconLabel": "守", "tags": ["positive"], "stackPolicy": "refresh", "maxStacks": 1, "duration": 2, "modifiers": [{ "attribute": "defensePower", "op": "mul", "value": 1.35 }, { "attribute": "blockChance", "op": "add", "value": 0.2 }] },
     { "buffId": "buff_iron_wall", "name": "铁壁", "iconLabel": "壁", "tags": ["positive"], "stackPolicy": "replace", "maxStacks": 1, "duration": 3, "modifiers": [{ "attribute": "defensePower", "op": "add", "value": 8 }, { "attribute": "damageTakenMultiplier", "op": "mul", "value": 0.8 }] },
-    { "buffId": "buff_poisoned", "name": "中毒", "iconLabel": "毒", "tags": ["negative", "damageOverTime"], "stackPolicy": "stack", "maxStacks": 5, "duration": 3, "periodic": { "trigger": "turn_start", "kind": "damage", "damageType": "poison", "power": { "op": "add", "args": [{ "op": "mul", "args": [{ "ref": "maxHp" }, { "const": 0.035 }] }, { "const": 2 }] } } },
+    { "buffId": "buff_poisoned", "name": "中毒", "iconLabel": "毒", "tags": ["negative", "damageOverTime"], "stackPolicy": "stack", "maxStacks": 5, "duration": 3, "periodic": { "trigger": "turn_start", "kind": "damage", "damageType": "poison", "stackScaling": "multiply", "power": { "op": "add", "args": [{ "op": "mul", "args": [{ "ref": "maxHp" }, { "const": 0.035 }] }, { "const": 2 }] } } },
     { "buffId": "buff_burning", "name": "灼烧", "iconLabel": "灼", "tags": ["negative", "damageOverTime"], "stackPolicy": "refresh", "maxStacks": 2, "duration": 2, "periodic": { "trigger": "turn_end", "kind": "damage", "damageType": "fire", "power": { "op": "add", "args": [{ "op": "mul", "args": [{ "ref": "maxHp" }, { "const": 0.025 }] }, { "const": 1 }] } } },
     { "buffId": "buff_bleeding", "name": "流血", "iconLabel": "血", "tags": ["negative", "damageOverTime"], "stackPolicy": "refresh", "maxStacks": 3, "duration": 3, "periodic": { "trigger": "turn_end", "kind": "damage", "damageType": "physical", "power": { "op": "add", "args": [{ "op": "mul", "args": [{ "ref": "attackPower" }, { "const": 0.25 }] }, { "const": 1 }] } } },
     { "buffId": "buff_stunned", "name": "点穴", "iconLabel": "晕", "tags": ["negative", "control"], "stackPolicy": "refresh", "maxStacks": 1, "duration": 1, "control": "stun" },
@@ -197,9 +204,9 @@
     { "buffId": "buff_focus", "name": "护脉", "iconLabel": "护", "tags": ["positive"], "stackPolicy": "unique", "maxStacks": 1, "duration": 2, "modifiers": [{ "attribute": "damageTakenMultiplier", "op": "mul", "value": 0.85 }] }
   ],
   "aiPolicies": [
-    { "aiPolicyId": "ai_balanced", "mode": "weighted_skill", "weights": { "skill_steward_test_strike": 5, "skill_guard": 2, "skill_iron_wall": 1, "skill_venom_thrust": 2, "skill_silencing_needle": 2, "skill_taunt": 1 } },
-    { "aiPolicyId": "ai_aggressive", "mode": "weighted_skill", "weights": { "skill_double_slash": 5, "skill_bleeding_cut": 3, "skill_basic_strike": 2, "skill_sweeping_blade": 2, "skill_true_point": 1 } },
-    { "aiPolicyId": "ai_player_safe", "mode": "player_queue_then_basic", "weights": { "skill_basic_strike": 1 } }
+    { "aiPolicyId": "ai_balanced", "mode": "weighted_skill", "fallbackSkillId": "skill_steward_test_strike", "weights": { "skill_steward_test_strike": 5, "skill_guard": 2, "skill_iron_wall": 1, "skill_venom_thrust": 2, "skill_silencing_needle": 2, "skill_taunt": 1 } },
+    { "aiPolicyId": "ai_aggressive", "mode": "weighted_skill", "fallbackSkillId": "skill_basic_strike", "weights": { "skill_double_slash": 5, "skill_bleeding_cut": 3, "skill_basic_strike": 2, "skill_sweeping_blade": 2, "skill_true_point": 1 } },
+    { "aiPolicyId": "ai_player_safe", "mode": "player_queue_then_basic", "fallbackSkillId": "skill_basic_strike", "weights": { "skill_basic_strike": 1 } }
   ],
   "encounters": [
     {

@@ -1,10 +1,11 @@
-﻿import fs from "node:fs";
+import fs from "node:fs";
 import path from "node:path";
 import { createFirstSessionRuntime } from "../src/wuxiaFirstSessionFlow.js";
 
 const root = process.cwd();
 const flow = JSON.parse(fs.readFileSync(path.join(root, "config", "wuxia_first_session_flow.json"), "utf8"));
 const screen = JSON.parse(fs.readFileSync(path.join(root, "config", "wuxia_first_session_screen_contract.json"), "utf8"));
+const combatContent = JSON.parse(fs.readFileSync(path.join(root, "config", "wuxia_combat_content.json"), "utf8"));
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -37,7 +38,7 @@ function createFixtureRuntime(entityIds, options = {}) {
     ...(room.interactableIds || []),
     ...entityIds.filter((entityId) => interactableIds.has(entityId)),
   ])];
-  const runtime = createFirstSessionRuntime(contract, options);
+  const runtime = createFirstSessionRuntime(contract, { ...options, combatContent });
   assert(runtime.selectChapterRoom(room.roomId).accepted, "fixture room should be selectable");
   return runtime;
 }
@@ -48,7 +49,7 @@ function completeConfiguredCompete(runtime, roleId) {
   assert(started.snapshot.currentState === "STATE_FS_009_EARLY_COMBAT", `${roleId} compete should enter combat before success results`);
   assert(started.snapshot.pendingCombat?.sourceId === roleId, `${roleId} should be recorded as pending combat source`);
   assert(!started.event.sideEffects.some((effect) => effect.resultId), `${roleId} must not execute comparewin results before combat resolution`);
-  const resolved = runtime.dispatch("ACTION_FS_009_EARLY_COMBAT");
+  const resolved = finishPendingCombat(runtime);
   assert(resolved.accepted, `${roleId} configured combat result should resolve`);
   assert(resolved.event.combatResolution?.accepted, `${roleId} should resolve through a configured outcome branch`);
   assert(resolved.event.combatResolution?.outcomeToken === "comparewin", `${roleId} should use comparewin only after combat success`);
@@ -56,7 +57,37 @@ function completeConfiguredCompete(runtime, roleId) {
   return { started, resolved };
 }
 
+function finishPendingCombat(runtime, maxPlayerActions = 64) {
+  let actionsTaken = 0;
+  let pending = runtime.snapshot().pendingCombat;
+  assert(pending?.runtimeMode === "manual_player_turns", "combat must use the real manual-player-turn runtime");
+  assert(pending?.combatSnapshot?.status === "active", "combat must start as an active CombatSession");
+  const premature = runtime.dispatch("ACTION_FS_009_EARLY_COMBAT");
+  assert(!premature.accepted, "combat result action must reject before an authoritative terminal outcome");
+  while (pending?.combatSnapshot?.status === "active" && actionsTaken < maxPlayerActions) {
+    const control = pending.combatControl;
+    assert(control?.requiresPlayerInput === true, "active combat must stop at an explicit player decision");
+    const skill = control.availableActions.skills.find((item) => item.available && item.skillId === "skill_true_point")
+      || control.availableActions.skills.find((item) => item.available && item.skillId === "skill_flame_palm")
+      || control.availableActions.skills.find((item) => item.available);
+    assert(skill, "player turn must expose at least one legal configured skill");
+    const targetIds = skill.targetSelection === "player_select"
+      ? [skill.targetCandidates[0]?.unitId].filter(Boolean)
+      : [];
+    const applied = runtime.submitCombatAction(control.actorId, skill.skillId, targetIds);
+    assert(applied.accepted, `configured player combat action ${skill.skillId} should be accepted`);
+    pending = applied.snapshot.pendingCombat;
+    actionsTaken += 1;
+  }
+  assert(actionsTaken < maxPlayerActions, "combat must terminate inside the configured regression bound");
+  assert(pending?.combatSnapshot?.status === "finished", "combat must expose a finished authoritative snapshot before result resolution");
+  const resolved = runtime.dispatch("ACTION_FS_009_EARLY_COMBAT");
+  assert(resolved.accepted, "terminal combat result should resolve through the configured chapter action");
+  return resolved;
+}
+
 const runtime = createFirstSessionRuntime(flow, {
+  combatContent,
   initialState: screen.defaultStartState,
   initialFlags: screen.defaultStartFlags,
 });
@@ -66,6 +97,7 @@ assert(snapshot.currentState === "STATE_FS_001_OPENING_STORY", "first session mu
 assert(snapshot.availableActions.some((action) => action.actionId === "ACTION_FS_001_ORIGIN_SCHOLAR"), "origin choices must be available");
 
 const repeatTaskRuntime = createFirstSessionRuntime(flow, {
+  combatContent,
   initialState: "STATE_FS_005_IDLE_TASK_LIST",
   initialFlags: ["idle_task_started"],
 });
@@ -73,7 +105,9 @@ const repeatTaskRuntime = createFirstSessionRuntime(flow, {
 const combatScreen = screen.screens?.UI_EarlyCombat || {};
 const combatRuntimeBlock = (combatScreen.body || []).find((block) => block.type === "combatRuntime");
 assert(!combatScreen.primaryText && !combatScreen.primaryActionId, "player combat screen must not expose a manual continue action");
-assert(combatRuntimeBlock?.autoResolve === true, "player combat screen must declare timeline autoResolve");
+assert(combatRuntimeBlock?.autoResolveOnFinish === true, "player combat screen must only auto-resolve after an authoritative terminal combat result");
+assert(combatRuntimeBlock?.resolutionPolicy === "authoritative_combat_result_then_configured_resolution", "player combat screen must route terminal outcomes through the configured resolution policy");
+assert(!Object.hasOwn(combatRuntimeBlock || {}, "autoResolve"), "player combat screen must not retain the retired fixed-timeline autoResolve flag");
 dispatch(repeatTaskRuntime, "ACTION_FS_005_IDLE_TASK_CLICK_POOL_FISH");
 dispatch(repeatTaskRuntime, "ACTION_FS_005_IDLE_TASK_CLICK_POOL_FISH");
 assert(repeatTaskRuntime.snapshot().taskState.completedClicks === 2, "repeatable hangup work must accumulate completed clicks instead of resetting to one");
@@ -128,7 +162,7 @@ assert(selectedSteward.event.actions.some((action) => action.actionType === "com
 assert(selectedSteward.event.actions.some((action) => action.actionType === "present"), "old steward should expose present action");
 const genericStewardCompete = runtime.interactWithChapterNpc("fb01r01_1", "compete");
 assert(genericStewardCompete.accepted, "reference-compatible generic compete must start even without a story outcome branch");
-const genericStewardResolution = runtime.dispatch("ACTION_FS_009_EARLY_COMBAT");
+const genericStewardResolution = finishPendingCombat(runtime);
 assert(genericStewardResolution.accepted, "generic compete must return to the map after combat");
 assert(genericStewardResolution.event.combatResolution.accepted, "generic combat outcome must resolve successfully");
 assert(!genericStewardResolution.event.combatResolution.matchedOutcomeBranch, "generic compete must not invent a comparewin story branch");
@@ -229,13 +263,11 @@ assert(letterBookcaseUse.accepted, "fb01item_16 use action should be accepted");
 assert(letterBookcaseUse.event.feedback.includes("\u4f3c\u4e4e\u5939\u7740\u4e00\u5c01\u4e66\u4fe1"), "fb01item_16 should resolve text13 narrative text");
 
 snapshot = dispatch(runtime, "ACT_CH1_SELECT_MAIN_HALL");
-assert(snapshot.currentState === "STATE_FS_009_EARLY_COMBAT", "map explore should enter early combat");
+assert(snapshot.currentState === "STATE_FS_010_NPC_INTERACTION", "selecting a combat node must enter NPC interaction rather than fabricate a pending fight");
 assert(snapshot.flags.includes("chapter_node_main_hall_selected"), "main hall route should grant a node-specific flag");
 
-snapshot = dispatch(runtime, "ACTION_FS_009_EARLY_COMBAT");
-assert(snapshot.currentState === "STATE_FS_008_MAP_EXPLORE", "early combat should resolve directly back to map exploration");
-
 const backRuntime = createFirstSessionRuntime(flow, {
+  combatContent,
   initialState: screen.defaultStartState,
   initialFlags: screen.defaultStartFlags,
 });
@@ -248,6 +280,7 @@ const backSnapshot = dispatch(backRuntime, "ACTION_FS_005_IDLE_TASK_LIST_BACK");
 assert(backSnapshot.currentState === "STATE_FS_003_CHARACTER_STATUS", "task-list top back should return to character status");
 
 const mapBackRuntime = createFirstSessionRuntime(flow, {
+  combatContent,
   initialState: screen.defaultStartState,
   initialFlags: screen.defaultStartFlags,
 });
@@ -263,6 +296,7 @@ const mapBackSnapshot = dispatch(mapBackRuntime, "ACTION_FS_008_MAP_EXPLORE_BACK
 assert(mapBackSnapshot.currentState === "STATE_FS_007_CHAPTER_CARD_ENTRY", "map top nav should return to chapter entry");
 
 const npcBackRuntime = createFirstSessionRuntime(flow, {
+  combatContent,
   initialState: screen.defaultStartState,
   initialFlags: screen.defaultStartFlags,
 });
@@ -274,11 +308,11 @@ dispatch(npcBackRuntime, "ACTION_FS_004_IDLE_CONFIRM");
 dispatch(npcBackRuntime, "ACTION_FS_005_IDLE_TASK_CLICK_POOL_FISH");
 dispatch(npcBackRuntime, "ACTION_FS_005_IDLE_TASK_LIST_CONTINUE");
 dispatch(npcBackRuntime, "ACTION_FS_007_CHAPTER_CARD_ENTRY");
-dispatch(npcBackRuntime, "ACT_CH1_SELECT_MAIN_HALL");
-const npcBackSnapshot = dispatch(npcBackRuntime, "ACTION_FS_009_EARLY_COMBAT");
-assert(npcBackSnapshot.currentState === "STATE_FS_008_MAP_EXPLORE", "combat completion should return to map explore without an intermediate NPC menu");
+const npcRouteSnapshot = dispatch(npcBackRuntime, "ACT_CH1_SELECT_MAIN_HALL");
+assert(npcRouteSnapshot.currentState === "STATE_FS_010_NPC_INTERACTION", "main hall route must expose NPC selection before combat");
 
 const nodeRuntime = createFirstSessionRuntime(flow, {
+  combatContent,
   initialState: screen.defaultStartState,
   initialFlags: screen.defaultStartFlags,
 });

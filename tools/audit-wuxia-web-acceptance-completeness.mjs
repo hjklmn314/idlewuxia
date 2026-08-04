@@ -46,8 +46,8 @@ const productScreens = Object.entries(screens.screens || {}).map(([screenId, scr
   bodyTypes: (screen.body || []).map((block) => block.type || "").join(";"),
   primaryActionId: screen.primaryActionId || "",
   navActionCount: Object.keys(screen.navActions || {}).length,
-  evidenceStatus: screenId === "UI_EarlyCombat" && !screen.body?.find((block) => block.type === "combatRuntime")?.autoResolve
-    ? "FAIL: combat does not auto resolve"
+  evidenceStatus: screenId === "UI_EarlyCombat" && !screen.body?.some((block) => block.type === "combatRuntime")
+    ? "FAIL: combat runtime block is missing"
     : "not_individually_browser_covered_or_requires_trace",
 }));
 
@@ -87,7 +87,7 @@ const findings = [
   { severity: productOrExecutorFailures.length ? "high" : "info", area: "browser_execution", message: productOrExecutorFailures.length ? `${productOrExecutorFailures.length} real DOM click attempts reached a product or executor failure; these are not covered or passed.` : "No persisted non-infrastructure browser execution failures.", evidence: "wuxia_fb01_browser_crawl_runs/*/batch_results.csv" },
   { severity: "high", area: "screen_coverage", message: `${productScreens.length} configured screens require individual real-browser state/screenshot coverage; a key-flow trace is not an exhaustive screen audit.`, evidence: "wuxia_first_session_screen_contract.json" },
   { severity: uniqueInfrastructure.length ? "high" : "info", area: "audit_infrastructure", message: uniqueInfrastructure.length ? `${uniqueInfrastructure.length} parallel batch results are invalid because Edge DevTools timed out under concurrent launch.` : "No invalid concurrent-browser results recorded.", evidence: "wuxia_full_browser_audit_20260711/progress.json" },
-  { severity: "high", area: "combat_presentation", message: "Combat has a correct auto-resolution route, but its actors/background remain prototype placeholders and do not meet competitor visual parity.", evidence: "browser_acceptance_combat_layout_20260711/18_contract_combat_enter.png" },
+  { severity: "high", area: "combat_presentation", message: "Combat has authoritative manual player turns, but its actors/background remain prototype placeholders and do not meet the approved side-view pixel-Wuxia product standard.", evidence: "browser_acceptance_combat_layout_20260711/18_contract_combat_enter.png" },
 ];
 
 fs.mkdirSync(outputDir, { recursive: true });
@@ -142,7 +142,7 @@ fs.writeFileSync(path.join(outputDir, "web_acceptance_audit.md"), [
   "1. Run browser actions through a single-session or port-isolated sequential harness; do not accept parallel DevTools timeout rows.",
   "2. For every visible action, either provide a config-bound executor and browser pass, or hide it until its Lua/config behavior is restored.",
   "3. Capture every configured screen at 540x960 and assert text, touch bounds, state transition, and safe-area layout.",
-  "4. Keep combat visual parity as a separate product gate; auto-resolution alone is not visual completion.",
+  "4. Keep combat visual quality as a separate product gate; functional manual turns alone are not visual completion.",
   "",
 ].join("\n"), "utf8");
 console.log(JSON.stringify(report, null, 2));

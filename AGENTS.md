@@ -1,6 +1,8 @@
 ﻿# AGENTS.md
 
-This project is a data-driven wuxia idle RPG prototype built from competitor research, Python combat simulation, and Unreal Engine 5 implementation.
+This repository is the data-driven HTML/JavaScript + Capacitor `idlewuxia`
+project. It is not the separate UE5 project. Runtime code owns reusable
+capabilities and interpreters; configuration owns concrete game content.
 
 Current main prototype workspace:
 
@@ -8,11 +10,36 @@ Current main prototype workspace:
 H:\MyProjectBack\idlewuxia
 ```
 
-Primary workspace:
+Authoritative source and work workspace:
 
 ```text
-G:\codex\武侠掌门放置挂机
+H:\MyProjectBack\idlewuxia
 ```
+
+Do not update `G:\codex` for this project. Historical G-drive reports may be
+read as evidence, but they are not source or task-status authority.
+
+## Current release-audit authority — 2026-08-04
+
+- Read `docs/codex_game_development_os/FULL_READING_LEDGER_20260804.md`,
+  `FULL_RELEASE_AUDIT_20260804.md`, and `ROADMAP_20260804_TO_RELEASE.md` before
+  resuming production work.
+- Machine task authority is
+  `config/production/production_stage_plan.json`; current verdict is
+  `RELEASE_BLOCKED_ACTIVE_REMEDIATION`.
+- A browser route/screenshot matrix PASS is not a product visual PASS. Every
+  UI or combat task ends with human inspection of all affected sizes, states,
+  animations, resources and neighboring systems. Human failure keeps the task
+  blocked.
+- Current product art standard is portrait mobile Wuxia pixel presentation:
+  side-view-only characters at roughly three-head proportion; clean scenes
+  contain no baked units; character/scene/VFX/audio are mounted by logical
+  configuration IDs. CSS geometric fighters and oscillator audio are not
+  production fallbacks.
+- `REST-REPAIR-001` remains postponed. Combat logic and asset contracts are
+  active, but `COMBAT-002B`, `T05-01`, ASSET-002 through ASSET-010, G4 and G7
+  remain release blockers.
+- 做事前充分思考，避免仓促、粗糙结论。用户不需要进度播报时，静默执行，最终统一汇报。
 
 ## GitHub synchronization policy
 

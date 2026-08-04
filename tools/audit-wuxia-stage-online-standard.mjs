@@ -119,6 +119,8 @@ const interactionSummaryPath = path.join(root, "outputs", "wuxia_fb01_interactio
 const highRiskCsvPath = path.join(root, "outputs", "wuxia_fb01_interaction_coverage", "fb01_interaction_high_risk.csv");
 const resultTokenSummaryPath = path.join(root, "outputs", "wuxia_fb01_result_token_runtime_coverage", "summary.json");
 const resultTokenCsvPath = path.join(root, "outputs", "wuxia_fb01_result_token_runtime_coverage", "fb01_result_token_runtime_coverage.csv");
+const productionAssetRegistryPath = path.join(root, "config", "production", "asset_registry.json");
+const productionStagePlanPath = path.join(root, "config", "production", "production_stage_plan.json");
 
 const indexHtml = readText(indexPath);
 const activeMain = readText(activeEntryPath);
@@ -130,6 +132,8 @@ const interactionSummary = readJson(interactionSummaryPath, {});
 const highRiskRows = parseCsv(highRiskCsvPath);
 const resultTokenSummary = readJson(resultTokenSummaryPath, {});
 const resultTokenRows = parseCsv(resultTokenCsvPath);
+const productionAssetRegistry = readJson(productionAssetRegistryPath, {});
+const productionStagePlan = readJson(productionStagePlanPath, {});
 
 if (!indexHtml.includes('src="./src/wuxia-main.js"')) {
   issue({
@@ -331,6 +335,34 @@ if (originalGameFiles.length) {
 
 const competitorReferenceFiles = walkFiles(path.join(root, "public", "competitor-reference"));
 const generatedUiFiles = walkFiles(path.join(root, "public", "generated-ui"));
+const requiredAssetSlots = Array.isArray(productionAssetRegistry.requiredSlots) ? productionAssetRegistry.requiredSlots : [];
+const openRequiredAssetSlots = requiredAssetSlots.filter((slot) => slot.status !== "satisfied");
+for (const slot of openRequiredAssetSlots) {
+  issue({
+    severity: "P0",
+    domain: "asset_contract",
+    item: slot.id || "unknown-required-slot",
+    problem: `Required production asset slot is not satisfied (status=${slot.status || "missing"}).`,
+    source: "config/production/asset_registry.json",
+    evidenceLevel: "config_confirmed",
+    requiredFix: `Complete ${slot.taskId || "the owning asset task"} with project-owned or licensed bytes, hashes, runtime binding, and device evidence.`,
+    acceptance: "The required slot is satisfied and its declared shipping asset passes provenance, existence, hash, package, runtime and human visual/audio acceptance.",
+  });
+}
+
+const manualVisualTask = (productionStagePlan.tasks || []).find((task) => task.id === "T05-01");
+if (manualVisualTask?.status !== "done") {
+  issue({
+    severity: "P0",
+    domain: "manual_visual",
+    item: "T05-01",
+    problem: `Human 11-screen x 3-viewport visual acceptance is ${manualVisualTask?.status || "missing"}; automated screenshot coverage cannot substitute for product-quality approval.`,
+    source: "config/production/production_stage_plan.json",
+    evidenceLevel: "manual_audit_confirmed",
+    requiredFix: "Replace prototype visual surfaces with the approved portrait Wuxia pixel-art system, rerun the 33-pair browser sweep, and repeat independent human review.",
+    acceptance: "T05-01 is done only after all 33 pairs pass automation and a human reviewer accepts art quality, hierarchy, readability, feedback and combat presentation.",
+  });
+}
 const flowCounts = {
   states: flow?.states?.length || 0,
   actions: flow?.actions?.length || 0,
@@ -392,6 +424,8 @@ const summary = {
     originalGameFiles: originalGameFiles.length,
     competitorReferenceFiles: competitorReferenceFiles.length,
     generatedUiFiles: generatedUiFiles.length,
+    requiredSlots: requiredAssetSlots.length,
+    openRequiredSlots: openRequiredAssetSlots.length,
   },
   issues: {
     total: issues.length,

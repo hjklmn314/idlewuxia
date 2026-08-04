@@ -29,3 +29,10 @@ jobs:
 
       - name: Build, sync, and verify three-layer web freshness
         run: npm run android:sync
+
+      - name: Reject untracked or unapproved Android product resources
+        run: npm run android:resources:validate
+
+      - name: Assemble clean-checkout Android debug artifact
+        working-directory: android
+        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace

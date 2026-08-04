@@ -22,6 +22,7 @@ function combatFixture() {
   const steward = unit(content, "unit_old_steward");
   player.skillIds = ["skill_basic_strike"];
   steward.skillIds = ["skill_basic_strike"];
+  steward.aiPolicyId = "ai_player_safe";
   player.attributes = { ...player.attributes, speed: 100, accuracy: 1, critRating: 0, luck: 0, evasionRating: 0, blockChance: 0, penetration: 0, defensePenetration: 0, lifesteal: 0 };
   steward.attributes = { ...steward.attributes, speed: 1, evasionRating: 0, blockChance: 0, blockPower: 0, physicalResistance: 0, armor: 0, constitution: 0 };
   skill(content, "skill_basic_strike").effects[0].canGlance = false;
@@ -84,7 +85,7 @@ assert.ok(takenDamage < baselineDamage, "damageTakenMultiplier must reduce final
 
 // True damage bypasses both defense and resistance, while dead targets do not receive later effects.
 const trueContent = combatFixture();
-unit(trueContent, "unit_unnamed_girl").skillIds = ["skill_true_point"];
+unit(trueContent, "unit_unnamed_girl").skillIds = ["skill_true_point", "skill_basic_strike"];
 unit(trueContent, "unit_old_steward").hp = 1;
 const trueSkill = skill(trueContent, "skill_true_point");
 trueSkill.effects[0].power = { const: 9999 };

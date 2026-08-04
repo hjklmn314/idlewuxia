@@ -110,9 +110,7 @@
         "entry-policy",
         "combat-state",
         "result-delta"
-      ],
-      "acceptanceStatus": "postponed",
-      "postponedBy": "COMBAT-002"
+      ]
     },
     {
       "id": "UI_NpcInteraction",

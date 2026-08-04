@@ -88,12 +88,13 @@ function createCdpClient(wsUrl) {
           ws.send(JSON.stringify({ id, method, params }));
           return new Promise((resolveSend, rejectSend) => {
             pending.set(id, { resolve: resolveSend, reject: rejectSend });
+            const timeoutMs = method === "Page.navigate" ? 30000 : 10000;
             setTimeout(() => {
               if (pending.has(id)) {
                 pending.delete(id);
                 rejectSend(new Error(`CDP timeout: ${method}`));
               }
-            }, 10000);
+            }, timeoutMs);
           });
         },
       });
@@ -255,16 +256,42 @@ async function waitForStateAndCapture(cdp, label, expectedState, timeoutMs = 500
   return summary;
 }
 
-async function waitForCombatAutoResolveAndCapture(cdp, label, expectedState) {
-  const manualControl = await evalValue(cdp, `(() => [...document.querySelectorAll('button')]
-    .map((button) => button.textContent.trim())
-    .find((text) => /^(继续|确认|结算)$/.test(text)) || "")()`);
-  if (manualControl) {
-    const summary = await capture(cdp, `${label}_manual_control_found`);
-    summary.error = `player combat exposed forbidden manual control: ${manualControl}`;
-    return summary;
+async function playConfiguredCombatAndCapture(cdp, label, expectedState) {
+  const deadline = Date.now() + 12000;
+  let submittedActions = 0;
+  while (Date.now() < deadline) {
+    const actualState = await evalValue(cdp, "document.body.dataset.wuxiaState || ''");
+    if (actualState === expectedState) {
+      const summary = await capture(cdp, label);
+      summary.waitedForState = expectedState;
+      summary.submittedPlayerActions = submittedActions;
+      return summary;
+    }
+    const command = await evalValue(cdp, `(() => {
+      const snapshot = window.__idleWuxiaAutomation?.snapshot?.() || {};
+      const control = snapshot.pendingCombat?.combatControl || {};
+      if (!control.requiresPlayerInput) return { accepted: false, waiting: true, reason: control.reason || "runtime_advancing" };
+      const skill = (control.availableActions?.skills || []).find((entry) => entry.available);
+      if (!skill) return { accepted: false, reason: "no_available_player_skill" };
+      const targetIds = skill.targetSelection === "player_select"
+        ? [skill.targetCandidates?.[0]?.unitId].filter(Boolean)
+        : [];
+      const result = window.__idleWuxiaAutomation?.submitCombatAction?.(control.actorId, skill.skillId, targetIds);
+      return { accepted: result?.clicked === true, reason: result?.reason || "", actorId: control.actorId, skillId: skill.skillId, targetIds };
+    })()`);
+    if (command?.accepted) submittedActions += 1;
+    else if (!command?.waiting) {
+      const summary = await capture(cdp, `${label}_player_command_failed`);
+      summary.error = `configured player combat command failed: ${command?.reason || "unknown"}`;
+      summary.combatCommand = command;
+      return summary;
+    }
+    await delay(80);
   }
-  return waitForStateAndCapture(cdp, label, expectedState, 5000);
+  const summary = await capture(cdp, label);
+  summary.error = `timed out resolving configured player turns; expected ${expectedState}, got ${summary.state || "none"}`;
+  summary.submittedPlayerActions = submittedActions;
+  return summary;
 }
 
 async function clickRoomAndCapture(cdp, roomId, label) {
@@ -286,7 +313,7 @@ async function clickNpcCombatAndWait(cdp, roleId, label) {
     () => clickSelector(cdp, `[data-wuxia-npc-id="${roleId}"][data-wuxia-npc-action="compete"]`),
     "STATE_FS_009_EARLY_COMBAT",
   );
-  if (!started.error) await waitForCombatAutoResolveAndCapture(cdp, `${label}_auto_resolved`, "STATE_FS_008_MAP_EXPLORE");
+  if (!started.error) await playConfiguredCombatAndCapture(cdp, `${label}_player_actions_resolved`, "STATE_FS_008_MAP_EXPLORE");
   return started;
 }
 
@@ -419,7 +446,7 @@ try {
       const resolvedToMap = currentState === 'STATE_FS_008_MAP_EXPLORE' && resolved?.accepted === true && resolved?.outcomeToken === 'comparewin';
       return { passed: stillAnimating || resolvedToMap, earlier, now, currentState, resolved, stillAnimating, resolvedToMap };
     })()`, "combat must either still advance its timeline or have a configured comparewin result that returned to map");
-    await waitForCombatAutoResolveAndCapture(cdp, "combat_auto_resolved_to_map", "STATE_FS_008_MAP_EXPLORE");
+    await playConfiguredCombatAndCapture(cdp, "combat_player_actions_resolved_to_map", "STATE_FS_008_MAP_EXPLORE");
   }
 
   if (scenario === "all-key-screens") {
@@ -428,7 +455,7 @@ try {
     await clickAndCapture(cdp, "old_steward_intro", () => clickSelector(cdp, '[data-wuxia-npc-id="fb01r01_1"][data-wuxia-npc-action="talk"]'), "STATE_FS_008_MAP_EXPLORE");
     await clickAndCapture(cdp, "fightable_steward_selected", () => clickSelector(cdp, '[data-wuxia-npc-id="fb01r01_1a"]'), "STATE_FS_008_MAP_EXPLORE");
     await clickAndCapture(cdp, "early_combat_screen", () => clickSelector(cdp, '[data-wuxia-npc-id="fb01r01_1a"][data-wuxia-npc-action="compete"]'), "STATE_FS_009_EARLY_COMBAT");
-    await waitForCombatAutoResolveAndCapture(cdp, "combat_returned_to_map", "STATE_FS_008_MAP_EXPLORE");
+    await playConfiguredCombatAndCapture(cdp, "combat_returned_to_map", "STATE_FS_008_MAP_EXPLORE");
   } else if (scenario === "chapter-loop-screens") {
     await clickAndCapture(cdp, "npc_interaction_screen", () => evalValue(cdp, `(() => {
       const result = window.__idleWuxiaAutomation?.dispatchAction?.("ACT_CH1_SELECT_TRAINING_FIELDS");
@@ -540,7 +567,7 @@ try {
         expectedAfterAction,
       );
       if (isCombat) {
-        await waitForCombatAutoResolveAndCapture(cdp, `${prefix}_auto_resolve`, mapState);
+        await playConfiguredCombatAndCapture(cdp, `${prefix}_player_actions`, mapState);
       }
     }
     if (!plan.targetRoomId) throw new Error(`Route-unlock plan ${routeGateEvidence} has no targetRoomId from its condition record.`);

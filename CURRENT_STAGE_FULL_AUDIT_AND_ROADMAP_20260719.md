@@ -1,5 +1,20 @@
 # idlewuxia 当前阶段完整审计、施工说明与 Roadmap
 
+> 2026-08-04 authoritative update: this 2026-07-19 report is retained for
+> historical traceability. Current file coverage, combat/runtime corrections,
+> Android resource quarantine, 11×3 browser evidence, strict manual visual
+> failure, and the release task order are recorded in
+> `docs/codex_game_development_os/FULL_READING_LEDGER_20260804.md`,
+> `FULL_RELEASE_AUDIT_20260804.md`, and `ROADMAP_20260804_TO_RELEASE.md`.
+> Where status conflicts, the 2026-08-04 documents and
+> `config/production/production_stage_plan.json` are authoritative.
+> Final 2026-08-04 recheck: `task:preflight` and `wuxia:check:fast` pass;
+> the post-truthful-node browser matrix is 33/33 with zero automation blockers;
+> human visual acceptance still fails, the production asset registry has 10
+> open required slots, and the online-standard gate correctly fails with 11 P0
+> plus 1 P1. Historical statements below that CombatSession is postponed or
+> that earlier screenshots were visually accepted are superseded.
+
 生成日期：2026-07-19
 
 项目源码：`H:\MyProjectBack\idlewuxia`

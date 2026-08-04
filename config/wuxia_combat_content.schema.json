@@ -1,8 +1,60 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "idlewuxia.combat_content.v1",
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]*$" },
+    "nonNegative": { "type": "number", "minimum": 0 },
+    "formula": {
+      "oneOf": [
+        { "type": "number" },
+        { "type": "object", "required": ["ref"], "properties": { "ref": { "type": "string", "minLength": 1 } }, "additionalProperties": false },
+        { "type": "object", "required": ["const"], "properties": { "const": { "type": "number" } }, "additionalProperties": false },
+        {
+          "type": "object",
+          "required": ["op", "args"],
+          "properties": {
+            "op": { "enum": ["add", "sub", "mul", "div", "min", "max", "clamp", "round", "floor", "ceil"] },
+            "args": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/formula" } }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "effect": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": { "enum": ["damage", "heal", "shield", "applyBuff", "removeBuff", "resource", "statModifier", "multiHit"] },
+        "damageType": { "$ref": "#/$defs/id" },
+        "power": { "$ref": "#/$defs/formula" },
+        "buffId": { "$ref": "#/$defs/id" },
+        "chance": { "type": "number", "minimum": 0, "maximum": 1 },
+        "tags": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "maxCount": { "type": "integer", "minimum": 1 },
+        "resource": { "enum": ["hp", "mp"] },
+        "attribute": { "$ref": "#/$defs/id" },
+        "op": { "enum": ["add", "mul"] },
+        "value": { "type": "number" },
+        "duration": { "type": "integer", "minimum": 1 },
+        "hits": { "type": "integer", "minimum": 1 },
+        "effects": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/effect" } },
+        "canGlance": { "type": "boolean" },
+        "trigger": { "enum": ["turn_start", "turn_end"] },
+        "stackScaling": { "enum": ["multiply", "independent"] }
+      },
+      "allOf": [
+        { "if": { "properties": { "kind": { "const": "applyBuff" } } }, "then": { "required": ["buffId"] } },
+        { "if": { "properties": { "kind": { "enum": ["damage", "heal", "shield", "resource"] } } }, "then": { "required": ["power"] } },
+        { "if": { "properties": { "kind": { "const": "damage" } } }, "then": { "required": ["damageType"] } },
+        { "if": { "properties": { "kind": { "const": "resource" } } }, "then": { "required": ["resource"] } },
+        { "if": { "properties": { "kind": { "const": "statModifier" } } }, "then": { "required": ["attribute", "op", "duration"] } },
+        { "if": { "properties": { "kind": { "const": "multiHit" } } }, "then": { "required": ["hits", "effects"] } }
+      ],
+      "additionalProperties": false
+    }
+  },
   "type": "object",
-  "required": ["$schema", "schemaVersion", "version", "rules", "factions", "units", "skills", "buffs", "encounters", "visualCues", "audioCues"],
+  "required": ["$schema", "schemaVersion", "version", "contentVersion", "rules", "factions", "units", "skills", "buffs", "encounters", "rewards", "aiPolicies", "visualCues", "audioCues", "assetBindings"],
   "properties": {
     "$schema": { "const": "idlewuxia.combat_content.v1" },
     "schemaVersion": { "const": "idlewuxia.combat_content.v1" },
@@ -10,28 +62,74 @@
     "contentVersion": { "type": "string", "minLength": 1 },
     "rules": {
       "type": "object",
-      "required": ["maxRounds", "maxEvents", "defaultActionId", "defaultAiPolicyId", "damage", "attributes", "damageTypes", "buffRules", "presentation"],
+      "required": ["maxRounds", "maxEvents", "defaultActionId", "defaultAiPolicyId", "defaultEncounterId", "attributeDefaults", "damage", "attributes", "damageTypes", "effectOrder", "buffRules", "presentation"],
       "properties": {
         "maxRounds": { "type": "integer", "minimum": 1 },
         "maxEvents": { "type": "integer", "minimum": 32 },
-        "defaultActionId": { "type": "string", "minLength": 1 },
-        "defaultAiPolicyId": { "type": "string", "minLength": 1 },
-        "damageTypes": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
-        "attributes": { "type": "object", "minProperties": 1 },
-        "damage": { "type": "object", "required": ["minimumDamage", "criticalMultiplier", "blockMultiplier", "resistanceFloor", "resistanceCeiling", "rules", "defaultRule"], "properties": { "minimumDamage": { "type": "number", "minimum": 0 }, "criticalMultiplier": { "type": "number", "minimum": 0 }, "blockMultiplier": { "type": "number", "minimum": 0 }, "resistanceFloor": { "type": "number" }, "resistanceCeiling": { "type": "number" }, "rules": { "type": "object", "minProperties": 1 }, "defaultRule": { "type": "object", "required": ["defenseConstant", "canCrit", "canBlock", "canGlance"] } }, "additionalProperties": true },
-        "buffRules": { "type": "object", "required": ["maxStacks", "durationUnit", "stackPolicies"] },
-        "presentation": { "type": "object", "required": ["turnDurationMs", "floatingTextLifetimeMs"] }
+        "defaultActionId": { "$ref": "#/$defs/id" },
+        "defaultAiPolicyId": { "$ref": "#/$defs/id" },
+        "defaultEncounterId": { "$ref": "#/$defs/id" },
+        "attributeDefaults": { "type": "object", "minProperties": 1, "additionalProperties": { "type": "number" } },
+        "damageTypes": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+        "attributes": { "type": "object", "minProperties": 1, "additionalProperties": { "$ref": "#/$defs/formula" } },
+        "effectOrder": { "type": "array", "uniqueItems": true, "items": { "enum": ["damage", "heal", "shield", "applyBuff", "removeBuff", "resource", "statModifier", "multiHit"] } },
+        "damage": {
+          "type": "object",
+          "required": ["minimumDamage", "criticalMultiplier", "blockMultiplier", "glancingMultiplier", "glanceChance", "resistanceFloor", "resistanceCeiling", "rules", "defaultRule"],
+          "properties": {
+            "minimumDamage": { "$ref": "#/$defs/nonNegative" },
+            "criticalMultiplier": { "$ref": "#/$defs/nonNegative" },
+            "blockMultiplier": { "$ref": "#/$defs/nonNegative" },
+            "glancingMultiplier": { "$ref": "#/$defs/nonNegative" },
+            "glanceChance": { "type": "number", "minimum": 0, "maximum": 1 },
+            "resistanceFloor": { "type": "number" },
+            "resistanceCeiling": { "type": "number" },
+            "rules": { "type": "object", "minProperties": 1, "additionalProperties": { "type": "object" } },
+            "defaultRule": { "type": "object" }
+          },
+          "additionalProperties": false
+        },
+        "buffRules": { "type": "object", "required": ["maxStacks", "durationUnit", "stackPolicies", "dispelTags"] },
+        "presentation": {
+          "type": "object",
+          "required": ["turnDurationMs", "anticipationMs", "impactMs", "settleMs", "floatingTextLifetimeMs", "minimumFeedbackEvents", "eventOffsetsMs", "cueIds", "audioCueIds"],
+          "properties": {
+            "turnDurationMs": { "type": "integer", "minimum": 1 },
+            "anticipationMs": { "type": "integer", "minimum": 0 },
+            "impactMs": { "type": "integer", "minimum": 0 },
+            "settleMs": { "type": "integer", "minimum": 0 },
+            "floatingTextLifetimeMs": { "type": "integer", "minimum": 1 },
+            "minimumFeedbackEvents": { "type": "integer", "minimum": 1 },
+            "eventOffsetsMs": {
+              "type": "object",
+              "required": ["block", "defeat", "lifesteal", "reflect", "periodicSummary"],
+              "properties": {
+                "block": { "type": "integer", "minimum": 0 },
+                "defeat": { "type": "integer", "minimum": 0 },
+                "lifesteal": { "type": "integer", "minimum": 0 },
+                "reflect": { "type": "integer", "minimum": 0 },
+                "periodicSummary": { "type": "integer", "minimum": 0 }
+              },
+              "additionalProperties": false
+            },
+            "cueIds": { "type": "object", "minProperties": 1, "additionalProperties": { "$ref": "#/$defs/id" } },
+            "audioCueIds": { "type": "object", "minProperties": 1, "additionalProperties": { "$ref": "#/$defs/id" } }
+          },
+          "additionalProperties": false
+        }
       },
       "additionalProperties": true
     },
-    "factions": { "type": "array", "minItems": 2, "items": { "type": "object", "required": ["factionId", "hostileTo"], "properties": { "factionId": { "type": "string", "minLength": 1 }, "hostileTo": { "type": "array", "items": { "type": "string" } } }, "additionalProperties": true } },
-    "units": { "type": "array", "minItems": 2, "items": { "type": "object", "required": ["unitId", "factionId", "attributes", "skillIds"], "properties": { "unitId": { "type": "string", "minLength": 1 }, "factionId": { "type": "string", "minLength": 1 }, "attributes": { "type": "object" }, "skillIds": { "type": "array", "items": { "type": "string" } } }, "additionalProperties": true } },
-    "skills": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["skillId", "kind", "target", "effects"], "properties": { "skillId": { "type": "string", "minLength": 1 }, "kind": { "type": "string", "minLength": 1 }, "target": { "type": "string", "minLength": 1 }, "effects": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["kind"], "properties": { "kind": { "type": "string", "minLength": 1 } }, "additionalProperties": true } } }, "additionalProperties": true } },
-    "buffs": { "type": "array", "items": { "type": "object", "required": ["buffId", "tags", "duration"], "properties": { "buffId": { "type": "string", "minLength": 1 }, "tags": { "type": "array", "items": { "type": "string" } }, "duration": { "type": "integer", "minimum": 1 } }, "additionalProperties": true } },
-    "encounters": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["encounterId", "playerUnitIds", "enemyUnitIds"], "properties": { "encounterId": { "type": "string", "minLength": 1 }, "playerUnitIds": { "type": "array", "minItems": 1, "items": { "type": "string" } }, "enemyUnitIds": { "type": "array", "minItems": 1, "items": { "type": "string" } } }, "additionalProperties": true } },
-    "visualCues": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["cueId", "eventType"], "properties": { "cueId": { "type": "string", "minLength": 1 }, "eventType": { "type": "string", "minLength": 1 } }, "additionalProperties": true } },
-    "audioCues": { "type": "array", "items": { "type": "object", "required": ["audioCueId"], "properties": { "audioCueId": { "type": "string", "minLength": 1 } }, "additionalProperties": true } },
+    "factions": { "type": "array", "minItems": 2, "items": { "type": "object", "required": ["factionId", "displayName", "hostileTo"], "properties": { "factionId": { "$ref": "#/$defs/id" }, "displayName": { "type": "string", "minLength": 1 }, "hostileTo": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } } }, "additionalProperties": false } },
+    "units": { "type": "array", "minItems": 2, "items": { "type": "object", "required": ["unitId", "displayName", "factionId", "level", "attributes", "skillIds", "aiPolicyId", "visual"], "properties": { "unitId": { "$ref": "#/$defs/id" }, "displayName": { "type": "string", "minLength": 1 }, "roleLabel": { "type": "string" }, "factionId": { "$ref": "#/$defs/id" }, "level": { "type": "number", "minimum": 1 }, "attributes": { "type": "object", "additionalProperties": { "type": "number" } }, "skillIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }, "aiPolicyId": { "$ref": "#/$defs/id" }, "visual": { "type": "object" } }, "additionalProperties": true } },
+    "skills": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["skillId", "name", "kind", "target", "cost", "cooldown", "effects", "presentationCueId"], "properties": { "skillId": { "$ref": "#/$defs/id" }, "name": { "type": "string", "minLength": 1 }, "kind": { "enum": ["direct_damage", "elemental_damage", "multi_hit", "heal", "heal_over_time", "shield", "control", "damage_over_time", "defensive_stance", "stat_modifier", "resource", "cleanse", "utility"] }, "target": { "enum": ["self", "single_enemy", "single_ally", "lowest_hp_ally", "random_enemy", "all_enemies", "all_allies"] }, "cost": { "type": "object", "additionalProperties": { "$ref": "#/$defs/nonNegative" } }, "cooldown": { "type": "integer", "minimum": 0 }, "effects": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/effect" } }, "presentationCueId": { "$ref": "#/$defs/id" } }, "additionalProperties": false } },
+    "buffs": { "type": "array", "items": { "type": "object", "required": ["buffId", "name", "iconLabel", "tags", "stackPolicy", "maxStacks", "duration"], "properties": { "buffId": { "$ref": "#/$defs/id" }, "name": { "type": "string", "minLength": 1 }, "iconLabel": { "type": "string", "minLength": 1 }, "tags": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }, "stackPolicy": { "enum": ["stack", "refresh", "replace", "unique"] }, "maxStacks": { "type": "integer", "minimum": 1 }, "duration": { "type": "integer", "minimum": 1 }, "control": { "enum": ["stun", "silence", "root", "taunt"] }, "modifiers": { "type": "array", "items": { "type": "object", "required": ["attribute", "op", "value"], "properties": { "attribute": { "$ref": "#/$defs/id" }, "op": { "enum": ["add", "mul"] }, "value": { "type": "number" } }, "additionalProperties": false } }, "periodic": { "$ref": "#/$defs/effect" }, "reflect": { "type": "object" }, "immunityTags": { "type": "array", "uniqueItems": true, "items": { "type": "string" } } }, "additionalProperties": false } },
+    "encounters": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["encounterId", "name", "sceneId", "seed", "playerUnitIds", "enemyUnitIds", "rules", "rewardIds", "presentationCueFamily"], "properties": { "encounterId": { "$ref": "#/$defs/id" }, "name": { "type": "string", "minLength": 1 }, "sceneId": { "$ref": "#/$defs/id" }, "seed": { "type": "integer" }, "playerUnitIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }, "enemyUnitIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }, "rules": { "type": "object" }, "rewardIds": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }, "presentationCueFamily": { "$ref": "#/$defs/id" } }, "additionalProperties": false } },
+    "rewards": { "type": "array", "items": { "type": "object", "required": ["rewardId"], "properties": { "rewardId": { "$ref": "#/$defs/id" } }, "additionalProperties": true } },
+    "aiPolicies": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["aiPolicyId", "mode", "fallbackSkillId", "weights"], "properties": { "aiPolicyId": { "$ref": "#/$defs/id" }, "mode": { "enum": ["weighted_skill", "player_queue_then_basic"] }, "fallbackSkillId": { "$ref": "#/$defs/id" }, "weights": { "type": "object", "additionalProperties": { "$ref": "#/$defs/nonNegative" } } }, "additionalProperties": false } },
+    "visualCues": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["cueId", "eventType"], "properties": { "cueId": { "$ref": "#/$defs/id" }, "eventType": { "type": "string", "minLength": 1 } }, "additionalProperties": true } },
+    "audioCues": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["audioCueId"], "properties": { "audioCueId": { "$ref": "#/$defs/id" } }, "additionalProperties": true } },
     "assetBindings": { "type": "object" }
   },
-  "additionalProperties": true
+  "additionalProperties": false
 }

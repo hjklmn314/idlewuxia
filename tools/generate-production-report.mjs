@@ -24,6 +24,7 @@ const plan = documents.stagePlan;
 const assets = documents.assetRegistry;
 const ui = documents.uiExperienceRegistry;
 const openTasks = plan.tasks.filter((task) => task.status !== "done");
+const combatTasks = plan.tasks.filter((task) => /combat/i.test(task.id) || /CombatSession|战斗/.test(task.title));
 const doneTaskIds = new Set(plan.tasks.filter((task) => task.status === "done").map((task) => task.id));
 const nextP0Tasks = openTasks
   .filter((task) =>
@@ -89,7 +90,7 @@ const markdown = [
   "- A development debug APK is not a commercial release artifact.",
   "- Static or browser smoke checks do not substitute for the 11 x 3 visual matrix.",
   "- Reference parity does not prove ownership or redistribution rights.",
-  "- COMBAT-002 and CombatSession remain postponed until explicit product-owner authorization.",
+  `- Combat scope is derived from the task registry: ${combatTasks.map((task) => `${task.id}=${task.status}`).join(", ") || "no combat task registered"}.`,
   "",
 ].join("\n");
 

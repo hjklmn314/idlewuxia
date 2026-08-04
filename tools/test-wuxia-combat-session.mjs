@@ -60,7 +60,8 @@ rooted.queueAction("unit_bandit_blade", "skill_trap_root");
 rooted.queueAction("unit_unnamed_girl", "skill_basic_strike");
 for (let index = 0; index < 10 && rooted.snapshot().status !== "finished"; index += 1) rooted.step();
 assert.ok(rooted.snapshot().events.some((event) => event.buffId === "buff_rooted"));
-assert.ok(rooted.snapshot().events.some((event) => event.kind === "stunned" && event.targetUnitId === "unit_unnamed_girl"));
+assert.equal(rooted.snapshot().events.some((event) => event.kind === "stunned" && event.targetUnitId === "unit_unnamed_girl"), false, "root is movement control and must not skip a configured skill turn");
+assert.ok(rooted.snapshot().events.some((event) => event.kind === "skill" && event.sourceUnitId === "unit_unnamed_girl"), "a rooted actor must still execute a queued skill");
 
 const statModifier = createCombatSession(content, { encounterId: "encounter_bandit_ambush", seed: 1 });
 statModifier.queueAction("unit_bandit_blade", "skill_blood_fury");

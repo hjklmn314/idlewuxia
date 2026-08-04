@@ -1,5 +1,11 @@
 # QA-UI-001 / T05-01 Manual Visual Acceptance — 2026-07-25
 
+> Superseded on 2026-08-04: a complete 11-screen by 3-viewport rerun exposed
+> that route correctness and lack of overflow do not establish product visual
+> quality. The current human verdict is `FAIL / RELEASE_BLOCKED` because the
+> UI, map, NPC and combat surfaces still use sparse prototype presentation and
+> lack approved production assets. See `FULL_RELEASE_AUDIT_20260804.md`.
+
 ## Verdict
 
 `PASS` for the active UI surface and the configured `tmnpc01d` modal path.

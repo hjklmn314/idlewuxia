@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { findSurfaceCoverageGaps, observedSurfacePairs } from "./lib/browser-surface-coverage.mjs";
 
 const root = process.cwd();
 const args = process.argv.slice(2);
@@ -155,14 +156,13 @@ if (dryRun) {
 const blockers = [];
 const viewportRuns = [];
 const conditionalRuns = [];
-const observedScreens = new Set();
 
 for (const [index, viewport] of viewports.entries()) {
   const viewportOut = path.join(outDir, viewport.id);
   fs.mkdirSync(viewportOut, { recursive: true });
   const execution = spawnSync(process.execPath, [
     runner,
-    "--scenario", "baseline",
+    "--scenario", "all-key-screens",
     "--viewport-width", String(viewport.width),
     "--viewport-height", String(viewport.height),
     "--out-dir", safeRelative(viewportOut),
@@ -180,7 +180,6 @@ for (const [index, viewport] of viewports.entries()) {
   }
   if (execution.status !== 0) blockers.push({ type: "flow_process_failed", viewportId: viewport.id, exitCode: execution.status, stderr: String(execution.stderr || "").slice(-2000) });
   for (const entry of summary?.results || []) {
-    if (entry.screen) observedScreens.add(entry.screen);
     const screenshotExists = entry.screenshot && fs.existsSync(path.join(root, entry.screenshot));
     const hasDom = Boolean(entry.domSnapshot?.html && entry.domSnapshot?.state && entry.domSnapshot?.screen);
     const hasViewport = entry.viewport?.innerWidth === viewport.width && entry.viewport?.innerHeight === viewport.height;
@@ -228,7 +227,6 @@ for (const [index, viewport] of viewports.entries()) {
   catch (error) { blockers.push({ type: "missing_conditional_flow_summary", viewportId: viewport.id, message: error.message }); }
   if (execution.status !== 0) blockers.push({ type: "conditional_flow_process_failed", viewportId: viewport.id, exitCode: execution.status, stderr: String(execution.stderr || "").slice(-2000) });
   for (const entry of summary?.results || []) {
-    if (entry.screen) observedScreens.add(entry.screen);
     const screenshotExists = entry.screenshot && fs.existsSync(path.join(root, entry.screenshot));
     const hasDom = Boolean(entry.domSnapshot?.html && entry.domSnapshot?.state && entry.domSnapshot?.screen);
     const hasViewport = entry.viewport?.innerWidth === viewport.width && entry.viewport?.innerHeight === viewport.height;
@@ -253,9 +251,11 @@ for (const [index, viewport] of viewports.entries()) {
   });
 }
 
-const coverageGaps = activeScreens.flatMap((screen) => viewports
-  .filter(() => !observedScreens.has(screen.id))
-  .map((viewport) => ({ caseId: `${screen.id}__${viewport.id}`, screenId: screen.id, viewportId: viewport.id, reason: "screen_not_observed_by_baseline_route" })));
+const allRuns = [...viewportRuns, ...conditionalRuns];
+const observedPairs = observedSurfacePairs(allRuns);
+const observedScreens = new Set(allRuns.flatMap((run) => run.observedScreens || []));
+const coverageGaps = findSurfaceCoverageGaps(activeScreens, viewports, allRuns);
+for (const gap of coverageGaps) blockers.push({ type: "surface_pair_not_observed", ...gap });
 
 const modalOutDir = path.join(outDir, "modal");
 fs.mkdirSync(modalOutDir, { recursive: true });
@@ -290,6 +290,7 @@ const report = {
     summary: modalReport ? { status: modalReport.status, cases: modalReport.cases.length } : null,
   },
   observedScreens: [...observedScreens],
+  observedPairs: [...observedPairs].sort(),
   coverageGaps,
   blockers,
   acceptance: {
@@ -320,7 +321,7 @@ fs.writeFileSync(path.join(outDir, "browser_surface_sweep_report.md"), [
   `- blockers: ${report.blockers.length}`,
   `- unrelated mismatches excluded from verdict: ${report.validationScope.excludedFromVerdict.join(", ") || "none"}`,
   "",
-  "Coverage gaps are reported for T05-01; they are not silently treated as passed evidence.",
+  "Every active screen × viewport pair is fail-closed. A coverage gap is a release blocker, never inferred evidence.",
   "",
 ].join("\n"), "utf8");
 

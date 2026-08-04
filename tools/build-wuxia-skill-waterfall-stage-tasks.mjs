@@ -117,7 +117,18 @@ const chapterEndEvidence = realResults.some((result) => {
   return /(chapter[_ -]?(complete|clear)|fb01[_ -]?(complete|clear)|STATE_.*(COMPLETE|CLEAR))/i.test(signal);
 });
 
-const activeFiles = ["index.html", "src/wuxia-main.js", "src/wuxiaFirstSessionFlow.js", "src/wuxiaDomAdapter.js", "src/wuxia.css"];
+const activeFiles = [
+  "index.html",
+  "src/wuxia-main.js",
+  "src/wuxiaFirstSessionFlow.js",
+  "src/wuxiaDomAdapter.js",
+  "src/wuxia.css",
+  "src/combatSession.js",
+  "src/combatantRuntime.js",
+  "src/combatAttributeRuntime.js",
+  "src/chapterSession.js",
+  "src/uiFlowAdapter.js",
+];
 const forbiddenLegacyTokens = [
   "GALAXY",
   "Void",

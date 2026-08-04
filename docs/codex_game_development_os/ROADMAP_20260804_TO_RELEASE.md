@@ -1,0 +1,87 @@
+# idlewuxia 从当前阶段到发行上线 Roadmap — 2026-08-04
+
+机器权威：`config/production/production_stage_plan.json`。本文件解释施工顺序、交付物和人工 Gate，不替代机器状态。
+
+## 当前状态
+
+- G0、G3：pass。
+- G1：pass-with-open-acceptance。
+- G2：pass-with-known-unknowns。
+- G4：blocked（Save/Observability）。
+- G5：blocked（T05-01、COMBAT-002、ASSET-002～010）。
+- G6：not-started。
+- G7：blocked。
+- 总体：`RELEASE_BLOCKED_ACTIVE_REMEDIATION`。
+
+## P0 施工顺序
+
+### Wave 1 — 资产生产前的合同冻结
+
+1. `COMBAT-002A`：**已完成逻辑合同冻结**。当前为 26 技能、16 Buff、7 目标、6 伤害、事件、角色挂点、场景挂点、VFX/SFX 逻辑 ID；不等于资产或表现完成。
+2. `ASSET-CONTRACT-001`：为 ASSET-002～010 建立每文件 Schema、来源/授权、尺寸、帧率、pivot、透明区、预算、hash、fallback 与 runtime binding。
+3. `VISUAL-STANDARD-001`：把用户已确认标准固化为可测清单：仅侧视角色、约三头身、场景不烘焙角色、像素边缘一致、竖屏安全区、触控 44dp、战斗信息不遮挡角色。
+
+完成标准：配置和样例验证器能拒绝错误视角、错误比例、带人物背景、缺帧、缺授权、超预算与缺逻辑 ID。不得先批量产图再补规则。
+
+### Wave 2 — G5 产品资产与 UI/UX 闭环
+
+1. `ASSET-007` 侧视三头身角色：idle、attack、hurt、control、defeat；左右脚/动作帧人工逐帧检查。
+2. `ASSET-008` 干净战斗场景：无 baked character，三尺寸安全区与角色落点通过。
+3. `ASSET-009` 打击/VFX/Buff：命中、格挡、闪避、暴击、控制、Buff、胜负，性能预算内可读。
+4. `ASSET-010` 音效/BGM：替换 oscillator，占位音频在 production profile 必须 fail。
+5. `ASSET-003/004/005/006`：字体、章节地图、NPC 肖像、语义图标形成统一武侠 UI kit。
+6. `ASSET-002`：从批准源生成 Android adaptive icon、legacy launcher 与 launch screen，全密度/暗色/圆形 mask 验收。
+7. `COMBAT-002B`：将逻辑 ID 绑定到批准资产；禁用 CSS 几何战斗人物和黑灰占位场景 production fallback。
+8. `T05-01`：重新跑 11×3；自动 33/33 只是前置条件，最后必须人工逐屏/逐状态/逐动画 PASS。
+
+完成标准：QA-UI-001 自动报告 0 blocker；人工表对 33 个 pair、关键战斗帧和所有 modal 给出签名 verdict；任何 placeholder、错比例、遮挡、不可读或无来源资源都保持 FAIL。
+
+### Wave 3 — G4 运行时生产治理
+
+1. `SAVE-001`：正式 SaveEnvelope 版本、迁移、备份、原子写、损坏回退、跨版本 fixture。
+2. `OBS-001`：事件语义、错误码、战斗 replay ID、构建/config hash、崩溃与性能字段；隐私最小化。
+3. `HYGIENE-001`：把旧 idledotshoot 代码/配置、只读参考和活动 Wuxia authority 分层；更新 scope，证明 shipping closure 不变并提供回滚清单。
+
+完成标准：升级/降级/损坏/断电测试可复现，且 telemetry 不泄露敏感数据；活动入口不再需要维护者猜测。
+
+### Wave 4 — G7 Release Candidate
+
+1. `SEC-001`：Android 权限、WebView、CSP/网络、secrets、依赖、隐私、支付/广告后端真实性。
+2. `REL-001`：外部安全签名、release APK/AAB、版本号、R8/ProGuard、SBOM、clean rebuild、commit/config/APK hash 追踪。
+3. `REL-002`：代表性 Android 真机矩阵；冷/热启动、前后台、离线、存档恢复、内存、CPU/GPU、帧稳定、音频延迟、触控、安全区。
+4. `REL-003`：商店材料、分阶段发布、指标/告警、事故响应、回滚包与一次真实演练。
+
+完成标准：签名 release artifact 而非 debug；真机/性能/合规/商店/回滚证据全部绑定同一 commit。任何一项缺失，release verdict 保持 blocked。
+
+## P1/P2 后续
+
+- `CONTENT-001`：第二章节证明没有章节特例代码。
+- `EDITOR-ROI-001`：根据重复生产成本决定脚本工具或编辑器；必须有 diff/undo/validate/preview。
+- `REST-REPAIR-001`：按用户要求继续 postponed，不因战斗施工自动恢复。
+- 商业化旧占位目录只有在产品需求确认、后端和合规设计后才能启用；当前不得进入武侠 shipping closure。
+
+## 每一 Wave 的三道强制验收
+
+1. Gate A：逐文件/逐配置静态审计、Schema、来源、hash、diff、rollback。
+2. Gate B：单元、集成、回归、构建、包内容、性能预算和负例 fail-closed。
+3. Gate C：真实设备/浏览器人工体验；逐屏、逐状态、逐动画、逐音频检查。Gate C 最严格，自动化 PASS 不能覆盖人工 FAIL。
+
+## 当前可立即执行的下一批任务
+
+| 顺序 | 任务 | 负责人能力 | 产物 |
+|---:|---|---|---|
+| 1 | ASSET-CONTRACT-001 | configuration-data-pipeline + asset pipeline | 角色/场景/动画/VFX/音频/UI 资产 Schema、来源、授权、预算、hash 与 runtime binding 合同 |
+| 2 | VISUAL-STANDARD-001 | ux-ui + asset pipeline | 竖屏侧视三头身像素武侠验收表、错误示例和人工签名模板 |
+| 3 | ASSET-007/008 首个可玩套装 | asset-content-pipeline | 1 玩家、1 敌人、1 干净场景的完整动作闭环 |
+| 4 | ASSET-009/010 首个打击闭环 | combat presentation + asset/audio | 命中、格挡、控制、胜负的 VFX/SFX 证据 |
+| 5 | COMBAT-002B + 三条未授权 Combat Result | HTML runtime + combat + QA | 资产挂载和 `fight/kill/escape` 等剩余结果的合法配置映射，不再保持 placeholder |
+| 6 | ASSET-002～006 + T05-01 | UI/asset + Android + QA | 全 UI kit、33/33 自动证据与严格人工签名表 |
+| 7 | SAVE-001 + OBS-001 + HYGIENE-001 | save + observability + auditor | G4 关闭证据与活动/历史权威分层 |
+| 8 | SEC/REL-001～003 | release team | 签名 RC、真机、性能、商店、灰度和回滚 |
+
+## 2026-08-04 审计后任务状态
+
+- `COMBAT-002A`：done，配置与运行时能力合同已闭合。
+- `AUDIT-003`：blocked；完整读取、静态与运行时门已执行，但人工视觉、10 个必需资产槽及 3 条未授权战斗结果没有关闭。
+- `T05-01`：blocked；最终自动矩阵位于 `outputs/wuxia_visual_matrix/20260804_post_truthful_node_fix/`，但人工视觉明确失败。
+- `wuxia:audit:online-standard`：预期失败，当前 11 个 P0、1 个 P1；只有这些问题真实关闭后才允许转绿。

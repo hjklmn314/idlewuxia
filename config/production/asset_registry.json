@@ -11,7 +11,8 @@
       "svg",
       "webp",
       "png",
-      "woff2"
+      "woff2",
+      "ogg"
     ]
   },
   "assets": [
@@ -110,6 +111,26 @@
       "id": "interaction-icon-family",
       "status": "open",
       "taskId": "ASSET-006"
+    },
+    {
+      "id": "combat-side-view-character-sprites",
+      "status": "open",
+      "taskId": "ASSET-007"
+    },
+    {
+      "id": "combat-clean-background-scenes",
+      "status": "open",
+      "taskId": "ASSET-008"
+    },
+    {
+      "id": "combat-vfx-atlas-family",
+      "status": "open",
+      "taskId": "ASSET-009"
+    },
+    {
+      "id": "combat-sfx-and-music-family",
+      "status": "open",
+      "taskId": "ASSET-010"
     }
   ]
 }

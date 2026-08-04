@@ -1014,12 +1014,12 @@
         "grantStates": [
           "chapter_node_outer_gate_selected"
         ],
-        "feedback": "你进入武馆外门，按房间、人物与门槛配置处理当前节点。",
+        "feedback": "你进入武馆外门，选择房间与人物后再发起交谈、切磋或其他配置交互。",
         "visualCueIds": [
           "cue_chapter_node_selected"
         ]
       },
-      "toState": "STATE_FS_009_EARLY_COMBAT",
+      "toState": "STATE_FS_010_NPC_INTERACTION",
       "acceptance": "第一章节点进入动作必须由 fb01 房间/路由配置驱动，不能复用泛化探索按钮。",
       "evidence": {
         "level": "cross_source_confirmed",
@@ -1075,12 +1075,12 @@
         "grantStates": [
           "chapter_node_front_yard_selected"
         ],
-        "feedback": "你进入武馆大院，按 fb01 房间链路继续推进。",
+        "feedback": "你进入武馆大院，选择房间与人物后再按 fb01 配置推进。",
         "visualCueIds": [
           "cue_chapter_node_selected"
         ]
       },
-      "toState": "STATE_FS_009_EARLY_COMBAT",
+      "toState": "STATE_FS_010_NPC_INTERACTION",
       "acceptance": "第一章节点进入动作必须由 fb01 房间/路由配置驱动，不能复用泛化探索按钮。",
       "evidence": {
         "level": "cross_source_confirmed",
@@ -1136,12 +1136,12 @@
         "grantStates": [
           "chapter_node_main_hall_selected"
         ],
-        "feedback": "你进入大厅挑战节点，按 fb01 张风与通关奖励配置判定。",
+        "feedback": "你进入大厅，选择张风并通过配置交互发起挑战；节点选择本身不会伪造战斗。",
         "visualCueIds": [
           "cue_chapter_node_selected"
         ]
       },
-      "toState": "STATE_FS_009_EARLY_COMBAT",
+      "toState": "STATE_FS_010_NPC_INTERACTION",
       "acceptance": "第一章节点进入动作必须由 fb01 房间/路由配置驱动，不能复用泛化探索按钮。",
       "evidence": {
         "level": "cross_source_confirmed",

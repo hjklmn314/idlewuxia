@@ -130,7 +130,7 @@ function renderCombatRuntimeUnit(unit, side) {
       </header>
       ${renderCombatBar("HP", unit?.hp ?? 0, unit?.hpMax ?? 1, "hp")}
       ${renderCombatBar("MP", unit?.mp ?? 0, unit?.mpMax ?? 1, "mp")}
-      ${unit?.shield ? renderCombatBar("盾", unit?.shield ?? 0, Math.max(1, unit?.shield ?? 0), "shield") : ""}
+      ${unit?.shield ? renderCombatBar("盾", unit?.shield ?? 0, Math.max(1, unit?.hpMax ?? 1, unit?.shield ?? 0), "shield") : ""}
       <div class="wuxia-runtime-buffs">
         ${buffs.length ? buffs.map((buff) => `<span title="${escapeHtml(buff.description || buff.name || buff.buffId || "")}">${escapeHtml(buff.iconLabel || buff.name || buff.buffId || "")}</span>`).join("") : `<em>${escapeHtml(unit?.emptyBuffText || "")}</em>`}
       </div>
@@ -382,6 +382,10 @@ function playCombatAudioCue(event, combatContent) {
   try {
     const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
     if (!AudioContextCtor) return;
+    // Browsers reject Web Audio startup before a real user gesture.  Skipping
+    // the cue keeps automated and assistive navigation warning-free; the first
+    // genuine interaction enables subsequent configured combat cues.
+    if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return;
     state.combatPlayback.audioContext ||= new AudioContextCtor();
     const context = state.combatPlayback.audioContext;
     if (context.state === "suspended") context.resume().catch(() => {});

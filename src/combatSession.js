@@ -55,23 +55,58 @@ function createSeededRandom(seed = 1, restoredState = undefined) {
 
 function resolveFormula(expression, context = {}) {
   if (typeof expression === "number") return expression;
-  if (!record(expression)) return number(expression, 0);
-  if (expression.ref) return number(context[expression.ref], 0);
-  if (expression.const !== undefined) return number(expression.const, 0);
+  if (!record(expression)) throw new Error("combat formula must be a number or object");
+  if (expression.ref) {
+    if (!Object.prototype.hasOwnProperty.call(context, expression.ref) || !Number.isFinite(Number(context[expression.ref]))) {
+      throw new Error(`combat formula reference is unavailable: ${expression.ref}`);
+    }
+    return Number(context[expression.ref]);
+  }
+  if (expression.const !== undefined) {
+    if (!Number.isFinite(Number(expression.const))) throw new Error("combat formula const must be numeric");
+    return Number(expression.const);
+  }
   const args = list(expression.args).map((item) => resolveFormula(item, context));
   switch (expression.op) {
     case "add": return args.reduce((sum, item) => sum + item, 0);
     case "sub": return (args[0] || 0) - (args[1] || 0);
     case "mul": return (args[0] || 0) * (args[1] || 0);
-    case "div": return Math.abs(args[1] || 0) < EPSILON ? 0 : (args[0] || 0) / args[1];
+    case "div": {
+      if (args.length !== 2 || Math.abs(args[1]) < EPSILON) throw new Error("combat formula division requires a non-zero divisor");
+      return args[0] / args[1];
+    }
     case "min": return Math.min(...args);
     case "max": return Math.max(...args);
     case "clamp": return clamp(args[0] || 0, args[1] || 0, args[2] ?? args[1] ?? 0);
     case "round": return Math.round(args[0] || 0);
     case "floor": return Math.floor(args[0] || 0);
     case "ceil": return Math.ceil(args[0] || 0);
-    default: return 0;
+    default: throw new Error(`unsupported combat formula op: ${expression.op || "<empty>"}`);
   }
+}
+
+function formulaReferences(expression, refs = new Set()) {
+  if (!record(expression)) return refs;
+  if (typeof expression.ref === "string") refs.add(expression.ref);
+  for (const arg of list(expression.args)) formulaReferences(arg, refs);
+  return refs;
+}
+
+function resolveDerivedAttributes(formulas, context) {
+  const pending = new Map(Object.entries(formulas || {}));
+  const resolved = {};
+  while (pending.size) {
+    let progressed = false;
+    for (const [attributeId, formula] of [...pending]) {
+      const refs = [...formulaReferences(formula)];
+      if (refs.some((ref) => pending.has(ref))) continue;
+      resolved[attributeId] = resolveFormula(formula, { ...context, ...resolved });
+      pending.delete(attributeId);
+      progressed = true;
+    }
+    if (!progressed) throw new Error(`combat derived attribute cycle: ${[...pending.keys()].join(",")}`);
+  }
+  return resolved;
 }
 
 function normalizeAttributeContext(unit, attributes) {
@@ -178,15 +213,43 @@ export function validateCombatContent(content) {
   validateUniqueIds(source.audioCues, "audioCueId", "audioCues", findings);
   validateUniqueIds(source.rewards, "rewardId", "rewards", findings);
   const formulaOps = new Set(["add", "sub", "mul", "div", "min", "max", "clamp", "round", "floor", "ceil"]);
+  const formulaArity = { sub: 2, div: 2, clamp: 3, round: 1, floor: 1, ceil: 1 };
+  const baseAttributeIds = new Set(["level", ...Object.keys(source.rules?.attributeDefaults || {})]);
+  const derivedAttributeIds = new Set(Object.keys(source.rules?.attributes || {}));
+  const formulaAttributeIds = new Set([...baseAttributeIds, ...derivedAttributeIds]);
+  const effectFormulaIds = new Set([...formulaAttributeIds, "targetHp", "targetHpMax", "targetMp", "targetMpMax", "targetShield"]);
   const validateFormula = (formula, path) => {
     if (formula === undefined || formula === null || typeof formula === "number") return;
     if (!record(formula)) { findings.push({ severity: "error", path, message: "formula must be a number or object" }); return; }
-    if (formula.ref && typeof formula.ref !== "string") findings.push({ severity: "error", path: `${path}.ref`, message: "formula ref must be a string" });
+    const forms = [formula.ref !== undefined, formula.const !== undefined, formula.op !== undefined].filter(Boolean).length;
+    if (forms !== 1) findings.push({ severity: "error", path, message: "formula must define exactly one of ref, const or op" });
+    if (formula.ref !== undefined && (typeof formula.ref !== "string" || !formula.ref)) findings.push({ severity: "error", path: `${path}.ref`, message: "formula ref must be a non-empty string" });
     if (formula.const !== undefined && !Number.isFinite(Number(formula.const))) findings.push({ severity: "error", path: `${path}.const`, message: "formula const must be numeric" });
     if (formula.op && !formulaOps.has(formula.op)) findings.push({ severity: "error", path: `${path}.op`, message: `unsupported formula op ${formula.op}` });
+    if (formula.op && !list(formula.args).length) findings.push({ severity: "error", path: `${path}.args`, message: "formula op requires args" });
+    if (formulaArity[formula.op] && list(formula.args).length !== formulaArity[formula.op]) findings.push({ severity: "error", path: `${path}.args`, message: `${formula.op} requires ${formulaArity[formula.op]} args` });
+    if (formula.op === "div" && record(formula.args?.[1]) && formula.args[1].const !== undefined && Math.abs(Number(formula.args[1].const)) < EPSILON) findings.push({ severity: "error", path: `${path}.args.1`, message: "division by zero is forbidden" });
     for (const [index, arg] of list(formula.args).entries()) validateFormula(arg, `${path}.args.${index}`);
   };
-  for (const [attributeId, formula] of Object.entries(source.rules?.attributes || {})) validateFormula(formula, `rules.attributes.${attributeId}`);
+  for (const [attributeId, formula] of Object.entries(source.rules?.attributes || {})) {
+    validateFormula(formula, `rules.attributes.${attributeId}`);
+    for (const ref of formulaReferences(formula)) if (!formulaAttributeIds.has(ref)) findings.push({ severity: "error", path: `rules.attributes.${attributeId}`, message: `unknown formula reference ${ref}` });
+  }
+  const derivedDependencies = new Map([...derivedAttributeIds].map((id) => [id, [...formulaReferences(source.rules.attributes[id])].filter((ref) => derivedAttributeIds.has(ref))]));
+  const visiting = new Set();
+  const visited = new Set();
+  const visitDerived = (id) => {
+    if (visiting.has(id)) { findings.push({ severity: "error", path: `rules.attributes.${id}`, message: `derived attribute cycle includes ${id}` }); return; }
+    if (visited.has(id)) return;
+    visiting.add(id);
+    for (const dependency of derivedDependencies.get(id) || []) visitDerived(dependency);
+    visiting.delete(id);
+    visited.add(id);
+  };
+  for (const id of derivedAttributeIds) visitDerived(id);
+  validateReference(source.rules?.defaultActionId, maps.skills, "rules.defaultActionId", findings);
+  validateReference(source.rules?.defaultAiPolicyId, maps.aiPolicies, "rules.defaultAiPolicyId", findings);
+  validateReference(source.rules?.defaultEncounterId, maps.encounters, "rules.defaultEncounterId", findings);
   for (const [kind, cueId] of Object.entries(source.rules?.presentation?.cueIds || {})) validateReference(cueId, maps.visualCues, `rules.presentation.cueIds.${kind}`, findings);
   for (const [kind, audioCueId] of Object.entries(source.rules?.presentation?.audioCueIds || {})) validateReference(audioCueId, maps.audioCues, `rules.presentation.audioCueIds.${kind}`, findings);
   for (const [factionId, faction] of maps.factions) {
@@ -195,6 +258,9 @@ export function validateCombatContent(content) {
   for (const [unitId, unit] of maps.units) {
     validateReference(unit.factionId, maps.factions, `units.${unitId}.factionId`, findings);
     for (const skillId of list(unit.skillIds)) validateReference(skillId, maps.skills, `units.${unitId}.skillIds`, findings);
+    validateReference(unit.aiPolicyId || source.rules?.defaultAiPolicyId, maps.aiPolicies, `units.${unitId}.aiPolicyId`, findings);
+    const policy = maps.aiPolicies.get(unit.aiPolicyId || source.rules?.defaultAiPolicyId);
+    if (policy?.fallbackSkillId && !list(unit.skillIds).includes(policy.fallbackSkillId)) findings.push({ severity: "error", path: `units.${unitId}.skillIds`, message: `AI fallback skill ${policy.fallbackSkillId} is not equipped` });
   }
   for (const [skillId, skill] of maps.skills) {
     if (skill.kind && !COMBAT_CAPABILITIES.skillKinds.includes(skill.kind)) findings.push({ severity: "error", path: `skills.${skillId}.kind`, message: `unsupported skill kind ${skill.kind}` });
@@ -212,9 +278,11 @@ export function validateCombatContent(content) {
         if (!rulesDamageRule(source.rules, effect.damageType || "physical")) findings.push({ severity: "error", path: `${path}.damageType`, message: `damage type ${effect.damageType || "physical"} has no damage rule` });
       }
       validateFormula(effect.power, `${path}.power`);
+      for (const ref of formulaReferences(effect.power)) if (!effectFormulaIds.has(ref)) findings.push({ severity: "error", path: `${path}.power`, message: `unknown formula reference ${ref}` });
+      if (effect.chance !== undefined && (!Number.isFinite(Number(effect.chance)) || Number(effect.chance) < 0 || Number(effect.chance) > 1)) findings.push({ severity: "error", path: `${path}.chance`, message: "effect chance must be between 0 and 1" });
       if (effect.kind === "removeBuff" && effect.maxCount !== undefined && integer(effect.maxCount, 0) < 1) findings.push({ severity: "error", path: `${path}.maxCount`, message: "maxCount must be >= 1" });
       if (effect.kind === "resource" && effect.resource !== undefined && !["hp", "mp"].includes(effect.resource)) findings.push({ severity: "error", path: `${path}.resource`, message: `unsupported resource ${effect.resource}` });
-      if (effect.kind === "statModifier" && typeof effect.attribute !== "string") findings.push({ severity: "error", path: `${path}.attribute`, message: "statModifier requires an attribute" });
+      if (effect.kind === "statModifier" && (!formulaAttributeIds.has(effect.attribute) || !["add", "mul"].includes(effect.op || "add") || !Number.isFinite(Number(effect.value ?? 0)))) findings.push({ severity: "error", path, message: "statModifier requires a known attribute, add/mul op and numeric value" });
       if (effect.kind === "multiHit" && integer(effect.hits, 0) < 1) findings.push({ severity: "error", path: `${path}.hits`, message: "multiHit requires hits >= 1" });
       if (effect.kind === "multiHit") for (const [nestedIndex, nested] of list(effect.effects).entries()) validateEffect(nested, `${path}.effects.${nestedIndex}`);
     };
@@ -229,14 +297,27 @@ export function validateCombatContent(content) {
     if (buff.control && !COMBAT_CAPABILITIES.buffControls.includes(buff.control)) findings.push({ severity: "error", path: `buffs.${buffId}.control`, message: `unsupported control ${buff.control}` });
     if (buff.periodic?.kind && !COMBAT_CAPABILITIES.effectKinds.includes(buff.periodic.kind)) findings.push({ severity: "error", path: `buffs.${buffId}.periodic.kind`, message: `unsupported periodic effect ${buff.periodic.kind}` });
     if (buff.periodic?.trigger && !["turn_start", "turn_end"].includes(buff.periodic.trigger)) findings.push({ severity: "error", path: `buffs.${buffId}.periodic.trigger`, message: `unsupported trigger ${buff.periodic.trigger}` });
+    if (policy === "stack" && buff.periodic && !["multiply", "independent"].includes(buff.periodic.stackScaling)) findings.push({ severity: "error", path: `buffs.${buffId}.periodic.stackScaling`, message: "stacked periodic buffs must declare multiply or independent scaling" });
     if (buff.periodic?.kind === "damage") {
       if (!source.rules?.damageTypes?.includes(buff.periodic.damageType || "physical")) findings.push({ severity: "error", path: `buffs.${buffId}.periodic.damageType`, message: `periodic damage type ${buff.periodic.damageType || "physical"} is not declared` });
       if (!rulesDamageRule(source.rules, buff.periodic.damageType || "physical")) findings.push({ severity: "error", path: `buffs.${buffId}.periodic.damageType`, message: `periodic damage type ${buff.periodic.damageType || "physical"} has no damage rule` });
     }
     validateFormula(buff.periodic?.power, `buffs.${buffId}.periodic.power`);
+    for (const ref of formulaReferences(buff.periodic?.power)) if (!effectFormulaIds.has(ref)) findings.push({ severity: "error", path: `buffs.${buffId}.periodic.power`, message: `unknown formula reference ${ref}` });
+    for (const [index, modifier] of list(buff.modifiers).entries()) if (!formulaAttributeIds.has(modifier.attribute) || !["add", "mul"].includes(modifier.op || "add") || !Number.isFinite(Number(modifier.value))) findings.push({ severity: "error", path: `buffs.${buffId}.modifiers.${index}`, message: "buff modifier requires a known attribute, add/mul op and numeric value" });
+  }
+  for (const [aiPolicyId, policy] of maps.aiPolicies) {
+    if (!["weighted_skill", "player_queue_then_basic"].includes(policy.mode)) findings.push({ severity: "error", path: `aiPolicies.${aiPolicyId}.mode`, message: `unsupported AI mode ${policy.mode}` });
+    for (const [skillId, weight] of Object.entries(policy.weights || {})) {
+      validateReference(skillId, maps.skills, `aiPolicies.${aiPolicyId}.weights.${skillId}`, findings);
+      if (!Number.isFinite(Number(weight)) || Number(weight) < 0) findings.push({ severity: "error", path: `aiPolicies.${aiPolicyId}.weights.${skillId}`, message: "AI weight must be non-negative" });
+    }
+    validateReference(policy.fallbackSkillId, maps.skills, `aiPolicies.${aiPolicyId}.fallbackSkillId`, findings);
   }
   for (const [encounterId, encounter] of maps.encounters) {
-    for (const unitId of [...list(encounter.playerUnitIds), ...list(encounter.enemyUnitIds)]) validateReference(unitId, maps.units, `encounters.${encounterId}.unitIds`, findings);
+    const roster = [...list(encounter.playerUnitIds), ...list(encounter.enemyUnitIds)];
+    for (const unitId of roster) validateReference(unitId, maps.units, `encounters.${encounterId}.unitIds`, findings);
+    if (new Set(roster).size !== roster.length) findings.push({ severity: "error", path: `encounters.${encounterId}.unitIds`, message: "encounter rosters must be unique and disjoint" });
     for (const rewardId of list(encounter.rewardIds)) validateReference(rewardId, maps.rewards, `encounters.${encounterId}.rewardIds`, findings);
   }
   return {
@@ -251,8 +332,7 @@ export function validateCombatContent(content) {
 function createUnit(unitDefinition, rules) {
   const baseAttributes = { ...(rules.attributeDefaults || {}), ...(unitDefinition.attributes || {}) };
   const context = normalizeAttributeContext(unitDefinition, baseAttributes);
-  const derived = {};
-  for (const [attributeId, formula] of Object.entries(rules.attributes || {})) derived[attributeId] = resolveFormula(formula, { ...context, ...derived });
+  const derived = resolveDerivedAttributes(rules.attributes, context);
   const attributes = { ...baseAttributes, ...derived };
   const hpMax = Math.max(1, integer(attributes.maxHp, 1));
   const mpMax = Math.max(0, integer(attributes.maxMp, 0));
@@ -336,7 +416,7 @@ export function buildCombatPresentation(snapshot, options = {}) {
   return {
     previewId: options.previewId || snapshot.encounterId || "combat_runtime",
     encounterId: snapshot.encounterId || "",
-    scene: { theme: options.sceneTheme || "wuxia_courtyard", visualCueId: snapshot.sceneId || "" },
+    scene: { theme: options.sceneTheme || snapshot.sceneId || "", visualCueId: snapshot.sceneId || "" },
     units: {
       left: unitView(left),
       right: unitView(right),
@@ -394,9 +474,6 @@ export function createCombatSession(content, options = {}) {
   function alive(unit) { return Boolean(unit && unit.alive && unit.hp > 0); }
 
   function effectiveAttributes(unit) {
-    const context = normalizeAttributeContext(unit, unit.attributes);
-    const derived = {};
-    for (const [attributeId, formula] of Object.entries(rules.attributes || {})) derived[attributeId] = resolveFormula(formula, { ...context, ...derived });
     const modifiers = {};
     for (const active of unit.buffs) {
       const definition = maps.buffs.get(active.buffId);
@@ -413,8 +490,16 @@ export function createCombatSession(content, options = {}) {
       else current.add += number(modifier.value, 0);
       modifiers[modifier.attribute] = current;
     }
-    const combined = { ...unit.attributes, ...derived };
-    for (const [attributeId, modifier] of Object.entries(modifiers)) combined[attributeId] = (number(combined[attributeId], 0) + modifier.add) * modifier.mul;
+    const applyModifier = (attributeId, value) => {
+      const modifier = modifiers[attributeId];
+      return modifier ? (number(value, 0) + modifier.add) * modifier.mul : number(value, 0);
+    };
+    const base = { ...unit.baseAttributes };
+    for (const attributeId of Object.keys(base)) base[attributeId] = applyModifier(attributeId, base[attributeId]);
+    const context = normalizeAttributeContext(unit, base);
+    const derived = resolveDerivedAttributes(rules.attributes, context);
+    for (const attributeId of Object.keys(derived)) derived[attributeId] = applyModifier(attributeId, derived[attributeId]);
+    const combined = { ...base, ...derived };
     combined.maxHp = Math.max(1, number(combined.maxHp, unit.hpMax));
     combined.maxMp = Math.max(0, number(combined.maxMp, unit.mpMax));
     combined.attackPower = Math.max(0, number(combined.attackPower, unit.attributes.strength));
@@ -424,8 +509,10 @@ export function createCombatSession(content, options = {}) {
   }
 
   function emit(event) {
+    const seq = state.eventSeq;
+    const defaultTimeMs = seq * Math.max(1, number(rules.presentation?.turnDurationMs, 720));
     const normalized = {
-      TimeSeconds: number(event.timeMs, state.eventSeq * 0.72) / 1000,
+      TimeSeconds: number(event.timeMs, defaultTimeMs) / 1000,
       EventType: event.eventType || event.kind || "event",
       AudioCueId: audioCueFor(event.kind || event.eventType || "", event.audioCueId || ""),
       sourceUnitId: event.sourceUnitId || "",
@@ -444,9 +531,10 @@ export function createCombatSession(content, options = {}) {
       cue: cloneData(event.cue || maps.visualCues.get(event.cueId || "") || {}),
       audioCue: cloneData(event.audioCue || maps.audioCues.get(event.audioCueId || audioCueFor(event.kind || event.eventType || "", "")) || {}),
       audioCueId: audioCueFor(event.kind || event.eventType || "", event.audioCueId || ""),
-      seq: state.eventSeq++,
-      timeMs: number(event.timeMs, state.eventSeq * 720),
+      seq,
+      timeMs: number(event.timeMs, defaultTimeMs),
     };
+    state.eventSeq += 1;
     state.events.push(normalized);
     const maxEvents = Math.max(32, integer(rules.maxEvents, 512));
     if (state.events.length > maxEvents) {
@@ -468,6 +556,9 @@ export function createCombatSession(content, options = {}) {
 
   function side(unitId) { return playerUnitIds.includes(unitId) ? "player" : "enemy"; }
   function isHostile(source, target) { return hostile(maps.factions, source?.factionId, target?.factionId); }
+  function activeTauntersFor(source) {
+    return [...units.values()].filter((unit) => alive(unit) && isHostile(source, unit) && unit.buffs.some((active) => maps.buffs.get(active.buffId)?.control === "taunt"));
+  }
   function audioCueFor(kind, explicit = "") {
     if (explicit && maps.audioCues.has(explicit)) return explicit;
     const configured = rules.presentation?.audioCueIds?.[kind] || "";
@@ -478,6 +569,10 @@ export function createCombatSession(content, options = {}) {
     if (explicit && maps.visualCues.has(explicit)) return explicit;
     const configured = rules.presentation?.cueIds?.[kind] || rules.presentation?.cueIds?.default || "";
     return configured && maps.visualCues.has(configured) ? configured : "";
+  }
+
+  function presentationOffset(kind) {
+    return Math.max(0, integer(rules.presentation?.eventOffsetsMs?.[kind], 0));
   }
 
   function damageRuleFor(damageType) {
@@ -518,6 +613,10 @@ export function createCombatSession(content, options = {}) {
     if (!multiSelector && requestedIds.length !== 1) return { accepted: false, reason: "target_count_mismatch" };
     const targets = requestedIds.map((id) => units.get(id));
     if (targets.some((target) => !target || !targetMatchesSkill(source, target, skill))) return { accepted: false, reason: "invalid_target" };
+    if (selector === "single_enemy") {
+      const taunters = activeTauntersFor(source);
+      if (taunters.length && !taunters.some((target) => requestedIds.includes(target.unitId))) return { accepted: false, reason: "taunt_target_required" };
+    }
     if (multiSelector) {
       const expected = targetsFor(source, selector).map((target) => target.unitId).sort();
       const requested = requestedIds.slice().sort();
@@ -536,7 +635,7 @@ export function createCombatSession(content, options = {}) {
     if (selector === "lowest_hp_ally") return [allies.sort((a, b) => (a.hp / a.hpMax) - (b.hp / b.hpMax))[0] || source];
     if (selector === "random_enemy") return enemies.length ? [enemies[Math.floor(random.next() * enemies.length)]] : [];
     if (selector === "single_ally") return [allies.sort((a, b) => a.hp - b.hp)[0] || source];
-    const taunter = enemies.find((unit) => unit.buffs.some((active) => maps.buffs.get(active.buffId)?.control === "taunt"));
+    const taunter = activeTauntersFor(source)[0];
     return [taunter || enemies.sort((a, b) => a.hp - b.hp)[0]].filter(Boolean);
   }
 
@@ -549,7 +648,10 @@ export function createCombatSession(content, options = {}) {
       case "single_ally":
       case "lowest_hp_ally":
       case "all_allies": return allies;
-      case "single_enemy":
+      case "single_enemy": {
+        const taunters = activeTauntersFor(source);
+        return taunters.length ? taunters : enemies;
+      }
       case "random_enemy":
       case "all_enemies": return enemies;
       default: return enemies;
@@ -560,12 +662,13 @@ export function createCombatSession(content, options = {}) {
     const definition = maps.buffs.get(buffId);
     if (!definition) return { accepted: false, reason: `missing buff ${buffId}` };
     const targetAttrs = effectiveAttributes(target);
-    const controlResistance = definition.tags?.includes("control") ? clamp(1 - number(targetAttrs.tenacity, 0), 0, 1) : 1;
+    const harmful = definition.tags?.includes("negative") || (definition.tags?.includes("control") && !definition.tags?.includes("positive"));
+    const controlResistance = harmful && definition.tags?.includes("control") ? clamp(1 - number(targetAttrs.tenacity, 0), 0, 1) : 1;
     if (random.next() > clamp(number(chance, 1) * controlResistance, 0, 1)) {
       emit({ eventType: "buffResisted", kind: "buffResisted", sourceUnitId: source.unitId, targetUnitId: target.unitId, buffId, value: 0, text: `${formatName(target)}抵抗了${definition.name || buffId}`, timeMs });
       return { accepted: false, reason: "chance_failed" };
     }
-    const blockedByImmunity = target.buffs.some((activeBuff) => {
+    const blockedByImmunity = harmful && target.buffs.some((activeBuff) => {
       const activeDefinition = maps.buffs.get(activeBuff.buffId);
       return list(activeDefinition?.immunityTags).some((tag) => definition.tags?.includes(tag) || definition.control === tag);
     });
@@ -584,8 +687,9 @@ export function createCombatSession(content, options = {}) {
       if (policy === "replace") active.stacks = 1;
       active.duration = integer(definition.duration, active.duration);
       active.sourceUnitId = source.unitId;
+      active.skipDecrementActionCount = source.unitId === target.unitId && target._activeSkillId ? target.actionCount + 1 : null;
     } else {
-      target.buffs.push({ buffId, name: definition.name || buffId, iconLabel: definition.iconLabel || buffId, stacks: 1, duration: integer(definition.duration, 1), tags: list(definition.tags), sourceUnitId: source.unitId });
+      target.buffs.push({ buffId, name: definition.name || buffId, iconLabel: definition.iconLabel || buffId, stacks: 1, duration: integer(definition.duration, 1), tags: list(definition.tags), sourceUnitId: source.unitId, skipDecrementActionCount: source.unitId === target.unitId && target._activeSkillId ? target.actionCount + 1 : null });
     }
     const current = target.buffs.find((item) => item.buffId === buffId);
     emit({ eventType: current?.tags?.includes("negative") ? "debuffApplied" : "buffApplied", kind: current?.tags?.includes("negative") ? "debuff" : "buff", sourceUnitId: source.unitId, targetUnitId: target.unitId, buffId, stack: current?.stacks || 1, duration: current?.duration || 0, cueId: maps.skills.get(source._activeSkillId)?.presentationCueId || "", buff: cloneData(definition), buffs: cloneData(target.buffs), text: eventText(current?.tags?.includes("negative") ? "debuff" : "buff", source, target, 0, null, definition), timeMs });
@@ -646,14 +750,14 @@ export function createCombatSession(content, options = {}) {
     if (target.hp <= 0) { target.hp = 0; target.alive = false; }
     const cueId = visualCueFor(remaining > 0 ? "damage" : "shield", skill?.presentationCueId || "");
     const event = emit({ eventType: "damage", kind: "damage", sourceUnitId: source.unitId, targetUnitId: target.unitId, skillId: skill?.skillId, cueId, value: remaining, rawValue: number(rawValue, 0), visualValue: remaining, critical: isCritical, blocked, blockedAmount, glancing, absorbed, damageType, resistance, defenseMultiplier, skill: cloneData(skill || {}), text: eventText("damage", source, target, remaining, skill), timeMs, impact: maps.visualCues.get(cueId)?.impact || "hit_spark" });
-    if (blocked) emit({ eventType: "block", kind: "block", sourceUnitId: source.unitId, targetUnitId: target.unitId, skillId: skill?.skillId, cueId, value: blockedAmount, text: eventText("block", source, target, blockedAmount, skill), timeMs: timeMs + 20 });
-    if (!target.alive) emit({ eventType: "defeat", kind: "defeat", sourceUnitId: source.unitId, targetUnitId: target.unitId, skillId: skill?.skillId, cueId: visualCueFor("defeat"), value: 0, text: `${formatName(target)}倒下了`, timeMs: timeMs + 100 });
+    if (blocked) emit({ eventType: "block", kind: "block", sourceUnitId: source.unitId, targetUnitId: target.unitId, skillId: skill?.skillId, cueId, value: blockedAmount, text: eventText("block", source, target, blockedAmount, skill), timeMs: timeMs + presentationOffset("block") });
+    if (!target.alive) emit({ eventType: "defeat", kind: "defeat", sourceUnitId: source.unitId, targetUnitId: target.unitId, skillId: skill?.skillId, cueId: visualCueFor("defeat"), value: 0, text: `${formatName(target)}倒下了`, timeMs: timeMs + presentationOffset("defeat") });
     const lifesteal = clamp(number(sourceAttrs.lifesteal, 0), 0, 1);
-    if (remaining > 0 && lifesteal > 0) applyHeal(source, source, remaining * lifesteal, skill, timeMs + 30);
+    if (remaining > 0 && lifesteal > 0) applyHeal(source, source, remaining * lifesteal, skill, timeMs + presentationOffset("lifesteal"));
     const reflectDefinition = list(target.buffs).map((active) => maps.buffs.get(active.buffId)).find((definition) => definition?.reflect?.percent);
     if (remaining > 0 && reflectDefinition && !options.isReflect && alive(source)) {
       const reflectedValue = remaining * clamp(number(reflectDefinition.reflect.percent, 0), 0, 1);
-      if (reflectedValue > 0) applyDamage(target, source, reflectedValue, reflectDefinition.reflect.damageType || "internal", skill, { isReflect: true }, timeMs + 45);
+      if (reflectedValue > 0) applyDamage(target, source, reflectedValue, reflectDefinition.reflect.damageType || "internal", skill, { isReflect: true }, timeMs + presentationOffset("reflect"));
     }
     return { value: remaining, outcome: target.alive ? "hit" : "defeat", event };
   }
@@ -673,7 +777,7 @@ export function createCombatSession(content, options = {}) {
     return { value, outcome: "shield" };
   }
 
-  function executeEffect(source, target, effect, skill, timeMs = 0) {
+  function executeEffect(source, target, effect, skill, timeMs = 0, runtime = {}) {
     if (!alive(target)) return { accepted: false, value: 0, outcome: "dead" };
     const context = {
       ...unitContext(source),
@@ -683,7 +787,7 @@ export function createCombatSession(content, options = {}) {
       targetMpMax: number(target?.mpMax, 0),
       targetShield: number(target?.shield, 0),
     };
-    const power = resolveFormula(effect.power || { const: 0 }, context);
+    const power = resolveFormula(effect.power || { const: 0 }, context) * Math.max(0, number(runtime.powerMultiplier, 1));
     if (effect.kind === "damage") return applyDamage(source, target, power, effect.damageType || "physical", skill, effect, timeMs);
     if (effect.kind === "heal") return applyHeal(source, target, power, skill, timeMs);
     if (effect.kind === "shield") return applyShield(source, target, power, skill, timeMs);
@@ -695,6 +799,7 @@ export function createCombatSession(content, options = {}) {
       const before = number(target[resource], 0);
       const targetAttrs = effectiveAttributes(target);
       target[resource] = clamp(before + power, 0, number(targetAttrs[maxKey] ?? target[maxKey], before));
+      if (resource === "hp") target.alive = target[resource] > 0;
       emit({ eventType: "resource", kind: "resource", sourceUnitId: source.unitId, targetUnitId: target.unitId, skillId: skill?.skillId, cueId: skill?.presentationCueId || "", value: target[resource] - before, resource, text: `${formatName(target)}的${resource}变化${target[resource] - before}`, timeMs });
       return { value: target[resource] - before, outcome: "resource" };
     }
@@ -702,13 +807,14 @@ export function createCombatSession(content, options = {}) {
       if (!effect.attribute) return { accepted: false, reason: "missing_stat_attribute" };
       const value = power || number(effect.value, 0);
       const duration = Math.max(1, integer(effect.duration, 1));
-      target.runtimeModifiers.push({ attribute: effect.attribute, op: effect.op || "add", value, duration });
+      target.runtimeModifiers.push({ attribute: effect.attribute, op: effect.op || "add", value, duration, skipDecrementActionCount: source.unitId === target.unitId && target._activeSkillId ? target.actionCount + 1 : null });
       emit({ eventType: "statModifier", kind: "statModifier", sourceUnitId: source.unitId, targetUnitId: target.unitId, skillId: skill?.skillId, cueId: skill?.presentationCueId || "", value, duration, text: `${formatName(target)}属性变化`, timeMs });
       return { value, outcome: "stat_modifier" };
     }
     if (effect.kind === "multiHit") {
       const results = [];
-      for (let index = 0; index < Math.max(1, integer(effect.hits, 1)); index++) for (const nested of orderedEffects(effect.effects)) results.push(executeEffect(source, target, nested, skill, timeMs + index * 90));
+      const interval = Math.max(1, integer(rules.presentation?.impactMs, 120));
+      for (let index = 0; index < Math.max(1, integer(effect.hits, 1)); index++) for (const nested of orderedEffects(effect.effects)) results.push(executeEffect(source, target, nested, skill, timeMs + index * interval));
       return { value: results.reduce((sum, result) => sum + number(result?.value, 0), 0), outcome: "multi_hit", results };
     }
     return { accepted: false, reason: `unsupported effect kind ${effect.kind}` };
@@ -750,11 +856,16 @@ export function createCombatSession(content, options = {}) {
     // Target resolution is intentionally completed before charging resources or starting cooldowns.
     // A rejected action must not mutate the combat state.
     for (const [resource, cost] of Object.entries(skill.cost || {})) source[resource] = Math.max(0, number(source[resource], 0) - number(cost, 0));
-    if (skill.cooldown) source.cooldowns[skill.skillId] = integer(skill.cooldown, 0);
+    // Cooldown is authored as the number of future owner turns for which the
+    // skill remains unavailable. The current turn-end decrement therefore
+    // starts from N + 1 and exposes N in the post-action snapshot.
+    if (skill.cooldown) source.cooldowns[skill.skillId] = integer(skill.cooldown, 0) + 1;
     emit({ eventType: "skillStarted", kind: "skill", sourceUnitId: source.unitId, skillId: skill.skillId, cueId: skill.presentationCueId || "", skill: cloneData(skill), text: `${formatName(source)}使出${skill.name || skill.skillId}`, timeMs });
     const results = [];
-    for (const target of targets) for (const effect of orderedEffects(skill.effects)) results.push(executeEffect(source, target, effect, skill, timeMs + 120));
-    emit({ eventType: "skillResolved", kind: "skillResolved", sourceUnitId: source.unitId, skillId: skill.skillId, cueId: skill.presentationCueId || "", value: results.reduce((sum, result) => sum + number(result?.value, 0), 0), skill: cloneData(skill), text: `${skill.name || skill.skillId}完成`, timeMs: timeMs + 240 });
+    const anticipationMs = Math.max(0, integer(rules.presentation?.anticipationMs, 180));
+    const impactMs = Math.max(0, integer(rules.presentation?.impactMs, 120));
+    for (const target of targets) for (const effect of orderedEffects(skill.effects)) results.push(executeEffect(source, target, effect, skill, timeMs + anticipationMs));
+    emit({ eventType: "skillResolved", kind: "skillResolved", sourceUnitId: source.unitId, skillId: skill.skillId, cueId: skill.presentationCueId || "", value: results.reduce((sum, result) => sum + number(result?.value, 0), 0), skill: cloneData(skill), text: `${skill.name || skill.skillId}完成`, timeMs: timeMs + anticipationMs + impactMs });
     source.actionCount += 1;
     delete source._activeSkillId;
     return { accepted: true, skillId, results };
@@ -765,8 +876,8 @@ export function createCombatSession(content, options = {}) {
     const queued = state.actionQueue?.[unit.unitId]?.shift?.();
     if (queued?.skillId) return queued;
     const available = unit.skillIds.map((skillId) => maps.skills.get(skillId)).filter((skill) => canUseSkill(unit, skill).accepted);
-    if (!available.length) return { skillId: rules.defaultActionId };
-    if (policy?.mode === "player_queue_then_basic") return { skillId: available.find((skill) => skill.skillId === rules.defaultActionId)?.skillId || available[0].skillId };
+    if (!available.length) return { skillId: policy?.fallbackSkillId || rules.defaultActionId };
+    if (policy?.mode === "player_queue_then_basic") return { skillId: available.find((skill) => skill.skillId === (policy.fallbackSkillId || rules.defaultActionId))?.skillId || available[0].skillId };
     const weighted = available.flatMap((skill) => Array.from({ length: Math.max(1, integer(policy?.weights?.[skill.skillId], 1)) }, () => skill));
     return { skillId: (weighted[Math.floor(random.next() * weighted.length)] || available[0]).skillId };
   }
@@ -796,15 +907,20 @@ export function createCombatSession(content, options = {}) {
       const periodic = definition?.periodic;
       if (periodic?.trigger === trigger) {
         const source = units.get(active.sourceUnitId) || unit;
-        executeEffect(source, unit, periodic, null, timeMs);
-        emit({ eventType: "periodic", kind: "periodic", sourceUnitId: source.unitId, targetUnitId: unit.unitId, buffId: active.buffId, buff: cloneData(definition || {}), value: 0, text: `${formatName(unit)}的${definition?.name || active.buffId}生效`, timeMs: timeMs + 1 });
+        const stackMultiplier = periodic.stackScaling === "multiply" ? Math.max(1, integer(active.stacks, 1)) : 1;
+        executeEffect(source, unit, periodic, null, timeMs, { powerMultiplier: stackMultiplier });
+        emit({ eventType: "periodic", kind: "periodic", sourceUnitId: source.unitId, targetUnitId: unit.unitId, buffId: active.buffId, buff: cloneData(definition || {}), value: 0, text: `${formatName(unit)}的${definition?.name || active.buffId}生效`, timeMs: timeMs + presentationOffset("periodicSummary") });
       }
-      if (trigger === "turn_end") active.duration -= 1;
+      if (trigger === "turn_end" && active.skipDecrementActionCount !== unit.actionCount) active.duration -= 1;
+      if (trigger === "turn_end" && active.skipDecrementActionCount === unit.actionCount) active.skipDecrementActionCount = null;
     }
     const expired = unit.buffs.filter((active) => active.duration <= 0);
     for (const active of expired) emit({ eventType: "buffExpired", kind: "buffExpired", targetUnitId: unit.unitId, buffId: active.buffId, value: 0, text: `${formatName(unit)}的${maps.buffs.get(active.buffId)?.name || active.buffId}消退`, timeMs });
     unit.buffs = unit.buffs.filter((active) => active.duration > 0);
-    unit.runtimeModifiers = list(unit.runtimeModifiers).map((modifier) => ({ ...modifier, duration: integer(modifier.duration, 1) - (trigger === "turn_end" ? 1 : 0) })).filter((modifier) => modifier.duration > 0);
+    unit.runtimeModifiers = list(unit.runtimeModifiers).map((modifier) => {
+      const skip = trigger === "turn_end" && modifier.skipDecrementActionCount === unit.actionCount;
+      return { ...modifier, skipDecrementActionCount: skip ? null : modifier.skipDecrementActionCount, duration: integer(modifier.duration, 1) - (trigger === "turn_end" && !skip ? 1 : 0) };
+    }).filter((modifier) => modifier.duration > 0);
   }
 
   function checkOutcome() {
@@ -841,7 +957,7 @@ export function createCombatSession(content, options = {}) {
       combatStats,
       finalUnits: [...units.values()].map((unit) => ({ unitId: unit.unitId, hp: unit.hp, hpMax: unit.hpMax, mp: unit.mp, mpMax: unit.mpMax, shield: unit.shield, alive: unit.alive, buffs: cloneData(unit.buffs) })),
     };
-    emit({ eventType: outcome, kind: outcome, value: 0, text: outcome === "victory" ? "战斗胜利" : outcome === "defeat" ? "战斗失败" : "战斗结束", timeMs: state.eventSeq * 720 });
+    emit({ eventType: outcome, kind: outcome, value: 0, text: outcome === "victory" ? "战斗胜利" : outcome === "defeat" ? "战斗失败" : "战斗结束", timeMs: state.eventSeq * Math.max(1, integer(rules.presentation?.turnDurationMs, 720)) });
     // The terminal outcome is part of the replay/event contract. Update the
     // count after emitting it so result.eventCount always matches snapshot.events.
     state.result.eventCount = state.events.length;
@@ -867,9 +983,11 @@ export function createCombatSession(content, options = {}) {
     }
     const actor = units.get(state.turnOrder[state.turnIndex++]);
     if (!actor || !alive(actor)) return step(actionOverride);
-    const timeMs = state.eventSeq * 720;
+    const turnDurationMs = Math.max(1, integer(rules.presentation?.turnDurationMs, 720));
+    const settleMs = Math.max(0, integer(rules.presentation?.settleMs, 240));
+    const timeMs = state.eventSeq * turnDurationMs;
     tickBuffs(actor, "turn_start", timeMs);
-    const stunned = actor.buffs.some((buff) => ["stun", "root"].includes(maps.buffs.get(buff.buffId)?.control));
+    const stunned = actor.buffs.some((buff) => maps.buffs.get(buff.buffId)?.control === "stun");
     let actionResult;
     if (stunned) {
       emit({ eventType: "stunned", kind: "stunned", targetUnitId: actor.unitId, value: 0, text: `${formatName(actor)}被点穴，无法行动`, timeMs });
@@ -878,11 +996,13 @@ export function createCombatSession(content, options = {}) {
       const queued = list(state.actionQueue?.[actor.unitId]).shift() || null;
       if (state.actionQueue?.[actor.unitId]?.length === 0) delete state.actionQueue[actor.unitId];
       const action = actionOverride || queued || chooseAiAction(actor);
-      actionResult = resolveSkill(actor, action.skillId || rules.defaultActionId, action.targetIds || [], timeMs);
-      if (!actionResult.accepted && action.skillId !== rules.defaultActionId) actionResult = resolveSkill(actor, rules.defaultActionId, [], timeMs + 80);
+      const policy = maps.aiPolicies.get(actor.aiPolicyId) || maps.aiPolicies.get(rules.defaultAiPolicyId);
+      const fallbackSkillId = policy?.fallbackSkillId || rules.defaultActionId;
+      actionResult = resolveSkill(actor, action.skillId || fallbackSkillId, action.targetIds || [], timeMs);
+      if (!actionResult.accepted && action.skillId !== fallbackSkillId) actionResult = resolveSkill(actor, fallbackSkillId, [], timeMs + Math.max(1, Math.round(settleMs / 3)));
     }
     for (const skillId of Object.keys(actor.cooldowns)) actor.cooldowns[skillId] = Math.max(0, integer(actor.cooldowns[skillId], 0) - 1);
-    tickBuffs(actor, "turn_end", timeMs + 360);
+    tickBuffs(actor, "turn_end", timeMs + settleMs);
     const outcome = state.eventLimitReached ? "draw" : checkOutcome();
     if (state.eventLimitReached) finish("draw", "max_events");
     else if (outcome) finish(outcome, "all_units_check");
@@ -907,7 +1027,7 @@ export function createCombatSession(content, options = {}) {
     const turn = currentTurn();
     if (turn.actorId !== unitId || !turn.requiresPlayerInput) return { accepted: false, reason: "not_current_player_turn", snapshot: snapshot() };
     if (turn.rooted) return { accepted: false, reason: "rooted", snapshot: snapshot() };
-    const timeMs = state.eventSeq * 720;
+    const timeMs = state.eventSeq * Math.max(1, integer(rules.presentation?.turnDurationMs, 720));
     tickBuffs(actor, "turn_start", timeMs);
     if (!alive(actor)) {
       const outcome = checkOutcome();
@@ -920,7 +1040,7 @@ export function createCombatSession(content, options = {}) {
     if (success) finish("runaway", "runaway_success");
     else {
       state.turnIndex += 1;
-      tickBuffs(actor, "turn_end", timeMs + 360);
+      tickBuffs(actor, "turn_end", timeMs + Math.max(0, integer(rules.presentation?.settleMs, 240)));
       const outcome = checkOutcome();
       if (outcome) finish(outcome, "runaway_failed_turn_end");
     }
@@ -949,7 +1069,7 @@ export function createCombatSession(content, options = {}) {
           alive: alive(target),
         })),
       })),
-      canRunaway: state.status === "active" && encounter.rules?.allowRunaway !== false,
+      canRunaway: state.status === "active" && encounter.rules?.allowRunaway !== false && currentTurn().actorId === unitId && !currentTurn().rooted,
     };
   }
 
@@ -1085,13 +1205,25 @@ export function createCombatSession(content, options = {}) {
       || JSON.stringify(list(snapshotValue.enemyUnitIds)) !== JSON.stringify(enemyUnitIds)) {
       throw new Error("combat snapshot roster mismatch");
     }
+    if (!Number.isFinite(Number(snapshotValue.rngState)) || Number(snapshotValue.rngState) <= 0) throw new Error("combat snapshot rng state invalid");
+    if (snapshotValue.sceneId !== undefined && snapshotValue.sceneId !== state.sceneId) throw new Error("combat snapshot scene mismatch");
     const snapshotUnits = new Map(list(snapshotValue.units).filter((unit) => unit?.unitId).map((unit) => [unit.unitId, unit]));
-    if (snapshotUnits.size !== units.size) throw new Error("combat snapshot unit count mismatch");
+    if (snapshotUnits.size !== units.size || list(snapshotValue.units).length !== units.size) throw new Error("combat snapshot unit count or identity mismatch");
+    const knownAttributes = new Set(["level", ...Object.keys(rules.attributeDefaults || {}), ...Object.keys(rules.attributes || {})]);
     for (const [unitId, unit] of units) {
       const restored = snapshotUnits.get(unitId);
-      if (!restored || !Number.isFinite(Number(restored.hp)) || !Number.isFinite(Number(restored.mp))) {
+      if (!restored || !Number.isFinite(Number(restored.hp)) || !Number.isFinite(Number(restored.mp)) || !Number.isFinite(Number(restored.hpMax)) || !Number.isFinite(Number(restored.mpMax))) {
         throw new Error(`combat snapshot unit invalid: ${unitId}`);
       }
+      if (number(restored.hpMax, 0) < 1 || number(restored.mpMax, -1) < 0 || number(restored.shield, -1) < 0) throw new Error(`combat snapshot unit ranges invalid: ${unitId}`);
+      const restoredBuffIds = list(restored.buffs).map((buff) => buff?.buffId);
+      if (new Set(restoredBuffIds).size !== restoredBuffIds.length) throw new Error(`combat snapshot duplicate buff: ${unitId}`);
+      for (const active of list(restored.buffs)) {
+        const definition = maps.buffs.get(active?.buffId);
+        if (!definition || !Number.isInteger(Number(active.stacks)) || number(active.stacks, 0) < 1 || number(active.stacks, 0) > integer(definition.maxStacks, 1) || !Number.isInteger(Number(active.duration)) || number(active.duration, 0) < 1 || !units.has(active.sourceUnitId)) throw new Error(`combat snapshot buff invalid: ${unitId}:${active?.buffId || "<empty>"}`);
+      }
+      for (const [skillId, value] of Object.entries(record(restored.cooldowns) ? restored.cooldowns : {})) if (!list(unit.skillIds).includes(skillId) || !Number.isInteger(Number(value)) || number(value, -1) < 0) throw new Error(`combat snapshot cooldown invalid: ${unitId}:${skillId}`);
+      for (const modifier of list(restored.runtimeModifiers)) if (!knownAttributes.has(modifier?.attribute) || !["add", "mul"].includes(modifier?.op) || !Number.isFinite(Number(modifier?.value)) || !Number.isInteger(Number(modifier?.duration)) || number(modifier?.duration, 0) < 1) throw new Error(`combat snapshot modifier invalid: ${unitId}`);
       unit.hp = clamp(number(restored.hp, unit.hp), 0, Math.max(1, number(restored.hpMax, unit.hpMax)));
       unit.hpMax = Math.max(1, number(restored.hpMax, unit.hpMax));
       unit.mp = clamp(number(restored.mp, unit.mp), 0, Math.max(0, number(restored.mpMax, unit.mpMax)));
@@ -1103,15 +1235,31 @@ export function createCombatSession(content, options = {}) {
       unit.runtimeModifiers = cloneData(list(restored.runtimeModifiers));
       unit.actionCount = Math.max(0, integer(restored.actionCount, 0));
     }
-    state.status = ["idle", "active", "finished"].includes(snapshotValue.status) ? snapshotValue.status : "idle";
-    state.outcome = typeof snapshotValue.outcome === "string" ? snapshotValue.outcome : "";
+    if (!["idle", "active", "finished"].includes(snapshotValue.status)) throw new Error("combat snapshot status invalid");
+    if (typeof snapshotValue.outcome !== "string" || (snapshotValue.status === "finished") !== Boolean(snapshotValue.outcome)) throw new Error("combat snapshot outcome/status mismatch");
+    state.status = snapshotValue.status;
+    state.outcome = snapshotValue.outcome;
     state.round = Math.max(0, integer(snapshotValue.round, 0));
-    state.turnIndex = Math.max(0, integer(snapshotValue.turnIndex, 0));
-    state.turnOrder = list(snapshotValue.turnOrder).filter((unitId) => units.has(unitId));
-    state.events = cloneData(list(snapshotValue.events));
+    const restoredTurnOrder = list(snapshotValue.turnOrder);
+    if (new Set(restoredTurnOrder).size !== restoredTurnOrder.length || restoredTurnOrder.some((unitId) => !units.has(unitId))) throw new Error("combat snapshot turn order invalid");
+    if (!Number.isInteger(Number(snapshotValue.turnIndex)) || number(snapshotValue.turnIndex, -1) < 0 || number(snapshotValue.turnIndex, 0) > restoredTurnOrder.length) throw new Error("combat snapshot turn index invalid");
+    state.turnIndex = Number(snapshotValue.turnIndex);
+    state.turnOrder = restoredTurnOrder;
+    const restoredEvents = list(snapshotValue.events);
+    const eventSeqs = restoredEvents.map((event) => event?.seq);
+    if (new Set(eventSeqs).size !== eventSeqs.length || restoredEvents.some((event) => !record(event) || !Number.isInteger(Number(event.seq)) || !Number.isFinite(Number(event.timeMs)))) throw new Error("combat snapshot events invalid");
+    state.events = cloneData(restoredEvents);
     state.eventSeq = Math.max(integer(snapshotValue.eventSeq, state.events.length), state.events.reduce((max, event) => Math.max(max, integer(event?.seq, -1) + 1), 0));
     state.eventLimitReached = Boolean(snapshotValue.eventLimitReached);
-    state.actionQueue = cloneData(record(snapshotValue.actionQueue) ? snapshotValue.actionQueue : {});
+    const restoredQueue = record(snapshotValue.actionQueue) ? snapshotValue.actionQueue : {};
+    for (const [unitId, actions] of Object.entries(restoredQueue)) {
+      const unit = units.get(unitId);
+      if (!unit || !Array.isArray(actions)) throw new Error(`combat snapshot action queue invalid: ${unitId}`);
+      for (const action of actions) if (!record(action) || !list(unit.skillIds).includes(action.skillId) || list(action.targetIds).some((targetId) => !units.has(targetId))) throw new Error(`combat snapshot queued action invalid: ${unitId}`);
+    }
+    state.actionQueue = cloneData(restoredQueue);
+    if (snapshotValue.result !== null && snapshotValue.result !== undefined && !record(snapshotValue.result)) throw new Error("combat snapshot result invalid");
+    if (state.status === "finished" && snapshotValue.result?.outcome !== state.outcome) throw new Error("combat snapshot result/outcome mismatch");
     state.result = cloneData(snapshotValue.result || null);
     if (state.status === "active" && !state.turnOrder.length) rebuildTurnOrder();
   }

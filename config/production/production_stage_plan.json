@@ -1,8 +1,8 @@
 {
   "$schema": "idlewuxia.production.stage_plan.v1",
   "planId": "idlewuxia-production-to-release-v1",
-  "currentGate": "G4",
-  "currentVerdict": "PASS_WITH_KNOWN_LIMITATIONS_NOT_RELEASE_READY",
+  "currentGate": "G5",
+  "currentVerdict": "RELEASE_BLOCKED_ACTIVE_REMEDIATION",
   "priorityRule": "P0 blockers before P1 production depth; postponed tasks never auto-resume.",
   "gates": [
     {
@@ -75,7 +75,8 @@
         "T03-00",
         "T03-01",
         "SAVE-001",
-        "OBS-001"
+        "OBS-001",
+        "HYGIENE-001"
       ],
       "exitEvidence": [
         "358/358 action state assertions",
@@ -98,7 +99,17 @@
         "ASSET-004",
         "ASSET-005",
         "ASSET-006",
-        "QA-UI-001"
+        "ASSET-007",
+        "ASSET-008",
+        "ASSET-009",
+        "ASSET-010",
+        "ASSET-CONTRACT-001",
+        "VISUAL-STANDARD-001",
+        "COMBAT-002A",
+        "COMBAT-002B",
+        "QA-UI-001",
+        "COMBAT-002",
+        "AUDIT-003"
       ],
       "exitEvidence": [
         "11 screens x 3 viewports visual matrix",
@@ -504,7 +515,7 @@
       "title": "11 屏乘 3 尺寸视觉与交互验收",
       "priority": "P0",
       "gate": "G5",
-      "status": "done",
+      "status": "blocked",
       "owner": "qa-bot-regression-engineer",
       "dependsOn": [
         "UI-ARCH-001",
@@ -513,7 +524,8 @@
       "acceptance": [
         "33 screen-viewport pairs have screenshots and machine observations.",
         "Console error and warning counts are zero.",
-        "No critical overflow, blocked controls or invisible feedback remains."
+        "No critical overflow, blocked controls or invisible feedback remains.",
+        "A human visual review accepts the art, hierarchy, readability and combat presentation as production quality."
       ],
       "evidence": [
         "tools/run-wuxia-browser-surface-sweep.mjs",
@@ -521,7 +533,9 @@
         "tools/audit-wuxia-choice-result-browser.mjs",
         "config/wuxia_browser_evidence_routes.json",
         "docs/codex_game_development_os/QA-UI-001_T05-01_COMPLETION_RECORD_20260725.md",
-        "docs/codex_game_development_os/QA-UI-001_T05-01_MANUAL_VISUAL_ACCEPTANCE_20260725.md"
+        "docs/codex_game_development_os/QA-UI-001_T05-01_MANUAL_VISUAL_ACCEPTANCE_20260725.md",
+        "docs/codex_game_development_os/FULL_RELEASE_AUDIT_20260804.md",
+        "outputs/wuxia_visual_matrix/20260804_post_truthful_node_fix/browser_surface_sweep_report.json"
       ]
     },
     {
@@ -573,13 +587,14 @@
         "tools/run-wuxia-browser-surface-sweep.mjs",
         "tools/audit-wuxia-choice-result-browser.mjs",
         "tools/test-wuxia-browser-surface-sweep.mjs",
-        "docs/codex_game_development_os/QA-UI-001_T05-01_COMPLETION_RECORD_20260725.md"
+        "docs/codex_game_development_os/QA-UI-001_T05-01_COMPLETION_RECORD_20260725.md",
+        "outputs/wuxia_visual_matrix/20260804_post_truthful_node_fix/browser_surface_sweep_report.json"
       ]
     },
     {
       "id": "ASSET-002",
       "title": "Android 启动图标与启动页资产集",
-      "priority": "P1",
+      "priority": "P0",
       "gate": "G5",
       "status": "open",
       "owner": "asset-content-pipeline",
@@ -596,7 +611,7 @@
     {
       "id": "ASSET-003",
       "title": "中文武侠字体选择、授权、子集与预算",
-      "priority": "P1",
+      "priority": "P0",
       "gate": "G5",
       "status": "open",
       "owner": "asset-content-pipeline",
@@ -613,7 +628,7 @@
     {
       "id": "ASSET-004",
       "title": "章节地图材质与节点状态资产",
-      "priority": "P1",
+      "priority": "P0",
       "gate": "G5",
       "status": "open",
       "owner": "asset-content-pipeline",
@@ -630,7 +645,7 @@
     {
       "id": "ASSET-005",
       "title": "NPC 肖像与身份反馈资产系统",
-      "priority": "P2",
+      "priority": "P0",
       "gate": "G5",
       "status": "open",
       "owner": "asset-content-pipeline",
@@ -647,7 +662,7 @@
     {
       "id": "ASSET-006",
       "title": "交互、奖励、锁定与反馈图标族",
-      "priority": "P2",
+      "priority": "P0",
       "gate": "G5",
       "status": "open",
       "owner": "asset-content-pipeline",
@@ -697,22 +712,223 @@
       "evidence": []
     },
     {
-      "id": "COMBAT-002",
-      "title": "真实 Rest/Repair 与 CombatSession",
-      "priority": "P1",
+      "id": "ASSET-CONTRACT-001",
+      "title": "战斗与 UI 资产、动画、音频逻辑 ID 和来源 Schema 冻结",
+      "priority": "P0",
       "gate": "G5",
-      "status": "postponed",
+      "status": "blocked",
+      "owner": "configuration-data-pipeline",
+      "dependsOn": [
+        "T05-02"
+      ],
+      "acceptance": [
+        "Every production asset has a logical ID, source, ownership, hash, format, dimensions, pivot, budget and runtime mount point.",
+        "Validators reject wrong character view, proportion, missing frames, baked characters in scenes, unapproved audio and silent fallbacks.",
+        "Definitions are versioned and rollback-safe before batch asset production starts."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "VISUAL-STANDARD-001",
+      "title": "侧视三头身像素武侠竖屏体验验收标准",
+      "priority": "P0",
+      "gate": "G5",
+      "status": "ready",
+      "owner": "ui-ux-feedback-designer",
+      "dependsOn": [
+        "UX-001"
+      ],
+      "acceptance": [
+        "The standard requires side-view-only characters at roughly three-head proportion and clean scenes without baked units.",
+        "Portrait safe areas, 44dp touch targets, text hierarchy, combat readability and animation review are measurable at all production viewports.",
+        "Human review examples distinguish route correctness from product visual acceptance."
+      ],
+      "evidence": [
+        "docs/codex_game_development_os/FULL_RELEASE_AUDIT_20260804.md",
+        "docs/codex_game_development_os/ROADMAP_20260804_TO_RELEASE.md"
+      ]
+    },
+    {
+      "id": "COMBAT-002A",
+      "title": "战斗逻辑、事件和资产挂点合同冻结",
+      "priority": "P0",
+      "gate": "G5",
+      "status": "done",
       "owner": "combat-system-designer",
       "dependsOn": [
         "ARCH-001"
       ],
       "acceptance": [
-        "Resume only after explicit product-owner authorization.",
+        "All authored skills, effects, targets, damage types, buffs, controls, AI and events are schema-valid and have positive and negative runtime probes.",
+        "Formula, duration, cooldown, taunt, root, immunity, stacks and snapshot restoration fail closed.",
+        "Presentation event timings and logical cue IDs come from configuration."
+      ],
+      "evidence": [
+        "config/wuxia_combat_content.json",
+        "config/wuxia_combat_content.schema.json",
+        "src/combatSession.js",
+        "tools/test-wuxia-combat-production-semantics.mjs"
+      ]
+    },
+    {
+      "id": "COMBAT-002B",
+      "title": "批准资产接入、真实打击表现与三尺寸人工战斗验收",
+      "priority": "P0",
+      "gate": "G5",
+      "status": "blocked",
+      "owner": "combat-system-designer",
+      "dependsOn": [
+        "COMBAT-002A",
+        "ASSET-007",
+        "ASSET-008",
+        "ASSET-009",
+        "ASSET-010"
+      ],
+      "acceptance": [
+        "Production combat contains no CSS geometric fighter, black-grey placeholder scene or oscillator fallback.",
+        "Approved side-view animation, scene, VFX and audio bindings render every configured combat state.",
+        "Real browser and representative Android devices pass human animation, hit feedback, audio latency and readability review."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "COMBAT-002",
+      "title": "真实配置驱动 CombatSession 与玩家回合闭环",
+      "priority": "P0",
+      "gate": "G5",
+      "status": "blocked",
+      "owner": "combat-system-designer",
+      "dependsOn": [
+        "COMBAT-002A",
+        "COMBAT-002B"
+      ],
+      "acceptance": [
         "Combat uses a deterministic real session rather than a fixed auto-win timeline.",
-        "Rest and repair prove resource cost and before/after state."
+        "Every authored skill, buff, target, damage type, cooldown and control rule has positive and negative runtime assertions.",
+        "Manual player turns and browser combat interaction pass at every production viewport.",
+        "Combat presentation references approved side-view character, clean scene, VFX and audio assets through configuration."
+      ],
+      "evidence": [
+        "src/combatSession.js",
+        "config/wuxia_combat_content.json",
+        "tools/test-wuxia-combat-production-semantics.mjs",
+        "tools/run-wuxia-real-browser-flow.mjs"
+      ]
+    },
+    {
+      "id": "REST-REPAIR-001",
+      "title": "真实休息治疗、护甲维修与资源消耗",
+      "priority": "P2",
+      "gate": "G5",
+      "status": "postponed",
+      "owner": "business-module-instance-factory",
+      "dependsOn": [
+        "SAVE-001"
+      ],
+      "acceptance": [
+        "Rest and repair consume configured resources and expose before/after state.",
+        "Insufficient resources reject with zero mutation.",
+        "Resume only after product owner re-prioritizes this non-combat service."
       ],
       "evidence": [],
-      "postponedReason": "Explicitly postponed by product owner."
+      "postponedReason": "Product owner explicitly deferred Rest/Repair while prioritizing the complete combat module."
+    },
+    {
+      "id": "ASSET-007",
+      "title": "侧视三头身武侠角色与战斗动画资产",
+      "priority": "P0",
+      "gate": "G5",
+      "status": "open",
+      "owner": "asset-content-pipeline",
+      "dependsOn": ["T05-02"],
+      "acceptance": [
+        "Every combat unit has approved side-view idle, attack, hurt, control and defeat animation bindings.",
+        "Characters use the approved roughly three-head pixel proportion and contain no other viewing angle.",
+        "Source, ownership, hashes, budgets and runtime logical IDs are recorded."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "ASSET-008",
+      "title": "无角色干净武侠战斗场景资产",
+      "priority": "P0",
+      "gate": "G5",
+      "status": "open",
+      "owner": "asset-content-pipeline",
+      "dependsOn": ["T05-02"],
+      "acceptance": [
+        "Combat backgrounds contain no baked player or NPC figures.",
+        "Portrait crops preserve safe areas for actors, feedback and touch controls.",
+        "Scene bindings, provenance, hashes and package budgets pass."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "ASSET-009",
+      "title": "战斗打击、技能、Buff 与状态特效资产族",
+      "priority": "P0",
+      "gate": "G5",
+      "status": "open",
+      "owner": "asset-content-pipeline",
+      "dependsOn": ["COMBAT-002A", "T05-02"],
+      "acceptance": [
+        "Every configured cue resolves to approved hit, skill, control, buff and outcome visuals.",
+        "VFX remain readable at all three portrait viewports and obey performance budgets.",
+        "Missing cue assets fail the production gate rather than falling back silently."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "ASSET-010",
+      "title": "战斗音效、音乐与移动端混音资产族",
+      "priority": "P0",
+      "gate": "G5",
+      "status": "open",
+      "owner": "asset-content-pipeline",
+      "dependsOn": ["COMBAT-002A", "T05-02"],
+      "acceptance": [
+        "Synthesized placeholder oscillators are replaced by approved logical audio assets.",
+        "Every hit, block, control, buff, defeat and victory cue has device latency and mix evidence.",
+        "Ownership, hashes, loudness and package budgets pass."
+      ],
+      "evidence": []
+    },
+    {
+      "id": "AUDIT-003",
+      "title": "2026-08-04 全代码配置资源与近五日发布前重审计",
+      "priority": "P0",
+      "gate": "G5",
+      "status": "ready",
+      "owner": "project-and-engine-auditor",
+      "dependsOn": ["AUDIT-001", "COMBAT-002"],
+      "acceptance": [
+        "Tracked code, config, resources, Markdown and all commits from the previous five days have a complete-reading ledger.",
+        "Three independent gates pass: static contract, runtime regression, then strict manual browser and Android acceptance.",
+        "Every failure is fixed or retained as an explicit release blocker with owner, evidence and rollback path."
+      ],
+      "evidence": [
+        "docs/codex_game_development_os/FULL_RELEASE_AUDIT_20260804.md",
+        "docs/codex_game_development_os/FULL_READING_LEDGER_20260804.md",
+        "outputs/wuxia_visual_matrix/20260804_post_truthful_node_fix/browser_surface_sweep_report.json",
+        "outputs/skill_waterfall_stage_audit_20260706/summary.json"
+      ]
+    },
+    {
+      "id": "HYGIENE-001",
+      "title": "活动武侠权威、旧射击残留与只读参考分层",
+      "priority": "P1",
+      "gate": "G4",
+      "status": "open",
+      "owner": "project-and-engine-auditor",
+      "dependsOn": [
+        "AUDIT-003"
+      ],
+      "acceptance": [
+        "Active Wuxia source/config, dormant shooter material and reference-only evidence have explicit non-overlapping roots or manifests.",
+        "The 26-file shipping closure is byte-identical before and after the hygiene migration.",
+        "Every move has a manifest, hash and rollback path and no historical evidence is silently deleted."
+      ],
+      "evidence": []
     },
     {
       "id": "SEC-001",

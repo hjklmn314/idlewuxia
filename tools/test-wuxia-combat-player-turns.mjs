@@ -46,6 +46,7 @@ const rootedContent = structuredClone(content);
 const rootedEnemy = rootedContent.units.find((unit) => unit.unitId === "unit_old_steward");
 rootedEnemy.attributes.speed = 999;
 rootedEnemy.skillIds = ["skill_trap_root"];
+rootedContent.aiPolicies.find((policy) => policy.aiPolicyId === rootedEnemy.aiPolicyId).fallbackSkillId = "skill_trap_root";
 const rootedSession = createCombatSession(rootedContent, { encounterId: "encounter_first_session_old_steward", seed: 42 });
 rootedSession.start();
 const rootedReady = rootedSession.advanceUntilPlayerInput();
@@ -54,6 +55,9 @@ assert.equal(rootedReady.control.rooted, true, "configured root must be visible 
 assert.equal(rootedSession.attemptRunaway(rootedReady.control.actorId).reason, "rooted", "root must block only the configured movement/escape action");
 const rootedSkill = rootedReady.control.availableActions.skills.find((skill) => skill.available && skill.targetSelection === "player_select");
 assert.ok(rootedSkill, "a rooted player must still have a legal skill action");
-assert.equal(rootedSession.submitPlayerAction(rootedReady.control.actorId, rootedSkill.skillId, [rootedSkill.targetCandidates[0].unitId]).accepted, true, "root must not block a legal configured skill action");
+const rootedAction = rootedSession.submitPlayerAction(rootedReady.control.actorId, rootedSkill.skillId, [rootedSkill.targetCandidates[0].unitId]);
+assert.equal(rootedAction.accepted, true, "root must not block a legal configured skill action");
+assert.equal(rootedAction.action?.accepted, true, "the accepted player command must execute rather than return a skipped inner action");
+assert.ok(rootedAction.snapshot.events.some((event) => event.kind === "skill" && event.sourceUnitId === rootedReady.control.actorId && event.skillId === rootedSkill.skillId), "rooted command must emit the configured skill start event");
 
 console.log("combat player turn tests: PASS (manual input + rejection + deterministic resume + root semantics)");

@@ -5,5 +5,5 @@
         android:width="180dp"
         android:height="180dp"
         android:gravity="center"
-        android:drawable="@drawable/product_icon" />
+        android:drawable="@drawable/product_icon_vector" />
 </layer-list>
