@@ -15,6 +15,8 @@ does not replace the full-reading ledger or the strict manual visual verdict.
 - Live contract and visual validators pass. Their negative cases pass and
   deliberately reject invalid view, proportion, baked-scene, missing-frame,
   non-alternating-walk, audio-fallback, mount and touch-target inputs.
+- Clean-checkout CI run `31116616017` passed all R0 scope, web freshness,
+  Android resource and debug assembly jobs.
 - `production:asset-contract:strict` remains deliberately red with 21 findings:
   ten open required slots, three combat bindings still declaring CSS
   fallbacks, three unresolved combat asset IDs and five oscillator audio cues.
