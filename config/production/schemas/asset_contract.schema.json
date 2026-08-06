@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://idlewuxia.local/schema/production/asset-contract-v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "contractId", "version", "policy", "mountPoints", "slotContracts", "assets"],
+  "properties": {
+    "$schema": { "const": "idlewuxia.production.asset_contract.v1" },
+    "contractId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "version": { "const": 1 },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shippingMode", "requireSource", "requireOwnershipOrLicense", "requireSha256", "forbidReferenceOnly", "forbidSilentFallback", "forbidCombatAssetFallbacks", "maxPackageBytes", "requiredMetadata", "allowedFormats"],
+      "properties": {
+        "shippingMode": { "const": "fail-closed" },
+        "requireSource": { "const": true },
+        "requireOwnershipOrLicense": { "const": true },
+        "requireSha256": { "const": true },
+        "forbidReferenceOnly": { "const": true },
+        "forbidSilentFallback": { "const": true },
+        "forbidCombatAssetFallbacks": { "const": true },
+        "maxPackageBytes": { "type": "integer", "minimum": 1 },
+        "requiredMetadata": { "type": "array", "minItems": 10, "uniqueItems": true, "items": { "type": "string" } },
+        "allowedFormats": { "type": "object", "minProperties": 1, "additionalProperties": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9]+$" } } }
+      }
+    },
+    "mountPoints": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "required"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9.-]+$" },
+          "kind": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "required": { "type": "boolean" }
+        }
+      }
+    },
+    "slotContracts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["slotId", "taskId", "kind", "mountPoints", "runtimeRequired", "rules"],
+        "properties": {
+          "slotId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "taskId": { "type": "string", "pattern": "^[A-Z0-9-]+$" },
+          "kind": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "mountPoints": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } },
+          "runtimeRequired": { "type": "boolean" },
+          "rules": { "$ref": "#/$defs/slotRules" }
+        }
+      }
+    },
+    "assets": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/asset" }
+    }
+  },
+  "$defs": {
+    "slotRules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowReference", "forbidBakedCharacters", "requiresSideView", "headCountRange", "requiredClips", "requireAlternatingWalkFootPhases", "requireSceneAlphaSeparation", "audioFallbackPolicy"],
+      "properties": {
+        "allowReference": { "const": false },
+        "forbidBakedCharacters": { "const": true },
+        "requiresSideView": { "type": "boolean" },
+        "headCountRange": { "anyOf": [{ "type": "null" }, { "type": "object", "additionalProperties": false, "required": ["min", "max"], "properties": { "min": { "type": "number", "exclusiveMinimum": 0 }, "max": { "type": "number", "exclusiveMinimum": 0 } } }] },
+        "requiredClips": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "requireAlternatingWalkFootPhases": { "type": "boolean" },
+        "requireSceneAlphaSeparation": { "type": "boolean" },
+        "audioFallbackPolicy": { "enum": ["not-applicable", "approved-file-only"] }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assetId", "slotId", "kind", "source", "format", "sha256", "bytes", "budgetBytes", "dimensions", "pivot", "alphaPolicy", "containsBakedCharacters", "runtimeMountPoints", "fallbackPolicy", "view", "headCount", "clipFrames"],
+      "properties": {
+        "assetId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "slotId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "kind": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "source": { "type": "object", "additionalProperties": false, "required": ["path", "provenance", "owner", "licenseStatus"], "properties": { "path": { "type": "string", "pattern": "^(?![A-Za-z]:)(?!/)(?!.*\\.\\.).+$" }, "provenance": { "enum": ["project-owned", "licensed-third-party"] }, "owner": { "type": "string", "minLength": 1 }, "licenseStatus": { "enum": ["approved", "verified-license"] } } },
+        "format": { "type": "string", "pattern": "^[a-z0-9]+$" },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "bytes": { "type": "integer", "minimum": 0 },
+        "budgetBytes": { "type": "integer", "minimum": 1 },
+        "dimensions": { "type": "object", "additionalProperties": false, "required": ["width", "height"], "properties": { "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 } } },
+        "pivot": { "type": "object", "additionalProperties": false, "required": ["x", "y"], "properties": { "x": { "type": "number", "minimum": 0, "maximum": 1 }, "y": { "type": "number", "minimum": 0, "maximum": 1 } } },
+        "alphaPolicy": { "enum": ["preserve", "opaque", "not-applicable"] },
+        "containsBakedCharacters": { "type": "boolean" },
+        "runtimeMountPoints": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } },
+        "fallbackPolicy": { "enum": ["none", "explicit-configured-only", "development-only"] },
+        "view": { "enum": ["side", "none"] },
+        "headCount": { "anyOf": [{ "type": "null" }, { "type": "number", "exclusiveMinimum": 0 }] },
+        "clipFrames": { "type": "object", "additionalProperties": { "$ref": "#/$defs/clip" } }
+      }
+    },
+    "clip": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["frameCount", "fps", "footPhases"],
+      "properties": {
+        "frameCount": { "type": "integer", "minimum": 1 },
+        "fps": { "type": "number", "exclusiveMinimum": 0 },
+        "footPhases": { "type": "array", "minItems": 1, "items": { "enum": ["left", "right", "neutral"] } }
+      }
+    }
+  }
+}

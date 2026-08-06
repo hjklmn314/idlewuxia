@@ -55,6 +55,8 @@
     "subsystems": "config/production/subsystem_registry.json",
     "uiExperience": "config/production/ui_experience_registry.json",
     "assets": "config/production/asset_registry.json",
+    "assetContract": "config/production/asset_contract.json",
+    "visualStandard": "config/production/visual_standard.json",
     "toolchain": "config/production/toolchain_registry.json"
   },
   "workspacePolicy": {

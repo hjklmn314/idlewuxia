@@ -18,8 +18,8 @@
 ### Wave 1 — 资产生产前的合同冻结
 
 1. `COMBAT-002A`：**已完成逻辑合同冻结**。当前为 26 技能、16 Buff、7 目标、6 伤害、事件、角色挂点、场景挂点、VFX/SFX 逻辑 ID；不等于资产或表现完成。
-2. `ASSET-CONTRACT-001`：为 ASSET-002～010 建立每文件 Schema、来源/授权、尺寸、帧率、pivot、透明区、预算、hash、fallback 与 runtime binding。
-3. `VISUAL-STANDARD-001`：把用户已确认标准固化为可测清单：仅侧视角色、约三头身、场景不烘焙角色、像素边缘一致、竖屏安全区、触控 44dp、战斗信息不遮挡角色。
+2. `ASSET-CONTRACT-001`：**已完成合同冻结**。`asset_contract.json`、Schema、来源/授权/尺寸/帧率/pivot/透明区/预算/hash/fallback/runtime binding 验证链已接入；实际资产槽仍未满足。
+3. `VISUAL-STANDARD-001`：**已完成标准冻结**。侧视、约三头身、干净场景、像素渲染、竖屏安全区、44dp 触控、战斗信息不遮挡等规则已配置化；当前产品画面仍需人工验收。
 
 完成标准：配置和样例验证器能拒绝错误视角、错误比例、带人物背景、缺帧、缺授权、超预算与缺逻辑 ID。不得先批量产图再补规则。
 
@@ -70,8 +70,8 @@
 
 | 顺序 | 任务 | 负责人能力 | 产物 |
 |---:|---|---|---|
-| 1 | ASSET-CONTRACT-001 | configuration-data-pipeline + asset pipeline | 角色/场景/动画/VFX/音频/UI 资产 Schema、来源、授权、预算、hash 与 runtime binding 合同 |
-| 2 | VISUAL-STANDARD-001 | ux-ui + asset pipeline | 竖屏侧视三头身像素武侠验收表、错误示例和人工签名模板 |
+| 1 | ASSET-CONTRACT-001 | configuration-data-pipeline + asset pipeline | **done**：角色/场景/动画/VFX/音频/UI 资产 Schema、来源、授权、预算、hash 与 runtime binding 合同 |
+| 2 | VISUAL-STANDARD-001 | ux-ui + asset pipeline | **done**：竖屏侧视三头身像素武侠验收标准与负例门禁；产品人工视觉仍由 T05-01 承担 |
 | 3 | ASSET-007/008 首个可玩套装 | asset-content-pipeline | 1 玩家、1 敌人、1 干净场景的完整动作闭环 |
 | 4 | ASSET-009/010 首个打击闭环 | combat presentation + asset/audio | 命中、格挡、控制、胜负的 VFX/SFX 证据 |
 | 5 | COMBAT-002B + 三条未授权 Combat Result | HTML runtime + combat + QA | 资产挂载和 `fight/kill/escape` 等剩余结果的合法配置映射，不再保持 placeholder |

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://idlewuxia.local/schema/production/visual-standard-v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "standardId", "version", "style", "portrait", "combat", "manualReview"],
+  "properties": {
+    "$schema": { "const": "idlewuxia.production.visual_standard.v1" },
+    "standardId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "version": { "const": 1 },
+    "style": { "$ref": "#/$defs/style" },
+    "portrait": { "$ref": "#/$defs/portrait" },
+    "combat": { "$ref": "#/$defs/combat" },
+    "manualReview": { "$ref": "#/$defs/manualReview" }
+  },
+  "$defs": {
+    "range": { "type": "object", "additionalProperties": false, "required": ["min", "max"], "properties": { "min": { "type": "number", "exclusiveMinimum": 0 }, "max": { "type": "number", "exclusiveMinimum": 0 } } },
+    "style": {
+      "type": "object", "additionalProperties": false,
+      "required": ["rendering", "characterView", "forbiddenCharacterViews", "characterHeadCountRange", "sceneContainsBakedCharacters", "sceneAndActorLayersSeparated", "antiAliasing", "integerScale", "palettePolicy"],
+      "properties": {
+        "rendering": { "const": "nearest-neighbor-pixel" },
+        "characterView": { "const": "side" },
+        "forbiddenCharacterViews": { "type": "array", "minItems": 3, "uniqueItems": true, "items": { "type": "string" } },
+        "characterHeadCountRange": { "$ref": "#/$defs/range" },
+        "sceneContainsBakedCharacters": { "const": false },
+        "sceneAndActorLayersSeparated": { "const": true },
+        "antiAliasing": { "const": "forbidden" },
+        "integerScale": { "const": true },
+        "palettePolicy": { "type": "string", "minLength": 1 }
+      }
+    },
+    "portrait": {
+      "type": "object", "additionalProperties": false,
+      "required": ["orientation", "referenceAspectRatio", "aspectRatioTolerance", "viewports", "touchTargetMinDp", "bodyTextMinPx", "titleTextMinPx", "feedbackVisibilityMs"],
+      "properties": {
+        "orientation": { "const": "portrait" },
+        "referenceAspectRatio": { "type": "number", "exclusiveMinimum": 0 },
+        "aspectRatioTolerance": { "type": "number", "minimum": 0 },
+        "viewports": { "type": "array", "minItems": 3, "items": { "type": "object", "additionalProperties": false, "required": ["id", "width", "height", "safeAreaDp"], "properties": { "id": { "type": "string", "minLength": 1 }, "width": { "type": "integer", "minimum": 320 }, "height": { "type": "integer", "minimum": 568 }, "safeAreaDp": { "type": "object", "additionalProperties": false, "required": ["top", "right", "bottom", "left"], "properties": { "top": { "type": "number", "minimum": 0 }, "right": { "type": "number", "minimum": 0 }, "bottom": { "type": "number", "minimum": 0 }, "left": { "type": "number", "minimum": 0 } } } } } },
+        "touchTargetMinDp": { "const": 44 },
+        "bodyTextMinPx": { "type": "number", "minimum": 14 },
+        "titleTextMinPx": { "type": "number", "minimum": 18 },
+        "feedbackVisibilityMs": { "type": "integer", "minimum": 500 }
+      }
+    },
+    "combat": {
+      "type": "object", "additionalProperties": false,
+      "required": ["requiredActorStates", "walkFootPhasePolicy", "actorAndFeedbackOcclusion", "minimumFeedbackContrastRatio", "maximumAudioFeedbackLatencyMs", "placeholderPresentation", "requiredFeedbackTypes"],
+      "properties": {
+        "requiredActorStates": { "type": "array", "minItems": 5, "uniqueItems": true, "items": { "type": "string" } },
+        "walkFootPhasePolicy": { "const": "alternate-left-right" },
+        "actorAndFeedbackOcclusion": { "const": "forbidden" },
+        "minimumFeedbackContrastRatio": { "type": "number", "minimum": 4.5 },
+        "maximumAudioFeedbackLatencyMs": { "type": "integer", "maximum": 120, "minimum": 1 },
+        "placeholderPresentation": { "const": "forbidden" },
+        "requiredFeedbackTypes": { "type": "array", "minItems": 5, "uniqueItems": true, "items": { "type": "string" } }
+      }
+    },
+    "manualReview": {
+      "type": "object", "additionalProperties": false,
+      "required": ["requiredEvidence", "allowedVerdicts", "rejectReasons"],
+      "properties": {
+        "requiredEvidence": { "type": "array", "minItems": 6, "uniqueItems": true, "items": { "type": "string" } },
+        "allowedVerdicts": { "const": ["PASS", "FAIL"] },
+        "rejectReasons": { "type": "array", "minItems": 8, "uniqueItems": true, "items": { "type": "string" } }
+      }
+    }
+  }
+}

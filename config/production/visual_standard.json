@@ -1,0 +1,56 @@
+{
+  "$schema": "idlewuxia.production.visual_standard.v1",
+  "standardId": "idlewuxia-portrait-wuxia-pixel-v1",
+  "version": 1,
+  "style": {
+    "rendering": "nearest-neighbor-pixel",
+    "characterView": "side",
+    "forbiddenCharacterViews": ["front", "back", "three-quarter", "isometric"],
+    "characterHeadCountRange": { "min": 2.7, "max": 3.3 },
+    "sceneContainsBakedCharacters": false,
+    "sceneAndActorLayersSeparated": true,
+    "antiAliasing": "forbidden",
+    "integerScale": true,
+    "palettePolicy": "bounded-wuxia-palette"
+  },
+  "portrait": {
+    "orientation": "portrait",
+    "referenceAspectRatio": 0.45,
+    "aspectRatioTolerance": 0.04,
+    "viewports": [
+      { "id": "android-compact", "width": 360, "height": 800, "safeAreaDp": { "top": 16, "right": 16, "bottom": 16, "left": 16 } },
+      { "id": "android-baseline", "width": 390, "height": 844, "safeAreaDp": { "top": 16, "right": 16, "bottom": 16, "left": 16 } },
+      { "id": "android-tall", "width": 412, "height": 915, "safeAreaDp": { "top": 16, "right": 16, "bottom": 16, "left": 16 } }
+    ],
+    "touchTargetMinDp": 44,
+    "bodyTextMinPx": 14,
+    "titleTextMinPx": 18,
+    "feedbackVisibilityMs": 900
+  },
+  "combat": {
+    "requiredActorStates": ["idle", "attack", "hurt", "control", "defeat"],
+    "walkFootPhasePolicy": "alternate-left-right",
+    "actorAndFeedbackOcclusion": "forbidden",
+    "minimumFeedbackContrastRatio": 4.5,
+    "maximumAudioFeedbackLatencyMs": 120,
+    "placeholderPresentation": "forbidden",
+    "requiredFeedbackTypes": ["damage", "miss", "block", "heal", "buff", "debuff", "control", "defeat", "victory"]
+  },
+  "manualReview": {
+    "requiredEvidence": ["screenshot", "viewport", "state", "reviewer", "verdict", "notes"],
+    "allowedVerdicts": ["PASS", "FAIL"],
+    "rejectReasons": [
+      "wrong-character-view",
+      "wrong-head-proportion",
+      "baked-character-in-scene",
+      "non-pixel-filtering",
+      "missing-animation-frame",
+      "walking-feet-do-not-alternate",
+      "actor-or-feedback-occluded",
+      "touch-target-too-small",
+      "text-unreadable",
+      "placeholder-presentation",
+      "audio-missing-or-late"
+    ]
+  }
+}

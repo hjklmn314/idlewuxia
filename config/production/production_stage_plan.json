@@ -716,7 +716,7 @@
       "title": "战斗与 UI 资产、动画、音频逻辑 ID 和来源 Schema 冻结",
       "priority": "P0",
       "gate": "G5",
-      "status": "blocked",
+      "status": "done",
       "owner": "configuration-data-pipeline",
       "dependsOn": [
         "T05-02"
@@ -726,14 +726,22 @@
         "Validators reject wrong character view, proportion, missing frames, baked characters in scenes, unapproved audio and silent fallbacks.",
         "Definitions are versioned and rollback-safe before batch asset production starts."
       ],
-      "evidence": []
+      "evidence": [
+        "config/production/asset_contract.json",
+        "config/production/schemas/asset_contract.schema.json",
+        "tools/validate-production-asset-contract.mjs",
+        "tools/test-production-asset-contract.mjs",
+        "npm run production:asset-contract",
+        "npm run production:asset-contract:test",
+        "docs/codex_game_development_os/ASSET_CONTRACT_001_COMPLETION_RECORD_20260806.md"
+      ]
     },
     {
       "id": "VISUAL-STANDARD-001",
       "title": "侧视三头身像素武侠竖屏体验验收标准",
       "priority": "P0",
       "gate": "G5",
-      "status": "ready",
+      "status": "done",
       "owner": "ui-ux-feedback-designer",
       "dependsOn": [
         "UX-001"
@@ -744,8 +752,14 @@
         "Human review examples distinguish route correctness from product visual acceptance."
       ],
       "evidence": [
+        "config/production/visual_standard.json",
+        "config/production/schemas/visual_standard.schema.json",
+        "tools/validate-visual-standard.mjs",
+        "tools/test-production-asset-contract.mjs",
+        "npm run production:visual-standard",
         "docs/codex_game_development_os/FULL_RELEASE_AUDIT_20260804.md",
-        "docs/codex_game_development_os/ROADMAP_20260804_TO_RELEASE.md"
+        "docs/codex_game_development_os/ROADMAP_20260804_TO_RELEASE.md",
+        "docs/codex_game_development_os/VISUAL_STANDARD_001_COMPLETION_RECORD_20260806.md"
       ]
     },
     {

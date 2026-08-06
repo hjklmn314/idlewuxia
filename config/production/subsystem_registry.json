@@ -163,11 +163,14 @@
         "src/assetRegistry.js"
       ],
       "configuration": [
-        "config/production/asset_registry.json"
+        "config/production/asset_registry.json",
+        "config/production/asset_contract.json",
+        "config/production/schemas/asset_contract.schema.json"
       ],
       "status": "runtime-resolver-v1-build-gated",
       "nextTaskIds": [
         "T05-02",
+        "ASSET-CONTRACT-001",
         "ASSET-002"
       ]
     },

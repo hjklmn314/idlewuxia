@@ -1,0 +1,265 @@
+{
+  "$schema": "idlewuxia.production.asset_contract.v1",
+  "contractId": "idlewuxia-asset-contract-v1",
+  "version": 1,
+  "policy": {
+    "shippingMode": "fail-closed",
+    "requireSource": true,
+    "requireOwnershipOrLicense": true,
+    "requireSha256": true,
+    "forbidReferenceOnly": true,
+    "forbidSilentFallback": true,
+    "forbidCombatAssetFallbacks": true,
+    "maxPackageBytes": 26214400,
+    "requiredMetadata": [
+      "logicalId",
+      "source",
+      "ownership",
+      "sha256",
+      "format",
+      "dimensions",
+      "pivot",
+      "budgetBytes",
+      "runtimeMountPoints",
+      "fallbackPolicy"
+    ],
+    "allowedFormats": {
+      "ui": ["svg", "png", "webp"],
+      "launcher": ["svg", "png", "webp"],
+      "font": ["woff2"],
+      "scene": ["png", "webp"],
+      "portrait": ["png", "webp"],
+      "character": ["png", "webp"],
+      "vfx": ["png", "webp"],
+      "audio": ["ogg"]
+    }
+  },
+  "mountPoints": [
+    { "id": "ui.brand.logo", "kind": "ui", "required": true },
+    { "id": "ui.font.display", "kind": "font", "required": true },
+    { "id": "ui.font.body", "kind": "font", "required": true },
+    { "id": "ui.map.materials", "kind": "ui", "required": true },
+    { "id": "ui.npc.portrait", "kind": "portrait", "required": true },
+    { "id": "ui.feedback.icons", "kind": "ui", "required": true },
+    { "id": "combat.actor", "kind": "character", "required": true },
+    { "id": "combat.scene", "kind": "scene", "required": true },
+    { "id": "combat.vfx", "kind": "vfx", "required": true },
+    { "id": "combat.audio", "kind": "audio", "required": true },
+    { "id": "platform.android.launcher", "kind": "launcher", "required": true }
+  ],
+  "slotContracts": [
+    {
+      "slotId": "brand-icon",
+      "taskId": "T00-02",
+      "kind": "ui",
+      "mountPoints": ["ui.brand.logo"],
+      "runtimeRequired": true,
+      "rules": {
+        "allowReference": false,
+        "forbidBakedCharacters": true,
+        "requiresSideView": false,
+        "headCountRange": null,
+        "requiredClips": [],
+        "requireAlternatingWalkFootPhases": false,
+        "requireSceneAlphaSeparation": false,
+        "audioFallbackPolicy": "not-applicable"
+      }
+    },
+    {
+      "slotId": "android-launcher-set",
+      "taskId": "ASSET-002",
+      "kind": "launcher",
+      "mountPoints": ["platform.android.launcher"],
+      "runtimeRequired": true,
+      "rules": {
+        "allowReference": false,
+        "forbidBakedCharacters": true,
+        "requiresSideView": false,
+        "headCountRange": null,
+        "requiredClips": [],
+        "requireAlternatingWalkFootPhases": false,
+        "requireSceneAlphaSeparation": false,
+        "audioFallbackPolicy": "not-applicable"
+      }
+    },
+    {
+      "slotId": "wuxia-display-font",
+      "taskId": "ASSET-003",
+      "kind": "font",
+      "mountPoints": ["ui.font.display"],
+      "runtimeRequired": true,
+      "rules": {
+        "allowReference": false,
+        "forbidBakedCharacters": true,
+        "requiresSideView": false,
+        "headCountRange": null,
+        "requiredClips": [],
+        "requireAlternatingWalkFootPhases": false,
+        "requireSceneAlphaSeparation": false,
+        "audioFallbackPolicy": "not-applicable"
+      }
+    },
+    {
+      "slotId": "wuxia-body-font",
+      "taskId": "ASSET-003",
+      "kind": "font",
+      "mountPoints": ["ui.font.body"],
+      "runtimeRequired": true,
+      "rules": {
+        "allowReference": false,
+        "forbidBakedCharacters": true,
+        "requiresSideView": false,
+        "headCountRange": null,
+        "requiredClips": [],
+        "requireAlternatingWalkFootPhases": false,
+        "requireSceneAlphaSeparation": false,
+        "audioFallbackPolicy": "not-applicable"
+      }
+    },
+    {
+      "slotId": "chapter-map-materials",
+      "taskId": "ASSET-004",
+      "kind": "ui",
+      "mountPoints": ["ui.map.materials"],
+      "runtimeRequired": true,
+      "rules": {
+        "allowReference": false,
+        "forbidBakedCharacters": true,
+        "requiresSideView": false,
+        "headCountRange": null,
+        "requiredClips": [],
+        "requireAlternatingWalkFootPhases": false,
+        "requireSceneAlphaSeparation": false,
+        "audioFallbackPolicy": "not-applicable"
+      }
+    },
+    {
+      "slotId": "npc-portrait-system",
+      "taskId": "ASSET-005",
+      "kind": "portrait",
+      "mountPoints": ["ui.npc.portrait"],
+      "runtimeRequired": true,
+      "rules": {
+        "allowReference": false,
+        "forbidBakedCharacters": true,
+        "requiresSideView": false,
+        "headCountRange": null,
+        "requiredClips": [],
+        "requireAlternatingWalkFootPhases": false,
+        "requireSceneAlphaSeparation": false,
+        "audioFallbackPolicy": "not-applicable"
+      }
+    },
+    {
+      "slotId": "interaction-icon-family",
+      "taskId": "ASSET-006",
+      "kind": "ui",
+      "mountPoints": ["ui.feedback.icons"],
+      "runtimeRequired": true,
+      "rules": {
+        "allowReference": false,
+        "forbidBakedCharacters": true,
+        "requiresSideView": false,
+        "headCountRange": null,
+        "requiredClips": [],
+        "requireAlternatingWalkFootPhases": false,
+        "requireSceneAlphaSeparation": false,
+        "audioFallbackPolicy": "not-applicable"
+      }
+    },
+    {
+      "slotId": "combat-side-view-character-sprites",
+      "taskId": "ASSET-007",
+      "kind": "character",
+      "mountPoints": ["combat.actor"],
+      "runtimeRequired": true,
+      "rules": {
+        "allowReference": false,
+        "forbidBakedCharacters": true,
+        "requiresSideView": true,
+        "headCountRange": { "min": 2.7, "max": 3.3 },
+        "requiredClips": ["idle", "walk_left", "walk_right", "attack", "hurt", "control", "defeat"],
+        "requireAlternatingWalkFootPhases": true,
+        "requireSceneAlphaSeparation": false,
+        "audioFallbackPolicy": "not-applicable"
+      }
+    },
+    {
+      "slotId": "combat-clean-background-scenes",
+      "taskId": "ASSET-008",
+      "kind": "scene",
+      "mountPoints": ["combat.scene"],
+      "runtimeRequired": true,
+      "rules": {
+        "allowReference": false,
+        "forbidBakedCharacters": true,
+        "requiresSideView": false,
+        "headCountRange": null,
+        "requiredClips": [],
+        "requireAlternatingWalkFootPhases": false,
+        "requireSceneAlphaSeparation": true,
+        "audioFallbackPolicy": "not-applicable"
+      }
+    },
+    {
+      "slotId": "combat-vfx-atlas-family",
+      "taskId": "ASSET-009",
+      "kind": "vfx",
+      "mountPoints": ["combat.vfx"],
+      "runtimeRequired": true,
+      "rules": {
+        "allowReference": false,
+        "forbidBakedCharacters": true,
+        "requiresSideView": false,
+        "headCountRange": null,
+        "requiredClips": [],
+        "requireAlternatingWalkFootPhases": false,
+        "requireSceneAlphaSeparation": false,
+        "audioFallbackPolicy": "not-applicable"
+      }
+    },
+    {
+      "slotId": "combat-sfx-and-music-family",
+      "taskId": "ASSET-010",
+      "kind": "audio",
+      "mountPoints": ["combat.audio"],
+      "runtimeRequired": true,
+      "rules": {
+        "allowReference": false,
+        "forbidBakedCharacters": true,
+        "requiresSideView": false,
+        "headCountRange": null,
+        "requiredClips": [],
+        "requireAlternatingWalkFootPhases": false,
+        "requireSceneAlphaSeparation": false,
+        "audioFallbackPolicy": "approved-file-only"
+      }
+    }
+  ],
+  "assets": [
+    {
+      "assetId": "brand-icon-primary",
+      "slotId": "brand-icon",
+      "kind": "ui",
+      "source": {
+        "path": "public/wuxia-brand/icon.svg",
+        "provenance": "project-owned",
+        "owner": "idlewuxia",
+        "licenseStatus": "approved"
+      },
+      "format": "svg",
+      "sha256": "8f565a0bbcef1c2d58e69df534534374c595555d6da95247ef1275950fb99146",
+      "bytes": 616,
+      "budgetBytes": 10000,
+      "dimensions": { "width": 128, "height": 128 },
+      "pivot": { "x": 0.5, "y": 0.5 },
+      "alphaPolicy": "preserve",
+      "containsBakedCharacters": false,
+      "runtimeMountPoints": ["ui.brand.logo"],
+      "fallbackPolicy": "none",
+      "view": "none",
+      "headCount": null,
+      "clipFrames": {}
+    }
+  ]
+}

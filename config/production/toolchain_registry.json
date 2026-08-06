@@ -73,6 +73,24 @@
       "notes": "Checks production-to-runtime projection parity, ownership, hashes, scope, formats and forbidden reference leakage."
     },
     {
+      "id": "production-asset-contract-gate",
+      "command": "npm run production:asset-contract",
+      "artifact": "outputs/production_os/asset-contract-validation.json",
+      "stage": "G5",
+      "status": "enabled",
+      "taskId": "ASSET-CONTRACT-001",
+      "notes": "Validates source, ownership, hash, format, dimensions, pivot, budgets, animation clips, scene separation and runtime mount points. Strict mode remains blocked until all required slots have approved bytes."
+    },
+    {
+      "id": "production-visual-standard-gate",
+      "command": "npm run production:visual-standard",
+      "artifact": "outputs/production_os/visual-standard-validation.json",
+      "stage": "G5",
+      "status": "enabled",
+      "taskId": "VISUAL-STANDARD-001",
+      "notes": "Validates portrait viewport thresholds and the side-view, three-head, no-baked-character, no-placeholder standard. It never substitutes for human visual acceptance."
+    },
+    {
       "id": "web-bundle-freshness",
       "command": "npm run web:freshness",
       "artifact": "outputs/web_bundle_freshness",
