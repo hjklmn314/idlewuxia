@@ -1,0 +1,16 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import { AssetActivationError, createReferenceAssetRegistry } from "../src/assetRegistry.js";
+import { validateCombatReferenceAssetOverlay } from "./validate-wuxia-combat-reference-asset-overlay.mjs";
+
+const overlay = JSON.parse(fs.readFileSync("config/wuxia_combat_reference_asset_overlay.json", "utf8"));
+const result = validateCombatReferenceAssetOverlay({ overlay });
+assert.equal(result.valid, true, JSON.stringify(result.findings));
+assert.equal(result.assetCount, 12);
+assert.equal(result.bindingCount, 23);
+const registry = createReferenceAssetRegistry(overlay);
+assert.equal(registry.resolve("ref-scene-wuguan-courtyard").kind, "scene");
+assert.equal(registry.resolve("ref-audio-hit").format, "mp3");
+assert.throws(() => registry.resolve("brand-icon-primary"), (error) => error instanceof AssetActivationError && error.code === "REFERENCE_ASSET_UNKNOWN_ID");
+assert.throws(() => createReferenceAssetRegistry({ ...overlay, shippingAllowed: true }), (error) => error.code === "REFERENCE_ASSET_OVERLAY_POLICY");
+console.log("combat reference asset overlay tests: PASS (schema, bindings, development-only policy, resolver)");

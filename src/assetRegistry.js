@@ -1,4 +1,5 @@
 const DEFAULT_FORMATS = new Set(["svg", "webp", "png", "woff2"]);
+const DEVELOPMENT_REFERENCE_FORMATS = new Set(["png", "webp", "jpg", "mp3"]);
 
 export class AssetActivationError extends Error {
   constructor(code, message, details = {}) {
@@ -37,6 +38,34 @@ function assertManifestShape(manifest) {
   }
 }
 
+function assertReferenceOverlayShape(overlay) {
+  if (!overlay || typeof overlay !== "object") {
+    throw new AssetActivationError("REFERENCE_ASSET_OVERLAY_MISSING", "Development reference asset overlay is missing.");
+  }
+  if (overlay.mode !== "development-only" || overlay.shippingAllowed !== false || overlay.sourcePolicy !== "reference-only") {
+    throw new AssetActivationError("REFERENCE_ASSET_OVERLAY_POLICY", "Development reference overlay must be explicitly non-shipping.");
+  }
+  if (!Array.isArray(overlay.assets)) {
+    throw new AssetActivationError("REFERENCE_ASSET_OVERLAY_INVALID", "Development reference asset overlay must define assets[].");
+  }
+  const seen = new Set();
+  for (const asset of overlay.assets) {
+    if (!asset || typeof asset.id !== "string" || !asset.id) {
+      throw new AssetActivationError("REFERENCE_ASSET_RECORD_INVALID", "Every development reference asset requires a logical id.");
+    }
+    if (seen.has(asset.id)) {
+      throw new AssetActivationError("REFERENCE_ASSET_DUPLICATE_ID", `Duplicate development reference asset id: ${asset.id}`);
+    }
+    seen.add(asset.id);
+    if (asset.adoption !== "reference-only" || asset.approval !== "development-only") {
+      throw new AssetActivationError("REFERENCE_ASSET_POLICY_INVALID", `Reference asset is not explicitly development-only: ${asset.id}`, { assetId: asset.id });
+    }
+    if (typeof asset.path !== "string" || !asset.path || asset.path.startsWith("/") || asset.path.includes("..") || asset.path.includes("\\")) {
+      throw new AssetActivationError("REFERENCE_ASSET_PATH_INVALID", `Development reference asset path is invalid: ${asset.id}`, { assetId: asset.id });
+    }
+  }
+}
+
 export function createAssetRegistry(manifest, { allowedFormats = DEFAULT_FORMATS } = {}) {
   assertManifestShape(manifest);
   const assets = new Map(manifest.assets.map((asset) => [asset.id, Object.freeze({ ...asset })]));
@@ -71,6 +100,34 @@ export function createAssetRegistry(manifest, { allowedFormats = DEFAULT_FORMATS
         }
       }
       return applied;
+    },
+  });
+}
+
+/**
+ * Build the same logical-ID resolver used by the shipping registry for local
+ * development previews.  This path is intentionally separate from
+ * createAssetRegistry: reference-only records can never become shipping
+ * records by accident.
+ */
+export function createReferenceAssetRegistry(overlay, { allowedFormats = DEVELOPMENT_REFERENCE_FORMATS } = {}) {
+  assertReferenceOverlayShape(overlay);
+  const assets = new Map(overlay.assets.map((asset) => [asset.id, Object.freeze({ ...asset })]));
+  for (const asset of assets.values()) {
+    if (!allowedFormats.has(asset.format)) {
+      throw new AssetActivationError("REFERENCE_ASSET_FORMAT_UNSUPPORTED", `Development reference asset format is not allowed: ${asset.id}`, { assetId: asset.id, format: asset.format });
+    }
+  }
+  return Object.freeze({
+    registryId: overlay.overlayId || "",
+    version: overlay.version || 1,
+    resolve(assetId) {
+      const asset = assets.get(assetId);
+      if (!asset) throw new AssetActivationError("REFERENCE_ASSET_UNKNOWN_ID", `Unknown development reference asset id: ${assetId}`, { assetId });
+      return asset;
+    },
+    list() {
+      return [...assets.values()];
     },
   });
 }

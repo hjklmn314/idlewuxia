@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://idlewuxia.local/schema/wuxia_combat_reference_asset_overlay.v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "overlayId", "version", "mode", "shippingAllowed", "sourcePolicy", "assets", "bindings", "developmentFallbacks"],
+  "properties": {
+    "$schema": { "const": "idlewuxia.combat_reference_asset_overlay.v1" },
+    "overlayId": { "type": "string", "minLength": 1 },
+    "version": { "type": "integer", "minimum": 1 },
+    "mode": { "const": "development-only" },
+    "shippingAllowed": { "const": false },
+    "sourcePolicy": { "const": "reference-only" },
+    "assets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "format", "path", "adoption", "approval", "mountPoint"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+          "kind": { "enum": ["scene", "audio", "buff-icon"] },
+          "format": { "enum": ["png", "webp", "jpg", "mp3"] },
+          "path": { "type": "string", "pattern": "^(?!/)(?!.*\\.\\.)[^\\\\]+$" },
+          "adoption": { "const": "reference-only" },
+          "approval": { "const": "development-only" },
+          "mountPoint": { "enum": ["combat.scene", "combat.audio", "combat.vfx"] }
+        }
+      }
+    },
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scenes", "audio", "buffIcons"],
+      "properties": {
+        "scenes": { "type": "object", "additionalProperties": { "$ref": "#/$defs/assetId" } },
+        "audio": { "type": "object", "additionalProperties": { "$ref": "#/$defs/assetId" } },
+        "buffIcons": { "type": "object", "additionalProperties": { "$ref": "#/$defs/assetId" } }
+      }
+    },
+    "developmentFallbacks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actor", "vfx", "audio"],
+      "properties": {
+        "actor": { "type": "string", "minLength": 1 },
+        "vfx": { "type": "string", "minLength": 1 },
+        "audio": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "$defs": {
+    "assetId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" }
+  }
+}

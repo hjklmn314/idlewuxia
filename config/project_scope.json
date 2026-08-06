@@ -46,10 +46,13 @@
     "config/wuxia_browser_evidence_routes.json",
     "config/wuxia_browser_evidence_routes.schema.json",
     "config/wuxia_runtime_asset_registry.schema.json",
+    "config/wuxia_combat_reference_asset_overlay.json",
+    "config/wuxia_combat_reference_asset_overlay.schema.json",
     "src/legacy-shooting.css"
   ],
   "developmentRuntimeAllowlist": [
-    "config/wuxia_browser_evidence_routes.json"
+    "config/wuxia_browser_evidence_routes.json",
+    "config/wuxia_combat_reference_asset_overlay.json"
   ],
   "shippingFiles": [
     "index.html",

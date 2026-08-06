@@ -1,0 +1,154 @@
+{
+  "$schema": "idlewuxia.combat_reference_asset_overlay.v1",
+  "overlayId": "idlewuxia-combat-reference-assets-v1",
+  "version": 1,
+  "mode": "development-only",
+  "shippingAllowed": false,
+  "sourcePolicy": "reference-only",
+  "assets": [
+    {
+      "id": "ref-scene-wuguan-courtyard",
+      "kind": "scene",
+      "format": "png",
+      "path": "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/01_raw_apk_unpacked/product_fangzhijianghu_guanfang_2.1.01/assets/res/OtherImage/Fight/Scene/leitai.png",
+      "adoption": "reference-only",
+      "approval": "development-only",
+      "mountPoint": "combat.scene"
+    },
+    {
+      "id": "ref-scene-courtyard-rain",
+      "kind": "scene",
+      "format": "png",
+      "path": "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/01_raw_apk_unpacked/product_fangzhijianghu_guanfang_2.1.01/assets/res/OtherImage/Fight/Scene/shulin.png",
+      "adoption": "reference-only",
+      "approval": "development-only",
+      "mountPoint": "combat.scene"
+    },
+    {
+      "id": "ref-audio-hit",
+      "kind": "audio",
+      "format": "mp3",
+      "path": "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/01_raw_apk_unpacked/product_fangzhijianghu_guanfang_2.1.01/assets/res/Music/Fight/dao_hit_1.mp3",
+      "adoption": "reference-only",
+      "approval": "development-only",
+      "mountPoint": "combat.audio"
+    },
+    {
+      "id": "ref-audio-heal",
+      "kind": "audio",
+      "format": "mp3",
+      "path": "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/01_raw_apk_unpacked/product_fangzhijianghu_guanfang_2.1.01/assets/res/Music/Fight/buff.mp3",
+      "adoption": "reference-only",
+      "approval": "development-only",
+      "mountPoint": "combat.audio"
+    },
+    {
+      "id": "ref-audio-control",
+      "kind": "audio",
+      "format": "mp3",
+      "path": "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/01_raw_apk_unpacked/product_fangzhijianghu_guanfang_2.1.01/assets/res/Music/Fight/dao_parry_1.mp3",
+      "adoption": "reference-only",
+      "approval": "development-only",
+      "mountPoint": "combat.audio"
+    },
+    {
+      "id": "ref-audio-defeat",
+      "kind": "audio",
+      "format": "mp3",
+      "path": "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/01_raw_apk_unpacked/product_fangzhijianghu_guanfang_2.1.01/assets/res/Music/biwu_tiaozhan_2.mp3",
+      "adoption": "reference-only",
+      "approval": "development-only",
+      "mountPoint": "combat.audio"
+    },
+    {
+      "id": "ref-buff-positive-01",
+      "kind": "buff-icon",
+      "format": "png",
+      "path": "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/01_raw_apk_unpacked/product_fangzhijianghu_guanfang_2.1.01/assets/res/OtherImage/BuffIcon/b01.png",
+      "adoption": "reference-only",
+      "approval": "development-only",
+      "mountPoint": "combat.vfx"
+    },
+    {
+      "id": "ref-buff-positive-02",
+      "kind": "buff-icon",
+      "format": "png",
+      "path": "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/01_raw_apk_unpacked/product_fangzhijianghu_guanfang_2.1.01/assets/res/OtherImage/BuffIcon/b02.png",
+      "adoption": "reference-only",
+      "approval": "development-only",
+      "mountPoint": "combat.vfx"
+    },
+    {
+      "id": "ref-buff-positive-03",
+      "kind": "buff-icon",
+      "format": "png",
+      "path": "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/01_raw_apk_unpacked/product_fangzhijianghu_guanfang_2.1.01/assets/res/OtherImage/BuffIcon/b03.png",
+      "adoption": "reference-only",
+      "approval": "development-only",
+      "mountPoint": "combat.vfx"
+    },
+    {
+      "id": "ref-buff-negative-01",
+      "kind": "buff-icon",
+      "format": "png",
+      "path": "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/01_raw_apk_unpacked/product_fangzhijianghu_guanfang_2.1.01/assets/res/OtherImage/BuffIcon/d01.png",
+      "adoption": "reference-only",
+      "approval": "development-only",
+      "mountPoint": "combat.vfx"
+    },
+    {
+      "id": "ref-buff-negative-02",
+      "kind": "buff-icon",
+      "format": "png",
+      "path": "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/01_raw_apk_unpacked/product_fangzhijianghu_guanfang_2.1.01/assets/res/OtherImage/BuffIcon/d02.png",
+      "adoption": "reference-only",
+      "approval": "development-only",
+      "mountPoint": "combat.vfx"
+    },
+    {
+      "id": "ref-buff-negative-03",
+      "kind": "buff-icon",
+      "format": "png",
+      "path": "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/01_raw_apk_unpacked/product_fangzhijianghu_guanfang_2.1.01/assets/res/OtherImage/BuffIcon/d03.png",
+      "adoption": "reference-only",
+      "approval": "development-only",
+      "mountPoint": "combat.vfx"
+    }
+  ],
+  "bindings": {
+    "scenes": {
+      "scene_fb01_wuguan_courtyard": "ref-scene-wuguan-courtyard",
+      "scene_fb01_courtyard_rain": "ref-scene-courtyard-rain"
+    },
+    "audio": {
+      "sfx_hit": "ref-audio-hit",
+      "sfx_heal": "ref-audio-heal",
+      "sfx_buff": "ref-audio-heal",
+      "sfx_control": "ref-audio-control",
+      "sfx_defeat": "ref-audio-defeat"
+    },
+    "buffIcons": {
+      "buff_guarded": "ref-buff-positive-01",
+      "buff_iron_wall": "ref-buff-positive-02",
+      "buff_poisoned": "ref-buff-negative-01",
+      "buff_burning": "ref-buff-negative-02",
+      "buff_bleeding": "ref-buff-negative-03",
+      "buff_haste": "ref-buff-positive-03",
+      "buff_evasion": "ref-buff-positive-03",
+      "buff_meditation": "ref-buff-positive-01",
+      "buff_control_immunity": "ref-buff-positive-02",
+      "buff_taunt": "ref-buff-positive-03",
+      "buff_focus": "ref-buff-positive-02",
+      "buff_weakened": "ref-buff-negative-01",
+      "buff_stunned": "ref-buff-negative-02",
+      "buff_silenced": "ref-buff-negative-02",
+      "buff_rooted": "ref-buff-negative-03",
+      "buff_mirror": "ref-buff-positive-01"
+    }
+  },
+  "developmentFallbacks": {
+    "actor": "existing_runtime_css_debug_only",
+    "vfx": "existing_runtime_css_feedback_only",
+    "audio": "reference_file_only"
+  }
+}

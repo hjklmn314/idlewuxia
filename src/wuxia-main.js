@@ -6,7 +6,7 @@ import { createRuntimePersistence } from "./runtimePersistence.js";
 import { createUiFlowAdapter } from "./uiFlowAdapter.js";
 import { createWuxiaDomAdapter } from "./wuxiaDomAdapter.js";
 import { applyEvidencePlayerPatch, resolveBrowserEvidenceRoute } from "./browserEvidenceRoute.js";
-import { createAssetRegistry } from "./assetRegistry.js";
+import { createAssetRegistry, createReferenceAssetRegistry } from "./assetRegistry.js";
 
 const CONFIG_FILES = {
   wuxiaFirstSessionFlow: "./config/wuxia_first_session_flow.json",
@@ -31,7 +31,9 @@ const state = {
     resolvedKey: "",
     lastAudioSeq: -1,
     audioContext: null,
+    referenceAudio: new Map(),
   },
+  referenceAssetRegistry: null,
 };
 
 function activeChapterFromFlow(flowContract = {}) {
@@ -67,6 +69,13 @@ async function loadConfig() {
   );
   const config = Object.fromEntries(entries);
   const params = new URLSearchParams(window.location.search);
+  const referenceAssetsEnabled = params.get("referenceAssets") === "1"
+    && ["127.0.0.1", "localhost"].includes(window.location.hostname);
+  if (referenceAssetsEnabled) {
+    const response = await fetch("./config/wuxia_combat_reference_asset_overlay.json");
+    if (!response.ok) throw new Error("Failed to load development combat reference asset overlay");
+    config.wuxiaCombatReferenceAssetOverlay = await response.json();
+  }
   const routeId = params.get("evidenceRoute") || "";
   if (routeId && ["127.0.0.1", "localhost"].includes(window.location.hostname)) {
     const response = await fetch("./config/wuxia_browser_evidence_routes.json");
@@ -79,6 +88,23 @@ async function loadConfig() {
     if (!config.wuxiaBrowserEvidenceRoute) throw new Error(`Unknown browser evidence route: ${routeId}`);
   }
   return config;
+}
+
+function referenceAssetUrl(assetId) {
+  const asset = state.referenceAssetRegistry?.resolve(assetId);
+  // Reference paths live at the development server root. A root-relative URL
+  // is required because the same URL is also consumed inside src/wuxia.css;
+  // a stylesheet-relative URL would create a false 404.
+  return asset?.path ? encodeURI(`/${asset.path}`) : "";
+}
+
+function referenceBindingAssetId(group, bindingId) {
+  return state.config?.wuxiaCombatReferenceAssetOverlay?.bindings?.[group]?.[bindingId] || "";
+}
+
+function referenceAssetUrlFor(group, bindingId) {
+  const assetId = referenceBindingAssetId(group, bindingId);
+  return assetId ? referenceAssetUrl(assetId) : "";
 }
 
 function renderConfigError(error) {
@@ -132,7 +158,13 @@ function renderCombatRuntimeUnit(unit, side) {
       ${renderCombatBar("MP", unit?.mp ?? 0, unit?.mpMax ?? 1, "mp")}
       ${unit?.shield ? renderCombatBar("盾", unit?.shield ?? 0, Math.max(1, unit?.hpMax ?? 1, unit?.shield ?? 0), "shield") : ""}
       <div class="wuxia-runtime-buffs">
-        ${buffs.length ? buffs.map((buff) => `<span title="${escapeHtml(buff.description || buff.name || buff.buffId || "")}">${escapeHtml(buff.iconLabel || buff.name || buff.buffId || "")}</span>`).join("") : `<em>${escapeHtml(unit?.emptyBuffText || "")}</em>`}
+        ${buffs.length ? buffs.map((buff) => {
+          const iconUrl = referenceAssetUrlFor("buffIcons", buff.buffId || "");
+          const title = escapeHtml(buff.description || buff.name || buff.buffId || "");
+          return iconUrl
+            ? `<span class="has-reference-icon" title="${title}"><img src="${escapeHtml(iconUrl)}" alt="${title}">${escapeHtml(buff.iconLabel || buff.name || buff.buffId || "")}</span>`
+            : `<span title="${title}">${escapeHtml(buff.iconLabel || buff.name || buff.buffId || "")}</span>`;
+        }).join("") : `<em>${escapeHtml(unit?.emptyBuffText || "")}</em>`}
       </div>
     </article>
   `;
@@ -301,6 +333,9 @@ function renderCombatRuntime(block, flowContract, snapshot) {
   const leftActiveKind = latestEventSource === left.unitId ? "attack" : latestEventTarget === left.unitId ? latestEvent?.kind || "hit" : "";
   const rightActiveKind = latestEventSource === right.unitId ? "attack" : latestEventTarget === right.unitId ? latestEvent?.kind || "hit" : "";
   const scene = preview.scene || {};
+  const referenceSceneUrl = referenceAssetUrlFor("scenes", scene.visualCueId || "");
+  const stageClass = referenceSceneUrl ? "has-reference-scene" : "";
+  const stageStyle = referenceSceneUrl ? ` style="--reference-scene-image:url('${escapeHtml(referenceSceneUrl)}')"` : "";
   const control = snapshot?.pendingCombat?.combatControl || {};
   const available = control?.availableActions || { skills: [], canRunaway: false };
   const actionRows = control?.requiresPlayerInput
@@ -323,9 +358,12 @@ function renderCombatRuntime(block, flowContract, snapshot) {
         ? `${control.actorName}行动中……`
         : (block.waitingText || "战斗准备中……");
   return `
-    <section class="wuxia-combat-runtime" data-testid="combat-runtime" data-wuxia-preview-id="${escapeHtml(preview.previewId || block.previewId || "")}" data-wuxia-combat-status="${escapeHtml(liveRuntime?.status || "preview")}">
-      <div class="wuxia-combat-runtime-stage" data-wuxia-scene-theme="${escapeHtml(scene.theme || "courtyard")}">
-        <div class="wuxia-runtime-scene-backdrop" aria-hidden="true"><i></i><b></b><em></em></div>
+    <section class="wuxia-combat-runtime" data-testid="combat-runtime" data-wuxia-preview-id="${escapeHtml(preview.previewId || block.previewId || "")}" data-wuxia-combat-status="${escapeHtml(liveRuntime?.status || "preview")}" data-wuxia-asset-mode="${state.referenceAssetRegistry ? "reference-only-development" : "shipping-registry"}">
+      <div class="wuxia-combat-runtime-stage ${stageClass}" data-wuxia-scene-theme="${escapeHtml(scene.theme || "courtyard")}"${stageStyle}>
+        <div class="wuxia-runtime-scene-backdrop" aria-hidden="true">
+          ${referenceSceneUrl ? `<img class="wuxia-runtime-scene-reference" src="${escapeHtml(referenceSceneUrl)}" alt="" decoding="async" />` : ""}
+          <i></i><b></b><em></em>
+        </div>
         ${renderCombatRuntimeUnit(left, "left")}
         ${renderCombatFighter(left, "left", leftActiveKind, latestCueColor)}
         <div class="wuxia-runtime-hitline" aria-hidden="true"></div>
@@ -380,6 +418,16 @@ function playCombatAudioCue(event, combatContent) {
   const cue = (combatContent.audioCues || []).find((item) => item.audioCueId === event.audioCueId);
   if (!cue || typeof window === "undefined") return;
   try {
+    const referenceAudioUrl = referenceAssetUrlFor("audio", event.audioCueId || "");
+    if (referenceAudioUrl && typeof window.Audio === "function") {
+      const audio = new window.Audio(referenceAudioUrl);
+      audio.preload = "auto";
+      audio.volume = 0.42;
+      state.combatPlayback.referenceAudio.set(event.audioCueId, audio);
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+      return;
+    }
     const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
     if (!AudioContextCtor) return;
     // Browsers reject Web Audio startup before a real user gesture.  Skipping
@@ -1219,6 +1267,9 @@ async function init() {
   try {
     state.config = await loadConfig();
     state.assetRegistry = createAssetRegistry(state.config.wuxiaRuntimeAssetRegistry);
+    state.referenceAssetRegistry = state.config.wuxiaCombatReferenceAssetOverlay
+      ? createReferenceAssetRegistry(state.config.wuxiaCombatReferenceAssetOverlay)
+      : null;
     state.assetRegistry.applyBindings(document);
     let storage = null;
     try {

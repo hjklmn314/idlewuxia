@@ -1477,6 +1477,28 @@ body.wuxia-mode #app {
 }
 
 .wuxia-runtime-scene-backdrop { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.wuxia-runtime-scene-backdrop.has-reference-scene,
+.wuxia-combat-runtime-stage.has-reference-scene .wuxia-runtime-scene-backdrop {
+  background-image: var(--reference-scene-image);
+  background-size: cover;
+  background-position: center;
+  image-rendering: pixelated;
+}
+.wuxia-runtime-scene-reference {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  image-rendering: pixelated;
+}
+.wuxia-combat-runtime-stage.has-reference-scene .wuxia-runtime-scene-backdrop::before,
+.wuxia-combat-runtime-stage.has-reference-scene .wuxia-runtime-scene-backdrop::after,
+.wuxia-combat-runtime-stage.has-reference-scene .wuxia-runtime-scene-backdrop i,
+.wuxia-combat-runtime-stage.has-reference-scene .wuxia-runtime-scene-backdrop b,
+.wuxia-combat-runtime-stage.has-reference-scene .wuxia-runtime-scene-backdrop em { display: none; }
 .wuxia-runtime-scene-backdrop::before {
   content: "";
   position: absolute;
@@ -1521,6 +1543,8 @@ body.wuxia-mode #app {
 .wuxia-runtime-buffs { display: flex; gap: 3px; min-height: 0; margin-top: 4px; }
 .wuxia-runtime-buffs:has(em) { display: none; }
 .wuxia-runtime-buffs span { display: inline-grid; place-items: center; min-width: 19px; height: 19px; padding: 0 3px; border: 1px solid #ecd463; background: #4c2525; color: #fff0ad; font-size: 10px; font-weight: 900; }
+.wuxia-runtime-buffs span.has-reference-icon { grid-template-columns: 17px auto; gap: 2px; padding: 0 2px; }
+.wuxia-runtime-buffs span.has-reference-icon img { width: 17px; height: 17px; object-fit: contain; image-rendering: pixelated; }
 
 .wuxia-runtime-fighter { position: absolute; z-index: 3; bottom: 15%; width: 100px; height: 150px; }
 .wuxia-runtime-fighter.left { left: 29%; }
