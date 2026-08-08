@@ -1,0 +1,139 @@
+{
+  "$schema": "idlewuxia.combat_actor_asset_requirements.v1",
+  "contractId": "idlewuxia-combat-actor-asset-requirements-v1",
+  "version": 1,
+  "taskId": "ASSET-007",
+  "mode": "requirements-only",
+  "shippingAllowed": false,
+  "sourcePolicy": {
+    "referenceMayInformRequirements": true,
+    "referenceBytesMayShip": false,
+    "referenceBindingsMaySatisfyProduction": false,
+    "runtimeUsesLogicalIdsOnly": true
+  },
+  "policy": {
+    "view": "side",
+    "headCountRange": { "min": 2.7, "max": 3.3 },
+    "requiredClips": ["idle", "walk_left", "walk_right", "attack", "hurt", "control", "defeat"],
+    "walkFootPhasePolicy": "alternate-left-right",
+    "noBakedScenePixels": true,
+    "integerScaleOnly": true,
+    "transparentBackgroundRequired": true,
+    "manualFrameReviewRequired": true,
+    "portraitSafeAreaRequired": true
+  },
+  "referenceAudit": {
+    "referenceRootId": "reference.fangzhijianghu.raw.res",
+    "referenceRoot": "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/01_raw_apk_unpacked/product_fangzhijianghu_guanfang_2.1.01/assets/res",
+    "inventory": {
+      "png": 682,
+      "jpg": 3,
+      "mp3": 410,
+      "lua": 1507,
+      "txt": 1,
+      "totalFiles": 2603,
+      "inventoryBasis": "recursive extension inventory from the read-only raw APK archive"
+    },
+    "eligibleCandidates": [],
+    "ineligibleEvidence": [
+      {
+        "relativePath": "OtherImage/Fight/Scene",
+        "kind": "scene-backgrounds",
+        "observed": "12 PNG scene files; no actor animation frames",
+        "disposition": "ineligible",
+        "reason": "Scene pixels are not side-view actor clips and must remain separate from runtime-mounted characters."
+      },
+      {
+        "relativePath": "Image/UI/RoleUI",
+        "kind": "role-ui",
+        "observed": "6 PNG UI/background files; 11.png is a role-information panel rather than a sprite",
+        "disposition": "ineligible",
+        "reason": "UI chrome cannot satisfy an actor mount or animation clip."
+      },
+      {
+        "relativePath": "Layer/FightUI/demo.jpg",
+        "kind": "fight-ui-demo",
+        "observed": "1080x1920 UI demonstration with flat silhouette figures",
+        "disposition": "ineligible",
+        "reason": "The file is a UI demonstration, not a transparent, frame-addressable, three-head side-view actor set."
+      },
+      {
+        "relativePath": "Anim/FightEffect",
+        "kind": "effect-directory",
+        "observed": "No raster actor frames in the audited directory",
+        "disposition": "ineligible",
+        "reason": "Combat effects do not provide player/enemy actor clips."
+      },
+      {
+        "relativePath": "script/challengeMap/roles",
+        "kind": "lua-role-definitions",
+        "observed": "Role configuration Lua files only",
+        "disposition": "ineligible",
+        "reason": "Definitions describe data/behavior and contain no approved actor pixel source."
+      }
+    ],
+    "conclusion": "No eligible reference side-view actor sprite set was found in the audited raw archive. Actor rows remain missing; no reference bytes are bound or copied.",
+    "auditedAt": "2026-08-08",
+    "auditor": "asset-content-pipeline"
+  },
+  "actors": [
+    {
+      "id": "player",
+      "logicalAssetId": "combat-actor-player",
+      "requiredSlotId": "combat-side-view-character-sprites",
+      "runtimeMountPoint": "combat.actor",
+      "role": "player",
+      "status": "missing",
+      "referenceCandidates": [],
+      "requiredClips": ["idle", "walk_left", "walk_right", "attack", "hurt", "control", "defeat"],
+      "clipAcceptance": {
+        "walk_left": "left-foot-forward phase present",
+        "walk_right": "right-foot-forward phase present",
+        "alternatingWalkFrames": true,
+        "allFramesSamePivot": true,
+        "manualSignature": "required"
+      },
+      "runtimeBinding": {
+        "logicalIdOnly": true,
+        "fallback": "existing_runtime_css_debug_only",
+        "fallbackScope": "development-only"
+      }
+    },
+    {
+      "id": "enemy",
+      "logicalAssetId": "combat-actor-enemy",
+      "requiredSlotId": "combat-side-view-character-sprites",
+      "runtimeMountPoint": "combat.actor",
+      "role": "enemy",
+      "status": "missing",
+      "referenceCandidates": [],
+      "requiredClips": ["idle", "walk_left", "walk_right", "attack", "hurt", "control", "defeat"],
+      "clipAcceptance": {
+        "walk_left": "left-foot-forward phase present",
+        "walk_right": "right-foot-forward phase present",
+        "alternatingWalkFrames": true,
+        "allFramesSamePivot": true,
+        "manualSignature": "required"
+      },
+      "runtimeBinding": {
+        "logicalIdOnly": true,
+        "fallback": "existing_runtime_css_debug_only",
+        "fallbackScope": "development-only"
+      }
+    }
+  ],
+  "acceptanceGate": {
+    "productionStatus": "blocked",
+    "requiredEvidence": [
+      "approved source and redistribution ownership",
+      "sha256 per logical asset and clip atlas",
+      "dimensions, pivot and transparent bounds",
+      "side-view and 2.7-3.3 head proportion review",
+      "idle/attack/hurt/control/defeat plus walk-left/walk-right clips",
+      "manual frame-by-frame foot alternation signature",
+      "fresh browser screenshots at all portrait viewports",
+      "representative Android manual review"
+    ],
+    "nextAction": "Supply or approve the two actor sets; then extend this table with owned asset records before ASSET-007 can close."
+  }
+}

@@ -80,6 +80,15 @@
 | Feedback-only configured actions | `feedbackRejectionConditionActions`, `feedbackRejectionConditionTokens` | `classifyBranchOutcome()` + `interactionResponse()` | `outputs/t02_02_interaction_semantics/t02_02_interaction_semantics_report.json` | Pass; default 2 executed narrative-only, 1 rejected feedback |
 | First-session simulation separation | existing simulator report | T02-02 audit report `relatedFirstSessionSimulation` | `outputs/idlewuxia_migration/wuxia_first_session_flow_simulation.json` and T03-01 record | Excluded from T02-02 verdict |
 
+## ASSET-007 actor requirements traceability entry (2026-08-08)
+
+| Requirement | Configuration authority | Runtime/tool authority | Evidence | Verdict |
+|---|---|---|---|---|
+| Player and enemy logical actor requirements | `config/wuxia_combat_actor_asset_requirements.json` + schema | `tools/validate-wuxia-combat-actor-asset-requirements.mjs` | `runtime:combat-actor-assets:validate` | Pass with known limitations; exactly 2 rows, both truthfully missing |
+| Reference archive eligibility | `referenceAudit` in the requirements manifest | read-only archive inventory and manual image review | `docs/codex_game_development_os/ASSET_007_ACTOR_ASSET_REQUIREMENTS_AUDIT_20260808.md` | No eligible side-view actor set; no bytes copied or bound |
+| Negative production and shipping semantics | `sourcePolicy` and `acceptanceGate` | focused negative tests | `runtime:combat-actor-assets:test` | Pass; false satisfaction and reference shipping are rejected |
+| Manual visual diagnosis | current combat presentation route | manual browser screenshot review | `outputs/combat_manual_browser_flow_20260808_combat004_fresh/14_early_combat_screen.png` | Gate C remains FAIL for CSS actors/placeholder art; blocker is visible and not masked |
+
 ## COMBAT-004 traceability entry (2026-08-08)
 
 | Requirement | Configuration authority | Runtime/tool authority | Evidence | Verdict |

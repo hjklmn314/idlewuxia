@@ -54,6 +54,13 @@
 
 完成标准：签名 release artifact 而非 debug；真机/性能/合规/商店/回滚证据全部绑定同一 commit。任何一项缺失，release verdict 保持 blocked。
 
+## 2026-08-08 ASSET-007 actor reference audit update
+
+- `ASSET-007` remains **open**. The new requirements-only manifest and schema cover both actor logical IDs, the side-view/three-head/alternating-foot policy, runtime mount point and manual evidence requirements.
+- The read-only reference archive audit found no eligible transparent side-view actor clip set. Scene PNGs, role UI panels, Lua role definitions and the flat-silhouette fight UI demo are explicitly ineligible; no reference bytes were copied or bound.
+- Focused validator and positive/negative tests pass. This is an audit/configuration PASS WITH KNOWN LIMITATIONS, not a production asset pass. The next real dependency is an approved player and enemy actor set, followed by ASSET-008.
+- Evidence: `config/wuxia_combat_actor_asset_requirements.json`, `config/wuxia_combat_actor_asset_requirements.schema.json`, `tools/validate-wuxia-combat-actor-asset-requirements.mjs`, `tools/test-wuxia-combat-actor-asset-requirements.mjs`, `docs/codex_game_development_os/ASSET_007_ACTOR_ASSET_REQUIREMENTS_AUDIT_20260808.md`.
+
 ## P1/P2 后续
 
 - `CONTENT-001`：第二章节证明没有章节特例代码。

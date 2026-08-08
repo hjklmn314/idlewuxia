@@ -918,7 +918,14 @@
         "Characters use the approved roughly three-head pixel proportion and contain no other viewing angle.",
         "Source, ownership, hashes, budgets and runtime logical IDs are recorded."
       ],
-      "evidence": []
+      "evidence": [
+        "config/wuxia_combat_actor_asset_requirements.json",
+        "config/wuxia_combat_actor_asset_requirements.schema.json",
+        "tools/validate-wuxia-combat-actor-asset-requirements.mjs",
+        "tools/test-wuxia-combat-actor-asset-requirements.mjs",
+        "docs/codex_game_development_os/ASSET_007_ACTOR_ASSET_REQUIREMENTS_AUDIT_20260808.md",
+        "npm run runtime:combat-actor-assets:test"
+      ]
     },
     {
       "id": "ASSET-008",

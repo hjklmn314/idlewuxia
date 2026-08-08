@@ -50,6 +50,8 @@
     "config/wuxia_combat_reference_asset_overlay.schema.json",
     "config/wuxia_combat_presentation_contract.json",
     "config/wuxia_combat_presentation_contract.schema.json",
+    "config/wuxia_combat_actor_asset_requirements.json",
+    "config/wuxia_combat_actor_asset_requirements.schema.json",
     "config/wuxia_combat_simulation.json",
     "config/wuxia_combat_simulation.schema.json",
     "src/legacy-shooting.css"
