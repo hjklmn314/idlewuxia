@@ -117,3 +117,12 @@
 | No invalid VFX reference is treated as production art | `referenceAudit.eligibleVfxCandidates` and ineligible evidence | reference inventory + focused negative tests | `ASSET_009_VFX_ASSET_REQUIREMENTS_AUDIT_20260808.md` | Pass; zero eligible VFX candidates, static Skill UI icons rejected |
 | Runtime binding and fallback are configuration governed | `policy.runtimeBindingPolicy` | validator and production presentation policy | ASSET-009 validator output | Pass; logical IDs at `combat.vfx`, development-only fallback, no production CSS satisfaction |
 | Manual combat visual quality | VFX/Buff requirements plus presentation contract | fresh browser combat route and manual review | `outputs/combat_manual_browser_flow_20260808_asset009_fresh/14_early_combat_screen.png` | Gate C remains FAIL for current placeholder actor/scene/VFX; no false pass |
+
+## ASSET-010 audio requirements traceability entry (2026-08-09)
+
+| Requirement | Configuration authority | Runtime/tool authority | Evidence | Verdict |
+|---|---|---|---|---|
+| All configured audio cue IDs have an authored production requirement | `config/wuxia_combat_audio_asset_requirements.json` + `config/wuxia_combat_presentation_contract.json` + combat content | `tools/validate-wuxia-combat-audio-asset-requirements.mjs` | `runtime:combat-audio-assets:validate` | Pass with known limitations; 5/5 rows are explicitly reference-only and production blocked |
+| Reference overlay parity remains development-only | ASSET-010 `audioCues` + `config/wuxia_combat_reference_asset_overlay.json` | audio requirements validator | `runtime:combat-audio-assets:test` | Pass; 5 logical cues resolve to 4 hashed MP3 exemplars, no reference bytes may ship |
+| Production format and fallback policy | ASSET-010 `policy` | validator + presentation production profile | ASSET-010 validator output | Pass; OGG required, synth/oscillator/reference-only paths rejected |
+| Loudness, peak and device latency evidence | ASSET-010 budgets and acceptance gate | future audio import/device QA | `ASSET_010_AUDIO_ASSET_REQUIREMENTS_AUDIT_20260809.md` | Open; no owned OGG or Android latency/mix evidence exists |

@@ -1,0 +1,100 @@
+{
+  "$schema": "idlewuxia.combat_audio_asset_requirements.v1",
+  "contractId": "idlewuxia-combat-audio-asset-requirements-v1",
+  "version": 1,
+  "taskId": "ASSET-010",
+  "mode": "reference-backed-requirements",
+  "shippingAllowed": false,
+  "sourcePolicy": {
+    "referenceMayInformRequirements": true,
+    "referenceBytesMayShip": false,
+    "referenceBindingsMaySatisfyProduction": false,
+    "runtimeUsesLogicalIdsOnly": true
+  },
+  "policy": {
+    "audioCueCount": 5,
+    "productionFormat": "ogg",
+    "productionRejectsSynth": true,
+    "productionRejectsOscillator": true,
+    "productionRejectsReferenceOnly": true,
+    "maxTriggerLatencyMs": 120,
+    "targetLufsIntegrated": -16,
+    "peakCeilingDbtp": -1,
+    "manualMixReviewRequired": true,
+    "manualDeviceReviewRequired": true,
+    "runtimeMountPoint": "combat.audio",
+    "logicalIdOnly": true,
+    "fallbackScope": "development-only"
+  },
+  "referenceAudit": {
+    "referenceRootId": "reference.fangzhijianghu.raw.res",
+    "referenceRoot": "fangzhijianghu/绔炲搧璧勬枡/鏀剧疆姹熸箹apk/瀹屾暣鍖呭唴瀹瑰綊妗?01_raw_apk_unpacked/product_fangzhijianghu_guanfang_2.1.01/assets/res",
+    "inventory": {
+      "fightMp3Candidates": 118,
+      "musicMp3Candidates": 410,
+      "auditedReferenceCandidates": 4,
+      "inventoryBasis": "Reference archive recursive Music inventory and manual filename/path review on 2026-08-08."
+    },
+    "productionEligibleCandidates": [],
+    "auditedReferenceCandidates": [
+      {
+        "referenceAssetId": "ref-audio-hit",
+        "relativePath": "Music/Fight/dao_hit_1.mp3",
+        "format": "mp3",
+        "bytes": 3971,
+        "sha256": "fc6f447651299de62c69fd9e08b2c0df22cefc258f93ee81f484ce547d8fa955",
+        "manualObservation": "Short reference hit cue selected by the existing overlay; source is competitor archive, ownership and loudness metadata are unknown.",
+        "disposition": "reference-only"
+      },
+      {
+        "referenceAssetId": "ref-audio-heal",
+        "relativePath": "Music/Fight/buff.mp3",
+        "format": "mp3",
+        "bytes": 7888,
+        "sha256": "8e77ff4f1ee19f28c7c66eb1b02fb354427caef3737b1a60bf69be973bcce071",
+        "manualObservation": "Short reference Buff/heal cue selected by the existing overlay; source is competitor archive, ownership and loudness metadata are unknown.",
+        "disposition": "reference-only"
+      },
+      {
+        "referenceAssetId": "ref-audio-control",
+        "relativePath": "Music/Fight/dao_parry_1.mp3",
+        "format": "mp3",
+        "bytes": 5016,
+        "sha256": "76c1a188b5744a3ae6dfa0ef425b4de5916f070f9fe69a2f1854d1da673a83e9",
+        "manualObservation": "Short parry/control reference cue; source is competitor archive, ownership and loudness metadata are unknown.",
+        "disposition": "reference-only"
+      },
+      {
+        "referenceAssetId": "ref-audio-defeat",
+        "relativePath": "Music/biwu_tiaozhan_2.mp3",
+        "format": "mp3",
+        "bytes": 85733,
+        "sha256": "1ae6cd6c879711e598c736394003d28dbe1dd0af6ae12c1fc36a7b4d732a32ed",
+        "manualObservation": "Challenge/music reference path used by the existing defeat overlay; it is not proven to be a short defeat SFX and has no ownership or loudness evidence.",
+        "disposition": "reference-only"
+      }
+    ],
+    "conclusion": "The archive contains usable development-only MP3 exemplars for the existing logical overlay but no production-eligible, ownership-cleared OGG set. Duration, integrated loudness, true peak and device latency are not accepted from reference files and must be measured on owned replacements.",
+    "auditedAt": "2026-08-08",
+    "auditor": "asset-content-pipeline"
+  },
+  "audioCues": [
+    { "id": "sfx_hit", "logicalAssetId": "combat-audio-hit", "eventType": "damage", "requiredPresentation": "Target-bound impact transient with no masking of damage feedback", "status": "reference-only", "referenceAssetId": "ref-audio-hit" },
+    { "id": "sfx_heal", "logicalAssetId": "combat-audio-heal", "eventType": "heal", "requiredPresentation": "Target-bound healing confirmation with readable onset", "status": "reference-only", "referenceAssetId": "ref-audio-heal" },
+    { "id": "sfx_buff", "logicalAssetId": "combat-audio-buff", "eventType": "buff", "requiredPresentation": "Buff application/refresh cue with safe concurrency", "status": "reference-only", "referenceAssetId": "ref-audio-heal" },
+    { "id": "sfx_control", "logicalAssetId": "combat-audio-control", "eventType": "control", "requiredPresentation": "Control/parry cue synchronized to target state", "status": "reference-only", "referenceAssetId": "ref-audio-control" },
+    { "id": "sfx_defeat", "logicalAssetId": "combat-audio-defeat", "eventType": "defeat", "requiredPresentation": "Defeat outcome cue distinct from combat impact", "status": "reference-only", "referenceAssetId": "ref-audio-defeat" }
+  ],
+  "acceptanceGate": {
+    "productionStatus": "blocked",
+    "requiredEvidence": [
+      "owned or licensed OGG sources and provenance",
+      "five logical cue IDs resolve without synth/oscillator fallback",
+      "integrated loudness, true peak and concurrency budget",
+      "trigger latency at or below 120ms on representative Android hardware",
+      "manual mix, replay and accessibility volume review",
+      "three portrait combat states reviewed with audio and visual feedback together"
+    ],
+    "nextAction": "Author or approve owned OGG replacements, measure loudness/peak/latency on target Android hardware, bind the five logical cues and repeat manual combat replay acceptance before COMBAT-002B."
+  }
+}

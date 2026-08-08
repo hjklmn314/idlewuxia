@@ -71,6 +71,14 @@
 - Evidence: `config/wuxia_combat_vfx_asset_requirements.json`, `config/wuxia_combat_vfx_asset_requirements.schema.json`, `tools/validate-wuxia-combat-vfx-asset-requirements.mjs`, `tools/test-wuxia-combat-vfx-asset-requirements.mjs`, `docs/codex_game_development_os/ASSET_009_VFX_ASSET_REQUIREMENTS_AUDIT_20260808.md`.
 - The next dependency remains ASSET-010 audio requirements/audit, followed by approved owned assets and COMBAT-002B. Gate C must still manually fail the current CSS/placeholder route until real actor, scene, VFX, Buff and audio bindings exist.
 
+## 2026-08-09 ASSET-010 audio reference audit update
+
+- `ASSET-010` remains **open / production blocked**. A requirements-only manifest now covers all five configured combat audio cue IDs, their event semantics, logical `combat.audio` mount, OGG/loudness/peak/latency budgets, provenance and manual mix/device evidence.
+- The reference archive inventory found 118 files under `Music/Fight/` and 410 music files overall. Four existing overlay MP3 references were hashed and audited (`dao_hit_1.mp3`, `buff.mp3`, `dao_parry_1.mp3`, `biwu_tiaozhan_2.mp3`); they remain development-only. The defeat overlay points to a challenge/music file and is explicitly not accepted as a production defeat SFX.
+- The validator rejects unknown or drifted cue/reference bindings, false production satisfaction, competitor MP3 treated as eligible production input, non-OGG policy, synth/oscillator fallback changes, and runtime mount changes. Focused positive/negative tests pass. This is a configuration/audit PASS WITH KNOWN LIMITATIONS, not an audio or release pass.
+- Evidence: `config/wuxia_combat_audio_asset_requirements.json`, `config/wuxia_combat_audio_asset_requirements.schema.json`, `tools/validate-wuxia-combat-audio-asset-requirements.mjs`, `tools/test-wuxia-combat-audio-asset-requirements.mjs`, `docs/codex_game_development_os/ASSET_010_AUDIO_ASSET_REQUIREMENTS_AUDIT_20260809.md`.
+- The next production dependency is owned/licensed actor, scene, VFX/Buff and OGG input, followed by COMBAT-002B. Manual Gate C and Android latency/mix evidence remain mandatory.
+
 ## P1/P2 后续
 
 - `CONTENT-001`：第二章节证明没有章节特例代码。

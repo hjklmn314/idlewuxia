@@ -984,7 +984,14 @@
         "Every hit, block, control, buff, defeat and victory cue has device latency and mix evidence.",
         "Ownership, hashes, loudness and package budgets pass."
       ],
-      "evidence": []
+      "evidence": [
+        "config/wuxia_combat_audio_asset_requirements.json",
+        "config/wuxia_combat_audio_asset_requirements.schema.json",
+        "tools/validate-wuxia-combat-audio-asset-requirements.mjs",
+        "tools/test-wuxia-combat-audio-asset-requirements.mjs",
+        "docs/codex_game_development_os/ASSET_010_AUDIO_ASSET_REQUIREMENTS_AUDIT_20260809.md",
+        "npm run runtime:combat-audio-assets:test"
+      ]
     },
     {
       "id": "AUDIT-003",
