@@ -87,6 +87,14 @@
 - Focused overlay, schema, source-root and coverage-drift tests pass. Manual 540x960 flow reaches combat with 15/15 steps and console problems 0; strict Gate C remains FAIL because CSS actors, missing authored VFX and missing production OGG evidence are visible/known.
 - This is a development binding milestone, not closure of ASSET-007/008/009/010 or COMBAT-002B. The next production dependency is approved actor clips plus authored VFX and OGG replacements, followed by the same three-viewport manual gate.
 
+## 2026-08-09 COMBAT-002B development binding playback update
+
+- `COMBAT-002B` remains **blocked for production**, but the development-only runtime binding path now has a fresh real-browser acceptance record. The active session loaded the original-project scene, applied a configured player Buff, rendered the corresponding logical Buff icons and invoked the configured original-project MP3 through the combat audio mount.
+- `src/wuxia-main.js` now reads the authoritative live `CombatSession` event stream for playback and chooses the latest event carrying an audio cue. Surrounding `skill`/`skillResolved` events without audio no longer consume the playback sequence, so a real player action cannot silently lose its hit/Buff sound.
+- Manual review of the two 540×960 screenshots passed for development binding and failed the deliberate production Gate C because CSS fighters, reference-only scene/audio, missing authored VFX and missing owned OGG remain visible/known.
+- Evidence: `tools/run-wuxia-combat-reference-binding-acceptance.mjs`, `outputs/combat_reference_binding_acceptance_20260809_final/reference_binding_acceptance.json`, `docs/codex_game_development_os/COMBAT_002B_ORIGINAL_PROJECT_DEVELOPMENT_BINDING_20260809.md`.
+- This does not advance `ASSET-007`/`ASSET-008`/`ASSET-009`/`ASSET-010` or `COMBAT-002B` to production complete. The next production dependency remains approved actor clips, authored VFX/Buff frames and owned/licensed OGG replacements.
+
 ## P1/P2 后续
 
 - `CONTENT-001`：第二章节证明没有章节特例代码。

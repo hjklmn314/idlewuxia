@@ -805,7 +805,12 @@
         "Approved side-view animation, scene, VFX and audio bindings render every configured combat state.",
         "Real browser and representative Android devices pass human animation, hit feedback, audio latency and readability review."
       ],
-      "evidence": []
+      "evidence": [
+        "src/wuxia-main.js",
+        "tools/run-wuxia-combat-reference-binding-acceptance.mjs",
+        "outputs/combat_reference_binding_acceptance_20260809_final/reference_binding_acceptance.json",
+        "docs/codex_game_development_os/COMBAT_002B_ORIGINAL_PROJECT_DEVELOPMENT_BINDING_20260809.md"
+      ]
     },
     {
       "id": "COMBAT-002",

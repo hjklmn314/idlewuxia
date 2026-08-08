@@ -433,9 +433,13 @@ function evidenceText(evidence) {
 
 function playCombatAudioCue(event, combatContent) {
   if (!event || !combatContent || event.seq === undefined || event.seq === state.combatPlayback.lastAudioSeq) return;
-  state.combatPlayback.lastAudioSeq = event.seq;
   const cue = (combatContent.audioCues || []).find((item) => item.audioCueId === event.audioCueId);
   if (!cue || typeof window === "undefined") return;
+  // Do not consume the sequence for a non-audio event. CombatSession emits
+  // skill/skillResolved records around the actual impact; marking those as
+  // played would skip the configured hit/Buff cue that immediately precedes
+  // them.
+  state.combatPlayback.lastAudioSeq = event.seq;
   try {
     const referenceAudioUrl = referenceAssetUrlFor("audio", event.audioCueId || "");
     if (referenceAudioUrl && typeof window.Audio === "function") {
@@ -1205,8 +1209,15 @@ function syncCombatPlayback(snapshot, screen, flowContract) {
   }
   const preview = combatPreviewForSnapshot(block, flowContract, snapshot);
   const runtime = snapshot?.pendingCombat?.combatSnapshot || null;
-  const events = preview?.events || [];
-  playCombatAudioCue(events.length ? events[events.length - 1] : null, state.config?.wuxiaCombatContent);
+  // Playback must follow the authoritative CombatSession event stream.  The
+  // static preview is only a fallback for evidence routes without a live
+  // session; using it while a session is active silently drops player-issued
+  // skill audio (Buff/control/heal cues in particular).
+  const events = Array.isArray(runtime?.events) && runtime.events.length
+    ? runtime.events
+    : (preview?.events || []);
+  const latestAudioEvent = [...events].reverse().find((event) => event?.audioCueId);
+  playCombatAudioCue(latestAudioEvent || null, state.config?.wuxiaCombatContent);
   if (snapshot?.pendingCombat?.replayMode === true) {
     // Replay is a read-only inspection mode. Never auto-resolve the
     // authoritative finished combat while the player is viewing its replay.

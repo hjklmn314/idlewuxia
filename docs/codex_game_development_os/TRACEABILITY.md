@@ -134,3 +134,11 @@
 | Development source is explicit and non-shipping | `sourceProject`, `activation` and `shippingAllowed` in `config/wuxia_combat_reference_asset_overlay.json` | `src/assetRegistry.js`, overlay validator | `ASSET_011_ORIGINAL_PROJECT_DEVELOPMENT_BINDING_20260809.md` | Pass; localhost-only development binding, no bytes in shipping registry |
 | Logical coverage does not overclaim missing actors/VFX | `bindingCoverage.actor` and `bindingCoverage.vfx` | overlay semantic validator + focused test | `runtime:combat-reference-overlay:test` | Pass; actors 0/2 and VFX 0/28 remain explicit missing |
 | Original-project scene/Buff/audio bindings resolve | overlay `assets[]` and `bindings` | `createReferenceAssetRegistry()` + browser flow | `outputs/asset_original_project_overlay_manual_20260809/14_early_combat_screen.png` | Development PASS; 2 scenes, 16 Buff rows and 5 audio rows resolve; production blocked |
+
+## COMBAT-002B original-project playback traceability entry (2026-08-09)
+
+| Requirement | Configuration authority | Runtime/tool authority | Evidence | Verdict |
+|---|---|---|---|---|
+| Live combat event stream drives presentation audio | `config/wuxia_combat_content.json` audio cue map | `src/wuxia-main.js` `syncCombatPlayback()` and `playCombatAudioCue()` | `tools/run-wuxia-combat-reference-binding-acceptance.mjs` | Pass in development; player Buff event invoked configured MP3 binding |
+| Buff icon is attached to the mutated runtime unit | combat Buff definitions + overlay `bindings.buffIcons` | `renderCombatRuntime()` + live `CombatSession` snapshot | `outputs/combat_reference_binding_acceptance_20260809_final/02_combat_reference_buff_and_audio_after_skill.png` | Development visual PASS; production art/ownership blocked |
+| Production cannot accept the development overlay or fallbacks | presentation production profile and AssetRegistry policy | `tools/validate-wuxia-combat-presentation-contract.mjs`, `src/assetRegistry.js` | `COMBAT_002B_ORIGINAL_PROJECT_DEVELOPMENT_BINDING_20260809.md` | Deliberately BLOCKED until ASSET-007~010 provide approved assets |

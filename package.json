@@ -43,6 +43,7 @@
     "runtime:combat-production-semantics:test": "node tools/test-wuxia-combat-production-semantics.mjs",
     "runtime:combat-reference-overlay:validate": "node tools/validate-wuxia-combat-reference-asset-overlay.mjs",
     "runtime:combat-reference-overlay:test": "node tools/test-wuxia-combat-reference-asset-overlay.mjs",
+    "runtime:combat-reference-binding:acceptance": "node tools/run-wuxia-combat-reference-binding-acceptance.mjs",
     "runtime:combat-presentation:validate": "node tools/validate-wuxia-combat-presentation-contract.mjs",
     "runtime:combat-presentation:test": "node tools/test-wuxia-combat-presentation-contract.mjs",
     "runtime:combat-actor-assets:validate": "node tools/validate-wuxia-combat-actor-asset-requirements.mjs",
