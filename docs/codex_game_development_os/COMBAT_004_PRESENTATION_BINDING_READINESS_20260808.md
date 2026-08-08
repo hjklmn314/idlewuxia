@@ -77,14 +77,24 @@ The functional screen verdict is **PASS**: both units have readable HP/MP, the c
 
 This task adds no player-facing rendering code, so it does not downgrade the already recorded functional control evidence. It deliberately preserves the final art failure instead of converting it to a false pass.
 
-## 6. Known limitations and rollback
+## 6. Reproducibility, commit and rollback
+
+- Start commit: `b41d8ecf6cc8cecc3a4b25b4811043c2f900a8a9`.
+- Implementation commit: `a47648b27b8673ce05a90ee3843d40aa722616f5`.
+- Presentation contract SHA-256: `D54D2117F852013B98B9B00C4E0607DC729CD10D71733D9EDFBC728C34FEE072`.
+- Presentation schema SHA-256: `0E1CC9CC1EB8403F88DF2C19780A41AFB8F1005066C5B3641396FE3F91A7986C`.
+- Stage-plan SHA-256 at acceptance: `6D3926994A3E566154BA17E95771314450B7C417CA948BEDE860F8E19F7B32C9`.
+- Generated validation evidence: `outputs/production_os/combat-presentation-contract-validation.json`.
+- Rollback: revert implementation commit `a47648b27b8673ce05a90ee3843d40aa722616f5`; this removes only the COMBAT-004 contract/tool/documentation changes and leaves COMBAT-003 runtime authority intact.
+
+## 7. Known limitations
 
 - Reference scene, audio and Buff icon records are development-only and remain outside the shipping set.
 - Actor and VFX rows have no approved reference substitute in the current local archive; their requirements remain open.
 - `wuxia_combat_content.json` still contains five `kind: "synth"` audio cues for development fallback. Strict production validation rejects them.
-- Rollback is a single commit revert; the runtime combat interpreter and COMBAT-003 snapshot/replay authority are not changed by this task.
+- The runtime combat interpreter and COMBAT-003 snapshot/replay authority are not changed by this task.
 
-## 7. Next work order
+## 8. Next work order
 
 1. ASSET-007: supply or approve side-view three-head player/enemy sprites with idle, walk-left, walk-right, attack, hurt, control and defeat clips, including alternating foot phases.
 2. ASSET-008: approve clean portrait combat scenes with no baked figures and three-size landing/safe-area evidence.
@@ -92,6 +102,6 @@ This task adds no player-facing rendering code, so it does not downgrade the alr
 4. ASSET-010: replace synth cues with owned/licensed OGG files and measure device latency/mix.
 5. COMBAT-002B: run the production profile, real browser three-viewport review and representative Android manual Gate C.
 
-## 8. Verdict
+## 9. Verdict
 
 **PASS WITH KNOWN LIMITATIONS.** The binding/provenance contract and fail-closed production gate are complete. The combat product remains `RELEASE_BLOCKED` until the explicitly listed asset and manual visual gates pass.
