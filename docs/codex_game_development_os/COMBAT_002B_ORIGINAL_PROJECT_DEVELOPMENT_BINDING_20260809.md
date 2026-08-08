@@ -43,7 +43,7 @@ Evidence directory (generated, not a Git shipping input):
 outputs/combat_reference_binding_acceptance_20260809_final/
 ```
 
-Observed in the fresh 540×960 browser session:
+Observed in fresh real-browser sessions at 540×960, 360×800 and 390×844:
 
 - `data-wuxia-asset-mode=original-project-development`.
 - Original-project clean scene loaded at 2160×853.
@@ -53,6 +53,14 @@ Observed in the fresh 540×960 browser session:
 - Console error/warning count: `0`.
 - Horizontal overflow: `0`.
 - Player skill submission was accepted by the real runtime; no direct state mutation or fixture injection was used.
+
+Viewport evidence directories:
+
+- `outputs/combat_reference_binding_acceptance_20260809_final/`
+- `outputs/combat_reference_binding_acceptance_20260809_360x800/`
+- `outputs/combat_reference_binding_acceptance_20260809_390x844_retry/`
+
+All six screenshots were manually opened. The development binding remains readable and within the viewport at all three sizes. The smaller viewports make the deliberately retained CSS fighters and dark reference scene more visibly inadequate; that observation is recorded as a production Gate C failure, not hidden by the binding PASS.
 
 ## Manual visual acceptance
 
