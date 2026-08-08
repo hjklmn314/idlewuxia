@@ -940,7 +940,14 @@
         "Portrait crops preserve safe areas for actors, feedback and touch controls.",
         "Scene bindings, provenance, hashes and package budgets pass."
       ],
-      "evidence": []
+      "evidence": [
+        "config/wuxia_combat_scene_asset_requirements.json",
+        "config/wuxia_combat_scene_asset_requirements.schema.json",
+        "tools/validate-wuxia-combat-scene-asset-requirements.mjs",
+        "tools/test-wuxia-combat-scene-asset-requirements.mjs",
+        "docs/codex_game_development_os/ASSET_008_SCENE_ASSET_REQUIREMENTS_AUDIT_20260808.md",
+        "npm run runtime:combat-scene-assets:test"
+      ]
     },
     {
       "id": "ASSET-009",

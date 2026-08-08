@@ -89,6 +89,15 @@
 | Negative production and shipping semantics | `sourcePolicy` and `acceptanceGate` | focused negative tests | `runtime:combat-actor-assets:test` | Pass; false satisfaction and reference shipping are rejected |
 | Manual visual diagnosis | current combat presentation route | manual browser screenshot review | `outputs/combat_manual_browser_flow_20260808_combat004_fresh/14_early_combat_screen.png` | Gate C remains FAIL for CSS actors/placeholder art; blocker is visible and not masked |
 
+## ASSET-008 scene requirements traceability entry (2026-08-08)
+
+| Requirement | Configuration authority | Runtime/tool authority | Evidence | Verdict |
+|---|---|---|---|---|
+| Clean scene logical IDs and runtime landing zones | `config/wuxia_combat_scene_asset_requirements.json` + schema | `tools/validate-wuxia-combat-scene-asset-requirements.mjs` | `runtime:combat-scene-assets:validate` | Pass with known limitations; 2 reference-only scene rows |
+| Reference binding parity | `config/wuxia_combat_reference_asset_overlay.json` | scene validator | `runtime:combat-scene-assets:test` | Pass; unknown/drifted references rejected |
+| No baked player/NPC or HUD pixels | reference scene audit | manual `leitai.png` and `shulin.png` review | `docs/codex_game_development_os/ASSET_008_SCENE_ASSET_REQUIREMENTS_AUDIT_20260808.md` | Structurally Pass; final art quality/ownership still blocked |
+| Portrait visual Gate C | scene + actor presentation | fresh browser route | `outputs/combat_manual_browser_flow_20260808_asset007_fresh/14_early_combat_screen.png` | Fail for placeholder product presentation; no false pass |
+
 ## COMBAT-004 traceability entry (2026-08-08)
 
 | Requirement | Configuration authority | Runtime/tool authority | Evidence | Verdict |

@@ -60,6 +60,8 @@
 - The read-only reference archive audit found no eligible transparent side-view actor clip set. Scene PNGs, role UI panels, Lua role definitions and the flat-silhouette fight UI demo are explicitly ineligible; no reference bytes were copied or bound.
 - Focused validator and positive/negative tests pass. This is an audit/configuration PASS WITH KNOWN LIMITATIONS, not a production asset pass. The next real dependency is an approved player and enemy actor set, followed by ASSET-008.
 - Evidence: `config/wuxia_combat_actor_asset_requirements.json`, `config/wuxia_combat_actor_asset_requirements.schema.json`, `tools/validate-wuxia-combat-actor-asset-requirements.mjs`, `tools/test-wuxia-combat-actor-asset-requirements.mjs`, `docs/codex_game_development_os/ASSET_007_ACTOR_ASSET_REQUIREMENTS_AUDIT_20260808.md`.
+- `ASSET-008` reference-backed scene requirements are also registered. The two reference scenes are structurally clean and manually reviewed, but remain reference-only because they are dark/monochrome and lack shipping ownership. The scene rows therefore remain production blocked.
+- Evidence: `config/wuxia_combat_scene_asset_requirements.json`, `config/wuxia_combat_scene_asset_requirements.schema.json`, `tools/validate-wuxia-combat-scene-asset-requirements.mjs`, `tools/test-wuxia-combat-scene-asset-requirements.mjs`, `docs/codex_game_development_os/ASSET_008_SCENE_ASSET_REQUIREMENTS_AUDIT_20260808.md`.
 
 ## P1/P2 后续
 

@@ -1,0 +1,91 @@
+{
+  "$schema": "idlewuxia.combat_scene_asset_requirements.v1",
+  "contractId": "idlewuxia-combat-scene-asset-requirements-v1",
+  "version": 1,
+  "taskId": "ASSET-008",
+  "mode": "reference-backed-requirements",
+  "shippingAllowed": false,
+  "sourcePolicy": {
+    "referenceMayInformDevelopment": true,
+    "referenceBytesMayShip": false,
+    "referenceBindingsMaySatisfyProduction": false,
+    "runtimeUsesLogicalIdsOnly": true
+  },
+  "policy": {
+    "portraitOnly": true,
+    "noBakedCharacters": true,
+    "noBakedUi": true,
+    "actorMountedAtRuntime": true,
+    "safeActorLandingZonesRequired": true,
+    "threeViewportCropsRequired": true,
+    "manualVisualReviewRequired": true,
+    "integerScalePixelTreatment": true
+  },
+  "referenceAudit": {
+    "referenceRootId": "reference.fangzhijianghu.raw.res",
+    "referenceRoot": "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/01_raw_apk_unpacked/product_fangzhijianghu_guanfang_2.1.01/assets/res",
+    "candidateCount": 2,
+    "candidates": [
+      {
+        "referenceAssetId": "ref-scene-wuguan-courtyard",
+        "relativePath": "OtherImage/Fight/Scene/leitai.png",
+        "dimensions": { "width": 2160, "height": 853 },
+        "bytes": 59352,
+        "sha256": "45eb0ca86e3c8ec658e8aeff846fa35c0e9af32abc7e6829cd2641a37b2f2058",
+        "containsBakedCharacters": false,
+        "containsBakedUi": false,
+        "manualObservation": "clean monochrome martial courtyard background; no mounted units",
+        "disposition": "reference-only"
+      },
+      {
+        "referenceAssetId": "ref-scene-courtyard-rain",
+        "relativePath": "OtherImage/Fight/Scene/shulin.png",
+        "dimensions": { "width": 2160, "height": 853 },
+        "bytes": 79559,
+        "sha256": "b2d31af2343625f9576e873aeaee57295beebc6197df28274127166427c703af",
+        "containsBakedCharacters": false,
+        "containsBakedUi": false,
+        "manualObservation": "clean monochrome forest background; no mounted units",
+        "disposition": "reference-only"
+      }
+    ],
+    "visualLimitation": "The reference scenes are structurally clean but visually dark/monochrome and do not satisfy the final pixel-Wuxia product art bar.",
+    "auditedAt": "2026-08-08",
+    "auditor": "asset-content-pipeline"
+  },
+  "scenes": [
+    {
+      "id": "scene_fb01_wuguan_courtyard",
+      "logicalAssetId": "combat-scene-fb01-wuguan-courtyard",
+      "requiredSlotId": "combat-clean-background-scenes",
+      "runtimeMountPoint": "combat.scene",
+      "status": "reference-only",
+      "referenceAssetId": "ref-scene-wuguan-courtyard",
+      "runtimeBinding": { "logicalIdOnly": true, "fallback": "css_courtyard", "fallbackScope": "development-only" },
+      "safeActorLandingZones": [
+        { "id": "player", "x": 0.28, "baselineY": 0.76, "maxWidth": 0.24, "maxHeight": 0.42 },
+        { "id": "enemy", "x": 0.72, "baselineY": 0.76, "maxWidth": 0.24, "maxHeight": 0.42 }
+      ],
+      "viewportCrops": ["portrait-360x800", "portrait-390x844", "portrait-540x960"]
+    },
+    {
+      "id": "scene_fb01_courtyard_rain",
+      "logicalAssetId": "combat-scene-fb01-courtyard-rain",
+      "requiredSlotId": "combat-clean-background-scenes",
+      "runtimeMountPoint": "combat.scene",
+      "status": "reference-only",
+      "referenceAssetId": "ref-scene-courtyard-rain",
+      "runtimeBinding": { "logicalIdOnly": true, "fallback": "css_courtyard", "fallbackScope": "development-only" },
+      "safeActorLandingZones": [
+        { "id": "player", "x": 0.28, "baselineY": 0.76, "maxWidth": 0.24, "maxHeight": 0.42 },
+        { "id": "enemy", "x": 0.72, "baselineY": 0.76, "maxWidth": 0.24, "maxHeight": 0.42 }
+      ],
+      "viewportCrops": ["portrait-360x800", "portrait-390x844", "portrait-540x960"]
+    }
+  ],
+  "acceptanceGate": {
+    "productionStatus": "blocked",
+    "requiredEvidence": ["owned/licensed source", "sha256 and dimensions", "no baked characters or UI", "safe landing zone review", "three portrait crops", "manual actor/HUD readability review", "Android device review"],
+    "nextAction": "Use the reference scenes only for development while supplying or approving owned pixel-Wuxia combat backgrounds before ASSET-008 closure."
+  }
+}
