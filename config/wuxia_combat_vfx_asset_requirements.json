@@ -1,0 +1,195 @@
+{
+  "$schema": "idlewuxia.combat_vfx_asset_requirements.v1",
+  "contractId": "idlewuxia-combat-vfx-asset-requirements-v1",
+  "version": 1,
+  "taskId": "ASSET-009",
+  "mode": "reference-backed-requirements",
+  "shippingAllowed": false,
+  "sourcePolicy": {
+    "referenceMayInformRequirements": true,
+    "referenceBytesMayShip": false,
+    "referenceBindingsMaySatisfyProduction": false,
+    "runtimeUsesLogicalIdsOnly": true
+  },
+  "policy": {
+    "visualCueCount": 28,
+    "buffIconCount": 16,
+    "integerScaleOnly": true,
+    "actorOrTargetBound": true,
+    "noProductionCssFallback": true,
+    "manualFrameReviewRequired": true,
+    "noOcclusionOfCombatInfo": true,
+    "ownedOrLicensedRequired": true,
+    "portraitViewportCrops": ["portrait-360x800", "portrait-390x844", "portrait-540x960"],
+    "requiredCuePhases": ["anticipation", "impact", "settle"],
+    "requiredFeedbackFamilies": ["hit", "block", "miss", "heal", "control", "buff", "shield", "resource", "defeat"],
+    "runtimeBindingPolicy": {
+      "logicalIdOnly": true,
+      "mountPoint": "combat.vfx",
+      "cueFallback": "existing_runtime_css_feedback_only",
+      "buffFallback": "text-label",
+      "fallbackScope": "development-only"
+    }
+  },
+  "referenceAudit": {
+    "referenceRootId": "reference.fangzhijianghu.raw.res",
+    "referenceRoot": "fangzhijianghu/绔炲搧璧勬枡/鏀剧疆姹熸箹apk/瀹屾暣鍖呭唴瀹瑰綊妗?01_raw_apk_unpacked/product_fangzhijianghu_guanfang_2.1.01/assets/res",
+    "inventory": {
+      "fightEffectRasterCandidates": 0,
+      "skillUiPngCandidates": 47,
+      "buffIconPngCandidates": 170,
+      "auditedBuffIconCandidates": 6,
+      "inventoryBasis": "Reference archive recursive raster inventory and manual folder review on 2026-08-08."
+    },
+    "eligibleVfxCandidates": [],
+    "eligibleBuffCandidates": [
+      {
+        "referenceAssetId": "ref-buff-positive-01",
+        "relativePath": "OtherImage/BuffIcon/b01.png",
+        "kind": "buff-icon",
+        "dimensions": { "width": 52, "height": 54 },
+        "bytes": 2462,
+        "sha256": "6d0debce5be98151119d275f3876a6d29494d8d8b166d46a0daea52dfe2caee4",
+        "manualObservation": "Green square reference icon with a single white Chinese glyph; one static frame, no ownership evidence.",
+        "disposition": "reference-only"
+      },
+      {
+        "referenceAssetId": "ref-buff-positive-02",
+        "relativePath": "OtherImage/BuffIcon/b02.png",
+        "kind": "buff-icon",
+        "dimensions": { "width": 52, "height": 54 },
+        "bytes": 2862,
+        "sha256": "5fe377a35e62861d52967fdfef5d9ec711db4705f6c1edf18dc62a8a824c4253",
+        "manualObservation": "Green square reference icon with a single white Chinese glyph; one static frame, no ownership evidence.",
+        "disposition": "reference-only"
+      },
+      {
+        "referenceAssetId": "ref-buff-positive-03",
+        "relativePath": "OtherImage/BuffIcon/b03.png",
+        "kind": "buff-icon",
+        "dimensions": { "width": 52, "height": 54 },
+        "bytes": 2044,
+        "sha256": "399136f04f1facf71795545102b00da1a5f1741cab16e5d869fce34ab54bf07d",
+        "manualObservation": "Green square reference icon with a single white Chinese glyph; one static frame, no ownership evidence.",
+        "disposition": "reference-only"
+      },
+      {
+        "referenceAssetId": "ref-buff-negative-01",
+        "relativePath": "OtherImage/BuffIcon/d01.png",
+        "kind": "buff-icon",
+        "dimensions": { "width": 52, "height": 54 },
+        "bytes": 2442,
+        "sha256": "8ad992148f9b71dd3b85c190019c25d3fd240e92468ca511f6750e842f207176",
+        "manualObservation": "Magenta/red square reference icon with a single white Chinese glyph; one static frame, no ownership evidence.",
+        "disposition": "reference-only"
+      },
+      {
+        "referenceAssetId": "ref-buff-negative-02",
+        "relativePath": "OtherImage/BuffIcon/d02.png",
+        "kind": "buff-icon",
+        "dimensions": { "width": 52, "height": 54 },
+        "bytes": 2581,
+        "sha256": "8a70c756b1410476cb934b5265e7616de3f3a350cd38aba9a73f4e941c5c6655",
+        "manualObservation": "Red square reference icon with a single white Chinese glyph; one static frame, no ownership evidence.",
+        "disposition": "reference-only"
+      },
+      {
+        "referenceAssetId": "ref-buff-negative-03",
+        "relativePath": "OtherImage/BuffIcon/d03.png",
+        "kind": "buff-icon",
+        "dimensions": { "width": 52, "height": 54 },
+        "bytes": 2222,
+        "sha256": "bea56f30361c274905a9497840d1cce8535ab33a1047c108a4cb5046722b7f9a",
+        "manualObservation": "Red square reference icon with a single white Chinese glyph; one static frame, no ownership evidence.",
+        "disposition": "reference-only"
+      }
+    ],
+    "ineligibleEvidence": [
+      {
+        "relativePath": "Anim/FightEffect/",
+        "kind": "vfx-animation-directory",
+        "observed": "Directory exists in the reference archive but contains zero files.",
+        "disposition": "ineligible",
+        "reason": "No frame-addressable hit, control, buff, victory or defeat VFX can be reviewed or bound."
+      },
+      {
+        "relativePath": "Image/UI/SkillUI/",
+        "kind": "skill-ui-icons",
+        "observed": "47 PNG files are static skill-category/UI icons.",
+        "disposition": "ineligible",
+        "reason": "Static menu icons do not provide target-bound VFX timing, impact frames, or event semantics."
+      },
+      {
+        "relativePath": "OtherImage/Fight/Scene/",
+        "kind": "combat-scenes",
+        "observed": "Scene backgrounds are clean but not VFX frames.",
+        "disposition": "ineligible",
+        "reason": "Scene pixels cannot satisfy cue-level hit, buff, control, or outcome presentation."
+      }
+    ],
+    "conclusion": "The reference archive supplies six static Buff icon exemplars that may inform development-only binding. It supplies no eligible frame-addressable VFX cue family. All 28 cue assets and all 16 production Buff icon replacements remain unapproved.",
+    "auditedAt": "2026-08-08",
+    "auditor": "asset-content-pipeline"
+  },
+  "visualCues": [
+    { "id": "cue_basic_strike", "logicalAssetId": "combat-vfx-cue-basic-strike", "eventType": "damage", "requiredPresentation": "single-target hit spark and damage feedback", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_test_strike", "logicalAssetId": "combat-vfx-cue-test-strike", "eventType": "damage", "requiredPresentation": "low-intensity training strike feedback", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_guard", "logicalAssetId": "combat-vfx-cue-guard", "eventType": "buff", "requiredPresentation": "guard ring and defensive state feedback", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_heal", "logicalAssetId": "combat-vfx-cue-heal", "eventType": "heal", "requiredPresentation": "target-bound jade healing wave and heal feedback", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_flame_palm", "logicalAssetId": "combat-vfx-cue-flame-palm", "eventType": "damage", "requiredPresentation": "flame arc impact with critical-readable feedback", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_pressure_point", "logicalAssetId": "combat-vfx-cue-pressure-point", "eventType": "control", "requiredPresentation": "meridian flash and control confirmation", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_iron_wall", "logicalAssetId": "combat-vfx-cue-iron-wall", "eventType": "shield", "requiredPresentation": "stone shield ring and shield amount feedback", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_venom_thrust", "logicalAssetId": "combat-vfx-cue-venom-thrust", "eventType": "damage", "requiredPresentation": "poison burst linked to target and damage", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_double_slash", "logicalAssetId": "combat-vfx-cue-double-slash", "eventType": "damage", "requiredPresentation": "two readable slash arcs with ordered impacts", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_bleeding_cut", "logicalAssetId": "combat-vfx-cue-bleeding-cut", "eventType": "damage", "requiredPresentation": "red arc and bleeding application feedback", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_smoke_step", "logicalAssetId": "combat-vfx-cue-smoke-step", "eventType": "buff", "requiredPresentation": "smoke displacement and evasion-state feedback", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_miss", "logicalAssetId": "combat-vfx-cue-miss", "eventType": "miss", "requiredPresentation": "wind trace and miss feedback without false damage", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_defeat", "logicalAssetId": "combat-vfx-cue-defeat", "eventType": "defeat", "requiredPresentation": "fall, dust and defeat-state confirmation", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_qi_recovery", "logicalAssetId": "combat-vfx-cue-qi-recovery", "eventType": "resource", "requiredPresentation": "target-bound qi ring and resource delta", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_meditation", "logicalAssetId": "combat-vfx-cue-meditation", "eventType": "buff", "requiredPresentation": "meditation aura and regeneration state", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_clear_mind", "logicalAssetId": "combat-vfx-cue-clear-mind", "eventType": "cleanse", "requiredPresentation": "cleanse ring and removed-control feedback", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_silencing_needle", "logicalAssetId": "combat-vfx-cue-silencing-needle", "eventType": "control", "requiredPresentation": "needle impact and silence confirmation", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_reflecting_mirror", "logicalAssetId": "combat-vfx-cue-reflecting-mirror", "eventType": "buff", "requiredPresentation": "mirror ring and reflected-damage state", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_trap_root", "logicalAssetId": "combat-vfx-cue-trap-root", "eventType": "control", "requiredPresentation": "root bind and restricted-action feedback", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_blood_fury", "logicalAssetId": "combat-vfx-cue-blood-fury", "eventType": "statModifier", "requiredPresentation": "red aura and attack-modifier state", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_sweeping_blade", "logicalAssetId": "combat-vfx-cue-sweeping-blade", "eventType": "damage", "requiredPresentation": "wide slash arc readable across multiple targets", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_shared_breath", "logicalAssetId": "combat-vfx-cue-shared-breath", "eventType": "heal", "requiredPresentation": "ally-linked shared healing wave", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_random_needle", "logicalAssetId": "combat-vfx-cue-random-needle", "eventType": "control", "requiredPresentation": "needle burst with target-specific control feedback", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_true_point", "logicalAssetId": "combat-vfx-cue-true-point", "eventType": "damage", "requiredPresentation": "puncture impact and high-value damage feedback", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_taunt", "logicalAssetId": "combat-vfx-cue-taunt", "eventType": "buff", "requiredPresentation": "roar ring and taunt target-state feedback", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_protect_ally", "logicalAssetId": "combat-vfx-cue-protect-ally", "eventType": "shield", "requiredPresentation": "ally-protection arc and shield feedback", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_meridian_transfer", "logicalAssetId": "combat-vfx-cue-meridian-transfer", "eventType": "heal", "requiredPresentation": "caster-to-ally meridian transfer wave", "status": "missing", "referenceAssetId": null },
+    { "id": "cue_frost_qi", "logicalAssetId": "combat-vfx-cue-frost-qi", "eventType": "damage", "requiredPresentation": "ice shard impact with cold damage feedback", "status": "missing", "referenceAssetId": null }
+  ],
+  "buffIcons": [
+    { "id": "buff_guarded", "logicalAssetId": "combat-buff-guarded", "status": "reference-only", "referenceAssetId": "ref-buff-positive-01", "semanticRole": "positive defensive state" },
+    { "id": "buff_iron_wall", "logicalAssetId": "combat-buff-iron-wall", "status": "reference-only", "referenceAssetId": "ref-buff-positive-02", "semanticRole": "positive damage mitigation state" },
+    { "id": "buff_poisoned", "logicalAssetId": "combat-buff-poisoned", "status": "reference-only", "referenceAssetId": "ref-buff-negative-01", "semanticRole": "negative poison damage-over-time state" },
+    { "id": "buff_burning", "logicalAssetId": "combat-buff-burning", "status": "reference-only", "referenceAssetId": "ref-buff-negative-02", "semanticRole": "negative fire damage-over-time state" },
+    { "id": "buff_bleeding", "logicalAssetId": "combat-buff-bleeding", "status": "reference-only", "referenceAssetId": "ref-buff-negative-03", "semanticRole": "negative physical damage-over-time state" },
+    { "id": "buff_stunned", "logicalAssetId": "combat-buff-stunned", "status": "reference-only", "referenceAssetId": "ref-buff-negative-02", "semanticRole": "negative stun control state" },
+    { "id": "buff_haste", "logicalAssetId": "combat-buff-haste", "status": "reference-only", "referenceAssetId": "ref-buff-positive-03", "semanticRole": "positive haste state" },
+    { "id": "buff_evasion", "logicalAssetId": "combat-buff-evasion", "status": "reference-only", "referenceAssetId": "ref-buff-positive-03", "semanticRole": "positive evasion state" },
+    { "id": "buff_silenced", "logicalAssetId": "combat-buff-silenced", "status": "reference-only", "referenceAssetId": "ref-buff-negative-02", "semanticRole": "negative silence control state" },
+    { "id": "buff_rooted", "logicalAssetId": "combat-buff-rooted", "status": "reference-only", "referenceAssetId": "ref-buff-negative-03", "semanticRole": "negative root control state" },
+    { "id": "buff_mirror", "logicalAssetId": "combat-buff-mirror", "status": "reference-only", "referenceAssetId": "ref-buff-positive-01", "semanticRole": "positive damage reflection state" },
+    { "id": "buff_meditation", "logicalAssetId": "combat-buff-meditation", "status": "reference-only", "referenceAssetId": "ref-buff-positive-01", "semanticRole": "positive regeneration state" },
+    { "id": "buff_control_immunity", "logicalAssetId": "combat-buff-control-immunity", "status": "reference-only", "referenceAssetId": "ref-buff-positive-02", "semanticRole": "positive control immunity state" },
+    { "id": "buff_taunt", "logicalAssetId": "combat-buff-taunt", "status": "reference-only", "referenceAssetId": "ref-buff-positive-03", "semanticRole": "positive taunt state" },
+    { "id": "buff_weakened", "logicalAssetId": "combat-buff-weakened", "status": "reference-only", "referenceAssetId": "ref-buff-negative-01", "semanticRole": "negative attack reduction state" },
+    { "id": "buff_focus", "logicalAssetId": "combat-buff-focus", "status": "reference-only", "referenceAssetId": "ref-buff-positive-02", "semanticRole": "positive protection state" }
+  ],
+  "acceptanceGate": {
+    "productionStatus": "blocked",
+    "requiredEvidence": [
+      "owned or licensed VFX source and provenance",
+      "all 28 cue IDs resolve to authored frame or particle assets",
+      "all 16 Buff icons resolve to approved owned or licensed replacements",
+      "integer-scale pixel import and atlas budget",
+      "actor/target binding and anticipation-impact-settle timing review",
+      "three portrait viewport readability and no-occlusion review",
+      "manual frame-by-frame and Android device review"
+    ],
+    "nextAction": "Keep the six Buff icons as development-only reference exemplars, author the missing VFX family and owned Buff replacements, then bind logical IDs and repeat manual three-viewport combat acceptance before COMBAT-002B."
+  }
+}

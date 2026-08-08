@@ -63,6 +63,14 @@
 - `ASSET-008` reference-backed scene requirements are also registered. The two reference scenes are structurally clean and manually reviewed, but remain reference-only because they are dark/monochrome and lack shipping ownership. The scene rows therefore remain production blocked.
 - Evidence: `config/wuxia_combat_scene_asset_requirements.json`, `config/wuxia_combat_scene_asset_requirements.schema.json`, `tools/validate-wuxia-combat-scene-asset-requirements.mjs`, `tools/test-wuxia-combat-scene-asset-requirements.mjs`, `docs/codex_game_development_os/ASSET_008_SCENE_ASSET_REQUIREMENTS_AUDIT_20260808.md`.
 
+## 2026-08-08 ASSET-009 VFX and Buff reference audit update
+
+- `ASSET-009` remains **open / production blocked**. A requirements-only manifest now covers all 28 configured combat cue IDs and all 16 Buff icon IDs. The manifest records the event semantics, player-readable presentation brief, logical runtime policy, reference provenance and manual acceptance evidence required before production binding.
+- The reference archive audit found zero frame-addressable VFX candidates under `Anim/FightEffect/`; the 47 files under `Image/UI/SkillUI/` are static menu icons and are not valid target-bound effects. Six 52x54 Buff icon exemplars (`b01`-`b03`, `d01`-`d03`) were manually viewed and hashed, but remain development-only reference bindings with no ownership evidence and no production satisfaction.
+- The validator rejects cue-ID drift, event-type drift, unknown or reclassified Buff references, false satisfaction, shipping of reference bytes, and production fallback policy changes. Focused positive/negative tests pass. This is a configuration/audit PASS WITH KNOWN LIMITATIONS, not an art or release pass.
+- Evidence: `config/wuxia_combat_vfx_asset_requirements.json`, `config/wuxia_combat_vfx_asset_requirements.schema.json`, `tools/validate-wuxia-combat-vfx-asset-requirements.mjs`, `tools/test-wuxia-combat-vfx-asset-requirements.mjs`, `docs/codex_game_development_os/ASSET_009_VFX_ASSET_REQUIREMENTS_AUDIT_20260808.md`.
+- The next dependency remains ASSET-010 audio requirements/audit, followed by approved owned assets and COMBAT-002B. Gate C must still manually fail the current CSS/placeholder route until real actor, scene, VFX, Buff and audio bindings exist.
+
 ## P1/P2 后续
 
 - `CONTENT-001`：第二章节证明没有章节特例代码。

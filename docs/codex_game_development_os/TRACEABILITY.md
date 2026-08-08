@@ -107,3 +107,13 @@
 | Production fallback and oscillator rejection | production profile in presentation contract + asset contract | strict presentation validator and production asset validator | strict test negative cases | Blocked intentionally; 53 bindings still need approved assets |
 | Missing production asset requirements | ASSET-007～010 slot contracts | asset pipeline and manual Gate C | `COMBAT_004_PRESENTATION_BINDING_READINESS_20260808.md` | Open; no false completion claim |
 | Functional combat presentation route | combat content + presentation contract | `tools/run-wuxia-real-browser-flow.mjs --scenario all-key-screens` | `outputs/combat_manual_browser_flow_20260808_combat004_fresh/14_early_combat_screen.png` and `real_browser_flow_summary.json` | Functional PASS (15/15, 0 failures); visual/product Gate C FAIL for CSS actors and placeholder scene |
+
+## ASSET-009 VFX and Buff requirements traceability entry (2026-08-08)
+
+| Requirement | Configuration authority | Runtime/tool authority | Evidence | Verdict |
+|---|---|---|---|---|
+| All configured visual cue IDs have an authored production requirement | `config/wuxia_combat_vfx_asset_requirements.json` + `config/wuxia_combat_presentation_contract.json` + combat content | `tools/validate-wuxia-combat-vfx-asset-requirements.mjs` | `runtime:combat-vfx-assets:validate` | Pass with known limitations; 28/28 rows are explicitly missing and production blocked |
+| Buff semantic IDs have development-only reference bindings | ASSET-009 `buffIcons` + reference overlay bindings | VFX requirements validator | `runtime:combat-vfx-assets:test` | Pass; 16/16 are reference-only, six audited 52x54 exemplars, no reference bytes allowed to ship |
+| No invalid VFX reference is treated as production art | `referenceAudit.eligibleVfxCandidates` and ineligible evidence | reference inventory + focused negative tests | `ASSET_009_VFX_ASSET_REQUIREMENTS_AUDIT_20260808.md` | Pass; zero eligible VFX candidates, static Skill UI icons rejected |
+| Runtime binding and fallback are configuration governed | `policy.runtimeBindingPolicy` | validator and production presentation policy | ASSET-009 validator output | Pass; logical IDs at `combat.vfx`, development-only fallback, no production CSS satisfaction |
+| Manual combat visual quality | VFX/Buff requirements plus presentation contract | fresh browser combat route and manual review | `outputs/combat_manual_browser_flow_20260808_asset009_fresh/14_early_combat_screen.png` | Gate C remains FAIL for current placeholder actor/scene/VFX; no false pass |

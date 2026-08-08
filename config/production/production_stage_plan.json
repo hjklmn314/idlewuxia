@@ -962,7 +962,14 @@
         "VFX remain readable at all three portrait viewports and obey performance budgets.",
         "Missing cue assets fail the production gate rather than falling back silently."
       ],
-      "evidence": []
+      "evidence": [
+        "config/wuxia_combat_vfx_asset_requirements.json",
+        "config/wuxia_combat_vfx_asset_requirements.schema.json",
+        "tools/validate-wuxia-combat-vfx-asset-requirements.mjs",
+        "tools/test-wuxia-combat-vfx-asset-requirements.mjs",
+        "docs/codex_game_development_os/ASSET_009_VFX_ASSET_REQUIREMENTS_AUDIT_20260808.md",
+        "npm run runtime:combat-vfx-assets:test"
+      ]
     },
     {
       "id": "ASSET-010",
