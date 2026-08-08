@@ -19,4 +19,5 @@ assert.equal(registry.resolve("ref-scene-wuguan-courtyard").kind, "scene");
 assert.equal(registry.resolve("ref-audio-hit").format, "mp3");
 assert.throws(() => registry.resolve("brand-icon-primary"), (error) => error instanceof AssetActivationError && error.code === "REFERENCE_ASSET_UNKNOWN_ID");
 assert.throws(() => createReferenceAssetRegistry({ ...overlay, shippingAllowed: true }), (error) => error.code === "REFERENCE_ASSET_OVERLAY_POLICY");
+assert.throws(() => createReferenceAssetRegistry({ ...overlay, sourceProject: { ...overlay.sourceProject, shippingAllowed: true } }), (error) => error.code === "REFERENCE_ASSET_OVERLAY_SOURCE_POLICY");
 console.log("combat reference asset overlay tests: PASS (schema, bindings, development-only policy, resolver)");

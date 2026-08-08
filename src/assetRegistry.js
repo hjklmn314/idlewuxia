@@ -45,6 +45,27 @@ function assertReferenceOverlayShape(overlay) {
   if (overlay.mode !== "development-only" || overlay.shippingAllowed !== false || overlay.sourcePolicy !== "reference-only") {
     throw new AssetActivationError("REFERENCE_ASSET_OVERLAY_POLICY", "Development reference overlay must be explicitly non-shipping.");
   }
+  const sourceProject = overlay.sourceProject;
+  if (
+    !sourceProject
+    || sourceProject.projectId !== "fangzhijianghu-original-project"
+    || sourceProject.usage !== "original-project-development-binding"
+    || sourceProject.approval !== "user-approved-development-only"
+    || sourceProject.shippingAllowed !== false
+    || sourceProject.referenceBytesMayShip !== false
+  ) {
+    throw new AssetActivationError("REFERENCE_ASSET_OVERLAY_SOURCE_POLICY", "Original-project development bindings must identify a user-approved, non-shipping source.");
+  }
+  const activation = overlay.activation;
+  if (
+    !activation
+    || activation.primaryQueryParameter !== "originalProjectAssets"
+    || activation.legacyQueryParameter !== "referenceAssets"
+    || activation.localhostOnly !== true
+    || activation.defaultEnabled !== false
+  ) {
+    throw new AssetActivationError("REFERENCE_ASSET_OVERLAY_ACTIVATION_POLICY", "Original-project development bindings must be explicit, localhost-only and disabled by default.");
+  }
   if (!Array.isArray(overlay.assets)) {
     throw new AssetActivationError("REFERENCE_ASSET_OVERLAY_INVALID", "Development reference asset overlay must define assets[].");
   }
