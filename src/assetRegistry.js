@@ -48,7 +48,8 @@ function assertReferenceOverlayShape(overlay) {
   const sourceProject = overlay.sourceProject;
   if (
     !sourceProject
-    || sourceProject.projectId !== "fangzhijianghu-original-project"
+    || typeof sourceProject.projectId !== "string"
+    || !sourceProject.projectId
     || sourceProject.usage !== "original-project-development-binding"
     || sourceProject.approval !== "user-approved-development-only"
     || sourceProject.shippingAllowed !== false
