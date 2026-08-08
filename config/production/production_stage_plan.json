@@ -74,6 +74,7 @@
         "ARCH-001",
         "T03-00",
         "T03-01",
+        "COMBAT-003",
         "SAVE-001",
         "OBS-001",
         "HYGIENE-001"
@@ -827,6 +828,39 @@
         "config/wuxia_combat_content.json",
         "tools/test-wuxia-combat-production-semantics.mjs",
         "tools/run-wuxia-real-browser-flow.mjs"
+      ]
+    },
+    {
+      "id": "COMBAT-003",
+      "title": "战斗暂停、重播、存档恢复与配置驱动数值模拟",
+      "priority": "P0",
+      "gate": "G4",
+      "status": "done",
+      "owner": "combat-model-and-simulator",
+      "dependsOn": [
+        "COMBAT-002A",
+        "ARCH-001"
+      ],
+      "acceptance": [
+        "Pause and resume are explicit runtime commands and paused input cannot mutate combat state.",
+        "Saved combat snapshots preserve RNG, turn, buffs, cooldowns, command log and deterministic replay identity.",
+        "Replay re-executes the same configured commands through the same CombatSession interpreter and reproduces the event stream.",
+        "Balance simulation runs multiple configured policies and encounters through the same runtime formulas, reports percentiles, and fails when configured limits are exceeded."
+      ],
+      "evidence": [
+        "config/wuxia_combat_content.json",
+        "config/wuxia_combat_simulation.json",
+        "config/wuxia_combat_simulation.schema.json",
+        "src/combatSession.js",
+        "src/chapterSession.js",
+        "src/uiFlowAdapter.js",
+        "src/wuxiaDomAdapter.js",
+        "tools/test-wuxia-combat-replay-pause.mjs",
+        "tools/validate-wuxia-combat-simulation.mjs",
+        "tools/simulate-wuxia-combat.mjs",
+        "tools/test-wuxia-combat-simulation.mjs",
+        "npm run runtime:combat-replay-pause:test",
+        "npm run runtime:combat-simulation"
       ]
     },
     {

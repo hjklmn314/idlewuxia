@@ -118,6 +118,30 @@
       ]
     },
     {
+      "id": "combat-session",
+      "owner": "combat-system-designer",
+      "stateAuthority": "src/combatSession.js",
+      "runtimeModules": [
+        "src/combatSession.js",
+        "src/chapterSession.js",
+        "src/uiFlowAdapter.js",
+        "src/wuxia-main.js"
+      ],
+      "configuration": [
+        "config/wuxia_combat_content.json",
+        "config/wuxia_combat_content.schema.json",
+        "config/wuxia_combat_simulation.json",
+        "config/wuxia_combat_simulation.schema.json"
+      ],
+      "status": "logic-v1-manual-turns-pause-replay-save-restore-and-shared-runtime-simulation",
+      "nextTaskIds": [
+        "COMBAT-002B",
+        "COMBAT-002",
+        "SAVE-001",
+        "OBS-001"
+      ]
+    },
+    {
       "id": "persistence",
       "owner": "save-migration-compatibility",
       "stateAuthority": "src/runtimePersistence.js",

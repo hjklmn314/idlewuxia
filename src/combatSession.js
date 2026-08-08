@@ -24,6 +24,16 @@ function integer(value, fallback = 0) {
   return Math.floor(number(value, fallback));
 }
 
+function replayHash(value) {
+  const text = JSON.stringify(value);
+  let hash = 2166136261;
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `replay-${(hash >>> 0).toString(16).padStart(8, "0")}`;
+}
+
 function clamp(value, low, high) {
   return Math.max(low, Math.min(high, value));
 }
@@ -203,6 +213,11 @@ export function validateCombatContent(content) {
   const { source, maps } = normalizeContent(content);
   const findings = [];
   if (source?.schemaVersion !== "idlewuxia.combat_content.v1") findings.push({ severity: "error", path: "schemaVersion", message: "unsupported combat content schema" });
+  const replayRules = source.rules?.replay || {};
+  if (replayRules.schema !== "idlewuxia.combat_replay.v1") findings.push({ severity: "error", path: "rules.replay.schema", message: "combat replay contract is missing or unsupported" });
+  if (replayRules.allowPause !== true || replayRules.allowReplay !== true) findings.push({ severity: "error", path: "rules.replay", message: "combat replay must allow pause and replay" });
+  if (!Number.isInteger(Number(replayRules.maxCommands)) || Number(replayRules.maxCommands) < 1) findings.push({ severity: "error", path: "rules.replay.maxCommands", message: "maxCommands must be a positive integer" });
+  if (!Number.isInteger(Number(replayRules.maxReplayEvents)) || Number(replayRules.maxReplayEvents) < 1) findings.push({ severity: "error", path: "rules.replay.maxReplayEvents", message: "maxReplayEvents must be a positive integer" });
   if (!maps.factions.size || !maps.units.size || !maps.skills.size || !maps.encounters.size) findings.push({ severity: "error", path: "content", message: "combat content requires factions, units, skills and encounters" });
   validateUniqueIds(source.factions, "factionId", "factions", findings);
   validateUniqueIds(source.units, "unitId", "units", findings);
@@ -459,6 +474,7 @@ export function createCombatSession(content, options = {}) {
     playerUnitIds,
     enemyUnitIds,
     status: "idle",
+    paused: false,
     outcome: "",
     round: 0,
     turnIndex: 0,
@@ -469,7 +485,30 @@ export function createCombatSession(content, options = {}) {
     result: null,
     seed: number(options.seed ?? restoredSnapshot?.seed ?? encounter.seed, 1),
     actionQueue: {},
+    commandLog: [],
   };
+
+  function currentReplayId() {
+    return replayHash({
+      schema: "idlewuxia.combat_replay.v1",
+      encounterId: state.encounterId,
+      seed: state.seed,
+      commands: state.commandLog,
+    });
+  }
+
+  function recordCommand(command) {
+    const maxCommands = Math.max(1, integer(rules.replay?.maxCommands, 256));
+    if (state.commandLog.length >= maxCommands) throw new Error("combat replay command limit reached");
+    state.commandLog.push({
+      seq: state.commandLog.length,
+      ...cloneData(command),
+    });
+  }
+
+  function canRecordCommand() {
+    return state.commandLog.length < Math.max(1, integer(rules.replay?.maxCommands, 256));
+  }
 
   function alive(unit) { return Boolean(unit && unit.alive && unit.hp > 0); }
 
@@ -966,14 +1005,37 @@ export function createCombatSession(content, options = {}) {
   function start() {
     if (state.status !== "idle") return snapshot();
     state.status = "active";
+    state.paused = false;
     state.round = 1;
     rebuildTurnOrder();
     emit({ eventType: "combatStarted", kind: "combatStarted", value: 0, text: encounter.name || "战斗开始", timeMs: 0 });
     return snapshot();
   }
 
+  function pause() {
+    if (state.status !== "active") return { accepted: false, reason: "combat_not_active", snapshot: snapshot() };
+    if (rules.replay?.allowPause !== true) return { accepted: false, reason: "pause_disabled", snapshot: snapshot() };
+    if (state.paused) return { accepted: false, reason: "combat_already_paused", snapshot: snapshot() };
+    if (!canRecordCommand()) return { accepted: false, reason: "combat_replay_command_limit", snapshot: snapshot() };
+    state.paused = true;
+    const event = emit({ eventType: "combatPaused", kind: "combatPaused", value: 0, text: "战斗已暂停" });
+    recordCommand({ kind: "pause", eventSeq: event.seq });
+    return { accepted: true, event, snapshot: snapshot() };
+  }
+
+  function resume() {
+    if (state.status !== "active") return { accepted: false, reason: "combat_not_active", snapshot: snapshot() };
+    if (!state.paused) return { accepted: false, reason: "combat_not_paused", snapshot: snapshot() };
+    if (!canRecordCommand()) return { accepted: false, reason: "combat_replay_command_limit", snapshot: snapshot() };
+    state.paused = false;
+    const event = emit({ eventType: "combatResumed", kind: "combatResumed", value: 0, text: "战斗继续" });
+    recordCommand({ kind: "resume", eventSeq: event.seq });
+    return { accepted: true, event, snapshot: snapshot() };
+  }
+
   function step(actionOverride = null) {
     if (state.status === "idle") start();
+    if (state.paused) return { accepted: false, reason: "combat_paused", snapshot: snapshot() };
     if (state.status !== "active") return { accepted: false, reason: "combat_not_active", snapshot: snapshot() };
     const preOutcome = checkOutcome();
     if (preOutcome) { finish(preOutcome, "pre_turn_check"); return { accepted: true, outcome: preOutcome, snapshot: snapshot() }; }
@@ -1011,6 +1073,7 @@ export function createCombatSession(content, options = {}) {
 
   function runToEnd(options = {}) {
     if (state.status === "idle") start();
+    if (state.paused) return { ...snapshot(), steps: 0, rejected: "combat_paused" };
     const maxSteps = Math.max(1, integer(options.maxSteps, integer(rules.maxRounds, 40) * Math.max(1, units.size) * 4));
     let steps = 0;
     while (state.status === "active" && steps < maxSteps) { step(); steps += 1; }
@@ -1020,7 +1083,9 @@ export function createCombatSession(content, options = {}) {
 
   function attemptRunaway(unitId = playerUnitIds[0]) {
     if (state.status === "idle") start();
+    if (state.paused) return { accepted: false, reason: "combat_paused", snapshot: snapshot() };
     if (state.status !== "active") return { accepted: false, reason: "combat_not_active", snapshot: snapshot() };
+    if (!canRecordCommand()) return { accepted: false, reason: "combat_replay_command_limit", snapshot: snapshot() };
     if (encounter.rules?.allowRunaway === false) return { accepted: false, reason: "runaway_disabled", snapshot: snapshot() };
     const actor = units.get(unitId);
     if (!alive(actor) || !playerUnitIds.includes(unitId)) return { accepted: false, reason: "invalid_runaway_actor", snapshot: snapshot() };
@@ -1037,6 +1102,7 @@ export function createCombatSession(content, options = {}) {
     const chance = clamp(number(encounter.rules?.runawayChance, 1), 0, 1);
     const success = random.next() <= chance;
     emit({ eventType: "runawayAttempt", kind: "runawayAttempt", sourceUnitId: unitId, value: chance, success, text: success ? `${formatName(actor)}成功脱离战斗` : `${formatName(actor)}未能脱离战斗`, timeMs });
+    recordCommand({ kind: "runaway", unitId, success });
     if (success) finish("runaway", "runaway_success");
     else {
       state.turnIndex += 1;
@@ -1086,6 +1152,20 @@ export function createCombatSession(content, options = {}) {
     }
     const nextActorId = state.turnOrder.slice(state.turnIndex).find((unitId) => alive(units.get(unitId))) || "";
     const actor = units.get(nextActorId);
+    if (state.paused) {
+      return {
+        status: state.status,
+        paused: true,
+        round: state.round,
+        actorId: actor?.unitId || "",
+        actorName: actor?.name || actor?.unitId || "",
+        side: actor ? side(actor.unitId) : "",
+        controlled: false,
+        rooted: false,
+        requiresPlayerInput: false,
+        reason: "combat_paused",
+      };
+    }
     const controlled = Boolean(actor?.buffs.some((buff) => maps.buffs.get(buff.buffId)?.control === "stun"));
     const rooted = Boolean(actor?.buffs.some((buff) => maps.buffs.get(buff.buffId)?.control === "root"));
     const playerTurn = Boolean(actor && playerUnitIds.includes(actor.unitId));
@@ -1115,6 +1195,7 @@ export function createCombatSession(content, options = {}) {
 
   function advanceUntilPlayerInput(options = {}) {
     if (state.status === "idle") start();
+    if (state.paused) return { accepted: false, reason: "combat_paused", steps: 0, control: combatControlState(), snapshot: snapshot() };
     const maxSteps = Math.max(1, integer(options.maxSteps, Math.max(8, units.size * 8)));
     let steps = 0;
     while (state.status === "active" && steps < maxSteps) {
@@ -1133,6 +1214,8 @@ export function createCombatSession(content, options = {}) {
 
   function submitPlayerAction(unitId, skillId, targetIds = []) {
     if (state.status === "idle") start();
+    if (state.paused) return { accepted: false, reason: "combat_paused", control: combatControlState(), snapshot: snapshot() };
+    if (!canRecordCommand()) return { accepted: false, reason: "combat_replay_command_limit", control: combatControlState(), snapshot: snapshot() };
     const turn = currentTurn();
     if (!turn.requiresPlayerInput || turn.actorId !== unitId) {
       return { accepted: false, reason: "not_current_player_turn", control: combatControlState(), snapshot: snapshot() };
@@ -1147,6 +1230,7 @@ export function createCombatSession(content, options = {}) {
     const result = step({ skillId, targetIds: list(targetIds) });
     if (!result.accepted) return { ...result, control: combatControlState() };
     const advanced = state.status === "active" ? advanceUntilPlayerInput() : { steps: 0, control: combatControlState() };
+    recordCommand({ kind: "player_action", unitId, skillId, targetIds: list(targetIds) });
     return {
       accepted: true,
       actorId: unitId,
@@ -1161,6 +1245,7 @@ export function createCombatSession(content, options = {}) {
   }
 
   function queueAction(unitId, skillId, targetIds = []) {
+    if (state.paused) return { accepted: false, reason: "combat_paused" };
     if (state.status === "finished") return { accepted: false, reason: "combat_not_active" };
     const unit = units.get(unitId);
     const skill = maps.skills.get(skillId);
@@ -1183,6 +1268,7 @@ export function createCombatSession(content, options = {}) {
       playerUnitIds: cloneData(playerUnitIds),
       enemyUnitIds: cloneData(enemyUnitIds),
       status: state.status,
+      paused: state.paused,
       outcome: state.outcome,
       round: state.round,
       turnIndex: state.turnIndex,
@@ -1193,6 +1279,8 @@ export function createCombatSession(content, options = {}) {
       rngState: random.state(),
       units: cloneData([...units.values()].map((unit) => ({ ...unit, effectiveAttributes: effectiveAttributes(unit), _activeSkillId: undefined }))),
       actionQueue: cloneData(state.actionQueue),
+      commandLog: cloneData(state.commandLog),
+      replayId: currentReplayId(),
       events: cloneData(state.events),
       result: cloneData(state.result),
     };
@@ -1236,8 +1324,11 @@ export function createCombatSession(content, options = {}) {
       unit.actionCount = Math.max(0, integer(restored.actionCount, 0));
     }
     if (!["idle", "active", "finished"].includes(snapshotValue.status)) throw new Error("combat snapshot status invalid");
+    if (snapshotValue.paused !== undefined && typeof snapshotValue.paused !== "boolean") throw new Error("combat snapshot paused flag invalid");
     if (typeof snapshotValue.outcome !== "string" || (snapshotValue.status === "finished") !== Boolean(snapshotValue.outcome)) throw new Error("combat snapshot outcome/status mismatch");
     state.status = snapshotValue.status;
+    state.paused = Boolean(snapshotValue.paused);
+    if (state.status !== "active" && state.paused) throw new Error("finished or idle combat cannot be paused");
     state.outcome = snapshotValue.outcome;
     state.round = Math.max(0, integer(snapshotValue.round, 0));
     const restoredTurnOrder = list(snapshotValue.turnOrder);
@@ -1258,6 +1349,12 @@ export function createCombatSession(content, options = {}) {
       for (const action of actions) if (!record(action) || !list(unit.skillIds).includes(action.skillId) || list(action.targetIds).some((targetId) => !units.has(targetId))) throw new Error(`combat snapshot queued action invalid: ${unitId}`);
     }
     state.actionQueue = cloneData(restoredQueue);
+    const restoredCommands = list(snapshotValue.commandLog);
+    if (restoredCommands.some((command, index) => !record(command) || command.seq !== index || !["player_action", "runaway", "pause", "resume"].includes(command.kind))) {
+      throw new Error("combat snapshot command log invalid");
+    }
+    state.commandLog = cloneData(restoredCommands);
+    if (snapshotValue.replayId !== undefined && snapshotValue.replayId !== currentReplayId()) throw new Error("combat snapshot replay id mismatch");
     if (snapshotValue.result !== null && snapshotValue.result !== undefined && !record(snapshotValue.result)) throw new Error("combat snapshot result invalid");
     if (state.status === "finished" && snapshotValue.result?.outcome !== state.outcome) throw new Error("combat snapshot result/outcome mismatch");
     state.result = cloneData(snapshotValue.result || null);
@@ -1271,6 +1368,8 @@ export function createCombatSession(content, options = {}) {
     step,
     runToEnd,
     attemptRunaway,
+    pause,
+    resume,
     availableActions,
     currentTurn,
     combatControlState,
@@ -1281,4 +1380,36 @@ export function createCombatSession(content, options = {}) {
     validate: () => validateCombatContent(source),
     presentation: (options = {}) => buildCombatPresentation(snapshot(), options),
   });
+}
+
+export function replayCombatSession(content, replay = {}, options = {}) {
+  if (content?.rules?.replay?.allowReplay !== true) throw new Error("combat replay is disabled by configuration");
+  const session = createCombatSession(content, {
+    encounterId: replay.encounterId,
+    seed: replay.seed,
+  });
+  session.start();
+  session.advanceUntilPlayerInput({ maxSteps: options.maxSteps || 256 });
+  for (const command of list(replay.commands)) {
+    if (command.kind === "pause") {
+      session.pause();
+      continue;
+    }
+    if (command.kind === "resume") {
+      session.resume();
+      continue;
+    }
+    if (command.kind === "runaway") {
+      session.attemptRunaway(command.unitId);
+      continue;
+    }
+    if (command.kind === "player_action") {
+      const result = session.submitPlayerAction(command.unitId, command.skillId, list(command.targetIds));
+      if (!result.accepted) throw new Error(`combat replay command rejected at ${command.seq}: ${result.reason}`);
+    }
+  }
+  const result = session.snapshot();
+  const maxReplayEvents = Math.max(1, Number(options.maxReplayEvents || content?.rules?.replay?.maxReplayEvents || 512));
+  if (result.events.length > maxReplayEvents) throw new Error("combat replay event limit exceeded");
+  return result;
 }

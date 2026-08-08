@@ -115,6 +115,15 @@
         "victory": "sfx_defeat",
         "failure": "sfx_defeat"
       }
+    },
+    "replay": {
+      "schema": "idlewuxia.combat_replay.v1",
+      "allowPause": true,
+      "allowReplay": true,
+      "maxCommands": 256,
+      "maxReplayEvents": 512,
+      "saveAuthority": "combat_runtime_snapshot",
+      "determinism": "seed-and-command-log"
     }
   },
   "factions": [

@@ -12,7 +12,11 @@
     { "$ref": "#/$defs/interactInteractable" },
     { "$ref": "#/$defs/resolveChoice" },
     { "$ref": "#/$defs/submitCombatAction" },
-    { "$ref": "#/$defs/attemptCombatRunaway" }
+    { "$ref": "#/$defs/attemptCombatRunaway" },
+    { "$ref": "#/$defs/pauseCombat" },
+    { "$ref": "#/$defs/resumeCombat" },
+    { "$ref": "#/$defs/replayCombat" },
+    { "$ref": "#/$defs/stopCombatReplay" }
   ],
   "$defs": {
     "nonEmptyId": { "type": "string", "minLength": 1, "pattern": "\\S" },
@@ -109,6 +113,30 @@
         "type": { "const": "attemptCombatRunaway" },
         "unitId": { "$ref": "#/$defs/nonEmptyId" }
       }
+    },
+    "pauseCombat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": { "type": { "const": "pauseCombat" } }
+    },
+    "resumeCombat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": { "type": { "const": "resumeCombat" } }
+    },
+    "replayCombat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": { "type": { "const": "replayCombat" } }
+    },
+    "stopCombatReplay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": { "type": { "const": "stopCombatReplay" } }
     }
   }
 }

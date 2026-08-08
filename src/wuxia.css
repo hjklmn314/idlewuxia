@@ -1596,14 +1596,26 @@ body.wuxia-mode #app {
 .wuxia-combat-turn { min-height: 20px; margin: 0 0 8px; color: #f3df9a; font-size: clamp(13px, 3.8vw, 17px); font-weight: 800; text-align: center; }
 .wuxia-combat-action-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
 .wuxia-combat-skill,
-.wuxia-combat-runaway { min-height: 48px; border: 1px solid #b58c42; background: linear-gradient(180deg, #42351d, #20190d); color: #f7e8bb; font: inherit; text-align: left; touch-action: manipulation; }
+.wuxia-combat-runaway,
+.wuxia-combat-pause,
+.wuxia-combat-resume,
+.wuxia-combat-replay,
+.wuxia-combat-replay-stop { min-height: 48px; border: 1px solid #b58c42; background: linear-gradient(180deg, #42351d, #20190d); color: #f7e8bb; font: inherit; text-align: left; touch-action: manipulation; }
 .wuxia-combat-skill { display: grid; gap: 1px; padding: 7px 9px; }
 .wuxia-combat-skill strong { font-size: clamp(13px, 3.7vw, 17px); }
 .wuxia-combat-skill small { color: #b7a887; font-size: 11px; }
 .wuxia-combat-skill:active:not(:disabled),
-.wuxia-combat-runaway:active:not(:disabled) { transform: translateY(1px); filter: brightness(1.18); }
+.wuxia-combat-runaway:active:not(:disabled),
+.wuxia-combat-pause:active:not(:disabled),
+.wuxia-combat-resume:active:not(:disabled),
+.wuxia-combat-replay:active:not(:disabled),
+.wuxia-combat-replay-stop:active:not(:disabled) { transform: translateY(1px); filter: brightness(1.18); }
 .wuxia-combat-skill:disabled { border-color: #4d4635; background: #1d1c19; color: #777166; opacity: 1; }
 .wuxia-combat-runaway { display: block; width: 100%; margin-top: 7px; padding: 8px 12px; border-color: #7f4d42; color: #d7b4a8; text-align: center; }
+.wuxia-combat-pause,
+.wuxia-combat-resume,
+.wuxia-combat-replay,
+.wuxia-combat-replay-stop { display: block; width: 100%; margin-top: 7px; padding: 8px 12px; border-color: #60758a; color: #c8d8e7; text-align: center; }
 
 @keyframes wuxia-float-up {
   from { opacity: 0; transform: translateY(14px) scale(0.84); }

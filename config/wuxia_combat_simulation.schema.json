@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "idlewuxia.combat_simulation.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schemaVersion", "version", "runsPerScenario", "seedStart", "maxSteps", "scenarios"],
+  "properties": {
+    "$schema": { "const": "idlewuxia.combat_simulation.v1" },
+    "schemaVersion": { "const": "idlewuxia.combat_simulation.v1" },
+    "version": { "type": "integer", "minimum": 1 },
+    "runsPerScenario": { "type": "integer", "minimum": 10, "maximum": 10000 },
+    "seedStart": { "type": "integer", "minimum": 1 },
+    "maxSteps": { "type": "integer", "minimum": 1, "maximum": 4096 },
+    "scenarios": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["scenarioId", "encounterId", "playerPolicy", "balance"],
+        "properties": {
+          "scenarioId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "encounterId": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]*$" },
+          "playerPolicy": { "enum": ["greedy_damage", "survivability"] },
+          "balance": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["winRateMin", "winRateMax", "medianRoundsMax", "p95EventsMax"],
+            "properties": {
+              "winRateMin": { "type": "number", "minimum": 0, "maximum": 1 },
+              "winRateMax": { "type": "number", "minimum": 0, "maximum": 1 },
+              "medianRoundsMax": { "type": "number", "minimum": 1 },
+              "p95EventsMax": { "type": "number", "minimum": 1 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

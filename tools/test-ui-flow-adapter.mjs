@@ -82,6 +82,10 @@ const commandSession = {
   resolvePendingChoice: (optionId) => ({ accepted: true, event: { optionId, optionLabel: optionId } }),
   submitCombatAction: (unitId, skillId, targetIds) => ({ accepted: true, event: { unitId, skillId, targetIds } }),
   attemptCombatRunaway: (unitId) => ({ accepted: true, event: { unitId } }),
+  pausePendingCombat: () => ({ accepted: true, event: { type: "combatPaused" } }),
+  resumePendingCombat: () => ({ accepted: true, event: { type: "combatResumed" } }),
+  replayPendingCombat: () => ({ accepted: true, event: { type: "combatReplayStarted" } }),
+  stopPendingCombatReplay: () => ({ accepted: true, event: { type: "combatReplayStopped" } }),
 };
 for (const method of Object.keys(commandSession)) {
   if (method === "snapshot") continue;
@@ -103,6 +107,10 @@ const intentCases = [
   [{ type: "resolveChoice", optionId: "o" }, ["resolvePendingChoice", "o"]],
   [{ type: "submitCombatAction", unitId: "u", skillId: "s", targetIds: ["t"] }, ["submitCombatAction", "u", "s", ["t"]]],
   [{ type: "attemptCombatRunaway", unitId: "u" }, ["attemptCombatRunaway", "u"]],
+  [{ type: "pauseCombat" }, ["pausePendingCombat"]],
+  [{ type: "resumeCombat" }, ["resumePendingCombat"]],
+  [{ type: "replayCombat" }, ["replayPendingCombat"]],
+  [{ type: "stopCombatReplay" }, ["stopPendingCombatReplay"]],
 ];
 for (const [intent, expectedCall] of intentCases) {
   assert.equal(commandAdapter.execute(intent).accepted, true);
@@ -144,7 +152,11 @@ assert.equal(automation.interactInteractable("i", "look").clicked, true);
 assert.equal(automation.resolveChoice("o").clicked, true);
 assert.equal(automation.submitCombatAction("u", "s", ["t"]).clicked, true);
 assert.equal(automation.attemptCombatRunaway("u").clicked, true);
-assert.equal(renderCount, 10, "each automation command must render exactly once");
+assert.equal(automation.pauseCombat().clicked, true);
+assert.equal(automation.resumeCombat().clicked, true);
+assert.equal(automation.replayCombat().clicked, true);
+assert.equal(automation.stopCombatReplay().clicked, true);
+assert.equal(renderCount, 14, "each automation command must render exactly once");
 assert.equal(automation.snapshot().currentState, "opening");
 assert.deepEqual(automation.persistenceStatus(), { status: "ready" });
 assert.deepEqual(automation.clearSave(), { status: "cleared" });

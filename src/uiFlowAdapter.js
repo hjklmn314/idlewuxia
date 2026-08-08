@@ -11,6 +11,10 @@ export const UI_INTENT_TYPES = Object.freeze([
   "resolveChoice",
   "submitCombatAction",
   "attemptCombatRunaway",
+  "pauseCombat",
+  "resumeCombat",
+  "replayCombat",
+  "stopCombatReplay",
 ]);
 
 const INTENT_CONTRACTS = Object.freeze({
@@ -24,6 +28,10 @@ const INTENT_CONTRACTS = Object.freeze({
   resolveChoice: { method: "resolvePendingChoice", fields: ["optionId"] },
   submitCombatAction: { method: "submitCombatAction", fields: ["unitId", "skillId"], arrayFields: ["targetIds"] },
   attemptCombatRunaway: { method: "attemptCombatRunaway", fields: ["unitId"] },
+  pauseCombat: { method: "pausePendingCombat", fields: [] },
+  resumeCombat: { method: "resumePendingCombat", fields: [] },
+  replayCombat: { method: "replayPendingCombat", fields: [] },
+  stopCombatReplay: { method: "stopPendingCombatReplay", fields: [] },
 });
 
 function rejectedIntent(reason, intentType = "") {

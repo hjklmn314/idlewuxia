@@ -67,9 +67,17 @@ export function createWuxiaDomAdapter({
     onInteractInteractable,
     onSubmitCombatAction,
     onAttemptCombatRunaway,
+    onPauseCombat,
+    onResumeCombat,
+    onReplayCombat,
+    onStopCombatReplay,
   }) {
     const submitCombatAction = typeof onSubmitCombatAction === "function" ? onSubmitCombatAction : () => {};
     const attemptCombatRunaway = typeof onAttemptCombatRunaway === "function" ? onAttemptCombatRunaway : () => {};
+    const pauseCombat = typeof onPauseCombat === "function" ? onPauseCombat : () => {};
+    const resumeCombat = typeof onResumeCombat === "function" ? onResumeCombat : () => {};
+    const replayCombat = typeof onReplayCombat === "function" ? onReplayCombat : () => {};
+    const stopCombatReplay = typeof onStopCombatReplay === "function" ? onStopCombatReplay : () => {};
     bindAll(stage, "[data-wuxia-action-id]", (button) => {
       button.addEventListener("click", () => onDispatchAction(button.dataset.wuxiaActionId));
     });
@@ -107,6 +115,18 @@ export function createWuxiaDomAdapter({
     bindAll(stage, ".wuxia-combat-runaway", (button) => {
       button.addEventListener("click", () => attemptCombatRunaway(button.dataset.wuxiaCombatUnitId));
     });
+    bindAll(stage, ".wuxia-combat-pause", (button) => {
+      button.addEventListener("click", () => pauseCombat());
+    });
+    bindAll(stage, ".wuxia-combat-resume", (button) => {
+      button.addEventListener("click", () => resumeCombat());
+    });
+    bindAll(stage, ".wuxia-combat-replay", (button) => {
+      button.addEventListener("click", () => replayCombat());
+    });
+    bindAll(stage, ".wuxia-combat-replay-stop", (button) => {
+      button.addEventListener("click", () => stopCombatReplay());
+    });
   }
 
   function bindTopButton(button, label, actionId, onDispatchAction) {
@@ -119,7 +139,7 @@ export function createWuxiaDomAdapter({
     };
   }
 
-  function present({ presentation, markup, onDispatchAction, onSelectNode, onResolveChoice, onSelectRoom, onSelectNpc, onInteractNpc, onSelectInteractable, onInteractInteractable, onSubmitCombatAction, onAttemptCombatRunaway }) {
+  function present({ presentation, markup, onDispatchAction, onSelectNode, onResolveChoice, onSelectRoom, onSelectNpc, onInteractNpc, onSelectInteractable, onInteractInteractable, onSubmitCombatAction, onAttemptCombatRunaway, onPauseCombat, onResumeCombat, onReplayCombat, onStopCombatReplay }) {
     const title = query("#wuxiaScreenTitle");
     const step = query("#wuxiaFlowStep");
     const stage = query(".wuxia-stage");
@@ -145,6 +165,10 @@ export function createWuxiaDomAdapter({
       onInteractInteractable,
       onSubmitCombatAction,
       onAttemptCombatRunaway,
+      onPauseCombat,
+      onResumeCombat,
+      onReplayCombat,
+      onStopCombatReplay,
     });
     return stage;
   }

@@ -5,7 +5,7 @@ import { createNavigationService } from "./navigationService.js";
 import { createResultEffectExecutor } from "./resultEffectExecutor.js";
 import { createResultPreparation } from "./resultPreparation.js";
 import { isValidPendingChoice } from "./resultExecutionModules.js";
-import { createCombatSession } from "./combatSession.js";
+import { createCombatSession, replayCombatSession } from "./combatSession.js";
 
 function resolveActiveChapter(contract, options = {}) {
   return (
@@ -739,6 +739,61 @@ export function createChapterSession(sourceContract, options = {}) {
     return clone(pendingCombat);
   }
 
+  function pausePendingCombat() {
+    if (!pendingCombat || pendingCombat.runtimeMode !== "manual_player_turns") return { accepted: false, reason: "manual combat is not active", snapshot: snapshot() };
+    const restored = restoreActivePendingCombat();
+    if (!restored.accepted) return { accepted: false, reason: restored.reason, snapshot: snapshot() };
+    const result = activeCombatSession.pause();
+    if (!result.accepted) return { ...result, snapshot: snapshot() };
+    refreshPendingCombatRuntime();
+    const event = { type: "combatPaused", replayId: pendingCombat.combatSnapshot?.replayId || "" };
+    events.push(event);
+    return { accepted: true, event, snapshot: snapshot() };
+  }
+
+  function resumePendingCombat() {
+    if (!pendingCombat || pendingCombat.runtimeMode !== "manual_player_turns") return { accepted: false, reason: "manual combat is not active", snapshot: snapshot() };
+    const restored = restoreActivePendingCombat();
+    if (!restored.accepted) return { accepted: false, reason: restored.reason, snapshot: snapshot() };
+    const result = activeCombatSession.resume();
+    if (!result.accepted) return { ...result, snapshot: snapshot() };
+    refreshPendingCombatRuntime();
+    const event = { type: "combatResumed", replayId: pendingCombat.combatSnapshot?.replayId || "" };
+    events.push(event);
+    return { accepted: true, event, snapshot: snapshot() };
+  }
+
+  function replayPendingCombat() {
+    if (!pendingCombat || !pendingCombat.combatSnapshot || !combatContent) return { accepted: false, reason: "combat replay is unavailable", snapshot: snapshot() };
+    try {
+      const replaySnapshot = replayCombatSession(combatContent, {
+        encounterId: pendingCombat.encounterId || pendingCombat.combatSnapshot.encounterId,
+        seed: pendingCombat.combatSnapshot.seed,
+        commands: pendingCombat.combatSnapshot.commandLog || [],
+      });
+      pendingCombat.replayMode = true;
+      pendingCombat.replaySnapshot = cloneData(replaySnapshot);
+      const event = {
+        type: "combatReplayStarted",
+        replayId: replaySnapshot.replayId || "",
+        eventCount: replaySnapshot.events?.length || 0,
+      };
+      events.push(event);
+      return { accepted: true, event, snapshot: snapshot() };
+    } catch (error) {
+      return { accepted: false, reason: `combat replay rejected: ${error?.message || String(error)}`, snapshot: snapshot() };
+    }
+  }
+
+  function stopPendingCombatReplay() {
+    if (!pendingCombat?.replayMode) return { accepted: false, reason: "combat replay is not active", snapshot: snapshot() };
+    pendingCombat.replayMode = false;
+    pendingCombat.replaySnapshot = null;
+    const event = { type: "combatReplayStopped" };
+    events.push(event);
+    return { accepted: true, event, snapshot: snapshot() };
+  }
+
   function submitCombatAction(unitId, skillId, targetIds = []) {
     if (pendingChoice) return { accepted: false, reason: "pending choice must be resolved first", snapshot: snapshot() };
     if (!pendingCombat || pendingCombat.runtimeMode !== "manual_player_turns") return { accepted: false, reason: "manual combat is not active", snapshot: snapshot() };
@@ -1258,6 +1313,10 @@ export function createChapterSession(sourceContract, options = {}) {
     interactWithChapterInteractable: detachedCommand(interactWithChapterInteractable),
     submitCombatAction: detachedCommand(submitCombatAction),
     attemptCombatRunaway: detachedCommand(attemptCombatRunaway),
+    pausePendingCombat: detachedCommand(pausePendingCombat),
+    resumePendingCombat: detachedCommand(resumePendingCombat),
+    replayPendingCombat: detachedCommand(replayPendingCombat),
+    stopPendingCombatReplay: detachedCommand(stopPendingCombatReplay),
     resolvePendingCombat: detachedCommand(resolvePendingCombat),
     resolvePendingChoice: detachedCommand(resolvePendingChoice),
   };

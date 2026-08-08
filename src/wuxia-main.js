@@ -310,13 +310,16 @@ function renderCombatRuntime(block, flowContract, snapshot) {
   const preview = combatPreviewForSnapshot(block, flowContract, snapshot);
   if (!preview) return `<section class="wuxia-combat-runtime is-missing">Missing combat preview: ${escapeHtml(block.previewId || "")}</section>`;
   const events = Array.isArray(preview.events) ? preview.events : [];
-  const liveRuntime = snapshot?.pendingCombat?.combatSnapshot || null;
+  const replayMode = snapshot?.pendingCombat?.replayMode === true;
+  const liveRuntime = replayMode
+    ? (snapshot?.pendingCombat?.replaySnapshot || null)
+    : (snapshot?.pendingCombat?.combatSnapshot || null);
   const liveUnits = Array.isArray(liveRuntime?.units) ? liveRuntime.units : [];
   const liveLeft = liveUnits.find((unit) => liveRuntime?.playerUnitIds?.includes(unit.unitId)) || null;
   const liveRight = liveUnits.find((unit) => liveRuntime?.enemyUnitIds?.includes(unit.unitId)) || null;
   const left = liveLeft ? { ...(preview.units?.left || {}), ...liveLeft } : cloneData(preview.units?.left || {});
   const right = liveRight ? { ...(preview.units?.right || {}), ...liveRight } : cloneData(preview.units?.right || {});
-  const visibleEvents = events;
+  const visibleEvents = Array.isArray(liveRuntime?.events) ? liveRuntime.events : events;
   // Floating combat text is transient presentation, never persisted replay
   // authority. Old save events remain in the log, but do not cover the field
   // after a reload or after the configured feedback lifetime ends.
@@ -336,7 +339,7 @@ function renderCombatRuntime(block, flowContract, snapshot) {
   const referenceSceneUrl = referenceAssetUrlFor("scenes", scene.visualCueId || "");
   const stageClass = referenceSceneUrl ? "has-reference-scene" : "";
   const stageStyle = referenceSceneUrl ? ` style="--reference-scene-image:url('${escapeHtml(referenceSceneUrl)}')"` : "";
-  const control = snapshot?.pendingCombat?.combatControl || {};
+  const control = replayMode ? {} : (snapshot?.pendingCombat?.combatControl || {});
   const available = control?.availableActions || { skills: [], canRunaway: false };
   const actionRows = control?.requiresPlayerInput
     ? available.skills.map((skill) => {
@@ -350,8 +353,10 @@ function renderCombatRuntime(block, flowContract, snapshot) {
       }).join("");
     }).join("")
     : "";
-  const controlText = liveRuntime?.status === "finished"
-    ? (liveRuntime?.outcome === "victory" ? "胜负已定，正在结算……" : "战斗结束，正在结算……")
+  const controlText = replayMode
+    ? `重播记录：${liveRuntime?.replayId || liveRuntime?.encounterId || "本场战斗"}`
+    : liveRuntime?.status === "finished"
+      ? (liveRuntime?.outcome === "victory" ? "胜负已定，正在结算……" : "战斗结束，正在结算……")
     : control?.requiresPlayerInput
       ? `${control.actorName || "我方"}行动：选择招式和目标`
       : control?.actorName
@@ -380,6 +385,15 @@ function renderCombatRuntime(block, flowContract, snapshot) {
         <p class="wuxia-combat-turn" aria-live="polite">${escapeHtml(controlText)}</p>
         ${actionRows ? `<div class="wuxia-combat-action-grid">${actionRows}</div>` : ""}
         ${control?.requiresPlayerInput && available.canRunaway ? `<button type="button" class="wuxia-combat-runaway" data-wuxia-combat-unit-id="${escapeHtml(control.actorId || "")}">尝试脱离</button>` : ""}
+        ${replayMode
+          ? `<button type="button" class="wuxia-combat-replay-stop">退出重播</button>`
+          : liveRuntime?.status === "active" && liveRuntime?.paused
+            ? `<button type="button" class="wuxia-combat-resume">继续战斗</button>`
+            : liveRuntime?.status === "active"
+              ? `<button type="button" class="wuxia-combat-pause">暂停战斗</button>`
+              : liveRuntime?.status === "finished"
+                ? `<button type="button" class="wuxia-combat-replay">重播本场</button>`
+                : ""}
       </section>
     </section>
   `;
@@ -1188,6 +1202,13 @@ function syncCombatPlayback(snapshot, screen, flowContract) {
   const runtime = snapshot?.pendingCombat?.combatSnapshot || null;
   const events = preview?.events || [];
   playCombatAudioCue(events.length ? events[events.length - 1] : null, state.config?.wuxiaCombatContent);
+  if (snapshot?.pendingCombat?.replayMode === true) {
+    // Replay is a read-only inspection mode. Never auto-resolve the
+    // authoritative finished combat while the player is viewing its replay.
+    if (state.combatPlayback.timer) clearTimeout(state.combatPlayback.timer);
+    state.combatPlayback.timer = null;
+    return;
+  }
   if (runtime?.status === "finished") {
     const resolutionActionId = block.resolveActionId || snapshot?.pendingCombat?.resolveActionId || "";
     // The result transition remains configuration-owned, but it may only happen
@@ -1256,6 +1277,22 @@ function render() {
     onAttemptCombatRunaway: (unitId) => {
       const result = state.ui.execute({ type: "attemptCombatRunaway", unitId });
       if (result.accepted) armCombatFeedback();
+      render();
+    },
+    onPauseCombat: () => {
+      state.ui.execute({ type: "pauseCombat" });
+      render();
+    },
+    onResumeCombat: () => {
+      state.ui.execute({ type: "resumeCombat" });
+      render();
+    },
+    onReplayCombat: () => {
+      state.ui.execute({ type: "replayCombat" });
+      render();
+    },
+    onStopCombatReplay: () => {
+      state.ui.execute({ type: "stopCombatReplay" });
       render();
     },
   });

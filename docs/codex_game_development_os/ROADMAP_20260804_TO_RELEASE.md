@@ -38,9 +38,10 @@
 
 ### Wave 3 — G4 运行时生产治理
 
-1. `SAVE-001`：正式 SaveEnvelope 版本、迁移、备份、原子写、损坏回退、跨版本 fixture。
-2. `OBS-001`：事件语义、错误码、战斗 replay ID、构建/config hash、崩溃与性能字段；隐私最小化。
-3. `HYGIENE-001`：把旧 idledotshoot 代码/配置、只读参考和活动 Wuxia authority 分层；更新 scope，证明 shipping closure 不变并提供回滚清单。
+1. `COMBAT-003`：**已完成运行时能力闭环**。暂停/继续、命令日志、确定性 replay ID、存档恢复和同一 CombatSession 数值模拟已接入；此项不替代正式美术/音频发行验收。
+2. `SAVE-001`：正式 SaveEnvelope 版本、迁移、备份、原子写、损坏回退、跨版本 fixture。
+3. `OBS-001`：事件语义、错误码、战斗 replay ID、构建/config hash、崩溃与性能字段；隐私最小化。
+4. `HYGIENE-001`：把旧 idledotshoot 代码/配置、只读参考和活动 Wuxia authority 分层；更新 scope，证明 shipping closure 不变并提供回滚清单。
 
 完成标准：升级/降级/损坏/断电测试可复现，且 telemetry 不泄露敏感数据；活动入口不再需要维护者猜测。
 
@@ -72,16 +73,18 @@
 |---:|---|---|---|
 | 1 | ASSET-CONTRACT-001 | configuration-data-pipeline + asset pipeline | **done**：角色/场景/动画/VFX/音频/UI 资产 Schema、来源、授权、预算、hash 与 runtime binding 合同 |
 | 2 | VISUAL-STANDARD-001 | ux-ui + asset pipeline | **done**：竖屏侧视三头身像素武侠验收标准与负例门禁；产品人工视觉仍由 T05-01 承担 |
-| 3 | ASSET-007/008 首个可玩套装 | asset-content-pipeline | 1 玩家、1 敌人、1 干净场景的完整动作闭环 |
-| 4 | ASSET-009/010 首个打击闭环 | combat presentation + asset/audio | 命中、格挡、控制、胜负的 VFX/SFX 证据 |
-| 5 | COMBAT-002B + 三条未授权 Combat Result | HTML runtime + combat + QA | 资产挂载和 `fight/kill/escape` 等剩余结果的合法配置映射，不再保持 placeholder |
-| 6 | ASSET-002～006 + T05-01 | UI/asset + Android + QA | 全 UI kit、33/33 自动证据与严格人工签名表 |
-| 7 | SAVE-001 + OBS-001 + HYGIENE-001 | save + observability + auditor | G4 关闭证据与活动/历史权威分层 |
-| 8 | SEC/REL-001～003 | release team | 签名 RC、真机、性能、商店、灰度和回滚 |
+| 3 | COMBAT-003 | combat-model-and-simulator + runtime + QA | **done**：暂停/继续、保存恢复、命令 replay、200×3 配置场景数值模拟与平衡报告 |
+| 4 | ASSET-007/008 首个可玩套装 | asset-content-pipeline | 1 玩家、1 敌人、1 干净场景的完整动作闭环；缺失时继续使用开发期参考绑定，不把参考 bytes 带入 shipping |
+| 5 | ASSET-009/010 首个打击闭环 | combat presentation + asset/audio | 命中、格挡、控制、胜负的 VFX/SFX 证据；缺失时登记需求，不伪造 production PASS |
+| 6 | COMBAT-002B + 三条未授权 Combat Result | HTML runtime + combat + QA | 资产挂载和 `fight/kill/escape` 等剩余结果的合法配置映射，不再保持 placeholder |
+| 7 | ASSET-002～006 + T05-01 | UI/asset + Android + QA | 全 UI kit、33/33 自动证据与严格人工签名表 |
+| 8 | SAVE-001 + OBS-001 + HYGIENE-001 | save + observability + auditor | G4 关闭证据与活动/历史权威分层 |
+| 9 | SEC/REL-001～003 | release team | 签名 RC、真机、性能、商店、灰度和回滚 |
 
 ## 2026-08-04 审计后任务状态
 
 - `COMBAT-002A`：done，配置与运行时能力合同已闭合。
+- `COMBAT-003`：done，暂停/继续、存档恢复、确定性命令 replay 与同一运行时数值模拟已通过 focused tests；仍不等于批准资产或发行通过。
 - `AUDIT-003`：blocked；完整读取、静态与运行时门已执行，但人工视觉、10 个必需资产槽及 3 条未授权战斗结果没有关闭。
 - `T05-01`：blocked；最终自动矩阵位于 `outputs/wuxia_visual_matrix/20260804_post_truthful_node_fix/`，但人工视觉明确失败。
 - `wuxia:audit:online-standard`：预期失败，当前 11 个 P0、1 个 P1；只有这些问题真实关闭后才允许转绿。

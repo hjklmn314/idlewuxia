@@ -1,0 +1,43 @@
+{
+  "$schema": "idlewuxia.combat_simulation.v1",
+  "schemaVersion": "idlewuxia.combat_simulation.v1",
+  "version": 1,
+  "runsPerScenario": 200,
+  "seedStart": 70001,
+  "maxSteps": 256,
+  "scenarios": [
+    {
+      "scenarioId": "first-session-greedy",
+      "encounterId": "encounter_first_session_old_steward",
+      "playerPolicy": "greedy_damage",
+      "balance": {
+        "winRateMin": 0.95,
+        "winRateMax": 1.0,
+        "medianRoundsMax": 40,
+        "p95EventsMax": 512
+      }
+    },
+    {
+      "scenarioId": "first-session-defensive",
+      "encounterId": "encounter_first_session_old_steward",
+      "playerPolicy": "survivability",
+      "balance": {
+        "winRateMin": 0.95,
+        "winRateMax": 1.0,
+        "medianRoundsMax": 40,
+        "p95EventsMax": 512
+      }
+    },
+    {
+      "scenarioId": "bandit-greedy",
+      "encounterId": "encounter_bandit_ambush",
+      "playerPolicy": "greedy_damage",
+      "balance": {
+        "winRateMin": 0.0,
+        "winRateMax": 0.2,
+        "medianRoundsMax": 40,
+        "p95EventsMax": 512
+      }
+    }
+  ]
+}

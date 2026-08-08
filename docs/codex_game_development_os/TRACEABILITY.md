@@ -12,7 +12,8 @@
 | 11 屏 UI | `uiFlowAdapter.js` + `browserAutomationAdapter.js` + `wuxiaDomAdapter.js`（UI-ARCH-001 已完成） | screen + UI experience registry | fonts/map/icons | 当前切片双尺寸回归；完整 33 visual pairs 仍属后续 | T05-01, QA-UI-001 |
 | 资产运输 | AssetRegistry resolver 目标模块 | asset registry | owned files | hash/license/budget/APK bytes | T05-02, ASSET-* |
 | Android 发布 | build/audit/release tools | identity/web/release contracts | launcher/store assets | signed bundle/device/store | REL-001..003 |
-| 战斗/Rest/Repair | CombatSession 目标模块 | combat definitions | combat feedback assets | deterministic combat tests | COMBAT-002 postponed |
+| 战斗逻辑与运行时回放 | `src/combatSession.js` / `src/chapterSession.js` | `config/wuxia_combat_content.json` + `config/wuxia_combat_simulation.json` | development reference overlay；production 仍需 ASSET-007～010 | pause/replay/save restore + shared-runtime simulation | COMBAT-002A, COMBAT-003 |
+| 战斗表现/Rest/Repair | CombatSession presentation adapter | combat definitions | approved combat feedback assets | strict visual/device gates | COMBAT-002B/COMBAT-002 blocked；REST-REPAIR-001 postponed |
 
 ## 输入证据到项目产物
 
