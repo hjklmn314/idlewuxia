@@ -79,6 +79,14 @@
 - Evidence: `config/wuxia_combat_audio_asset_requirements.json`, `config/wuxia_combat_audio_asset_requirements.schema.json`, `tools/validate-wuxia-combat-audio-asset-requirements.mjs`, `tools/test-wuxia-combat-audio-asset-requirements.mjs`, `docs/codex_game_development_os/ASSET_010_AUDIO_ASSET_REQUIREMENTS_AUDIT_20260809.md`.
 - The next production dependency is owned/licensed actor, scene, VFX/Buff and OGG input, followed by COMBAT-002B. Manual Gate C and Android latency/mix evidence remain mandatory.
 
+## 2026-08-09 ASSET-011 original-project development binding update
+
+- The first development source is now explicit in `config/wuxia_combat_reference_asset_overlay.json`: `fangzhijianghu-original-project`, user-approved for development only, with shipping and reference-byte transport hard disabled.
+- `originalProjectAssets=1` is the localhost-only primary activation query; `referenceAssets=1` remains a compatibility alias. Runtime still consumes logical IDs and never hardcodes a concrete asset path in combat logic.
+- Development coverage is 2/2 clean scenes, 16/16 Buff logical rows backed by 6 original-project icons, and 5/5 audio rows backed by 4 original-project MP3s. Actors remain 0/2 and VFX remain 0/28 because the source archive has no eligible side-view actor set or frame-addressable cue family. MP3 remains insufficient for the required production OGG set.
+- Focused overlay, schema, source-root and coverage-drift tests pass. Manual 540x960 flow reaches combat with 15/15 steps and console problems 0; strict Gate C remains FAIL because CSS actors, missing authored VFX and missing production OGG evidence are visible/known.
+- This is a development binding milestone, not closure of ASSET-007/008/009/010 or COMBAT-002B. The next production dependency is approved actor clips plus authored VFX and OGG replacements, followed by the same three-viewport manual gate.
+
 ## P1/P2 后续
 
 - `CONTENT-001`：第二章节证明没有章节特例代码。

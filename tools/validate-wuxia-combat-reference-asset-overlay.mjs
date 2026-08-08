@@ -37,6 +37,21 @@ export function validateCombatReferenceAssetOverlay({ rootDir = root, overlay, s
     }
   }
   if (doc.shippingAllowed !== false) findings.push(finding("OVERLAY_SHIPPING_ALLOWED", "shippingAllowed", "Reference overlay must never be shippable."));
+  const sourceProject = doc.sourceProject || {};
+  if (sourceProject.projectId !== "fangzhijianghu-original-project") findings.push(finding("OVERLAY_SOURCE_PROJECT_ID", "sourceProject.projectId", "Development bindings must identify the original Fangzhi Jianghu project."));
+  if (sourceProject.shippingAllowed !== false || sourceProject.referenceBytesMayShip !== false) findings.push(finding("OVERLAY_SOURCE_PROJECT_SHIPPING", "sourceProject", "Original project bytes must remain development-only and non-shipping."));
+  if (sourceProject.usage !== "original-project-development-binding") findings.push(finding("OVERLAY_SOURCE_PROJECT_USAGE", "sourceProject.usage", "Original project assets must be explicitly marked as development bindings."));
+  const coverage = doc.bindingCoverage || {};
+  if (coverage.actor?.status !== "missing" || coverage.vfx?.status !== "missing") findings.push(finding("OVERLAY_MISSING_COVERAGE_DRIFT", "bindingCoverage", "Actor and VFX coverage must remain explicitly missing until approved source sets exist."));
+  if (coverage.scene?.logicalCount !== Object.keys(doc.bindings?.scenes || {}).length) findings.push(finding("OVERLAY_SCENE_COVERAGE_DRIFT", "bindingCoverage.scene.logicalCount", "Scene coverage must match scene logical bindings."));
+  if (coverage.buff?.logicalCount !== Object.keys(doc.bindings?.buffIcons || {}).length) findings.push(finding("OVERLAY_BUFF_COVERAGE_DRIFT", "bindingCoverage.buff.logicalCount", "Buff coverage must match Buff logical bindings."));
+  if (coverage.audio?.logicalCount !== Object.keys(doc.bindings?.audio || {}).length) findings.push(finding("OVERLAY_AUDIO_COVERAGE_DRIFT", "bindingCoverage.audio.logicalCount", "Audio coverage must match audio logical bindings."));
+  const sourceRoot = String(sourceProject.root || "").replace(/\\+$/, "");
+  if (sourceRoot) {
+    for (const asset of doc.assets || []) {
+      if (!String(asset.path || "").startsWith(`${sourceRoot}/`)) findings.push(finding("OVERLAY_SOURCE_ROOT_DRIFT", asset.id, "Development asset path is outside the declared original project source root."));
+    }
+  }
   const requireLocal = process.argv.includes("--require-local");
   const localAssets = [];
   if (requireLocal) {

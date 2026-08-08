@@ -5,6 +5,54 @@
   "mode": "development-only",
   "shippingAllowed": false,
   "sourcePolicy": "reference-only",
+  "sourceProject": {
+    "projectId": "fangzhijianghu-original-project",
+    "root": "fangzhijianghu/竞品资料/放置江湖apk/完整包内容归档/01_raw_apk_unpacked/product_fangzhijianghu_guanfang_2.1.01/assets/res",
+    "usage": "original-project-development-binding",
+    "approval": "user-approved-development-only",
+    "licenseStatus": "not-shipping-verified",
+    "shippingAllowed": false,
+    "referenceBytesMayShip": false
+  },
+  "activation": {
+    "primaryQueryParameter": "originalProjectAssets",
+    "legacyQueryParameter": "referenceAssets",
+    "localhostOnly": true,
+    "defaultEnabled": false
+  },
+  "bindingCoverage": {
+    "actor": {
+      "status": "missing",
+      "resolution": "existing_runtime_css_debug_only",
+      "reason": "The original project archive has no eligible side-view three-head actor animation set."
+    },
+    "scene": {
+      "status": "bound-development-only",
+      "bindingGroup": "scenes",
+      "logicalCount": 2,
+      "uniqueSourceCount": 2
+    },
+    "vfx": {
+      "status": "missing",
+      "resolution": "existing_runtime_css_feedback_only",
+      "reason": "The original project archive has no frame-addressable cue family for the 28 configured VFX events."
+    },
+    "buff": {
+      "status": "bound-development-only",
+      "bindingGroup": "buffIcons",
+      "logicalCount": 16,
+      "uniqueSourceCount": 6
+    },
+    "audio": {
+      "status": "bound-development-only",
+      "bindingGroup": "audio",
+      "logicalCount": 5,
+      "uniqueSourceCount": 4,
+      "inputFormat": "mp3",
+      "requiredProductionFormat": "ogg",
+      "requiresOwnedReplacement": true
+    }
+  },
   "assets": [
     {
       "id": "ref-scene-wuguan-courtyard",

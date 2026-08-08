@@ -126,3 +126,11 @@
 | Reference overlay parity remains development-only | ASSET-010 `audioCues` + `config/wuxia_combat_reference_asset_overlay.json` | audio requirements validator | `runtime:combat-audio-assets:test` | Pass; 5 logical cues resolve to 4 hashed MP3 exemplars, no reference bytes may ship |
 | Production format and fallback policy | ASSET-010 `policy` | validator + presentation production profile | ASSET-010 validator output | Pass; OGG required, synth/oscillator/reference-only paths rejected |
 | Loudness, peak and device latency evidence | ASSET-010 budgets and acceptance gate | future audio import/device QA | `ASSET_010_AUDIO_ASSET_REQUIREMENTS_AUDIT_20260809.md` | Open; no owned OGG or Android latency/mix evidence exists |
+
+## ASSET-011 original-project development binding traceability entry (2026-08-09)
+
+| Requirement | Configuration authority | Runtime/tool authority | Evidence | Verdict |
+|---|---|---|---|---|
+| Development source is explicit and non-shipping | `sourceProject`, `activation` and `shippingAllowed` in `config/wuxia_combat_reference_asset_overlay.json` | `src/assetRegistry.js`, overlay validator | `ASSET_011_ORIGINAL_PROJECT_DEVELOPMENT_BINDING_20260809.md` | Pass; localhost-only development binding, no bytes in shipping registry |
+| Logical coverage does not overclaim missing actors/VFX | `bindingCoverage.actor` and `bindingCoverage.vfx` | overlay semantic validator + focused test | `runtime:combat-reference-overlay:test` | Pass; actors 0/2 and VFX 0/28 remain explicit missing |
+| Original-project scene/Buff/audio bindings resolve | overlay `assets[]` and `bindings` | `createReferenceAssetRegistry()` + browser flow | `outputs/asset_original_project_overlay_manual_20260809/14_early_combat_screen.png` | Development PASS; 2 scenes, 16 Buff rows and 5 audio rows resolve; production blocked |

@@ -3,7 +3,7 @@
   "$id": "https://idlewuxia.local/schema/wuxia_combat_reference_asset_overlay.v1.json",
   "type": "object",
   "additionalProperties": false,
-  "required": ["$schema", "overlayId", "version", "mode", "shippingAllowed", "sourcePolicy", "assets", "bindings", "developmentFallbacks"],
+  "required": ["$schema", "overlayId", "version", "mode", "shippingAllowed", "sourcePolicy", "sourceProject", "activation", "bindingCoverage", "assets", "bindings", "developmentFallbacks"],
   "properties": {
     "$schema": { "const": "idlewuxia.combat_reference_asset_overlay.v1" },
     "overlayId": { "type": "string", "minLength": 1 },
@@ -11,6 +11,56 @@
     "mode": { "const": "development-only" },
     "shippingAllowed": { "const": false },
     "sourcePolicy": { "const": "reference-only" },
+    "sourceProject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["projectId", "root", "usage", "approval", "licenseStatus", "shippingAllowed", "referenceBytesMayShip"],
+      "properties": {
+        "projectId": { "const": "fangzhijianghu-original-project" },
+        "root": { "type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*\\.\\.)[^\\\\]+$" },
+        "usage": { "const": "original-project-development-binding" },
+        "approval": { "const": "user-approved-development-only" },
+        "licenseStatus": { "const": "not-shipping-verified" },
+        "shippingAllowed": { "const": false },
+        "referenceBytesMayShip": { "const": false }
+      }
+    },
+    "activation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primaryQueryParameter", "legacyQueryParameter", "localhostOnly", "defaultEnabled"],
+      "properties": {
+        "primaryQueryParameter": { "const": "originalProjectAssets" },
+        "legacyQueryParameter": { "const": "referenceAssets" },
+        "localhostOnly": { "const": true },
+        "defaultEnabled": { "const": false }
+      }
+    },
+    "bindingCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actor", "scene", "vfx", "buff", "audio"],
+      "properties": {
+        "actor": { "$ref": "#/$defs/missingCoverage" },
+        "scene": { "$ref": "#/$defs/boundCoverage" },
+        "vfx": { "$ref": "#/$defs/missingCoverage" },
+        "buff": { "$ref": "#/$defs/boundCoverage" },
+        "audio": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "bindingGroup", "logicalCount", "uniqueSourceCount", "inputFormat", "requiredProductionFormat", "requiresOwnedReplacement"],
+          "properties": {
+            "status": { "const": "bound-development-only" },
+            "bindingGroup": { "const": "audio" },
+            "logicalCount": { "const": 5 },
+            "uniqueSourceCount": { "const": 4 },
+            "inputFormat": { "const": "mp3" },
+            "requiredProductionFormat": { "const": "ogg" },
+            "requiresOwnedReplacement": { "const": true }
+          }
+        }
+      }
+    },
     "assets": {
       "type": "array",
       "minItems": 1,
@@ -51,6 +101,27 @@
     }
   },
   "$defs": {
-    "assetId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" }
+    "assetId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "missingCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "resolution", "reason"],
+      "properties": {
+        "status": { "const": "missing" },
+        "resolution": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    },
+    "boundCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "bindingGroup", "logicalCount", "uniqueSourceCount"],
+      "properties": {
+        "status": { "const": "bound-development-only" },
+        "bindingGroup": { "enum": ["scenes", "buffIcons"] },
+        "logicalCount": { "type": "integer", "minimum": 1 },
+        "uniqueSourceCount": { "type": "integer", "minimum": 1 }
+      }
+    }
   }
 }

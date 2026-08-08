@@ -901,6 +901,9 @@
         "config/wuxia_combat_presentation_contract.schema.json",
         "tools/validate-wuxia-combat-presentation-contract.mjs",
         "tools/test-wuxia-combat-presentation-contract.mjs",
+        "docs/codex_game_development_os/ASSET_011_ORIGINAL_PROJECT_DEVELOPMENT_BINDING_20260809.md",
+        "npm run runtime:combat-reference-overlay:validate",
+        "npm run runtime:combat-reference-overlay:test",
         "docs/codex_game_development_os/COMBAT_004_PRESENTATION_BINDING_READINESS_20260808.md",
         "npm run runtime:combat-presentation:test"
       ]

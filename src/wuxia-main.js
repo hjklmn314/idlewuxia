@@ -34,6 +34,7 @@ const state = {
     referenceAudio: new Map(),
   },
   referenceAssetRegistry: null,
+  developmentAssetMode: "",
 };
 
 function activeChapterFromFlow(flowContract = {}) {
@@ -69,12 +70,16 @@ async function loadConfig() {
   );
   const config = Object.fromEntries(entries);
   const params = new URLSearchParams(window.location.search);
-  const referenceAssetsEnabled = params.get("referenceAssets") === "1"
-    && ["127.0.0.1", "localhost"].includes(window.location.hostname);
-  if (referenceAssetsEnabled) {
+  const isLocalhost = ["127.0.0.1", "localhost"].includes(window.location.hostname);
+  const originalProjectAssetsEnabled = params.get("originalProjectAssets") === "1" && isLocalhost;
+  const legacyReferenceAssetsEnabled = params.get("referenceAssets") === "1" && isLocalhost;
+  if (originalProjectAssetsEnabled || legacyReferenceAssetsEnabled) {
     const response = await fetch("./config/wuxia_combat_reference_asset_overlay.json");
     if (!response.ok) throw new Error("Failed to load development combat reference asset overlay");
     config.wuxiaCombatReferenceAssetOverlay = await response.json();
+    config.wuxiaCombatReferenceAssetMode = originalProjectAssetsEnabled
+      ? "original-project-development"
+      : "reference-only-development";
   }
   const routeId = params.get("evidenceRoute") || "";
   if (routeId && ["127.0.0.1", "localhost"].includes(window.location.hostname)) {
@@ -363,7 +368,7 @@ function renderCombatRuntime(block, flowContract, snapshot) {
         ? `${control.actorName}行动中……`
         : (block.waitingText || "战斗准备中……");
   return `
-    <section class="wuxia-combat-runtime" data-testid="combat-runtime" data-wuxia-preview-id="${escapeHtml(preview.previewId || block.previewId || "")}" data-wuxia-combat-status="${escapeHtml(liveRuntime?.status || "preview")}" data-wuxia-asset-mode="${state.referenceAssetRegistry ? "reference-only-development" : "shipping-registry"}">
+    <section class="wuxia-combat-runtime" data-testid="combat-runtime" data-wuxia-preview-id="${escapeHtml(preview.previewId || block.previewId || "")}" data-wuxia-combat-status="${escapeHtml(liveRuntime?.status || "preview")}" data-wuxia-asset-mode="${escapeHtml(state.developmentAssetMode || (state.referenceAssetRegistry ? "reference-only-development" : "shipping-registry"))}">
       <div class="wuxia-combat-runtime-stage ${stageClass}" data-wuxia-scene-theme="${escapeHtml(scene.theme || "courtyard")}"${stageStyle}>
         <div class="wuxia-runtime-scene-backdrop" aria-hidden="true">
           ${referenceSceneUrl ? `<img class="wuxia-runtime-scene-reference" src="${escapeHtml(referenceSceneUrl)}" alt="" decoding="async" />` : ""}
@@ -1307,6 +1312,7 @@ async function init() {
     state.referenceAssetRegistry = state.config.wuxiaCombatReferenceAssetOverlay
       ? createReferenceAssetRegistry(state.config.wuxiaCombatReferenceAssetOverlay)
       : null;
+    state.developmentAssetMode = state.config.wuxiaCombatReferenceAssetMode || "";
     state.assetRegistry.applyBindings(document);
     let storage = null;
     try {

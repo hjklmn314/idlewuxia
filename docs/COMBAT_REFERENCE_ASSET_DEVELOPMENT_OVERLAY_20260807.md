@@ -6,6 +6,18 @@ The configuration-driven combat interpreter, combat-session state machine, playe
 
 This is a development integration record. It is not a final art or release acceptance record.
 
+## 1A. Original-project development mode (2026-08-09)
+
+The owner requested that the first development bindings use the original project's locally available combat material. The overlay now records that decision explicitly rather than leaving the source implicit:
+
+- `sourceProject.projectId = fangzhijianghu-original-project`;
+- `approval = user-approved-development-only`;
+- `licenseStatus = not-shipping-verified`;
+- `shippingAllowed = false` and `referenceBytesMayShip = false`;
+- `originalProjectAssets=1` is the primary localhost-only activation query; `referenceAssets=1` remains a backwards-compatible alias.
+
+Coverage is intentionally truthful: 2 clean scenes, 16 Buff logical bindings backed by 6 icon files, and 5 audio logical bindings backed by 4 MP3 files are available for development. The original archive has no eligible side-view three-head actor animation set and no frame-addressable 28-cue VFX family, so actors and VFX remain explicit development fallbacks. The MP3 files are not accepted as the required production OGG set.
+
 ## 2. Why this overlay exists
 
 The combat contract already names scenes, visual cues, audio cues, and buff icons. Before owned art is produced, a developer must be able to verify that those bindings resolve through the same runtime path used by the product. The overlay makes that path explicit while keeping the shipping `AssetRegistry` strict.
@@ -22,7 +34,7 @@ No reference binary is copied into `public/`, `www/`, `android/app/src/main/asse
 config/wuxia_combat_reference_asset_overlay.json
   -> config/wuxia_combat_reference_asset_overlay.schema.json
   -> src/assetRegistry.js (development reference registry)
-  -> src/wuxia-main.js (?referenceAssets=1 on localhost only)
+  -> src/wuxia-main.js (?originalProjectAssets=1 on localhost only; ?referenceAssets=1 is a legacy alias)
   -> combat scene/audio/buff-icon presentation
 ```
 
