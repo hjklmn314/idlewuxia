@@ -79,3 +79,13 @@
 | Truthful interactable acceptance semantics | `config/wuxia_first_session_flow.json -> chapterSystem.entityInteractionPolicy.execution` | `src/entityInteractionService.js`, `src/chapterSession.js` | `tools/audit-wuxia-t02-02-interaction-semantics.mjs`, `tools/test-wuxia-t02-02-interaction-semantics.mjs` | Pass; 0 accepted unsupported, narrative-only and rejected-feedback separated |
 | Feedback-only configured actions | `feedbackRejectionConditionActions`, `feedbackRejectionConditionTokens` | `classifyBranchOutcome()` + `interactionResponse()` | `outputs/t02_02_interaction_semantics/t02_02_interaction_semantics_report.json` | Pass; default 2 executed narrative-only, 1 rejected feedback |
 | First-session simulation separation | existing simulator report | T02-02 audit report `relatedFirstSessionSimulation` | `outputs/idlewuxia_migration/wuxia_first_session_flow_simulation.json` and T03-01 record | Excluded from T02-02 verdict |
+
+## COMBAT-004 traceability entry (2026-08-08)
+
+| Requirement | Configuration authority | Runtime/tool authority | Evidence | Verdict |
+|---|---|---|---|---|
+| One logical binding for every combat presentation input | `config/wuxia_combat_presentation_contract.json` + schema | `tools/validate-wuxia-combat-presentation-contract.mjs` | `runtime:combat-presentation:validate` | Pass; 2 actors, 2 scenes, 28 visual cues, 5 audio cues, 16 Buff icons |
+| Reference assets remain development-only | `config/wuxia_combat_reference_asset_overlay.json` | `src/assetRegistry.js` + presentation validator | `runtime:combat-reference-overlay:test`, presentation contract test | Pass; reference bytes cannot satisfy shipping |
+| Production fallback and oscillator rejection | production profile in presentation contract + asset contract | strict presentation validator and production asset validator | strict test negative cases | Blocked intentionally; 53 bindings still need approved assets |
+| Missing production asset requirements | ASSET-007～010 slot contracts | asset pipeline and manual Gate C | `COMBAT_004_PRESENTATION_BINDING_READINESS_20260808.md` | Open; no false completion claim |
+| Functional combat presentation route | combat content + presentation contract | `tools/run-wuxia-real-browser-flow.mjs --scenario all-key-screens` | `outputs/combat_manual_browser_flow_20260808_combat004_fresh/14_early_combat_screen.png` and `real_browser_flow_summary.json` | Functional PASS (15/15, 0 failures); visual/product Gate C FAIL for CSS actors and placeholder scene |

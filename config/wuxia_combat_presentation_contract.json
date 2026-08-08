@@ -1,0 +1,148 @@
+{
+  "$schema": "idlewuxia.combat_presentation_contract.v1",
+  "contractId": "idlewuxia-combat-presentation-v1",
+  "version": 1,
+  "contentVersion": "wuxia-combat-content-v1",
+  "policy": {
+    "productionGate": "fail-closed",
+    "profiles": {
+      "developmentReference": {
+        "referenceOverlayAllowed": true,
+        "cssActorFallback": "existing_runtime_css_debug_only",
+        "cssVfxFallback": "existing_runtime_css_feedback_only",
+        "synthAudioAllowed": false
+      },
+      "production": {
+        "referenceOverlayAllowed": false,
+        "cssActorFallback": "forbidden",
+        "cssVfxFallback": "forbidden",
+        "synthAudioAllowed": false
+      }
+    }
+  },
+  "actors": [
+    {
+      "id": "player",
+      "logicalAssetId": "combat-actor-player",
+      "requiredSlotId": "combat-side-view-character-sprites",
+      "status": "missing",
+      "referenceAssetId": null,
+      "devFallback": "existing_runtime_css_debug_only",
+      "requirements": ["ASSET-007"]
+    },
+    {
+      "id": "enemy",
+      "logicalAssetId": "combat-actor-enemy",
+      "requiredSlotId": "combat-side-view-character-sprites",
+      "status": "missing",
+      "referenceAssetId": null,
+      "devFallback": "existing_runtime_css_debug_only",
+      "requirements": ["ASSET-007"]
+    }
+  ],
+  "scenes": [
+    {
+      "id": "scene_fb01_wuguan_courtyard",
+      "logicalAssetId": "combat-scene-fb01-wuguan-courtyard",
+      "requiredSlotId": "combat-clean-background-scenes",
+      "status": "reference-only",
+      "referenceAssetId": "ref-scene-wuguan-courtyard",
+      "devFallback": "css_courtyard",
+      "requirements": ["ASSET-008"]
+    },
+    {
+      "id": "scene_fb01_courtyard_rain",
+      "logicalAssetId": "combat-scene-fb01-courtyard-rain",
+      "requiredSlotId": "combat-clean-background-scenes",
+      "status": "reference-only",
+      "referenceAssetId": "ref-scene-courtyard-rain",
+      "devFallback": "css_courtyard",
+      "requirements": ["ASSET-008"]
+    }
+  ],
+  "vfx": [
+    { "id": "cue_basic_strike", "logicalAssetId": "combat-vfx-cue-basic-strike", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_test_strike", "logicalAssetId": "combat-vfx-cue-test-strike", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_guard", "logicalAssetId": "combat-vfx-cue-guard", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_heal", "logicalAssetId": "combat-vfx-cue-heal", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_flame_palm", "logicalAssetId": "combat-vfx-cue-flame-palm", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_pressure_point", "logicalAssetId": "combat-vfx-cue-pressure-point", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_iron_wall", "logicalAssetId": "combat-vfx-cue-iron-wall", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_venom_thrust", "logicalAssetId": "combat-vfx-cue-venom-thrust", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_double_slash", "logicalAssetId": "combat-vfx-cue-double-slash", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_bleeding_cut", "logicalAssetId": "combat-vfx-cue-bleeding-cut", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_smoke_step", "logicalAssetId": "combat-vfx-cue-smoke-step", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_miss", "logicalAssetId": "combat-vfx-cue-miss", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_defeat", "logicalAssetId": "combat-vfx-cue-defeat", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_qi_recovery", "logicalAssetId": "combat-vfx-cue-qi-recovery", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_meditation", "logicalAssetId": "combat-vfx-cue-meditation", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_clear_mind", "logicalAssetId": "combat-vfx-cue-clear-mind", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_silencing_needle", "logicalAssetId": "combat-vfx-cue-silencing-needle", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_reflecting_mirror", "logicalAssetId": "combat-vfx-cue-reflecting-mirror", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_trap_root", "logicalAssetId": "combat-vfx-cue-trap-root", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_blood_fury", "logicalAssetId": "combat-vfx-cue-blood-fury", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_sweeping_blade", "logicalAssetId": "combat-vfx-cue-sweeping-blade", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_shared_breath", "logicalAssetId": "combat-vfx-cue-shared-breath", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_random_needle", "logicalAssetId": "combat-vfx-cue-random-needle", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_true_point", "logicalAssetId": "combat-vfx-cue-true-point", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_taunt", "logicalAssetId": "combat-vfx-cue-taunt", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_protect_ally", "logicalAssetId": "combat-vfx-cue-protect-ally", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_meridian_transfer", "logicalAssetId": "combat-vfx-cue-meridian-transfer", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] },
+    { "id": "cue_frost_qi", "logicalAssetId": "combat-vfx-cue-frost-qi", "requiredSlotId": "combat-vfx-atlas-family", "status": "missing", "referenceAssetId": null, "devFallback": "existing_runtime_css_feedback_only", "requirements": ["ASSET-009"] }
+  ],
+  "audio": [
+    { "id": "sfx_hit", "logicalAssetId": "combat-audio-hit", "requiredSlotId": "combat-sfx-and-music-family", "status": "reference-only", "referenceAssetId": "ref-audio-hit", "devFallback": "none", "requirements": ["ASSET-010"] },
+    { "id": "sfx_heal", "logicalAssetId": "combat-audio-heal", "requiredSlotId": "combat-sfx-and-music-family", "status": "reference-only", "referenceAssetId": "ref-audio-heal", "devFallback": "none", "requirements": ["ASSET-010"] },
+    { "id": "sfx_buff", "logicalAssetId": "combat-audio-buff", "requiredSlotId": "combat-sfx-and-music-family", "status": "reference-only", "referenceAssetId": "ref-audio-heal", "devFallback": "none", "requirements": ["ASSET-010"] },
+    { "id": "sfx_control", "logicalAssetId": "combat-audio-control", "requiredSlotId": "combat-sfx-and-music-family", "status": "reference-only", "referenceAssetId": "ref-audio-control", "devFallback": "none", "requirements": ["ASSET-010"] },
+    { "id": "sfx_defeat", "logicalAssetId": "combat-audio-defeat", "requiredSlotId": "combat-sfx-and-music-family", "status": "reference-only", "referenceAssetId": "ref-audio-defeat", "devFallback": "none", "requirements": ["ASSET-010"] }
+  ],
+  "buffIcons": [
+    { "id": "buff_guarded", "logicalAssetId": "combat-buff-guarded", "requiredSlotId": "combat-vfx-atlas-family", "status": "reference-only", "referenceAssetId": "ref-buff-positive-01", "devFallback": "text-label", "requirements": ["ASSET-009"] },
+    { "id": "buff_iron_wall", "logicalAssetId": "combat-buff-iron-wall", "requiredSlotId": "combat-vfx-atlas-family", "status": "reference-only", "referenceAssetId": "ref-buff-positive-02", "devFallback": "text-label", "requirements": ["ASSET-009"] },
+    { "id": "buff_poisoned", "logicalAssetId": "combat-buff-poisoned", "requiredSlotId": "combat-vfx-atlas-family", "status": "reference-only", "referenceAssetId": "ref-buff-negative-01", "devFallback": "text-label", "requirements": ["ASSET-009"] },
+    { "id": "buff_burning", "logicalAssetId": "combat-buff-burning", "requiredSlotId": "combat-vfx-atlas-family", "status": "reference-only", "referenceAssetId": "ref-buff-negative-02", "devFallback": "text-label", "requirements": ["ASSET-009"] },
+    { "id": "buff_bleeding", "logicalAssetId": "combat-buff-bleeding", "requiredSlotId": "combat-vfx-atlas-family", "status": "reference-only", "referenceAssetId": "ref-buff-negative-03", "devFallback": "text-label", "requirements": ["ASSET-009"] },
+    { "id": "buff_stunned", "logicalAssetId": "combat-buff-stunned", "requiredSlotId": "combat-vfx-atlas-family", "status": "reference-only", "referenceAssetId": "ref-buff-negative-02", "devFallback": "text-label", "requirements": ["ASSET-009"] },
+    { "id": "buff_haste", "logicalAssetId": "combat-buff-haste", "requiredSlotId": "combat-vfx-atlas-family", "status": "reference-only", "referenceAssetId": "ref-buff-positive-03", "devFallback": "text-label", "requirements": ["ASSET-009"] },
+    { "id": "buff_evasion", "logicalAssetId": "combat-buff-evasion", "requiredSlotId": "combat-vfx-atlas-family", "status": "reference-only", "referenceAssetId": "ref-buff-positive-03", "devFallback": "text-label", "requirements": ["ASSET-009"] },
+    { "id": "buff_silenced", "logicalAssetId": "combat-buff-silenced", "requiredSlotId": "combat-vfx-atlas-family", "status": "reference-only", "referenceAssetId": "ref-buff-negative-02", "devFallback": "text-label", "requirements": ["ASSET-009"] },
+    { "id": "buff_rooted", "logicalAssetId": "combat-buff-rooted", "requiredSlotId": "combat-vfx-atlas-family", "status": "reference-only", "referenceAssetId": "ref-buff-negative-03", "devFallback": "text-label", "requirements": ["ASSET-009"] },
+    { "id": "buff_mirror", "logicalAssetId": "combat-buff-mirror", "requiredSlotId": "combat-vfx-atlas-family", "status": "reference-only", "referenceAssetId": "ref-buff-positive-01", "devFallback": "text-label", "requirements": ["ASSET-009"] },
+    { "id": "buff_meditation", "logicalAssetId": "combat-buff-meditation", "requiredSlotId": "combat-vfx-atlas-family", "status": "reference-only", "referenceAssetId": "ref-buff-positive-01", "devFallback": "text-label", "requirements": ["ASSET-009"] },
+    { "id": "buff_control_immunity", "logicalAssetId": "combat-buff-control-immunity", "requiredSlotId": "combat-vfx-atlas-family", "status": "reference-only", "referenceAssetId": "ref-buff-positive-02", "devFallback": "text-label", "requirements": ["ASSET-009"] },
+    { "id": "buff_taunt", "logicalAssetId": "combat-buff-taunt", "requiredSlotId": "combat-vfx-atlas-family", "status": "reference-only", "referenceAssetId": "ref-buff-positive-03", "devFallback": "text-label", "requirements": ["ASSET-009"] },
+    { "id": "buff_weakened", "logicalAssetId": "combat-buff-weakened", "requiredSlotId": "combat-vfx-atlas-family", "status": "reference-only", "referenceAssetId": "ref-buff-negative-01", "devFallback": "text-label", "requirements": ["ASSET-009"] },
+    { "id": "buff_focus", "logicalAssetId": "combat-buff-focus", "requiredSlotId": "combat-vfx-atlas-family", "status": "reference-only", "referenceAssetId": "ref-buff-positive-02", "devFallback": "text-label", "requirements": ["ASSET-009"] }
+  ],
+  "requirements": [
+    {
+      "taskId": "ASSET-007",
+      "slotId": "combat-side-view-character-sprites",
+      "purpose": "Side-view three-head player and enemy combat actors.",
+      "mustProvide": ["idle", "walk_left", "walk_right", "attack", "hurt", "control", "defeat", "pivot", "sha256", "ownership"],
+      "acceptance": ["Only side view", "2.7-3.3 head proportion", "Left/right foot phases alternate", "No baked scene pixels", "Manual frame-by-frame signature"]
+    },
+    {
+      "taskId": "ASSET-008",
+      "slotId": "combat-clean-background-scenes",
+      "purpose": "Clean portrait combat scenes with actors mounted at runtime.",
+      "mustProvide": ["transparent-or-clean scene", "safe actor landing zones", "three viewport crops", "sha256", "ownership"],
+      "acceptance": ["No baked characters", "No UI baked into scene", "Readable behind combat HUD", "Manual three-size review"]
+    },
+    {
+      "taskId": "ASSET-009",
+      "slotId": "combat-vfx-atlas-family",
+      "purpose": "Hit, block, miss, control, buff, defeat and victory feedback.",
+      "mustProvide": ["28 cue IDs", "16 buff icon IDs", "integer-scale pixel frames", "budget", "sha256", "ownership"],
+      "acceptance": ["Every configured cue resolves", "Actor-bound and target-bound", "No occlusion of combat information", "No CSS-only production fallback"]
+    },
+    {
+      "taskId": "ASSET-010",
+      "slotId": "combat-sfx-and-music-family",
+      "purpose": "Combat impact, heal, buff, control, defeat and victory audio.",
+      "mustProvide": ["5 logical cue IDs", "OGG files", "loudness metadata", "latency budget", "sha256", "ownership"],
+      "acceptance": ["No oscillator in production", "No missing cue", "Device latency <=120ms", "Manual mix and replay review"]
+    }
+  ]
+}

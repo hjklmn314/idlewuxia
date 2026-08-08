@@ -88,3 +88,10 @@
 - `AUDIT-003`：blocked；完整读取、静态与运行时门已执行，但人工视觉、10 个必需资产槽及 3 条未授权战斗结果没有关闭。
 - `T05-01`：blocked；最终自动矩阵位于 `outputs/wuxia_visual_matrix/20260804_post_truthful_node_fix/`，但人工视觉明确失败。
 - `wuxia:audit:online-standard`：预期失败，当前 11 个 P0、1 个 P1；只有这些问题真实关闭后才允许转绿。
+
+## 2026-08-08 COMBAT-004 更新
+
+- `COMBAT-004`：done，新增 `wuxia_combat_presentation_contract`，把 2 个角色挂点、2 个场景、28 个视觉 cue、5 个音频 cue、16 个 Buff 图标和 ASSET-007～010 的需求全部纳入同一配置/Schema/验证链。
+- 普通结构门禁：PASS；`runtime:combat-presentation:test` 覆盖正例、缺 cue、未知引用和严格生产阻断；结构验证报告当前登记 53 个 production-blocked 绑定。
+- 严格生产门禁：BLOCKED（符合预期）；当前无批准的侧视三头身角色、VFX 生产族和自有/授权 OGG，参考场景/音频/Buff 仅限开发覆盖层。
+- 下一施工顺序保持：ASSET-007 → ASSET-008 → ASSET-009 → ASSET-010 → COMBAT-002B；任何一项未通过人工 Gate C 都不得宣称上线。

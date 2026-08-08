@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://idlewuxia.local/schema/wuxia_combat_presentation_contract.v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "contractId", "version", "contentVersion", "policy", "actors", "scenes", "vfx", "audio", "buffIcons", "requirements"],
+  "properties": {
+    "$schema": { "const": "idlewuxia.combat_presentation_contract.v1" },
+    "contractId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "version": { "const": 1 },
+    "contentVersion": { "type": "string", "minLength": 1 },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["productionGate", "profiles"],
+      "properties": {
+        "productionGate": { "const": "fail-closed" },
+        "profiles": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["developmentReference", "production"],
+          "properties": {
+            "developmentReference": { "$ref": "#/$defs/profile" },
+            "production": { "$ref": "#/$defs/profile" }
+          }
+        }
+      }
+    },
+    "actors": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/binding" } },
+    "scenes": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/binding" } },
+    "vfx": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/binding" } },
+    "audio": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/binding" } },
+    "buffIcons": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/binding" } },
+    "requirements": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/requirement" } }
+  },
+  "$defs": {
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["referenceOverlayAllowed", "cssActorFallback", "cssVfxFallback", "synthAudioAllowed"],
+      "properties": {
+        "referenceOverlayAllowed": { "type": "boolean" },
+        "cssActorFallback": { "type": "string", "minLength": 1 },
+        "cssVfxFallback": { "type": "string", "minLength": 1 },
+        "synthAudioAllowed": { "type": "boolean" }
+      }
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "logicalAssetId", "requiredSlotId", "status", "referenceAssetId", "devFallback", "requirements"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+$" },
+        "logicalAssetId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "requiredSlotId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "status": { "enum": ["satisfied", "missing", "reference-only"] },
+        "referenceAssetId": { "anyOf": [{ "type": "null" }, { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" }] },
+        "devFallback": { "type": "string", "minLength": 1 },
+        "requirements": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Z0-9-]+$" } }
+      }
+    },
+    "requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["taskId", "slotId", "purpose", "mustProvide", "acceptance"],
+      "properties": {
+        "taskId": { "type": "string", "pattern": "^[A-Z0-9-]+$" },
+        "slotId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "purpose": { "type": "string", "minLength": 1 },
+        "mustProvide": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "acceptance": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      }
+    }
+  }
+}

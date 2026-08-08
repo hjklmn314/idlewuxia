@@ -107,6 +107,7 @@
         "ASSET-CONTRACT-001",
         "VISUAL-STANDARD-001",
         "COMBAT-002A",
+        "COMBAT-004",
         "COMBAT-002B",
         "QA-UI-001",
         "COMBAT-002",
@@ -880,6 +881,29 @@
       ],
       "evidence": [],
       "postponedReason": "Product owner explicitly deferred Rest/Repair while prioritizing the complete combat module."
+    },
+    {
+      "id": "COMBAT-004",
+      "title": "Combat presentation binding readiness and reference provenance gate",
+      "priority": "P0",
+      "gate": "G5",
+      "status": "done",
+      "owner": "asset-content-pipeline",
+      "dependsOn": ["COMBAT-002A", "COMBAT-003"],
+      "acceptance": [
+        "Every configured actor, scene, VFX cue, audio cue and Buff icon has one logical binding and a required production slot.",
+        "Development reference bindings are explicit, reversible and cannot satisfy the production gate.",
+        "Strict production validation fails closed for missing assets, CSS actor/VFX fallback, reference-only records and synthesized audio.",
+        "Missing asset requirements are recorded with side-view, three-head, clean-scene, cue coverage, audio and manual review criteria."
+      ],
+      "evidence": [
+        "config/wuxia_combat_presentation_contract.json",
+        "config/wuxia_combat_presentation_contract.schema.json",
+        "tools/validate-wuxia-combat-presentation-contract.mjs",
+        "tools/test-wuxia-combat-presentation-contract.mjs",
+        "docs/codex_game_development_os/COMBAT_004_PRESENTATION_BINDING_READINESS_20260808.md",
+        "npm run runtime:combat-presentation:test"
+      ]
     },
     {
       "id": "ASSET-007",
