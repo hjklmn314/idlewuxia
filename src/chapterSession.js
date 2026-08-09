@@ -660,35 +660,34 @@ export function createChapterSession(sourceContract, options = {}) {
 
   function beginPendingCombat(sourceId, actionType, policy) {
     if (!policy?.startActionId) return { accepted: false, reason: "missing combat start action policy" };
+    if (!combatContent) return { accepted: false, reason: "combat runtime content is unavailable" };
     let combatSnapshot = null;
     let combatPresentation = null;
     let combatResult = null;
     let combatControl = null;
     const runtimeMode = policy.runtimeMode || "manual_player_turns";
-    if (combatContent) {
-      try {
-        activeCombatSession = createCombatSession(combatContent, {
-          encounterId: policy.encounterId || combatContent.rules?.defaultEncounterId,
-          seed: policy.seed,
-        });
-        if (runtimeMode === "manual_player_turns") {
-          activeCombatSession.start();
-          combatSnapshot = activeCombatSession.advanceUntilPlayerInput({ maxSteps: policy.maxSteps || 256 }).snapshot;
-        } else if (runtimeMode === "simulation") {
-          combatSnapshot = activeCombatSession.runToEnd({ maxSteps: policy.maxSteps || 256 });
-        } else {
-          throw new Error(`unsupported combat runtime mode ${runtimeMode}`);
-        }
-        combatResult = cloneData(combatSnapshot.result || null);
-        combatControl = cloneData(activeCombatSession.combatControlState());
-        combatPresentation = activeCombatSession.presentation({
-          previewId: policy.previewId || `combat_${sourceId}`,
-          sceneTheme: policy.sceneTheme || "wuxia_courtyard",
-        });
-      } catch (error) {
-        activeCombatSession = null;
-        return { accepted: false, reason: `combat runtime rejected: ${error?.message || String(error)}` };
+    try {
+      activeCombatSession = createCombatSession(combatContent, {
+        encounterId: policy.encounterId || combatContent.rules?.defaultEncounterId,
+        seed: policy.seed,
+      });
+      if (runtimeMode === "manual_player_turns") {
+        activeCombatSession.start();
+        combatSnapshot = activeCombatSession.advanceUntilPlayerInput({ maxSteps: policy.maxSteps || 256 }).snapshot;
+      } else if (runtimeMode === "simulation") {
+        combatSnapshot = activeCombatSession.runToEnd({ maxSteps: policy.maxSteps || 256 });
+      } else {
+        throw new Error(`unsupported combat runtime mode ${runtimeMode}`);
       }
+      combatResult = cloneData(combatSnapshot.result || null);
+      combatControl = cloneData(activeCombatSession.combatControlState());
+      combatPresentation = activeCombatSession.presentation({
+        previewId: policy.previewId || `combat_${sourceId}`,
+        sceneTheme: policy.sceneTheme || "wuxia_courtyard",
+      });
+    } catch (error) {
+      activeCombatSession = null;
+      return { accepted: false, reason: `combat runtime rejected: ${error?.message || String(error)}` };
     }
     pendingCombat = {
       sourceId,
@@ -700,6 +699,7 @@ export function createChapterSession(sourceContract, options = {}) {
       successConditionToken: policy.successConditionToken || "",
       failureConditionToken: policy.failureConditionToken || "",
       runawayConditionToken: policy.runawayConditionToken || "",
+      outcomeConditionCardinality: policy.outcomeConditionCardinality || "required_exactly_one",
       outcomeResultTokens: cloneData(policy.outcomeResultTokens || {}),
       triggerResultId: policy.resultId || "",
       startedFromState: currentState,
@@ -714,7 +714,10 @@ export function createChapterSession(sourceContract, options = {}) {
       evidence: clone(policy.evidence || {}),
     };
     const transition = dispatch(policy.startActionId);
-    if (!transition.accepted) pendingCombat = null;
+    if (!transition.accepted) {
+      pendingCombat = null;
+      activeCombatSession = null;
+    }
     return transition;
   }
 
@@ -860,13 +863,47 @@ export function createChapterSession(sourceContract, options = {}) {
       : outcome === "runaway"
         ? pendingCombat.runawayConditionToken
         : pendingCombat.failureConditionToken;
-    const matchedBranch = outcomeToken && source
-      ? (source.branches || []).find((candidate) => (
+    const matchingBranches = outcomeToken && source
+      ? (source.branches || []).filter((candidate) => (
         (candidate.conditionTokens || []).includes(outcomeToken)
         && branchConditionsMet(candidate, { satisfiedCombatToken: outcomeToken }).accepted
       ))
-      : null;
+      : [];
     const configuredResultTokens = cloneData(pendingCombat.outcomeResultTokens?.[outcome] || []);
+    if (outcomeToken && configuredResultTokens.length) {
+      const resolution = {
+        accepted: false,
+        outcome,
+        outcomeToken,
+        sourceId: pendingCombat.sourceId,
+        feedbackLines: [],
+        resultTokens: configuredResultTokens,
+        sideEffects: [],
+        reason: `ambiguous configured combat outcome dispatch for ${outcome}`,
+      };
+      events.push({ type: "combatResolutionRejected", ...clone(resolution) });
+      return resolution;
+    }
+    const outcomeConditionCardinality = pendingCombat.outcomeConditionCardinality || "required_exactly_one";
+    const invalidConditionBranchCount = matchingBranches.length > 1
+      || (outcomeConditionCardinality === "required_exactly_one" && matchingBranches.length !== 1);
+    if (outcomeToken && invalidConditionBranchCount) {
+      const resolution = {
+        accepted: false,
+        outcome,
+        outcomeToken,
+        sourceId: pendingCombat.sourceId,
+        feedbackLines: [],
+        resultTokens: [],
+        sideEffects: [],
+        reason: matchingBranches.length
+          ? `ambiguous configured combat outcome branch ${outcomeToken}`
+          : `configured combat outcome branch not found ${outcomeToken}`,
+      };
+      events.push({ type: "combatResolutionRejected", ...clone(resolution) });
+      return resolution;
+    }
+    const matchedBranch = matchingBranches[0] || null;
     const resolvedOutcomeRecords = configuredResultTokens.map((resultId) => resultPreparation.resolveRecord(resultId));
     if (!matchedBranch && resolvedOutcomeRecords.some((record) => !record)) {
       const missingResultToken = configuredResultTokens.find((_resultId, index) => !resolvedOutcomeRecords[index]) || "";
@@ -1141,6 +1178,9 @@ export function createChapterSession(sourceContract, options = {}) {
       if (!transition.accepted) {
         event.type = "npcInteractionRejected";
         event.reason = transition.event?.reason || transition.reason || "combat transition rejected";
+        event.feedback = event.reason;
+        event.feedbackLines = [event.reason];
+        event.sideEffects = [];
         event.executionStatus = interactionExecutionStatusForRejection(event.reason);
         event.outcomeKind = "";
         event.stateChanged = false;

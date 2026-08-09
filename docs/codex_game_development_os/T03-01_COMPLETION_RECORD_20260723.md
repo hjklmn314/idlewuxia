@@ -82,7 +82,7 @@ Its report is `outputs/t03_01_action_state_assertions/action_state_assertions.js
 
 ## 7. Known limitations and next work
 
-- G4 remains blocked by `SAVE-001` and `OBS-001`.
+- Historical 2026-07-23 boundary: G4 was then blocked by `SAVE-001` and `OBS-001`. Current 2026-08-09 authority: both are done; G4 remains blocked only by `HYGIENE-001`.
 - `COMBAT-002` remains explicitly postponed, including Rest/Repair and real combat resolution.
 - Full 11-screen x 3-viewport visual acceptance remains T05-01.
 - Runtime AssetRegistry integration remains T05-02.

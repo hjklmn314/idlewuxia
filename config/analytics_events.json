@@ -1,35 +1,160 @@
 {
-  "events": [
-    "session_start",
-    "theme_selected",
-    "wave_spawned",
-    "wave_cleared",
-    "swipe_used",
-    "upgrade_purchased",
-    "boss_spawned",
-    "boss_phase_entered",
-    "boss_interrupt_succeeded",
-    "boss_interrupt_failed",
-    "boss_defeated",
-    "rewarded_ad_offered",
-    "rewarded_ad_started",
-    "rewarded_ad_completed",
-    "iap_offer_shown",
-    "iap_purchase_started",
-    "iap_purchase_verified",
-    "iap_purchase_granted",
-    "cosmetic_previewed",
-    "cosmetic_purchased"
+  "$schema": "idlewuxia.runtime_observability_contract.v1",
+  "contractVersion": 1,
+  "moduleId": "first-session-runtime",
+  "build": {
+    "version": "0.1.0",
+    "buildId": "development-local",
+    "channel": "development"
+  },
+  "privacy": {
+    "class": "technical_no_pii",
+    "allowedIntentFields": [
+      "type",
+      "actionId",
+      "nodeId",
+      "roomId",
+      "roleId",
+      "interactableId",
+      "actionType",
+      "optionId",
+      "unitId",
+      "skillId",
+      "targetIds"
+    ],
+    "forbiddenFields": [
+      "name",
+      "playerName",
+      "email",
+      "phone",
+      "address",
+      "deviceId",
+      "advertisingId",
+      "rawText",
+      "feedback"
+    ]
+  },
+  "retention": {
+    "maxEvents": 512,
+    "persistence": "memory_only",
+    "upload": "disabled"
+  },
+  "errorCodes": [
+    "OBS_RUNTIME_INIT_FAILED",
+    "OBS_RUNTIME_UNHANDLED_ERROR",
+    "OBS_RUNTIME_UNHANDLED_REJECTION"
   ],
-  "keyMetrics": [
-    "upgrade_wait_seconds",
-    "boss_ttk_seconds",
-    "active_entity_count",
-    "fps_p10",
-    "income_per_minute",
-    "ad_offers_per_session",
-    "rewarded_accept_rate",
-    "skin_creative_cpi",
-    "d1_retention_by_skin"
+  "performanceMetrics": [
+    {
+      "metricId": "ui.render.duration_ms",
+      "unit": "ms",
+      "budget": 16.7,
+      "meaning": "Synchronous DOM render and binding duration for one UI presentation."
+    }
+  ],
+  "stateDelta": {
+    "maxChangedPaths": 64,
+    "trackedPaths": [
+      "currentState",
+      "flags",
+      "taskState.activeTaskId",
+      "taskState.completedClicks",
+      "chapter.selectedNodeId",
+      "chapter.selectedRoomId",
+      "chapter.selectedNpcId",
+      "chapter.selectedInteractableId",
+      "chapter.hiddenEntityIds",
+      "chapter.dynamicEntityIdsByRoom",
+      "chapter.replacementEntityById",
+      "chapter.mapMarkers",
+      "player.experience",
+      "player.potential",
+      "player.qi",
+      "player.qiMax",
+      "player.neili",
+      "player.neiliMax",
+      "player.inventory",
+      "player.skillExp",
+      "player.skillMoveExp",
+      "player.skillLevels",
+      "player.markers",
+      "player.inheritableMarkers",
+      "player.timeMarkers",
+      "player.timedMarkers",
+      "player.officialType",
+      "player.officialAchievement",
+      "player.yueli",
+      "pendingChoice.choiceId",
+      "pendingCombat.sourceId",
+      "pendingCombat.resultId",
+      "pendingCombat.combatSnapshot.status",
+      "pendingCombat.combatSnapshot.outcome",
+      "pendingCombat.combatSnapshot.round",
+      "pendingCombat.combatSnapshot.replayId"
+    ]
+  },
+  "rejectionCodes": {
+    "unsupported_ui_intent": "OBS_UI_INTENT_UNSUPPORTED",
+    "invalid_ui_intent": "OBS_UI_INTENT_INVALID",
+    "unsupported_session_command": "OBS_SESSION_COMMAND_UNSUPPORTED",
+    "default": "RUNTIME_COMMAND_REJECTED"
+  },
+  "eventDefinitions": [
+    {
+      "eventType": "runtime.session_started",
+      "schemaVersion": 1,
+      "meaning": "A runtime session obtained its initial authoritative snapshot.",
+      "trigger": "After persistence restore and before the first player intent.",
+      "owner": "analytics-observability-engineer",
+      "requiredPayloadFields": ["persistenceStatus", "initialStateHash", "initialState"]
+    },
+    {
+      "eventType": "runtime.intent",
+      "schemaVersion": 1,
+      "meaning": "A validated or rejected player/UI intent entered the single UI command boundary.",
+      "trigger": "Immediately before the UI Flow Adapter dispatches or rejects an intent.",
+      "owner": "ui-flow-adapter",
+      "requiredPayloadFields": ["intent", "beforeStateHash", "state", "combatReplayId"]
+    },
+    {
+      "eventType": "runtime.result",
+      "schemaVersion": 1,
+      "meaning": "The authoritative acceptance result for one runtime intent.",
+      "trigger": "After the runtime command returns and a fresh snapshot is available.",
+      "owner": "chapter-runtime",
+      "requiredPayloadFields": ["intentEventId", "accepted", "stateChanged", "beforeStateHash", "afterStateHash", "errorCode"]
+    },
+    {
+      "eventType": "runtime.rejection",
+      "schemaVersion": 1,
+      "meaning": "A rejected intent with a stable technical error code and atomicity result.",
+      "trigger": "Whenever runtime.result accepted is false.",
+      "owner": "chapter-runtime",
+      "requiredPayloadFields": ["intentEventId", "intentType", "errorCode", "stateUnchanged"]
+    },
+    {
+      "eventType": "runtime.state_delta",
+      "schemaVersion": 1,
+      "meaning": "A whitelist-only before/after state projection change caused by one accepted command.",
+      "trigger": "Whenever tracked runtime state changes.",
+      "owner": "analytics-observability-engineer",
+      "requiredPayloadFields": ["intentEventId", "beforeStateHash", "afterStateHash", "changes", "truncated"]
+    },
+    {
+      "eventType": "runtime.error",
+      "schemaVersion": 1,
+      "meaning": "A privacy-minimized runtime error classification without raw message or stack payload.",
+      "trigger": "Runtime initialization failure, uncaught window error or unhandled promise rejection.",
+      "owner": "analytics-observability-engineer",
+      "requiredPayloadFields": ["errorCode", "source", "state", "combatReplayId"]
+    },
+    {
+      "eventType": "runtime.performance_sample",
+      "schemaVersion": 1,
+      "meaning": "A configured technical performance measurement tied to the current screen and state.",
+      "trigger": "After a configured runtime operation completes.",
+      "owner": "performance-reliability",
+      "requiredPayloadFields": ["metricId", "value", "unit", "budget", "withinBudget", "screenId", "state"]
+    }
   ]
 }

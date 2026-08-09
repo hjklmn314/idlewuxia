@@ -243,7 +243,7 @@ const negative = [];
   assert.equal(resolved.event.combatResolution.outcome, "failure");
   assert.equal(resolved.snapshot.player.markers["缉拿任务"], undefined);
   assert.equal(resolved.snapshot.chapter.hiddenEntityIds.includes(testCase.roleId), false);
-  negative.push({ id: "defeat-does-not-apply-victory-results", accepted: true });
+  negative.push({ id: "defeat-does-not-apply-victory-results", assertionsPassed: true });
 }
 
 {
@@ -258,7 +258,7 @@ const negative = [];
   const resolved = fixture.runtime.dispatch("ACTION_FS_009_EARLY_COMBAT");
   assert.equal(resolved.accepted, true);
   assert.equal(resolved.snapshot.flags.includes("combat_marker:inend=1"), false);
-  negative.push({ id: "runaway-does-not-apply-victory-results", accepted: true });
+  negative.push({ id: "runaway-does-not-apply-victory-results", assertionsPassed: true });
 }
 
 {
@@ -279,7 +279,7 @@ const negative = [];
   const rejected = runtime.interactWithChapterNpc(cloneNpc.roleId, "custom_caozuo");
   assert.equal(rejected.accepted, false);
   assert.equal(rejected.event.reason, "combat result policy disallows source");
-  negative.push({ id: "source-allowlist-fails-closed", accepted: true });
+  negative.push({ id: "source-allowlist-fails-closed", assertionsPassed: true });
 }
 
 {
@@ -289,7 +289,7 @@ const negative = [];
   const rejected = fixture.runtime.interactWithChapterNpc("fb01r41_1", "custom_caozuo");
   assert.equal(rejected.accepted, false);
   assert.equal(rejected.event.reason, "combat result policy is not configured");
-  negative.push({ id: "missing-policy-fails-closed", accepted: true });
+  negative.push({ id: "missing-policy-fails-closed", assertionsPassed: true });
 }
 
 {
@@ -304,7 +304,53 @@ const negative = [];
   assert.ok(rejected.event.reason.includes("unknown configured combat outcome result inattack201"));
   assert.ok(rejected.snapshot.pendingCombat, "rejected outcome transaction must retain pending combat for recovery");
   assert.equal(rejected.snapshot.flags.includes("combat_marker:inend=1"), false);
-  negative.push({ id: "missing-outcome-result-fails-closed", accepted: true });
+  negative.push({ id: "missing-outcome-result-fails-closed", assertionsPassed: true });
+}
+
+{
+  const testCase = cases[0];
+  const contract = contractWithNpc(testCase.roleId);
+  contract.chapterSystem.combatResultPolicies.compare.successConditionToken = "missing_comparewin";
+  const fixture = createRuntime({ ...testCase, desiredOutcome: "victory", flow: contract });
+  assert.equal(fixture.runtime.interactWithChapterNpc(testCase.roleId, "custom_caozuo").accepted, true);
+  const finished = finishVictory(fixture.runtime, { resolve: false });
+  const rejected = finished.runtime.dispatch("ACTION_FS_009_EARLY_COMBAT");
+  assert.equal(rejected.accepted, false);
+  assert.equal(rejected.event.reason, "configured combat outcome branch not found missing_comparewin");
+  assert.ok(rejected.snapshot.pendingCombat, "missing configured condition branch must retain pending combat");
+  assert.equal(rejected.snapshot.player.markers["缉拿任务"], undefined);
+  negative.push({ id: "missing-outcome-condition-branch-fails-closed", assertionsPassed: true });
+}
+
+{
+  const testCase = cases[0];
+  const contract = contractWithNpc(testCase.roleId);
+  contract.chapterSystem.combatResultPolicies.compare.outcomeResultTokens.success = ["text48"];
+  const fixture = createRuntime({ ...testCase, desiredOutcome: "victory", flow: contract });
+  assert.equal(fixture.runtime.interactWithChapterNpc(testCase.roleId, "custom_caozuo").accepted, true);
+  const finished = finishVictory(fixture.runtime, { resolve: false });
+  const rejected = finished.runtime.dispatch("ACTION_FS_009_EARLY_COMBAT");
+  assert.equal(rejected.accepted, false);
+  assert.equal(rejected.event.reason, "ambiguous configured combat outcome dispatch for success");
+  assert.ok(rejected.snapshot.pendingCombat, "ambiguous outcome dispatch must retain pending combat");
+  assert.equal(rejected.snapshot.player.markers["缉拿任务"], undefined);
+  negative.push({ id: "ambiguous-outcome-dispatch-fails-closed", assertionsPassed: true });
+}
+
+{
+  const contract = contractWithNpc("fb01r41_1");
+  const runtime = createFirstSessionRuntime(contract, {
+    initialState: "STATE_FS_008_MAP_EXPLORE",
+    initialFlags: ["chapter_fb01_entered"],
+  });
+  assert.equal(runtime.selectChapterRoom(fixtureRoomId).accepted, true);
+  assert.equal(runtime.selectChapterNpc("fb01r41_1").accepted, true);
+  const rejected = runtime.interactWithChapterNpc("fb01r41_1", "custom_caozuo");
+  assert.equal(rejected.accepted, false);
+  assert.equal(rejected.event.reason, "combat runtime content is unavailable");
+  assert.deepEqual(rejected.event.sideEffects, []);
+  assert.equal(rejected.snapshot.pendingCombat, null);
+  negative.push({ id: "missing-combat-content-fails-closed", assertionsPassed: true });
 }
 
 const report = {

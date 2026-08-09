@@ -95,7 +95,7 @@ Gate 2 verdict：**PASS FOR CURRENT AUTHORED RUNTIME AND DEBUG BUILD；NOT A REL
 1. ASSET-002～010：Android 图标/启动页、字体、地图、NPC、交互图标、战斗角色/场景/VFX/音频。
 2. COMBAT-002：逻辑核心已显著收口，但产品表现和真实设备反馈未闭环。
 3. T05-01：33/33 自动证据通过，人工视觉失败。
-4. SAVE-001、OBS-001：存档迁移/损坏恢复虽有基础测试，发布级版本治理与可观测性仍未关闭。
+4. SAVE-001 与 OBS-001 已于 2026-08-09 完成浏览器侧治理：版本化存档、迁移、事务、损坏恢复，以及 7 类可观测事件、状态 delta、错误/性能字段和首分歧 replay。Android 真机断电/容量故障注入、远端运维接入及商业回滚演练继续由 REL-002/REL-003 阻断。
 5. SEC-001：权限、隐私、secret、供应链与支付边界未完成。
 6. REL-001～003：release 签名、AAB/APK、真机、性能、兼容、商店、灰度监控和回滚演练未完成。
 7. 旧 idledotshoot 源/配置仍在仓库但被 shipping whitelist 隔离；需完成 HYGIENE-001，减少误用风险。
@@ -118,7 +118,7 @@ Gate 2 verdict：**PASS FOR CURRENT AUTHORED RUNTIME AND DEBUG BUILD；NOT A REL
 - `wuxia:check:fast`：PASS；旧固定时间轴断言已被真实玩家回合断言替代。
 - `wuxia:qa:ui-sweep`：PASS，最终链路 33/33、modal 3/3、blocker 0、console error/warning 0。
 - 人工逐图复验：FAIL；开场、角色、地图、NPC、章节循环和战斗仍是灰黑原型视觉，战斗角色为 CSS 几何占位，不能达到用户确认的侧视三头身像素武侠标准。
-- `wuxia:audit:online-standard`：按设计返回非零；11 个 P0、1 个 P1。此失败是正确的上线阻断，不应被消除或包装成 PASS。
+- `wuxia:audit:online-standard`：按设计返回非零；2026-08-09 最新实跑为 11 个 P0、3 个 P1。此失败全部来自资产、资产合同和人工视觉，是正确上线阻断，不应被消除或包装成 PASS。
 - `AUDIT-003`：审计执行和修复已完成；COMBAT-005 已关闭未授权战斗结果，但最严格人工 Gate、生产资产、真机与 Release 证据仍未关闭，因此机器状态保持 `blocked`。
 
 ## 7. 2026-08-09 COMBAT-005 审计补充
@@ -131,3 +131,15 @@ Gate 2 verdict：**PASS FOR CURRENT AUTHORED RUNTIME AND DEBUG BUILD；NOT A REL
 - 全量战斗模拟 6×200 局通过；梦魇最终胜率 0.845，处于配置阈值 0.75～1.0。
 - 三 Result × 三尺寸真实 Edge 功能验收通过，但生产美术 Gate C 仍失败：CSS 角色、开发场景、缺生产 VFX/OGG，不能据此解除 `COMBAT-002B`、`T05-01` 或项目 `RELEASE_BLOCKED`。
 - 已知首局模拟 mismatch 在 focused 报告中明确标记 `scope=separate`，不参与本项通过。
+
+## 8. 2026-08-09 最新变更严格复审与 SAVE-001 补充
+
+- 固定点 `e04dfd3ca8bcb6ca7c3532803df07cd099d5a9d9` 到被审计提交 `cc0ab085e3aa9a96c3884290fea0e5350ce968b7` 的 34 个文件已重新完整阅读；审计过程和修复见 `LATEST_CHANGESET_STRICT_AUDIT_20260809.md`。
+- 战斗终局现要求 condition branch 与 result-token dispatch 二选一；配置 condition 时必须且只能命中一个真实分支。零分支、多分支、双分发、缺 combat content 和启动失败均原子拒绝并保留/清理正确状态。
+- `runtime:combat-result-routing:test` 扩展为 4 条正例、8 条负例；已知 `FIRST_SESSION_SIMULATION_MISMATCH` 继续以 `scope=separate` 保留，不参与本 focused verdict。
+- 开发服务器已从弃用 `url.parse` 和字符串根前缀判定迁移到 WHATWG URL + `path.relative` 边界策略；编码穿越、同前缀兄弟目录和畸形编码全部 fail closed。
+- 全预检首次运行发现 358 动作审计仍以空 combat fixture 验证真实战斗动作，产生 66 条 availability/dispatch mismatch；夹具已改为注入同一 `wuxia_combat_content.json`，修复后 358/358 PASS。该级联失败未被排除或包装成旧问题。
+- 全预检第二次运行发现通用 `compete` 的结果条件并非每个 NPC 必填；将 Result 路由的严格一分支规则无差别套用会让普通切磋终局卡死。现由配置声明 `optional_zero_or_one_satisfied`（通用切磋）或 `required_exactly_one`（来源专属 Result），Runtime 对多匹配继续 fail closed，Chapter/Combat 集成恢复通过。
+- SAVE-001 已关闭：v2 SaveEnvelope、v1→v2 连续迁移、staging/backup/rollback 四键事务、稳定校验和、损坏恢复、未来版本拒绝、写入中断与浏览器可见恢复均通过。Android 真机故障注入仍是发行门，不回写为 SAVE-001 未完成。
+- OBS-001 已关闭浏览器 Runtime 范围：7 类事件、36 条状态投影、build/config/save tags、稳定 error code、Combat replay ID、去敏 error、render performance 和 replay divergence 诊断均通过；upload 仍关闭，正式 build ID、真机性能、远端 dashboard/alert 归发行门。
+- 最新人工战斗复验仍得出双结论：三尺寸功能/交互 `PASS`，生产像素角色、场景、VFX/Buff/OGG `FAIL / BLOCKED`。项目总判定保持 `RELEASE_BLOCKED`。

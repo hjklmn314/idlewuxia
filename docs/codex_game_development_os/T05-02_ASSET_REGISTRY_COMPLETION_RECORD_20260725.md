@@ -2,7 +2,7 @@
 
 ## Verdict
 
-`PASS WITH KNOWN LIMITATIONS` for the T05-02 runtime/build-gate scope. T05-02 is complete in the authoritative production stage plan; commercial release remains blocked by G4/G7 and the open ASSET-002..006, SAVE-001, OBS-001, SEC-001 and release/device gates.
+`PASS WITH KNOWN LIMITATIONS` for the T05-02 runtime/build-gate scope. T05-02 is complete in the authoritative production stage plan. Current 2026-08-09 authority: SAVE-001 and OBS-001 are also done; commercial release remains blocked by HYGIENE-001, T05-01/COMBAT-002B production presentation, ASSET-002..010, SEC-001 and release/device gates.
 
 ## Known facts
 

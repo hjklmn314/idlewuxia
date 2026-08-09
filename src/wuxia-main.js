@@ -3,6 +3,7 @@ import { createBrowserAutomationAdapter } from "./browserAutomationAdapter.js";
 import { cloneData } from "./dataClone.js";
 import { evidenceSummary } from "./evidenceContract.js";
 import { createRuntimePersistence } from "./runtimePersistence.js";
+import { createRuntimeObservability } from "./runtimeObservability.js";
 import { createUiFlowAdapter } from "./uiFlowAdapter.js";
 import { createWuxiaDomAdapter } from "./wuxiaDomAdapter.js";
 import { applyEvidencePlayerPatch, resolveBrowserEvidenceRoute } from "./browserEvidenceRoute.js";
@@ -13,6 +14,7 @@ const CONFIG_FILES = {
   wuxiaFirstSessionFlow: "./config/wuxia_first_session_flow.json",
   wuxiaScreenContract: "./config/wuxia_first_session_screen_contract.json",
   wuxiaRuntimePersistence: "./config/runtime_persistence_contract.json",
+  wuxiaRuntimeObservability: "./config/analytics_events.json",
   wuxiaRuntimeAssetRegistry: "./config/wuxia_runtime_asset_registry.json",
   wuxiaCombatContent: "./config/wuxia_combat_content.json",
 };
@@ -22,6 +24,8 @@ const state = {
   ui: null,
   dom: null,
   persistence: null,
+  observability: null,
+  observabilityLifecycleInstalled: false,
   persistenceLifecycleInstalled: false,
   combatPlayback: {
     key: "",
@@ -1281,10 +1285,31 @@ function installAutomationApi() {
     uiFlowAdapter: state.ui,
     render,
     persistence: state.persistence,
+    observability: state.observability,
+  });
+}
+
+function installObservabilityLifecycle() {
+  if (state.observabilityLifecycleInstalled || typeof window === "undefined") return;
+  state.observabilityLifecycleInstalled = true;
+  window.addEventListener("error", () => {
+    state.observability?.recordError?.({
+      errorCode: "OBS_RUNTIME_UNHANDLED_ERROR",
+      source: "window.error",
+      snapshot: state.ui?.snapshot?.() || {},
+    });
+  });
+  window.addEventListener("unhandledrejection", () => {
+    state.observability?.recordError?.({
+      errorCode: "OBS_RUNTIME_UNHANDLED_REJECTION",
+      source: "window.unhandledrejection",
+      snapshot: state.ui?.snapshot?.() || {},
+    });
   });
 }
 
 function render() {
+  const renderStartedAt = globalThis.performance?.now?.() ?? 0;
   const ui = state.ui;
   const flowContract = state.config?.wuxiaFirstSessionFlow;
   const screenContract = state.config?.wuxiaScreenContract;
@@ -1336,6 +1361,13 @@ function render() {
   });
   syncCombatPlayback(snapshot, screen, flowContract);
   bindPendingChoiceDialog(stage, snapshot.pendingChoice);
+  const renderEndedAt = globalThis.performance?.now?.() ?? renderStartedAt;
+  state.observability?.recordPerformance?.({
+    metricId: "ui.render.duration_ms",
+    value: Math.max(0, renderEndedAt - renderStartedAt),
+    screenId,
+    state: snapshot.currentState,
+  });
 }
 
 async function init() {
@@ -1370,11 +1402,30 @@ async function init() {
         : undefined,
       combatContent: state.config.wuxiaCombatContent,
     }));
+    state.observability = createRuntimeObservability({
+      contract: state.config.wuxiaRuntimeObservability,
+      context: {
+        configVersion: state.config.wuxiaFirstSessionFlow?.schema || "unknown",
+        saveVersion: state.config.wuxiaRuntimePersistence?.schemaVersion || 0,
+      },
+      configSource: {
+        flow: state.config.wuxiaFirstSessionFlow,
+        screens: state.config.wuxiaScreenContract,
+        combat: state.config.wuxiaCombatContent,
+        persistence: state.config.wuxiaRuntimePersistence,
+      },
+    });
+    state.observability.recordSessionStart({
+      snapshot: attached.runtime.snapshot(),
+      persistenceStatus: restored.status,
+    });
+    installObservabilityLifecycle();
     state.persistence = attached;
     state.ui = createUiFlowAdapter({
       session: attached.runtime,
       flowContract: state.config.wuxiaFirstSessionFlow,
       screenContract: state.config.wuxiaScreenContract,
+      observability: state.observability,
     });
     state.dom = createWuxiaDomAdapter({
       execute: (intent) => state.ui.execute(intent),
@@ -1387,6 +1438,11 @@ async function init() {
     console.info("Wuxia first-session contract", summarizeFirstSessionContract(state.config.wuxiaFirstSessionFlow));
     render();
   } catch (error) {
+    state.observability?.recordError?.({
+      errorCode: "OBS_RUNTIME_INIT_FAILED",
+      source: "runtime.init",
+      snapshot: state.ui?.snapshot?.() || {},
+    });
     console.error(error);
     renderConfigError(error);
   }

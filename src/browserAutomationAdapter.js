@@ -15,7 +15,7 @@ function automationText(intent, result) {
     || "";
 }
 
-export function createBrowserAutomationAdapter({ uiFlowAdapter, render, persistence }) {
+export function createBrowserAutomationAdapter({ uiFlowAdapter, render, persistence, observability }) {
   if (!uiFlowAdapter || typeof uiFlowAdapter.execute !== "function" || typeof uiFlowAdapter.snapshot !== "function") {
     throw new TypeError("Browser Automation Adapter requires a UI Flow Adapter.");
   }
@@ -52,5 +52,8 @@ export function createBrowserAutomationAdapter({ uiFlowAdapter, render, persiste
     snapshot: () => uiFlowAdapter.snapshot(),
     persistenceStatus: () => persistence?.status() || { status: "unavailable" },
     clearSave: () => persistence?.clear() || { status: "unavailable" },
+    observabilityDiagnostics: () => observability?.diagnostics?.() || { status: "unavailable" },
+    observabilityEvents: () => observability?.events?.() || [],
+    exportRuntimeReplay: () => observability?.exportReplay?.() || null,
   });
 }

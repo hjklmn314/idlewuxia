@@ -8,6 +8,7 @@ import { auditReachability } from "./audit-wuxia-fb01-entity-reachability.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const flowPath = path.join(root, "config", "wuxia_first_session_flow.json");
+const combatContentPath = path.join(root, "config", "wuxia_combat_content.json");
 const policyPath = path.join(root, "config", "wuxia_fb01_action_state_assertion_policy.json");
 const outputDir = path.join(root, "outputs", "t03_01_action_state_assertions");
 
@@ -159,6 +160,7 @@ function writeOutputs(report) {
 
 export function runActionStateAssertions({
   flow = readJson(flowPath),
+  combatContent = readJson(combatContentPath),
   policy = readJson(policyPath),
   writeOutputs: shouldWriteOutputs = false,
   sourceCommit,
@@ -177,7 +179,10 @@ export function runActionStateAssertions({
       rows.push({ ...row, roomId, failureCode: "NO_FIXTURE_ROOM" });
       continue;
     }
-    const session = createChapterSession(fixture.flow, fixture.options || {});
+    const session = createChapterSession(fixture.flow, {
+      ...(fixture.options || {}),
+      combatContent,
+    });
     const selected = selectEntity(session, row.entity, fixture.room, fixture.flow);
     if (!selected.accepted) {
       const code = `SELECTION_${selected.step || "UNKNOWN"}`;

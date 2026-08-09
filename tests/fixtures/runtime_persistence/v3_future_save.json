@@ -1,0 +1,10 @@
+{
+  "$schema": "idlewuxia.runtime_save_envelope.v3",
+  "schemaVersion": 3,
+  "runtimeSchema": "idlewuxia.first_session_flow.test.v1",
+  "savedAt": "2026-09-01T00:00:00.000Z",
+  "state": {
+    "$schema": "idlewuxia.first_session_runtime_save.v1",
+    "runtimeSchema": "idlewuxia.first_session_flow.test.v1"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "idlewuxia.runtime_save_envelope.schema.v2",
+  "type": "object",
+  "required": ["$schema", "schemaVersion", "runtimeSchema", "savedAt", "writeId", "migration", "state", "checksum"],
+  "properties": {
+    "$schema": { "const": "idlewuxia.runtime_save_envelope.v2" },
+    "schemaVersion": { "const": 2 },
+    "runtimeSchema": { "type": "string", "minLength": 1 },
+    "savedAt": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+Z$" },
+    "writeId": { "type": "string", "minLength": 1 },
+    "migration": {
+      "type": "object",
+      "required": ["fromVersion", "appliedIds"],
+      "properties": {
+        "fromVersion": { "type": "integer", "minimum": 1, "maximum": 2 },
+        "appliedIds": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      },
+      "additionalProperties": false
+    },
+    "state": {
+      "type": "object",
+      "required": ["$schema", "runtimeSchema", "chapterId", "currentState", "flags", "player", "taskState", "events"],
+      "properties": {
+        "$schema": { "const": "idlewuxia.first_session_runtime_save.v1" },
+        "runtimeSchema": { "type": "string", "minLength": 1 },
+        "chapterId": { "type": "string" },
+        "currentState": { "type": "string", "minLength": 1 },
+        "flags": { "type": "array", "items": { "type": "string" } },
+        "player": { "type": "object" },
+        "taskState": { "type": "object" },
+        "events": { "type": "array", "items": { "type": "object" } }
+      },
+      "additionalProperties": true
+    },
+    "checksum": {
+      "type": "object",
+      "required": ["algorithm", "value"],
+      "properties": {
+        "algorithm": { "const": "fnv1a32" },
+        "value": { "type": "string", "pattern": "^[0-9a-f]{8}$" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

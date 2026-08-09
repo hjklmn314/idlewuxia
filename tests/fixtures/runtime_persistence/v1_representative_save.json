@@ -1,0 +1,34 @@
+{
+  "$schema": "idlewuxia.runtime_save_envelope.v1",
+  "schemaVersion": 1,
+  "runtimeSchema": "idlewuxia.first_session_flow.test.v1",
+  "savedAt": "2026-07-01T00:00:00.000Z",
+  "state": {
+    "$schema": "idlewuxia.first_session_runtime_save.v1",
+    "runtimeSchema": "idlewuxia.first_session_flow.test.v1",
+    "chapterId": "test_chapter",
+    "currentState": "origin_result",
+    "flags": ["origin_selected"],
+    "player": {
+      "origin": "武学世家",
+      "inventory": {}
+    },
+    "taskState": {
+      "activeTaskId": "",
+      "completedClicks": 0
+    },
+    "selectedChapterNodeId": "node_1",
+    "selectedChapterRoomId": "",
+    "selectedChapterNpcId": "",
+    "selectedChapterInteractableId": "",
+    "hiddenEntityIds": [],
+    "addedEntityIdsByRoom": {},
+    "replacementEntityById": {},
+    "mapMarkers": {},
+    "pendingCombat": null,
+    "pendingChoice": null,
+    "events": [
+      { "type": "actionAccepted", "actionId": "choose_origin" }
+    ]
+  }
+}

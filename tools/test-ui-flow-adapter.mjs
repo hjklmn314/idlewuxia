@@ -58,6 +58,19 @@ assert.equal(
 );
 assert.deepEqual(adapter.snapshot(), beforeRejectedIntent, "invalid intents must be zero-mutation");
 
+const telemetryFailureSession = createChapterSession(definitions, { initialState: "opening" });
+const telemetryFailureAdapter = createUiFlowAdapter({
+  session: telemetryFailureSession,
+  flowContract: definitions,
+  screenContract,
+  observability: { recordExecution: () => { throw new Error("telemetry unavailable"); } },
+});
+assert.equal(
+  telemetryFailureAdapter.execute({ type: "dispatchAction", actionId: "advance" }).accepted,
+  true,
+  "observability failure must not change authoritative command acceptance",
+);
+
 const presented = adapter.present();
 presented.screen.title = "External title";
 presented.snapshot.player.level = 999;
@@ -160,6 +173,9 @@ assert.equal(renderCount, 14, "each automation command must render exactly once"
 assert.equal(automation.snapshot().currentState, "opening");
 assert.deepEqual(automation.persistenceStatus(), { status: "ready" });
 assert.deepEqual(automation.clearSave(), { status: "cleared" });
+assert.deepEqual(automation.observabilityDiagnostics(), { status: "unavailable" });
+assert.deepEqual(automation.observabilityEvents(), []);
+assert.equal(automation.exportRuntimeReplay(), null);
 
 const mainSource = readFileSync(new URL("../src/wuxia-main.js", import.meta.url), "utf8");
 assert.equal(mainSource.includes("state.runtime"), false, "UI controller must not bypass the UI Flow Adapter");

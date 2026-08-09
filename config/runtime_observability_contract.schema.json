@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "idlewuxia.runtime_observability_contract.schema.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "contractVersion", "moduleId", "build", "privacy", "retention", "errorCodes", "performanceMetrics", "stateDelta", "rejectionCodes", "eventDefinitions"],
+  "properties": {
+    "$schema": { "const": "idlewuxia.runtime_observability_contract.v1" },
+    "contractVersion": { "const": 1 },
+    "moduleId": { "type": "string", "minLength": 1 },
+    "build": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "buildId", "channel"],
+      "properties": {
+        "version": { "type": "string", "minLength": 1 },
+        "buildId": { "type": "string", "minLength": 1 },
+        "channel": { "enum": ["development", "qa", "staging", "production"] }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["class", "allowedIntentFields", "forbiddenFields"],
+      "properties": {
+        "class": { "const": "technical_no_pii" },
+        "allowedIntentFields": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "forbiddenFields": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "retention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxEvents", "persistence", "upload"],
+      "properties": {
+        "maxEvents": { "type": "integer", "minimum": 16, "maximum": 4096 },
+        "persistence": { "const": "memory_only" },
+        "upload": { "const": "disabled" }
+      }
+    },
+    "errorCodes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]+$" }
+    },
+    "performanceMetrics": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/performanceMetric" }
+    },
+    "stateDelta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxChangedPaths", "trackedPaths"],
+      "properties": {
+        "maxChangedPaths": { "type": "integer", "minimum": 1, "maximum": 256 },
+        "trackedPaths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_.]*$" }
+        }
+      }
+    },
+    "rejectionCodes": {
+      "type": "object",
+      "minProperties": 1,
+      "required": ["default"],
+      "properties": {
+        "default": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]+$" }
+      },
+      "additionalProperties": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]+$" }
+    },
+    "eventDefinitions": {
+      "type": "array",
+      "minItems": 7,
+      "items": { "$ref": "#/$defs/eventDefinition" }
+    }
+  },
+  "$defs": {
+    "performanceMetric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metricId", "unit", "budget", "meaning"],
+      "properties": {
+        "metricId": { "type": "string", "pattern": "^[a-z][a-z0-9_.]+$" },
+        "unit": { "enum": ["ms", "bytes", "count", "ratio"] },
+        "budget": { "type": "number", "minimum": 0 },
+        "meaning": { "type": "string", "minLength": 10 }
+      }
+    },
+    "eventDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eventType", "schemaVersion", "meaning", "trigger", "owner", "requiredPayloadFields"],
+      "properties": {
+        "eventType": { "type": "string", "pattern": "^runtime\\.[a-z_]+$" },
+        "schemaVersion": { "type": "integer", "minimum": 1 },
+        "meaning": { "type": "string", "minLength": 10 },
+        "trigger": { "type": "string", "minLength": 10 },
+        "owner": { "type": "string", "minLength": 1 },
+        "requiredPayloadFields": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

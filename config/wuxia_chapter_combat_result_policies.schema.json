@@ -24,6 +24,7 @@
         "runtimeMode",
         "autoResolveOnFinish",
         "maxSteps",
+        "outcomeConditionCardinality",
         "outcomeResultTokens",
         "startFeedbackLines",
         "resolutionPolicy",
@@ -54,6 +55,7 @@
         "successConditionToken": { "$ref": "#/$defs/id" },
         "failureConditionToken": { "$ref": "#/$defs/id" },
         "runawayConditionToken": { "$ref": "#/$defs/id" },
+        "outcomeConditionCardinality": { "const": "required_exactly_one" },
         "outcomeResultTokens": {
           "type": "object",
           "required": ["success", "failure", "runaway"],

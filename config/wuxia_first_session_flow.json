@@ -31378,6 +31378,7 @@
         "successConditionToken": "comparewin",
         "failureConditionToken": "comparelose",
         "runawayConditionToken": "comparerunaway",
+        "outcomeConditionCardinality": "optional_zero_or_one_satisfied",
         "encounterId": "encounter_first_session_old_steward",
         "previewId": "first_session_old_steward",
         "runtimeMode": "manual_player_turns",
@@ -31410,8 +31411,7 @@
         "autoResolveOnFinish": true,
         "maxSteps": 256,
         "successConditionToken": "comparewin",
-        "failureConditionToken": "comparelose",
-        "runawayConditionToken": "comparerunaway",
+        "outcomeConditionCardinality": "required_exactly_one",
         "outcomeResultTokens": {
           "success": [],
           "failure": [],
@@ -31444,6 +31444,7 @@
         "runtimeMode": "manual_player_turns",
         "autoResolveOnFinish": true,
         "maxSteps": 256,
+        "outcomeConditionCardinality": "required_exactly_one",
         "outcomeResultTokens": {
           "success": [
             "inattack201"
@@ -31478,6 +31479,7 @@
         "runtimeMode": "manual_player_turns",
         "autoResolveOnFinish": true,
         "maxSteps": 256,
+        "outcomeConditionCardinality": "required_exactly_one",
         "outcomeResultTokens": {
           "success": [
             "inattack202"

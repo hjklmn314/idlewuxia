@@ -42,7 +42,7 @@ function roomTitle(room) {
   return room?.displayName?.zhCN || room?.displayText?.zhCN || room?.roomId || "";
 }
 
-export function createUiFlowAdapter({ session, flowContract, screenContract }) {
+export function createUiFlowAdapter({ session, flowContract, screenContract, observability = null }) {
   if (!session || typeof session.snapshot !== "function") {
     throw new TypeError("UI Flow Adapter requires a ChapterSession-compatible session.");
   }
@@ -53,6 +53,15 @@ export function createUiFlowAdapter({ session, flowContract, screenContract }) {
 
   function snapshot() {
     return session.snapshot();
+  }
+
+  function recordObservation(payload) {
+    try {
+      observability?.recordExecution?.(payload);
+    } catch {
+      // Diagnostic instrumentation must never change command acceptance or
+      // prevent the authoritative runtime from serving the player.
+    }
   }
 
   function present() {
@@ -81,9 +90,14 @@ export function createUiFlowAdapter({ session, flowContract, screenContract }) {
   }
 
   function execute(intent) {
+    const before = snapshot();
     const intentType = typeof intent?.type === "string" ? intent.type : "";
     const contract = INTENT_CONTRACTS[intentType];
-    if (!contract) return rejectedIntent("unsupported_ui_intent", intentType);
+    if (!contract) {
+      const result = rejectedIntent("unsupported_ui_intent", intentType);
+      recordObservation({ intent, result, before, after: snapshot() });
+      return result;
+    }
     const arrayFields = contract.arrayFields || [];
     const allowedKeys = new Set(["type", ...contract.fields, ...arrayFields]);
     if (
@@ -92,14 +106,22 @@ export function createUiFlowAdapter({ session, flowContract, screenContract }) {
       || contract.fields.some((field) => typeof intent[field] !== "string" || !intent[field].trim())
       || arrayFields.some((field) => !Array.isArray(intent[field]) || intent[field].some((item) => typeof item !== "string" || !item.trim()))
     ) {
-      return rejectedIntent("invalid_ui_intent", intentType);
+      const result = rejectedIntent("invalid_ui_intent", intentType);
+      recordObservation({ intent, result, before, after: snapshot() });
+      return result;
     }
     const method = session[contract.method];
-    if (typeof method !== "function") return rejectedIntent("unsupported_session_command", intentType);
-    return cloneData(method(
+    if (typeof method !== "function") {
+      const result = rejectedIntent("unsupported_session_command", intentType);
+      recordObservation({ intent, result, before, after: snapshot() });
+      return result;
+    }
+    const result = cloneData(method(
       ...contract.fields.map((field) => intent[field]),
       ...arrayFields.map((field) => intent[field]),
     ));
+    recordObservation({ intent, result, before, after: result?.snapshot || snapshot() });
+    return result;
   }
 
   return Object.freeze({ execute, present, snapshot });

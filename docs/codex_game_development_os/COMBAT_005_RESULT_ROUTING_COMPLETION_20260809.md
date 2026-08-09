@@ -35,7 +35,7 @@ Runtime 只解释该合同。来源、动作、Encounter、结果或后续 Resul
 - 配置：首局流程、战斗内容、战斗模拟、浏览器证据路线、生产任务计划及 Schema。
 - Runtime：实体交互路由、章节会话终局事务、结果反馈插值、运行时 NPC 投影。
 - 工具：配置生成器、Schema/语义验证器、批量模拟筛选、真实浏览器战斗路线。
-- 测试：三条正例、五类负例、存档恢复、动态/缺省文本、浏览器证据路由与既有完整性回归。
+- 测试：四条正例、八类负例、存档恢复、动态/缺省文本、浏览器证据路由与既有完整性回归。
 - 未改动：参考项目源文件、生产资产、Rest/Repair、签名或商店配置。
 
 ## 5. 配置变化
@@ -60,9 +60,9 @@ Runtime 只解释该合同。来源、动作、Encounter、结果或后续 Resul
 
 ## 7. 测试与手动验收
 
-- `runtime:combat-result-routing:test`：4 个正例记录、5 个负例全部通过。
+- `runtime:combat-result-routing:test`：4 个正例记录、8 个负例全部通过。
 - 正例覆盖三条真实 `CombatSession` 胜利、`inattack201` 存档恢复、动态传承文本与缺省文本。
-- 负例覆盖失败不执行胜利结果、逃跑不执行胜利结果、来源白名单、缺 policy、终局缺 Result 的原子拒绝。
+- 负例覆盖失败不执行胜利结果、逃跑不执行胜利结果、来源白名单、缺 policy、终局缺 Result、配置 condition 但缺实际终局分支、condition/result 双分发歧义和缺 combat content 的原子拒绝。
 - 战斗内容验证：5 阵营、6 单位、26 技能、16 Buff、5 Encounter、4 AI，无 finding。
 - 全量模拟：6 个 scenario × 200 seeds，共 1,200 局；全部在各自配置阈值内。梦魇最终胜率 0.845，中位 14 回合，P95 事件 159。
 - 旧审计分类器已改为读取同一 Result policy 和 Encounter 权威；focused 审计测试覆盖 3 条正路由与 5 个 fail-closed 负例。最新 Result-token 审计为 316/316 P3、P0=0、P1=0，三条状态均为 `implemented_configured_combat_result_session`。
@@ -85,5 +85,13 @@ Runtime 只解释该合同。来源、动作、Encounter、结果或后续 Resul
 1. `ASSET-007`～`ASSET-010`：按需求表提供可授权生产角色、干净场景、VFX/Buff 与 OGG；当前继续用原项目资产推进开发功能，但禁止进入 shipping。
 2. `COMBAT-002B`：批准资产绑定、真实打击表现、三尺寸产品视觉和代表性 Android 人工验收。
 3. `T05-01`：完整 11 屏 × 3 尺寸产品视觉矩阵。
-4. `SAVE-001`、`OBS-001`、`HYGIENE-001`、`SEC-001`、`REL-001`～`REL-003`。
+4. `SAVE-001` 已完成浏览器侧生产治理；下一项为 `OBS-001`，随后是 `HYGIENE-001`、`SEC-001`、`REL-001`～`REL-003`。Android 真机故障注入和商业回滚演练仍归 `REL-002/REL-003`。
 5. `REST-REPAIR-001` 继续 postponed，不因本战斗结果任务自动恢复。
+
+## 10. 最新严格复审补充
+
+- 复审固定点：`e04dfd3ca8bcb6ca7c3532803df07cd099d5a9d9`；被审计提交：`cc0ab085e3aa9a96c3884290fea0e5350ce968b7`。
+- 原实现仍可能在 condition token 不存在实际分支时清空 pending combat，也允许同一 outcome 同时声明 condition 和 result tokens。两项均已改为 fail closed，并由静态语义验证和 Runtime focused tests 双重覆盖。
+- 缺 combat content、启动状态跳转失败和拒绝事件伪报 side effect 已同时关闭；active session 与可见反馈现在跟真实接受状态一致。
+- 最新三 Result × 三尺寸证据根改为 `outputs/combat_result_visual/audit_20260809_final_current/`。该批次生成于最终配置基数之后；9 张启动帧与 9 张终局帧重新人工逐张检查，126 步全部通过、console=0、横向溢出=0。
+- 生产视觉结论没有变化：功能/交互 PASS，CSS 几何角色、占位舞台和缺失生产 VFX/Buff/OGG 仍为 FAIL/BLOCKED。

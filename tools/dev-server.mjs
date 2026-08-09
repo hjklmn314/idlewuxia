@@ -1,7 +1,7 @@
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
-import url from "node:url";
+import { resolveStaticRequestPath } from "./dev-server-path-policy.mjs";
 
 const root = path.resolve(".");
 const port = Number(process.env.PORT || 5187);
@@ -15,14 +15,13 @@ const types = {
 };
 
 const server = http.createServer((req, res) => {
-  const parsed = url.parse(req.url || "/");
-  const clean = decodeURIComponent(parsed.pathname || "/").replace(/^\/+/, "");
-  const target = path.resolve(root, clean || "index.html");
-  if (!target.startsWith(root)) {
-    res.writeHead(403);
-    res.end("Forbidden");
+  const requestPath = resolveStaticRequestPath(root, req.url || "/");
+  if (!requestPath.accepted) {
+    res.writeHead(requestPath.status);
+    res.end(requestPath.status === 403 ? "Forbidden" : "Bad request");
     return;
   }
+  const target = requestPath.target;
   const file = fs.existsSync(target) && fs.statSync(target).isDirectory()
     ? path.join(target, "index.html")
     : target;

@@ -8,7 +8,8 @@
 | 条件拒绝原子性 | ConditionEvaluator 目标模块 | condition definitions | 无 | negative mutation test | T03-01 |
 | 结果真实执行 | `resultExecutionModules.js` | result definitions | feedback IDs | result coverage + state delta | T03-01 |
 | 地图/NPC 可达 | Navigation/Entity service 目标模块 | chapter rooms/entities/actions | map/portrait/icon slots | reachability + browser crawl | T03-00 |
-| 存档恢复 | `runtimePersistence.js` / SaveService 目标 | persistence contract | 无 | migration/corruption/rollback | SAVE-001 |
+| 存档恢复 | `runtimePersistence.js` | `runtime_persistence_contract.json` + contract/envelope Schemas | 无 | schema/checksum/migration/interrupted-write/recovery/rollback + real Edge | SAVE-001 done；REL-002/003 真机与商业回滚 blocked |
+| Runtime 可观测与诊断回放 | `runtimeObservability.js` + UI Intent seam | `analytics_events.json` + contract/event/replay Schemas | 无外传；memory-only | schema/data-quality/privacy/replay match+divergence + real Edge 390×844 | OBS-001 done；正式 build ID、真机性能、远端运维归 REL-001/002/003 |
 | 11 屏 UI | `uiFlowAdapter.js` + `browserAutomationAdapter.js` + `wuxiaDomAdapter.js`（UI-ARCH-001 已完成） | screen + UI experience registry | fonts/map/icons | 当前切片双尺寸回归；完整 33 visual pairs 仍属后续 | T05-01, QA-UI-001 |
 | 资产运输 | AssetRegistry resolver 目标模块 | asset registry | owned files | hash/license/budget/APK bytes | T05-02, ASSET-* |
 | Android 发布 | build/audit/release tools | identity/web/release contracts | launcher/store assets | signed bundle/device/store | REL-001..003 |
@@ -155,3 +156,34 @@
 | Portrait functional acceptance | browser evidence route + expected Result/Encounter | real Edge runner `combat-result-route` | `COMBAT_005_MANUAL_VISUAL_ACCEPTANCE_20260809.md` | PASS at 360×800, 390×844, 540×960; production art Gate C remains BLOCKED |
 | Known first-session mismatch remains independent | focused report `knownUnrelatedMismatch.scope=separate` | routing test report | `outputs/combat/combat_result_routing_report.json` | Explicitly excluded; not concealed or reclassified |
 | Legacy audits consume current combat authority | Result policy + combat content | shared `wuxia-combat-result-audit-policy.mjs`, interaction/result-token audits | 316 P3 rows, 0 P0/P1 result rows; online-standard has no runtime_result_token issue | PASS; remaining online issues are asset/visual only |
+
+## Latest changeset strict re-audit traceability entry (2026-08-09)
+
+| Requirement | Configuration authority | Runtime/tool authority | Evidence | Verdict |
+|---|---|---|---|---|
+| Configured combat terminal outcome is truthful and atomic | `chapterSystem.combatResultPolicies` | `ChapterSession.resolvePendingCombat()` + first-session semantic validator | 4 positive / 8 negative routing assertions | PASS; zero/multiple/mixed terminal dispatch fails closed |
+| Missing combat content or failed state transition cannot leave a fake accepted session | combat content + flow state registry | `ChapterSession.beginPendingCombat()` | focused missing-content and transition rejection assertions | PASS; no false side effect and active session is released |
+| 358-action audit executes combat actions with the same runtime dependency as production | `wuxia_combat_content.json` | `audit-wuxia-fb01-action-state-assertions.mjs` | `runtime:action-state-assertions:test` | PASS 358/358 after the strict audit exposed and repaired the empty-content fixture |
+| Generic compete and source-specific combat Results use truthful, distinct outcome cardinalities | action policy `optional_zero_or_one_satisfied`; Result policies `required_exactly_one` | `ChapterSession.resolvePendingCombat()` | flow semantic validator + chapter integration + focused routing | PASS; zero optional branch is legal, zero required or multiple satisfied branches fail closed |
+| Development HTTP serving cannot escape the project root | no content configuration | `dev-server-path-policy.mjs` + `dev-server.mjs` | 3 valid + 3 negative path-policy assertions | PASS; encoded traversal, sibling-prefix and malformed URL rejected |
+| Fresh combat route remains usable after strict repairs | combat Result policies + encounters | real Edge `combat-result-route` | `outputs/combat_result_visual/audit_20260809_final_current/` | 126/126 functional steps PASS; 18 current start/end frames manually reviewed; production visual Gate C BLOCKED |
+
+## SAVE-001 persistence traceability entry (2026-08-09)
+
+| Requirement | Configuration authority | Runtime/tool authority | Evidence | Verdict |
+|---|---|---|---|---|
+| Save contract and envelope are schema-valid and versioned | `runtime_persistence_contract.json` + two Draft 2020-12 Schemas | persistence validator | `runtime:persistence:validate` | PASS; current=2, minReadable=1, contiguous v1→v2 migration |
+| Save commit survives interrupted writes without replacing the last valid primary | storage keys and transaction policy | `runtimePersistence.js` staging/verify/backup/primary sequence | focused interrupted-write assertions | PASS |
+| Corrupt or malformed primary recovers without silently loading a future version | recovery and compatibility policy | checksum verification and ordered candidate restore | unit suite + Edge recovery route | PASS; future primary fails closed |
+| Old v1 save upgrades idempotently and remains available for rollback | migration and rollback policy | migration chain + `prepareRollback()` | v1/future fixtures, unit suite, `SAVE_001_COMPLETION_AND_RECOVERY_RUNBOOK_20260809.md` | PASS in browser; Android release rehearsal remains REL-002/003 |
+
+## OBS-001 observability traceability entry (2026-08-09)
+
+| Requirement | Configuration authority | Runtime/tool authority | Evidence | Verdict |
+|---|---|---|---|---|
+| Intent/result/rejection/delta/error/performance events have stable semantics | `analytics_events.json` + three Draft 2020-12 Schemas | `runtimeObservability.js` + UI Intent boundary | `runtime:observability:validate` and unit suite | PASS; 7/7 event types and required payloads |
+| Events carry build/config/save/module/session/run/replay context | contract build/privacy/state policies | runtime context and Combat replay projection | Node + real Edge diagnostics | PASS; distinct session/run IDs and deterministic config hash |
+| First-session replay can locate divergence | 36 configured tracked paths | `exportRuntimeReplay()` + `diagnoseObservedReplay()` | 3-command match; mutated reward diverges at command 2 | PASS; first mismatch category and hashes returned |
+| Telemetry failure cannot change gameplay | no content ownership | UI Adapter fail-open observation seam | injected throwing observer regression | PASS; authoritative accepted result unchanged |
+| Privacy and data quality are explicit | allowed Intent fields, forbidden fields, memory-only/upload-disabled retention | event emitter quality ledger | 0 missing, 0 privacy, 0 sequence findings in Node and Edge | PASS WITH KNOWN LIMITATIONS; no remote ingestion/dashboard |
+| Browser wiring remains visually non-regressive | same screen/config contracts | Edge 390×844 OBS route | `outputs/obs001_browser_acceptance_20260809_final_current/` | Functional PASS and console 0; manual screenshot has no new breakage, overall placeholder art still BLOCKED |

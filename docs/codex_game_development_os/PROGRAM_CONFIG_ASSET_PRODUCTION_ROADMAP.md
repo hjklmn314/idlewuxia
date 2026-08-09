@@ -135,7 +135,9 @@ Evidence and tools:
 - `tools/test-wuxia-fb01-action-state-assertions.mjs`
 - `docs/codex_game_development_os/T03-01_COMPLETION_RECORD_20260723.md`
 
-G4 remains blocked by `SAVE-001` and `OBS-001`. `COMBAT-002` (including Rest/Repair and real `CombatSession`) remains postponed. `UI-ARCH-001` is now complete; the next non-postponed G5 work is `QA-UI-001`/`T05-01` and `T05-02`. This is not a release declaration; real-device, signed-release, performance, store, rollout, and rollback gates remain open.
+Historical 2026-07-23 note: G4 was then blocked by `SAVE-001` and `OBS-001`.
+
+Current 2026-08-09 authority: `SAVE-001` and `OBS-001` are done for the browser/runtime scope. G4 is now blocked only by `HYGIENE-001`. `REST-REPAIR-001` remains postponed; `COMBAT-002B` and `T05-01` remain blocked by production presentation/asset acceptance. Real-device, signed-release, performance, store, rollout, and rollback gates remain open.
 
 会生成当前 Gate、完整任务表、下一批非延期 P0 和资产 disposition。
 

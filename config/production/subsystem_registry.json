@@ -155,11 +155,13 @@
         "src/runtimePersistence.js"
       ],
       "configuration": [
-        "config/runtime_persistence_contract.json"
+        "config/runtime_persistence_contract.json",
+        "config/runtime_persistence_contract.schema.json",
+        "config/runtime_save_envelope.schema.json"
       ],
-      "status": "implemented-local-v1",
+      "status": "implemented-local-v2-migration-checksum-atomic-backup-recovery-rollback",
       "nextTaskIds": [
-        "SAVE-001"
+        "OBS-001"
       ]
     },
     {
@@ -246,13 +248,21 @@
       "id": "analytics-observability",
       "owner": "analytics-observability-engineer",
       "stateAuthority": "config/analytics_events.json",
-      "runtimeModules": [],
-      "configuration": [
-        "config/analytics_events.json"
+      "runtimeModules": [
+        "src/runtimeObservability.js",
+        "src/uiFlowAdapter.js",
+        "src/browserAutomationAdapter.js"
       ],
-      "status": "dormant-legacy-contract",
+      "configuration": [
+        "config/analytics_events.json",
+        "config/runtime_observability_contract.schema.json",
+        "config/runtime_observability_event.schema.json",
+        "config/runtime_observability_replay.schema.json"
+      ],
+      "status": "implemented-v1-memory-ledger-state-delta-and-diagnostic-replay",
       "nextTaskIds": [
-        "OBS-001"
+        "HYGIENE-001",
+        "SEC-001"
       ]
     }
   ]

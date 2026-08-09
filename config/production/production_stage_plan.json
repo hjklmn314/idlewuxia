@@ -457,7 +457,7 @@
       "title": "存档版本、迁移、损坏恢复与回滚",
       "priority": "P1",
       "gate": "G4",
-      "status": "open",
+      "status": "done",
       "owner": "save-migration-compatibility",
       "dependsOn": [
         "ARCH-001"
@@ -467,14 +467,28 @@
         "Interrupted write and malformed save recovery are tested.",
         "Rollback compatibility is documented."
       ],
-      "evidence": []
+      "evidence": [
+        "config/runtime_persistence_contract.json",
+        "config/runtime_persistence_contract.schema.json",
+        "config/runtime_save_envelope.schema.json",
+        "src/runtimePersistence.js",
+        "tests/fixtures/runtime_persistence/v1_representative_save.json",
+        "tests/fixtures/runtime_persistence/v3_future_save.json",
+        "tools/validate-runtime-persistence-contract.mjs",
+        "tools/test-runtime-persistence.mjs",
+        "tools/run-runtime-persistence-browser-acceptance.mjs",
+        "npm run runtime:persistence:validate",
+        "npm run runtime:persistence:test",
+        "outputs/save001_browser_acceptance_20260809_postreview/save001_browser_acceptance.json",
+        "docs/codex_game_development_os/SAVE_001_COMPLETION_AND_RECOVERY_RUNBOOK_20260809.md"
+      ]
     },
     {
       "id": "OBS-001",
       "title": "武侠运行时事件、日志与回放语义",
       "priority": "P1",
       "gate": "G4",
-      "status": "open",
+      "status": "done",
       "owner": "analytics-observability-engineer",
       "dependsOn": [
         "ARCH-001"
@@ -484,7 +498,22 @@
         "Events carry build, config and save version.",
         "A first-session replay can diagnose divergence."
       ],
-      "evidence": []
+      "evidence": [
+        "config/analytics_events.json",
+        "config/runtime_observability_contract.schema.json",
+        "config/runtime_observability_event.schema.json",
+        "config/runtime_observability_replay.schema.json",
+        "src/runtimeObservability.js",
+        "src/uiFlowAdapter.js",
+        "src/browserAutomationAdapter.js",
+        "tools/validate-runtime-observability-contract.mjs",
+        "tools/test-runtime-observability.mjs",
+        "tools/run-runtime-observability-browser-acceptance.mjs",
+        "npm run runtime:observability:validate",
+        "npm run runtime:observability:test",
+        "outputs/obs001_browser_acceptance_20260809_final_current/obs001_browser_acceptance.json",
+        "docs/codex_game_development_os/OBS_001_COMPLETION_AND_DIAGNOSTIC_RUNBOOK_20260809.md"
+      ]
     },
     {
       "id": "UI-ARCH-001",

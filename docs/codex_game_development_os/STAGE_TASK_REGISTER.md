@@ -16,19 +16,33 @@
 | CFG-001 | P0 | G3 | done | configuration-data-pipeline | 生产 Schema 与版本化合同 |
 | T03-00 | P0 | G4 | done | level-content-designer | 旧 13/27 已纠偏为 129 可达、10 个受控休眠实体与 24 个受控休眠动作；0 未裁决 |
 | ARCH-001 | P0 | G4 | done | subsystem-domain-architect | 拆分 Runtime 与 UI 巨型模块 |
-| T03-01 | P0 | G4 | open | qa-bot-regression-engineer | 358/358 全动作状态断言 |
-| SAVE-001 | P1 | G4 | open | save-migration-compatibility | 存档迁移、损坏恢复、回滚 |
-| OBS-001 | P1 | G4 | open | analytics-observability-engineer | 运行时事件、日志和回放 |
+| T03-01 | P0 | G4 | done | qa-bot-regression-engineer | 358/358 全动作状态断言 |
+| SAVE-001 | P1 | G4 | done | save-migration-compatibility | 存档迁移、损坏恢复、回滚 |
+| OBS-001 | P1 | G4 | done | analytics-observability-engineer | 运行时事件、日志和回放 |
 | UI-ARCH-001 | P0 | G5 | done | ui-interaction-editor | UI 定义、导航和反馈适配器 |
 | QA-UI-001 | P0 | G5 | done | qa-bot-regression-engineer | Browser Surface 与 Modal Sweep |
-| T05-01 | P0 | G5 | done | qa-bot-regression-engineer | 11 屏×3 尺寸验收 |
-| T05-02 | P0 | G5 | open | asset-content-pipeline | AssetRegistry 接入 Runtime |
+| T05-01 | P0 | G5 | blocked | qa-bot-regression-engineer | 11 屏×3 尺寸验收；自动功能通过但生产视觉失败 |
+| T05-02 | P0 | G5 | done | asset-content-pipeline | AssetRegistry 接入 Runtime |
 | ASSET-002 | P1 | G5 | open | asset-content-pipeline | Android 图标与启动页 |
 | ASSET-003 | P1 | G5 | open | asset-content-pipeline | 中文字体授权、子集和预算 |
 | ASSET-004 | P1 | G5 | open | asset-content-pipeline | 章节地图和节点状态资产 |
 | ASSET-005 | P2 | G5 | open | asset-content-pipeline | NPC 肖像系统 |
 | ASSET-006 | P2 | G5 | open | asset-content-pipeline | 交互和反馈图标族 |
-| COMBAT-002 | P1 | G5 | postponed | combat-system-designer | 真实 Rest/Repair 与 CombatSession |
+| ASSET-CONTRACT-001 | P0 | G5 | done | asset-content-pipeline | 角色、场景、动画、VFX、音频统一资产合同 |
+| VISUAL-STANDARD-001 | P0 | G5 | done | ui-ux-feedback-designer | 竖屏像素武侠可测视觉标准 |
+| COMBAT-002A | P0 | G5 | done | combat-system-designer | 配置驱动战斗逻辑能力闭环 |
+| COMBAT-002B | P0 | G5 | blocked | asset-content-pipeline | 战斗逻辑 ID 到批准资产绑定 |
+| COMBAT-002 | P1 | G5 | blocked | combat-system-designer | 战斗生产表现总门；Rest/Repair 已拆分延期 |
+| COMBAT-003 | P0 | G4 | done | combat-model-and-simulator | 暂停、重播、恢复与模拟一致性 |
+| REST-REPAIR-001 | P1 | G5 | postponed | combat-system-designer | 真实 Rest/Repair |
+| COMBAT-004 | P0 | G5 | done | combat-system-designer | 手动回合、技能和目标选择 |
+| COMBAT-005 | P0 | G5 | done | combat-system-designer | 章节战斗结果路由 |
+| ASSET-007 | P0 | G5 | open | asset-content-pipeline | 玩家战斗角色资产 |
+| ASSET-008 | P0 | G5 | open | asset-content-pipeline | 敌人和干净战斗场景资产 |
+| ASSET-009 | P0 | G5 | open | asset-content-pipeline | 战斗 VFX/Buff 表现资产 |
+| ASSET-010 | P0 | G5 | open | asset-content-pipeline | 战斗 SFX/BGM 资产 |
+| AUDIT-003 | P0 | G5 | ready | project-and-engine-auditor | 全代码配置资源与近五日发布前重审计 |
+| HYGIENE-001 | P1 | G4 | open | project-and-engine-auditor | 活动武侠、旧射击与参考证据分层 |
 | CONTENT-001 | P1 | G6 | open | modular-feature-framework | 第二章节 Feature Package |
 | EDITOR-ROI-001 | P2 | G6 | open | editor-framework-architect | 内容编辑器 ROI 决策 |
 | SEC-001 | P0 | G7 | open | security-compliance | 信任边界、隐私和权限 |
@@ -38,10 +52,13 @@
 
 ## 当前可开工
 
-1. `T03-01`：T03-00 与 ARCH-001 已完成；当前第一项是建立 358/358 全动作前后状态断言。
-2. `SAVE-001`、`OBS-001`：依赖 ARCH-001，仍需分别完成存档恢复/回滚与事件/回放合同。
+1. `AUDIT-003`：机器计划仍为 ready；其严格 Android/生产视觉门不得用浏览器功能 PASS 代替。
+2. `HYGIENE-001`：待 AUDIT-003 依赖裁决后，完成活动武侠、旧射击和只读参考的可回滚分层。
+3. 资产输入不阻断程序/配置工作，但 `ASSET-007`～`010`、`COMBAT-002B` 与 `T05-01` 在批准资产到位前保持 blocked/open。
 
-G4 仍被 `T03-01`、`SAVE-001` 与 `OBS-001` 阻断。所有 G5、G6、G7 工作不得跳过 G4 出口。
+G4 的 ARCH/T03/COMBAT-003/SAVE/OBS 已完成，当前只剩 `HYGIENE-001`；G5/G7 的生产视觉和发行门继续独立阻断。
+
+2026-08-09 权威更新：`SAVE-001` 与 `OBS-001` 均已完成浏览器 Runtime 范围。OBS 现提供 7 类版本化事件、36 条状态投影、稳定错误码、Combat replay ID、build/config/save tags、性能样本和可定位首个分歧的诊断回放；远端上传仍禁用。详见 `OBS_001_COMPLETION_AND_DIAGNOSTIC_RUNBOOK_20260809.md`。
 
 ARCH-001 当前进度：ConditionEvaluator、Result preparation、ResultEffectExecutor、NavigationService、
 EntityInteractionService、ChapterSession 与 UI Adapter 六个切片均已完成并接入回归门禁，详见

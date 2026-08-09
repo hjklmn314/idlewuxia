@@ -810,3 +810,30 @@ The current combat authority has advanced beyond the historical postponed-combat
 Focused configuration/runtime tests, 1,200 shared-formula simulations, and three Result routes at 360×800, 390×844, and 540×960 pass. Raw `$IN/$S/$N` narrative tokens are no longer visible. The known unrelated first-session simulation mismatch remains explicitly separate.
 
 This update closes only the three unauthorized chapter combat-result routes. `COMBAT-002B`, production actor/scene/VFX/audio assets, full `T05-01`, Android device, signing, store, monitoring and rollback gates remain blocked. `REST-REPAIR-001` remains postponed.
+
+## 2026-08-09 latest strict re-audit and SAVE-001 authority update
+
+The COMBAT-005 implementation was audited again from fixed point `e04dfd3ca8bcb6ca7c3532803df07cd099d5a9d9` through `cc0ab085e3aa9a96c3884290fea0e5350ce968b7`. The review found and fixed terminal-condition branches that could resolve without a real configured outcome, mixed condition/result dispatch ambiguity, missing combat-content acceptance, failed-start session leakage, false rejection side effects, and an unsafe/deprecated development-server path parser.
+
+The first full-preflight attempt also exposed a cascade in the 358-action auditor: its isolated fixtures did not pass combat content, so the stricter truthful Runtime produced 66 availability/dispatch mismatches. The auditor now uses the same configured combat content as production; the focused gate returns 358/358 PASS. This failure was repaired and recorded rather than waived.
+
+The second full-preflight attempt caught a stricter-rule regression in generic `compete`: only 12 of 66 configured NPCs carry a `comparewin` follow-up branch, so treating every configured outcome token as a required source branch would strand ordinary combats at terminal resolution. The policy now declares `optional_zero_or_one_satisfied` for generic compete and `required_exactly_one` for source-specific combat Results. Multiple simultaneously satisfied branches still fail closed; ordinary victory/runaway and strict Result routes now both pass.
+
+Current focused authority is 4 positive and 8 negative combat routing cases. A fresh real-Edge matrix at 360×800, 390×844 and 540×960 completed 126/126 steps with no console problem or horizontal overflow; 9 start and 9 terminal screenshots were inspected manually. This is a functional and portrait usability PASS only. CSS geometric actors, placeholder combat stage and missing production VFX/Buff/OGG keep `COMBAT-002B`, `T05-01` and release blocked.
+
+`SAVE-001` is now done for the browser/runtime scope: SaveEnvelope v2, v1→v2 migration, checksum, staging/backup/rollback transaction keys, corrupt-primary recovery, future-version fail closed, interrupted-write tests, representative fixtures and visible Edge recovery acceptance are complete. Android power-loss/storage-pressure injection and a commercial rollback rehearsal remain `REL-002/REL-003`, not SAVE-001.
+
+Authoritative records:
+
+- `docs/codex_game_development_os/LATEST_CHANGESET_STRICT_AUDIT_20260809.md`;
+- `docs/codex_game_development_os/SAVE_001_COMPLETION_AND_RECOVERY_RUNBOOK_20260809.md`;
+- `outputs/combat_result_visual/audit_20260809_final_current/`;
+- `outputs/save001_browser_acceptance_20260809_postreview/save001_browser_acceptance.json`.
+
+`OBS-001` is now done for the browser/runtime scope. Its current authority is `docs/codex_game_development_os/OBS_001_COMPLETION_AND_DIAGNOSTIC_RUNBOOK_20260809.md`: 7 stable event types, 36 state projection paths, build/config/save tags, stable error codes, Combat replay ID, privacy-minimized errors, render performance samples and first-divergence replay diagnostics. The next governance work is the `AUDIT-003` dependency decision followed by `HYGIENE-001`, then `SEC-001` and `REL-001` through `REL-003`. `REST-REPAIR-001` remains postponed.
+
+Final-current combat visual authority is `outputs/combat_result_visual/audit_20260809_final_current/`: 9 runs, 126 steps, 0 failures, 0 page console problems, 0 bad matches, 0 horizontal-overflow frames and 9/9 interaction-contract passes. All 18 start/end frames were manually inspected. Functional routing passes; geometric actors, placeholder stages, missing production VFX/Buff/audio and weak screen art keep the production visual gate blocked.
+
+After OBS-001 integration, the complete `npm run task:preflight` was rerun and exited 0. This confirms no detected cascade across the 358-action matrix, persistence, observability, combat content/attributes/replay/simulation/presentation contracts, 33-screen UI sweep, 29-file shipping closure, Android identity, evidence contract and first-session runtime. It does not supersede the expected non-zero online-standard asset/manual-visual gate.
+
+The final online-standard rerun correctly exited 1 with 14 release blockers: 11 P0 and 3 P1, divided into asset 3, asset_contract 10 and manual_visual 1. Interaction highRisk remains 0 and all 316 Result-token rows remain P3; the non-zero exit is therefore a truthful asset/visual release block rather than a gameplay-runtime regression.

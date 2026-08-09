@@ -16,6 +16,7 @@ flowchart LR
     A["wuxia_first_session_flow.json"] --> P["chapterSession.js"]
     C["screen_contract.json"] --> U["uiFlowAdapter.js"]
     E["runtime_persistence_contract.json"] --> F["runtimePersistence.js"]
+    OBS["analytics_events.json"] --> OL["runtimeObservability.js"]
     A --> K["conditionEvaluator.js"]
     A --> L["resultPreparation.js"]
     A --> M["resultEffectExecutor.js"]
@@ -30,6 +31,8 @@ flowchart LR
     B --> U
     U --> D["wuxia-main.js DOM renderer"]
     U --> BA["browserAutomationAdapter.js"]
+    U --> OL
+    OL --> BA
     D --> G["DOM / CSS"]
     B --> F
     H["resultExecutionModules.js"] --> L
@@ -44,7 +47,7 @@ flowchart LR
 `src/conditionEvaluator.js`，把 ResultSet/Choice/SkillConversion/库存预检
 提取为 `src/resultPreparation.js`，把事务提交提取为 `src/resultEffectExecutor.js`，把节点、房间路线和移动阻断解释提取为 `src/navigationService.js`，并把实体可用性、选择和动作预检提取为 `src/entityInteractionService.js`。
 Slice 5 已将会话状态、命令编排、事件和存档 DTO 收口到 `src/chapterSession.js`；
-`wuxiaFirstSessionFlow.js` 只保留兼容 facade。Slice 6 已新增 `src/uiFlowAdapter.js` 与 `src/browserAutomationAdapter.js`，全部 DOM 交互和浏览器命令经过同一严格 Intent 通道，因此 ARCH-001 已完成；G4 仍由 T03-01、SAVE-001 与 OBS-001 阻断。
+`wuxiaFirstSessionFlow.js` 只保留兼容 facade。Slice 6 已新增 `src/uiFlowAdapter.js` 与 `src/browserAutomationAdapter.js`，全部 DOM 交互和浏览器命令经过同一严格 Intent 通道，因此 ARCH-001 已完成。2026-08-09，SAVE-001 与 OBS-001 也已接入：存档由 v2 SaveEnvelope 管理；每个 UI Intent 在同一边界产生版本化 intent/result/rejection/delta/error/performance 事件和诊断 replay。G4 当前只剩 HYGIENE-001。
 
 Result preparation 的库存/合成识别由
 `chapterSystem.resultEffectPolicies.inventoryMutation` 提供类别、动作、参数位和
@@ -101,7 +104,7 @@ flowchart TB
 
 | Package | 内容 | 当前 |
 |---|---|---|
-| `foundation-runtime` | condition/result/save/event/asset contracts | 部分存在，待拆分 |
+| `foundation-runtime` | condition/result/save/event/asset contracts | condition/result/save/event 已模块化；资产生产门仍开放 |
 | `first-session-shell` | 11 屏流程、基础反馈和持久化 | 已有纵切 |
 | `chapter-fb01` | 45 房间、116 NPC、23 物件、动作和奖励 | 已配置；T03-00 为 129 可达实体、10 个受控休眠实体、0 未裁决 |
 | `wuxia-ui-shell` | ViewModel、Intent、DOM adapter、导航、样式、可访问性 | UI-ARCH-001 已完成 DOM/CSS 边界；33 格视觉矩阵仍待 T05-01 |

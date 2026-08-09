@@ -87,6 +87,26 @@ for (const [actionType, policy] of Object.entries(combatActionPolicies)) {
   if (policy?.autoResolveOnFinish !== true) {
     findings.push(finding("error", `Combat action policy ${actionType} must explicitly allow only terminal result auto-resolution.`, `chapterSystem.combatActionPolicies.${actionType}.autoResolveOnFinish`));
   }
+  if (!["optional_zero_or_one_satisfied", "required_exactly_one"].includes(policy?.outcomeConditionCardinality)) {
+    findings.push(finding("error", `Combat action policy ${actionType} must declare a supported outcome condition cardinality.`, `chapterSystem.combatActionPolicies.${actionType}.outcomeConditionCardinality`));
+  }
+  for (const npc of config.chapter1?.npcs || []) {
+    if (!(npc.actions || []).some((action) => action.actionType === actionType)) continue;
+    for (const outcome of ["success", "failure", "runaway"]) {
+      const conditionToken = policy?.[`${outcome}ConditionToken`] || "";
+      if (!conditionToken) continue;
+      const matchingBranches = (npc.branches || []).filter((branch) => (branch.conditionTokens || []).includes(conditionToken));
+      const invalidCount = policy.outcomeConditionCardinality === "required_exactly_one"
+        && matchingBranches.length !== 1;
+      if (invalidCount) {
+        findings.push(finding(
+          "error",
+          `Combat action policy ${actionType} ${outcome} condition ${conditionToken} has invalid branch cardinality ${matchingBranches.length} for ${npc.roleId}.`,
+          `chapterSystem.combatActionPolicies.${actionType}.${outcome}ConditionToken`,
+        ));
+      }
+    }
+  }
 }
 
 const combatContentPath = path.join(root, "config", "wuxia_combat_content.json");
@@ -136,6 +156,29 @@ for (const [resultId, policy] of Object.entries(combatResultPolicies)) {
       ));
       if (matchingBranches.length !== 1) {
         findings.push(finding("error", `Combat result policy ${resultId} must match exactly one ${sourceId}/${actionType} combat branch; found ${matchingBranches.length}.`, where));
+      }
+    }
+    for (const outcome of ["success", "failure", "runaway"]) {
+      const conditionToken = policy?.[`${outcome}ConditionToken`] || "";
+      const resultTokens = policy?.outcomeResultTokens?.[outcome] || [];
+      if (conditionToken && resultTokens.length) {
+        findings.push(finding(
+          "error",
+          `Combat result policy ${resultId} ${outcome} outcome must choose either a condition branch or result tokens, not both.`,
+          `${where}.outcomeResultTokens.${outcome}`,
+        ));
+      }
+      if (conditionToken) {
+        const outcomeBranches = (npc.branches || []).filter((branch) => (
+          (branch.conditionTokens || []).includes(conditionToken)
+        ));
+        if (outcomeBranches.length !== 1) {
+          findings.push(finding(
+            "error",
+            `Combat result policy ${resultId} ${outcome} condition ${conditionToken} must identify exactly one ${sourceId} outcome branch; found ${outcomeBranches.length}.`,
+            `${where}.${outcome}ConditionToken`,
+          ));
+        }
       }
     }
   }

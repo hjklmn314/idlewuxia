@@ -54,3 +54,11 @@
 - 开发参考 MP3/回退不能替代自有或授权 OGG 与真机混音/延迟证据。
 
 因此本报告只签署“真实战斗路由、交互、文本、终局语义和三尺寸可用性”，不签署 `COMBAT-002B`、`T05-01` 或项目发行完成。
+
+## 2026-08-09 严格修复后重新验收
+
+- 当前权威证据根：`outputs/combat_result_visual/audit_20260809_final_current/`；旧 `final_20260809` 与 `audit_20260809_postreview` 只保留为历史记录，不替代最终配置基数后的复验。
+- 顺序运行真实 Edge 的 `compare`、`inattack201`、`inattack202` 三条配置路线，覆盖 360×800、390×844、540×960，共 9 个 run、126 个交互步骤。
+- 自动事实：failure=0、console error/warning=0、bad route/state match=0、horizontal overflow frame=0；全部终局返回地图状态。
+- 人工事实：逐张打开 9 张启动帧与 9 张终局帧，检查技能滚动、目标、HP/MP、Buff、结果文案、长文滚动和返回地图；未见 raw token、控件不可达、横向裁切或结果遮挡。
+- 严格生产视觉判定仍为 `FAIL / BLOCKED`：人物是 CSS 几何占位，舞台不是批准的干净像素场景，正式 VFX/Buff/OGG 尚未形成资产闭环。该失败继续阻止 `COMBAT-002B`、`T05-01` 和发行，不被功能 PASS 覆盖。

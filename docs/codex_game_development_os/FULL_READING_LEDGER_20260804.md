@@ -73,3 +73,13 @@
 ## 6. 覆盖结论
 
 文件读取与静态结构门完整，但发布结论是 `RELEASE_BLOCKED`。阻断来自 10 个必需资产槽、严格人工视觉失败、G4 的 Save/Observability、以及 G7 的安全、签名、真机、性能、商店和回滚门槛。完整读取不能把缺失产品证据转换成 PASS。
+
+## 2026-08-09 最新变更集增量阅读账本
+
+- 固定点：`e04dfd3ca8bcb6ca7c3532803df07cd099d5a9d9`；被审计提交：`cc0ab085e3aa9a96c3884290fea0e5350ce968b7`。
+- 34 个变更文件的完整 diff、项目规则、战斗生产规范、Roadmap、机器生产计划、相关 Runtime/配置/Schema/测试/生成器均已按文件分组完整阅读；详细覆盖、问题、修复和判定在 `LATEST_CHANGESET_STRICT_AUDIT_20260809.md`。
+- 本次增量审计不重写 2026-08-04 的 326 文件历史快照，也不把 `outputs/`、`www/`、Android build、浏览器 profile 或参考 bytes 计入正式源码数量。
+- 新鲜视觉证据来自 `outputs/combat_result_visual/audit_20260809_final_current/`，而不是复用旧截图；最终配置基数上的 18 张关键帧已经人工逐张复核。
+- SAVE-001 的配置、Schema、Runtime、fixtures、验证器、单元测试、浏览器 runner 和恢复/回滚文档作为本次审计新增正式范围；其完成不改变生产资产与 Release Gate 的阻断事实。
+- OBS-001 的 `analytics_events.json`、三份 Schema、`runtimeObservability.js`、UI/automation 接线、validator、unit/replay divergence test、Edge runner 与完工手册已逐文件复核；当前事件数、隐私、顺序和 replay 证据来自 `outputs/obs001_browser_acceptance_20260809_final_current/`，不复用旧诊断输出。
+- 最终当前 Web shipping closure 为 29 个文件；新增的观测合同和 Runtime 进入运输闭包，三份开发 Schema、测试、runner 与 outputs 仍不进入 APK/Web 产品文件。

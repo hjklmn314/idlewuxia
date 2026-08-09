@@ -39,8 +39,8 @@
 ### Wave 3 — G4 运行时生产治理
 
 1. `COMBAT-003`：**已完成运行时能力闭环**。暂停/继续、命令日志、确定性 replay ID、存档恢复和同一 CombatSession 数值模拟已接入；此项不替代正式美术/音频发行验收。
-2. `SAVE-001`：正式 SaveEnvelope 版本、迁移、备份、原子写、损坏回退、跨版本 fixture。
-3. `OBS-001`：事件语义、错误码、战斗 replay ID、构建/config hash、崩溃与性能字段；隐私最小化。
+2. `SAVE-001`：**已完成浏览器侧运行时治理闭环**。SaveEnvelope v2、v1→v2 迁移、staging/backup/rollback 四键事务、校验和、损坏回退、未来版本 fail-closed 与跨版本 fixture 已接入；Android 真机断电/容量故障注入和商业回滚演练继续由 `REL-002/REL-003` 承担。
+3. `OBS-001`：**已完成浏览器 Runtime 范围**。7 类稳定事件、错误码、战斗 replay ID、build/config/save tags、去敏错误、render performance 字段、状态 delta 与首分歧诊断 replay 已接入；upload 关闭，远端 dashboard/alert 仍属于发行运维范围。
 4. `HYGIENE-001`：把旧 idledotshoot 代码/配置、只读参考和活动 Wuxia authority 分层；更新 scope，证明 shipping closure 不变并提供回滚清单。
 
 完成标准：升级/降级/损坏/断电测试可复现，且 telemetry 不泄露敏感数据；活动入口不再需要维护者猜测。
@@ -119,7 +119,7 @@
 | 5 | ASSET-009/010 首个打击闭环 | combat presentation + asset/audio | 命中、格挡、控制、胜负的 VFX/SFX 证据；缺失时登记需求，不伪造 production PASS |
 | 6 | COMBAT-005 + COMBAT-002B | HTML runtime + combat + QA | **COMBAT-005 done**：`compare/inattack201/inattack202` 已合法映射真实 CombatSession；**COMBAT-002B blocked**：仍待生产资产、打击表现与真机人工门 |
 | 7 | ASSET-002～006 + T05-01 | UI/asset + Android + QA | 全 UI kit、33/33 自动证据与严格人工签名表 |
-| 8 | SAVE-001 + OBS-001 + HYGIENE-001 | save + observability + auditor | G4 关闭证据与活动/历史权威分层 |
+| 8 | SAVE-001 + OBS-001 + HYGIENE-001 | save + observability + auditor | **SAVE-001、OBS-001 done**；HYGIENE-001 仍需完成，G4 尚未关闭 |
 | 9 | SEC/REL-001～003 | release team | 签名 RC、真机、性能、商店、灰度和回滚 |
 
 ## 2026-08-04 审计后任务状态
@@ -128,7 +128,7 @@
 - `COMBAT-003`：done，暂停/继续、存档恢复、确定性命令 replay 与同一运行时数值模拟已通过 focused tests；仍不等于批准资产或发行通过。
 - `AUDIT-003`：blocked；完整读取、静态与运行时门已执行，COMBAT-005 已关闭 3 条未授权战斗结果，但人工视觉、10 个必需资产槽和 Release 证据仍未关闭。
 - `T05-01`：blocked；最终自动矩阵位于 `outputs/wuxia_visual_matrix/20260804_post_truthful_node_fix/`，但人工视觉明确失败。
-- `wuxia:audit:online-standard`：预期失败，当前 11 个 P0、1 个 P1；只有这些问题真实关闭后才允许转绿。
+- `wuxia:audit:online-standard`：预期失败，2026-08-09 当前实跑为 11 个 P0、3 个 P1；全部属于资产、资产合同和人工视觉，只有真实关闭后才允许转绿。
 
 ## 2026-08-08 COMBAT-004 更新
 
@@ -146,3 +146,13 @@
 - 这只关闭“3 条未授权 Combat Result”这个 P1 阻断；`COMBAT-002B`、`ASSET-007`～`ASSET-010`、`T05-01` 与发行门仍 blocked。
 - 旧审计已同步：Result-token 316/316 为 P3，`runtime_result_token` issue=0；online-standard 剩余 11 P0 + 3 P1 仅属于资产、资产合同和人工视觉，并继续按设计非零退出。
 - 证据：`COMBAT_005_RESULT_ROUTING_COMPLETION_20260809.md`、`COMBAT_005_MANUAL_VISUAL_ACCEPTANCE_20260809.md`、`outputs/combat/combat_result_routing_report.json`、`outputs/combat_simulation/combat_simulation_report.json`。
+
+## 2026-08-09 最新变更严格复审与 SAVE-001 更新
+
+- 对 `cc0ab085e3aa9a96c3884290fea0e5350ce968b7` 相对 `e04dfd3ca8bcb6ca7c3532803df07cd099d5a9d9` 的 34 个变更文件重新执行 Standards、Spec、focused runtime 和人工浏览器四层审计。
+- 关闭战斗终局“配置 condition 但没有可执行分支仍清空 pending combat”、condition/result 双分发歧义、缺 combat content 仍接受、启动失败遗留 active session，以及拒绝事件伪报 pending side effect 等问题。
+- 终局 condition 基数现在也是配置合同：通用 `compete` 允许 0 或 1 个当前满足分支，来源专属 Result 必须恰好 1 个；多满足分支和缺失必填分支均拒绝。两次全预检暴露的空 combat 审计夹具与普通切磋过严终局规则均已修复。
+- `compare` 的失败/逃跑配置改为显式空后续结果；胜利、失败、逃跑不再依赖不存在的 `comparelose/comparerunaway` 分支。
+- 最新三 Result × 三尺寸真实 Edge 证据位于 `outputs/combat_result_visual/audit_20260809_final_current/`：126 步、0 failure、0 console problem、0 横向溢出帧；18 张启动/终局截图已在最终配置基数上人工逐张检查。功能门通过，生产美术门仍失败。
+- `SAVE-001`：**done**。v2 SaveEnvelope、迁移、校验和、staging/backup/rollback、损坏恢复、未来版本拒绝、写入中断和浏览器可见恢复均已验收。权威手册为 `SAVE_001_COMPLETION_AND_RECOVERY_RUNBOOK_20260809.md`。
+- `OBS-001` 已完成并由 `OBS_001_COMPLETION_AND_DIAGNOSTIC_RUNBOOK_20260809.md` 接管权威说明。下一治理项是先裁决 `AUDIT-003` 的严格依赖，再施工 `HYGIENE-001`；`SEC-001`、`REL-001`～`REL-003` 依赖顺序不变。项目整体仍是 `RELEASE_BLOCKED`。

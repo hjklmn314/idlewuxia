@@ -39,7 +39,7 @@ a visual pass.
    remove CSS geometric fighters, oscillator audio and silent fallbacks.
 3. Bind those logical IDs in `COMBAT-002B`, rerun the full combat state matrix,
    then rerun T05-01's 33 pair human review.
-4. Continue `SAVE-001`, `OBS-001` and `HYGIENE-001` before G7 release work.
+4. Historical recommendation: continue `SAVE-001`, `OBS-001` and `HYGIENE-001` before G7 release work. Current 2026-08-09 authority: SAVE-001 and OBS-001 are done; HYGIENE-001 remains.
 
 ## Traceability
 

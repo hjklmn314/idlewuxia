@@ -22,12 +22,14 @@
     "src/resultPreparation.js",
     "src/runtimeTextInterpolation.js",
     "src/runtimePersistence.js",
+    "src/runtimeObservability.js",
     "src/uiFlowAdapter.js",
     "src/wuxia-main.js",
     "src/wuxiaFirstSessionFlow.js"
   ],
   "activeConfigFiles": [
     "config/runtime_persistence_contract.json",
+    "config/analytics_events.json",
     "config/wuxia_first_session_flow.json",
     "config/wuxia_first_session_screen_contract.json",
     "config/wuxia_runtime_asset_registry.json",
@@ -37,6 +39,11 @@
     "config/wuxia_competitor_first_session_reference.json",
     "config/wuxia_chapter_session_defaults.schema.json",
     "config/wuxia_evidence_contract.schema.json",
+    "config/runtime_persistence_contract.schema.json",
+    "config/runtime_save_envelope.schema.json",
+    "config/runtime_observability_contract.schema.json",
+    "config/runtime_observability_event.schema.json",
+    "config/runtime_observability_replay.schema.json",
     "config/wuxia_combat_content.schema.json",
     "config/wuxia_entity_interaction_policy.schema.json",
     "config/wuxia_fb01_entity_reachability_policy.json",
@@ -86,10 +93,12 @@
     "src/resultPreparation.js",
     "src/runtimeTextInterpolation.js",
     "src/runtimePersistence.js",
+    "src/runtimeObservability.js",
     "src/uiFlowAdapter.js",
     "src/wuxia-main.js",
     "src/wuxiaFirstSessionFlow.js",
     "config/runtime_persistence_contract.json",
+    "config/analytics_events.json",
     "config/wuxia_first_session_flow.json",
     "config/wuxia_first_session_screen_contract.json",
     "config/wuxia_runtime_asset_registry.json",
@@ -154,6 +163,10 @@
     {
       "id": "tooling",
       "prefixes": ["tools/"]
+    },
+    {
+      "id": "test-fixtures",
+      "prefixes": ["tests/"]
     },
     {
       "id": "owned-assets",

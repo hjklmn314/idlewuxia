@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "idlewuxia.runtime_observability_replay.schema.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "replayId", "context", "trackedPaths", "initialStateHash", "commands"],
+  "properties": {
+    "$schema": { "const": "idlewuxia.runtime_observability_replay.v1" },
+    "replayId": { "type": "string", "pattern": "^runtime-replay-[0-9a-f]{8}$" },
+    "context": {
+      "type": "object",
+      "required": ["buildVersion", "buildId", "configVersion", "configHash", "saveVersion", "moduleId", "sessionId", "runId", "privacyClass"],
+      "properties": {
+        "buildVersion": { "type": "string", "minLength": 1 },
+        "buildId": { "type": "string", "minLength": 1 },
+        "configVersion": { "type": "string", "minLength": 1 },
+        "configHash": { "type": "string", "pattern": "^fnv1a32:[0-9a-f]{8}$" },
+        "saveVersion": { "type": "integer", "minimum": 0 },
+        "moduleId": { "type": "string", "minLength": 1 },
+        "sessionId": { "type": "string", "minLength": 1 },
+        "runId": { "type": "string", "minLength": 1 },
+        "experimentId": { "type": "string" },
+        "variantId": { "type": "string" },
+        "seed": { "anyOf": [{ "type": "number" }, { "type": "string" }, { "type": "null" }] },
+        "privacyClass": { "const": "technical_no_pii" }
+      }
+    },
+    "trackedPaths": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "initialStateHash": { "type": "string", "pattern": "^fnv1a32:[0-9a-f]{8}$" },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sequence", "intent", "expectedAccepted", "expectedBeforeStateHash", "expectedAfterStateHash", "expectedErrorCode", "combatReplayId"],
+        "properties": {
+          "sequence": { "type": "integer", "minimum": 1 },
+          "intent": {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": { "type": "string", "minLength": 1 }
+            }
+          },
+          "expectedAccepted": { "type": "boolean" },
+          "expectedBeforeStateHash": { "type": "string", "pattern": "^fnv1a32:[0-9a-f]{8}$" },
+          "expectedAfterStateHash": { "type": "string", "pattern": "^fnv1a32:[0-9a-f]{8}$" },
+          "expectedErrorCode": { "type": "string" },
+          "combatReplayId": { "type": "string" }
+        }
+      }
+    }
+  }
+}

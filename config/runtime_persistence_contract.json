@@ -1,10 +1,30 @@
 {
-  "$schema": "idlewuxia.runtime_persistence_contract.v1",
-  "envelopeSchema": "idlewuxia.runtime_save_envelope.v1",
+  "$schema": "idlewuxia.runtime_persistence_contract.v2",
+  "envelopeSchema": "idlewuxia.runtime_save_envelope.v2",
+  "legacyEnvelopeSchemas": {
+    "1": "idlewuxia.runtime_save_envelope.v1"
+  },
   "stateSchema": "idlewuxia.first_session_runtime_save.v1",
-  "schemaVersion": 1,
+  "schemaVersion": 2,
+  "minimumReadableVersion": 1,
   "storageKey": "idlewuxia.first_session.save.v1",
+  "stagingStorageKey": "idlewuxia.first_session.save.v1.staging",
+  "backupStorageKey": "idlewuxia.first_session.save.v1.backup",
+  "rollbackStorageKey": "idlewuxia.first_session.save.v1.rollback.v1",
   "maxSavedEvents": 64,
+  "integrity": {
+    "algorithm": "fnv1a32",
+    "canonicalization": "recursive_object_key_sort_arrays_preserve_order"
+  },
+  "migrations": [
+    {
+      "id": "SAVE_MIGRATION_001_V1_TO_V2_ENVELOPE_INTEGRITY",
+      "fromVersion": 1,
+      "toVersion": 2,
+      "mutation": "preserve_state_add_transaction_metadata_and_checksum",
+      "idempotencyKey": "schemaVersion>=2"
+    }
+  ],
   "autosave": {
     "afterRuntimeMutation": true,
     "lifecycleEvents": [
@@ -12,5 +32,7 @@
       "pagehide"
     ]
   },
-  "recoveryPolicy": "ignore_invalid_or_incompatible_save"
+  "transactionPolicy": "staging_verify_backup_primary_verify_commit",
+  "recoveryPolicy": "current_then_staging_then_backup_fail_closed_on_future_or_incompatible",
+  "rollbackPolicy": "preserve_first_readable_legacy_envelope_until_explicit_clear"
 }

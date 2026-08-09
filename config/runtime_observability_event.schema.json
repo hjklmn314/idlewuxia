@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "idlewuxia.runtime_observability_event.schema.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "eventSchemaVersion",
+    "eventType",
+    "eventId",
+    "sequence",
+    "timestamp",
+    "buildVersion",
+    "buildId",
+    "configVersion",
+    "configHash",
+    "saveVersion",
+    "moduleId",
+    "sessionId",
+    "runId",
+    "experimentId",
+    "variantId",
+    "seed",
+    "privacyClass",
+    "payload"
+  ],
+  "properties": {
+    "$schema": { "const": "idlewuxia.runtime_observability_event.v1" },
+    "eventSchemaVersion": { "const": 1 },
+    "eventType": {
+      "enum": [
+        "runtime.session_started",
+        "runtime.intent",
+        "runtime.result",
+        "runtime.rejection",
+        "runtime.state_delta",
+        "runtime.error",
+        "runtime.performance_sample"
+      ]
+    },
+    "eventId": { "type": "string", "minLength": 3 },
+    "sequence": { "type": "integer", "minimum": 1 },
+    "timestamp": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T.*Z$" },
+    "buildVersion": { "type": "string", "minLength": 1 },
+    "buildId": { "type": "string", "minLength": 1 },
+    "configVersion": { "type": "string", "minLength": 1 },
+    "configHash": { "type": "string", "pattern": "^fnv1a32:[0-9a-f]{8}$" },
+    "saveVersion": { "type": "integer", "minimum": 0 },
+    "moduleId": { "type": "string", "minLength": 1 },
+    "sessionId": { "type": "string", "minLength": 1 },
+    "runId": { "type": "string", "minLength": 1 },
+    "experimentId": { "type": "string" },
+    "variantId": { "type": "string" },
+    "seed": { "anyOf": [{ "type": "number" }, { "type": "string" }, { "type": "null" }] },
+    "privacyClass": { "const": "technical_no_pii" },
+    "payload": { "type": "object" }
+  }
+}

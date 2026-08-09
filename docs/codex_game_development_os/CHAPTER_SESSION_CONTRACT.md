@@ -108,6 +108,6 @@ TDD 证据：
 - 模块仍是 JavaScript + JSDoc/测试合同，不是编译期 TypeScript；
 - `wuxia-main.js` 已只通过 `uiFlowAdapter` 发出 Intent 并消费 view-model，浏览器自动化只通过 `browserAutomationAdapter` 进入同一边界；
 - 真实 CombatSession、Rest/Repair 继续延期；
-- `SAVE-001`、`OBS-001`、358/358 动作证明和 11 屏乘 3 尺寸验收未完成。
+- Historical Slice-5 boundary: at that checkpoint `SAVE-001`、`OBS-001`、358/358 动作证明和 11 屏乘 3 尺寸验收尚未完成。Current 2026-08-09 authority: T03-01/SAVE-001/OBS-001 are done; T05-01 remains blocked by production visual quality.
 
 回滚必须成组执行：恢复旧 `wuxiaFirstSessionFlow.js` 实现，删除 `chapterSession.js` 和合同测试，并同步撤销 package 门禁、项目发布白名单、生产注册与 Roadmap 证据。禁止只删除兼容层或只删除新状态权威形成半迁移状态。
