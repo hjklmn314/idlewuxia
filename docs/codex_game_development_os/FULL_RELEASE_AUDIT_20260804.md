@@ -87,7 +87,7 @@ Gate 2 verdict：**PASS FOR CURRENT AUTHORED RUNTIME AND DEBUG BUILD；NOT A REL
 | REPORT-TRUTH-015 | P1 | 报告仍写 COMBAT-002 延期，和当前用户优先级/代码不一致 | 报告由任务注册表动态生成；Rest/Repair 单独保持 postponed。 |
 | VISUAL-016 | P0 | 自动路线 PASS 被误当成人工视觉完成 | T05-01 降为 blocked；10 个资产槽和人工失败写入权威 Roadmap。 |
 | FLOW-COMBAT-017 | P0 | 外门、大院和大厅节点按钮直接进入战斗屏，但没有创建 pending CombatSession | 三个节点改为进入 NPC 交互；真实战斗只由配置化 NPC 动作建立；修复 repair 生成器和旧全链交互测试。 |
-| RELEASE-AUDIT-018 | P0 | 旧 online-standard 工具只检查代码引用，未把必需资产槽和人工视觉失败纳入发布失败 | 接入生产 AssetRegistry 与 T05-01 状态；当前正确报告 11 个 P0（10 个资产槽、1 个人工视觉）和 1 个 P1（3 条未授权战斗结果）。 |
+| RELEASE-AUDIT-018 | P0 | 旧 online-standard 工具只检查代码引用，未把必需资产槽和人工视觉失败纳入发布失败 | 接入生产 AssetRegistry 与 T05-01 状态；2026-08-04 正确报告 11 个 P0 和 1 个 P1。该 P1 的 3 条未授权战斗结果已于 2026-08-09 由 COMBAT-005 关闭，P0 资产/人工视觉阻断保持。 |
 | CI-ANDROID-019 | P0 | 首次 clean-checkout Actions 的 `./gradlew` 因 Git 模式为 `100644` 返回 126 | 将 `android/gradlew` 以 `100755` 纳入 Git；不在 CI 内临时 chmod，确保仓库本身可复现。 |
 
 ## 4. 当前仍未关闭的上线阻断
@@ -119,4 +119,15 @@ Gate 2 verdict：**PASS FOR CURRENT AUTHORED RUNTIME AND DEBUG BUILD；NOT A REL
 - `wuxia:qa:ui-sweep`：PASS，最终链路 33/33、modal 3/3、blocker 0、console error/warning 0。
 - 人工逐图复验：FAIL；开场、角色、地图、NPC、章节循环和战斗仍是灰黑原型视觉，战斗角色为 CSS 几何占位，不能达到用户确认的侧视三头身像素武侠标准。
 - `wuxia:audit:online-standard`：按设计返回非零；11 个 P0、1 个 P1。此失败是正确的上线阻断，不应被消除或包装成 PASS。
-- `AUDIT-003`：审计执行和修复已完成，但因最严格人工 Gate 与资产/未授权战斗结果未关闭，机器状态保持 `blocked`。
+- `AUDIT-003`：审计执行和修复已完成；COMBAT-005 已关闭未授权战斗结果，但最严格人工 Gate、生产资产、真机与 Release 证据仍未关闭，因此机器状态保持 `blocked`。
+
+## 7. 2026-08-09 COMBAT-005 审计补充
+
+- 原 1 个 P1“3 条未授权 Combat Result”已关闭：`compare`、`inattack201`、`inattack202` 现在由 Result policy 唯一映射真实 Encounter 和 `CombatSession`。
+- 旧 Result-token/interaction 审计已同步到配置权威：316/316 Result rows 为 P3，3 条动作状态为 `configured_combat_result_policy`；最新 online-standard 不再产生 `runtime_result_token` issue。
+- 最新 online-standard 仍正确失败：11 个 P0、3 个 P1 全在资产、资产合同和人工视觉域，不能因战斗路由完成而消除。
+- 终局事务覆盖胜利、失败、逃跑、缺 policy、错误来源、缺后续 Result 与存档恢复；失败不写胜利状态，后续执行失败保留 pending combat。
+- 新增配置文本插值合同，人工浏览器复核确认没有 `$IN`、`$S`、`$N` 泄漏。
+- 全量战斗模拟 6×200 局通过；梦魇最终胜率 0.845，处于配置阈值 0.75～1.0。
+- 三 Result × 三尺寸真实 Edge 功能验收通过，但生产美术 Gate C 仍失败：CSS 角色、开发场景、缺生产 VFX/OGG，不能据此解除 `COMBAT-002B`、`T05-01` 或项目 `RELEASE_BLOCKED`。
+- 已知首局模拟 mismatch 在 focused 报告中明确标记 `scope=separate`，不参与本项通过。

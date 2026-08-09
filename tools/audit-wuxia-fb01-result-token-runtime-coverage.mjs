@@ -1,9 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { resolveConfiguredCombatResultAuditBinding } from "./wuxia-combat-result-audit-policy.mjs";
+
 const root = process.cwd();
 const outDir = path.join(root, "outputs", "wuxia_fb01_result_token_runtime_coverage");
 const flowPath = path.join(root, "config", "wuxia_first_session_flow.json");
+const combatContentPath = path.join(root, "config", "wuxia_combat_content.json");
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8").replace(/^\uFEFF/, ""));
@@ -86,7 +89,7 @@ function runtimeStatus(result = {}) {
   return "unknown_result_semantics";
 }
 
-function runtimeStatusV2(result = {}, source = {}, flow = {}) {
+function runtimeStatusV2(result = {}, source = {}, branch = {}, flow = {}, combatContent = {}) {
   const category = result.category || "";
   const action = result.action || "";
   const resultId = result.resultId || "";
@@ -115,7 +118,17 @@ function runtimeStatusV2(result = {}, source = {}, flow = {}) {
   }
   if (category === "item_reward_or_cost") return "implemented_inventory_delta";
   if (category === "skill_progression") return "implemented_skill_exp_delta";
-  if (category === "combat") return "combat_placeholder_postponed";
+  if (category === "combat") {
+    const sourceId = source.roleId || source.interactableId || "";
+    const configured = (branch.actionHints || []).some((actionType) => resolveConfiguredCombatResultAuditBinding({
+      flow,
+      combatContent,
+      sourceId,
+      actionType,
+      resultId,
+    }).accepted);
+    return configured ? "implemented_configured_combat_result_session" : "combat_placeholder_postponed";
+  }
   if (category === "other" && /^tmstory/.test(resultId)) return "implemented_story_dialogue_feedback";
   if (category === "other" && action === "结果集") return "implemented_recursive_result_set";
   if (category === "other" && action === "碧云心法转换成手心劫") return "implemented_data_driven_skill_conversion";
@@ -161,7 +174,7 @@ function severityFor(row) {
   return "P2";
 }
 
-function sourceRows(flow, collectionName, kind) {
+function sourceRows(flow, combatContent, collectionName, kind) {
   const output = [];
   for (const source of flow.chapter1?.[collectionName] || []) {
     const sourceId = source.roleId || source.interactableId || "";
@@ -183,7 +196,7 @@ function sourceRows(flow, collectionName, kind) {
           EvidenceLevel: result.evidenceLevel || branch.evidenceLevel || source.evidence?.level || "unknown",
           SourceFile: source.evidence?.resultSource || source.evidence?.source || "",
           SourceRecord: `${sourceId}#branch${branch.order || ""}`,
-          RuntimeStatus: runtimeStatusV2(result, source, flow),
+          RuntimeStatus: runtimeStatusV2(result, source, branch, flow, combatContent),
           RequiredRuntimeBinding: "",
           Severity: "",
         };
@@ -240,6 +253,8 @@ function bindingFor(row) {
       return "runtime_combat_compare_and_comparewin_executor";
     case "implemented_inheritance_combat_autotext":
       return "runtime_inheritance_combat_autotext_executor";
+    case "implemented_configured_combat_result_session":
+      return "runtime_configured_combat_result_session_and_terminal_outcome_dispatch";
     case "implemented_skill_exp_delta":
       return "runtime_skill_exp_executor";
     case "implemented_time_marker":
@@ -296,9 +311,10 @@ function bindingFor(row) {
 fs.mkdirSync(outDir, { recursive: true });
 
 const flow = readJson(flowPath);
+const combatContent = readJson(combatContentPath);
 const rows = [
-  ...sourceRows(flow, "npcs", "npc"),
-  ...sourceRows(flow, "interactables", "interactable"),
+  ...sourceRows(flow, combatContent, "npcs", "npc"),
+  ...sourceRows(flow, combatContent, "interactables", "interactable"),
 ];
 
 const columns = [
@@ -325,6 +341,7 @@ writeCsv(path.join(outDir, "fb01_result_token_runtime_coverage.csv"), rows, colu
 const summary = {
   generatedAt: new Date().toISOString(),
   configPath: flowPath,
+  combatContentPath,
   rows: rows.length,
   bySeverity: countBy(rows, "Severity"),
   byRuntimeStatus: countBy(rows, "RuntimeStatus"),

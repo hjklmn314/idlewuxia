@@ -142,3 +142,16 @@
 | Live combat event stream drives presentation audio | `config/wuxia_combat_content.json` audio cue map | `src/wuxia-main.js` `syncCombatPlayback()` and `playCombatAudioCue()` | `tools/run-wuxia-combat-reference-binding-acceptance.mjs` | Pass in development; player Buff event invoked configured MP3 binding |
 | Buff icon is attached to the mutated runtime unit | combat Buff definitions + overlay `bindings.buffIcons` | `renderCombatRuntime()` + live `CombatSession` snapshot | `outputs/combat_reference_binding_acceptance_20260809_final/02_combat_reference_buff_and_audio_after_skill.png` | Development visual PASS; production art/ownership blocked |
 | Production cannot accept the development overlay or fallbacks | presentation production profile and AssetRegistry policy | `tools/validate-wuxia-combat-presentation-contract.mjs`, `src/assetRegistry.js` | `COMBAT_002B_ORIGINAL_PROJECT_DEVELOPMENT_BINDING_20260809.md` | Deliberately BLOCKED until ASSET-007~010 provide approved assets |
+
+## COMBAT-005 configured chapter result routing traceability entry (2026-08-09)
+
+| Requirement | Configuration authority | Runtime/tool authority | Evidence | Verdict |
+|---|---|---|---|---|
+| Chapter combat Result uniquely enters a real session | `chapterSystem.combatResultPolicies` + `wuxia_chapter_combat_result_policies.schema.json` | `EntityInteractionService` + `ChapterSession` | `runtime:combat-result-routing:test` | PASS; compare/inattack201/inattack202 mapped |
+| Source/action/result ambiguity fails closed | policy allowlists and unique route semantic validator | entity interaction service + flow validator | five focused negative cases | PASS; no mutation on rejected route |
+| Terminal outcome controls follow-up results | `outcomeResultTokens` and condition tokens | ChapterSession draft transaction | routing report + runtime integrity | PASS; victory-only results never execute on defeat/runaway |
+| Runtime narrative tokens resolve from configuration | `runtimeMutation.textInterpolation` | `runtimeTextInterpolation.js` + ResultEffect/NPC projection | dynamic and fallback assertions; manual screenshots | PASS; no raw `$IN/$S/$N` |
+| New encounters use shared formulas and balance gates | combat content + simulation scenarios | CombatSession simulator | `outputs/combat_simulation/combat_simulation_report.json` | PASS; 6×200 runs, all scenario limits pass |
+| Portrait functional acceptance | browser evidence route + expected Result/Encounter | real Edge runner `combat-result-route` | `COMBAT_005_MANUAL_VISUAL_ACCEPTANCE_20260809.md` | PASS at 360×800, 390×844, 540×960; production art Gate C remains BLOCKED |
+| Known first-session mismatch remains independent | focused report `knownUnrelatedMismatch.scope=separate` | routing test report | `outputs/combat/combat_result_routing_report.json` | Explicitly excluded; not concealed or reclassified |
+| Legacy audits consume current combat authority | Result policy + combat content | shared `wuxia-combat-result-audit-policy.mjs`, interaction/result-token audits | 316 P3 rows, 0 P0/P1 result rows; online-standard has no runtime_result_token issue | PASS; remaining online issues are asset/visual only |

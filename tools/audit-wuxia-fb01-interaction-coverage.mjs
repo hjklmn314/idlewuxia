@@ -1,8 +1,11 @@
 ﻿import fs from "node:fs";
 import path from "node:path";
 
+import { resolveConfiguredCombatResultAuditBinding } from "./wuxia-combat-result-audit-policy.mjs";
+
 const root = path.resolve(".");
 const configPath = path.join(root, "config", "wuxia_first_session_flow.json");
+const combatContentPath = path.join(root, "config", "wuxia_combat_content.json");
 const outputDir = path.join(root, "outputs", "wuxia_fb01_interaction_coverage");
 
 function readJson(filePath) {
@@ -34,6 +37,8 @@ const GLOBAL_NPC_ACTIONS = new Set(["present", "sale", "compete", "kill", "appre
 const GLOBAL_INTERACTABLE_ACTIONS = new Set(["pickup"]);
 let configuredCombatActionTypes = new Set();
 let configuredChoiceActionName = "";
+let flowContract = {};
+let combatContent = {};
 
 function branchForAction(entry, actionType, kind) {
   const branches = Array.isArray(entry.branches) ? entry.branches : [];
@@ -48,6 +53,20 @@ function branchForAction(entry, actionType, kind) {
           ? "configured_choice_result_executor"
           : "unrouted_choice_intentionally_hidden",
       };
+    }
+    const sourceId = entry.roleId || entry.interactableId || "";
+    const hasConfiguredCombatResult = (exact.resolvedResults || []).some((result) => (
+      result.category === "combat"
+      && resolveConfiguredCombatResultAuditBinding({
+        flow: flowContract,
+        combatContent,
+        sourceId,
+        actionType,
+        resultId: result.resultId || "",
+      }).accepted
+    ));
+    if (hasConfiguredCombatResult) {
+      return { branch: exact, matchPolicy: "configured_combat_result_policy" };
     }
     const hasUnroutedCombatResult = !configuredCombatActionTypes.has(actionType)
       && (exact.resolvedResults || []).some((result) => result.category === "combat");
@@ -95,6 +114,7 @@ function branchForAction(entry, actionType, kind) {
 function statusForBranch(branch, matchPolicy) {
   if (matchPolicy === "default_words") return "default_words_confirmed";
   if (matchPolicy === "configured_combat_action_policy") return "configured_combat_action_policy";
+  if (matchPolicy === "configured_combat_result_policy") return "configured_combat_result_policy";
   if (matchPolicy === "configured_choice_result_executor") return "configured_choice_result_executor";
   if (matchPolicy === "unrouted_choice_intentionally_hidden") return "intentionally_hidden_postponed_choice_ui";
   if (matchPolicy === "unrouted_combat_intentionally_hidden") return "intentionally_hidden_postponed_combat";
@@ -139,11 +159,12 @@ function actionRowsFor(entry, kind) {
   });
 }
 
-const data = readJson(configPath);
-configuredCombatActionTypes = new Set(Object.keys(data.chapterSystem?.combatActionPolicies || {}));
-configuredChoiceActionName = data.chapterSystem?.resultEffectPolicies?.choiceResult?.actionName || "";
-const npcs = data.chapter1?.npcs || [];
-const interactables = data.chapter1?.interactables || [];
+flowContract = readJson(configPath);
+combatContent = readJson(combatContentPath);
+configuredCombatActionTypes = new Set(Object.keys(flowContract.chapterSystem?.combatActionPolicies || {}));
+configuredChoiceActionName = flowContract.chapterSystem?.resultEffectPolicies?.choiceResult?.actionName || "";
+const npcs = flowContract.chapter1?.npcs || [];
+const interactables = flowContract.chapter1?.interactables || [];
 const rows = [
   ...npcs.flatMap((npc) => actionRowsFor(npc, "npc")),
   ...interactables.flatMap((item) => actionRowsFor(item, "interactable")),
@@ -198,5 +219,3 @@ const summary = {
 };
 fs.writeFileSync(path.join(outputDir, "summary.json"), JSON.stringify(summary, null, 2), "utf8");
 console.log(JSON.stringify(summary, null, 2));
-
-

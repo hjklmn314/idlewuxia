@@ -61,6 +61,21 @@ const navigationPolicy = config.chapterSystem?.navigationPolicy || {};
 const entityInteractionPolicy = config.chapterSystem?.entityInteractionPolicy || {};
 const sessionDefaults = config.sessionDefaults || {};
 const combatActionPolicies = config.chapterSystem?.combatActionPolicies || {};
+const combatResultPolicies = config.chapterSystem?.combatResultPolicies || {};
+
+const combatResultPolicySchemaPath = path.join(root, "config", "wuxia_chapter_combat_result_policies.schema.json");
+const combatResultPolicySchema = JSON.parse(fs.readFileSync(combatResultPolicySchemaPath, "utf8"));
+const combatResultPolicyAjv = new Ajv2020({ allErrors: true, strict: true });
+const validateCombatResultPolicies = combatResultPolicyAjv.compile(combatResultPolicySchema);
+if (!validateCombatResultPolicies(combatResultPolicies)) {
+  for (const error of validateCombatResultPolicies.errors || []) {
+    findings.push(finding(
+      "error",
+      `Combat result policy schema violation: ${error.message || "invalid value"}.`,
+      `chapterSystem.combatResultPolicies${error.instancePath || ""}`,
+    ));
+  }
+}
 
 for (const [actionType, policy] of Object.entries(combatActionPolicies)) {
   if (!policy?.encounterId || !policy?.startActionId || !policy?.resolveActionId) {
@@ -71,6 +86,58 @@ for (const [actionType, policy] of Object.entries(combatActionPolicies)) {
   }
   if (policy?.autoResolveOnFinish !== true) {
     findings.push(finding("error", `Combat action policy ${actionType} must explicitly allow only terminal result auto-resolution.`, `chapterSystem.combatActionPolicies.${actionType}.autoResolveOnFinish`));
+  }
+}
+
+const combatContentPath = path.join(root, "config", "wuxia_combat_content.json");
+const combatContent = JSON.parse(fs.readFileSync(combatContentPath, "utf8"));
+const combatSimulationPath = path.join(root, "config", "wuxia_combat_simulation.json");
+const combatSimulation = JSON.parse(fs.readFileSync(combatSimulationPath, "utf8"));
+const encounterIds = new Set((combatContent.encounters || []).map((encounter) => encounter.encounterId));
+const simulatedEncounterIds = new Set((combatSimulation.scenarios || []).map((scenario) => scenario.encounterId));
+const runtimeActionIds = new Set(actions.map((action) => action.actionId));
+const npcById = new Map((config.chapter1?.npcs || []).map((npc) => [npc.roleId, npc]));
+const resultLookup = config.chapter1?.resultLookup || {};
+const claimedSourceActions = new Set();
+for (const [resultId, policy] of Object.entries(combatResultPolicies)) {
+  const where = `chapterSystem.combatResultPolicies.${resultId}`;
+  if (policy?.resultId !== resultId) findings.push(finding("error", `Combat result policy key ${resultId} must match resultId.`, `${where}.resultId`));
+  if (!policy?.successConditionToken && !(policy?.outcomeResultTokens?.success || []).length) {
+    findings.push(finding("error", `Combat result policy ${resultId} requires a success condition or success result token.`, where));
+  }
+  if (!encounterIds.has(policy?.encounterId)) findings.push(finding("error", `Combat result policy ${resultId} references unknown encounter ${policy?.encounterId || ""}.`, `${where}.encounterId`));
+  if (!simulatedEncounterIds.has(policy?.encounterId)) findings.push(finding("error", `Combat result policy ${resultId} encounter ${policy?.encounterId || ""} has no balance simulation scenario.`, `${where}.encounterId`));
+  for (const actionId of [policy?.startActionId, policy?.resolveActionId].filter(Boolean)) {
+    if (!runtimeActionIds.has(actionId)) findings.push(finding("error", `Combat result policy ${resultId} references unknown action ${actionId}.`, where));
+  }
+  for (const outcome of ["success", "failure", "runaway"]) {
+    for (const resultToken of policy?.outcomeResultTokens?.[outcome] || []) {
+      if (!resultLookup[resultToken] && !resultLookup[`rlt_${resultToken}`]) {
+        findings.push(finding("error", `Combat result policy ${resultId} references unknown ${outcome} result ${resultToken}.`, `${where}.outcomeResultTokens.${outcome}`));
+      }
+    }
+  }
+  for (const sourceId of policy?.allowedSourceIds || []) {
+    const npc = npcById.get(sourceId);
+    if (!npc) {
+      findings.push(finding("error", `Combat result policy ${resultId} references unknown NPC ${sourceId}.`, `${where}.allowedSourceIds`));
+      continue;
+    }
+    for (const actionType of policy?.allowedActionTypes || []) {
+      const routeKey = `${sourceId}:${actionType}`;
+      if (claimedSourceActions.has(routeKey)) findings.push(finding("error", `Combat source/action route ${routeKey} is claimed by more than one result policy.`, where));
+      claimedSourceActions.add(routeKey);
+      if (!(npc.actions || []).some((action) => action.actionType === actionType)) {
+        findings.push(finding("error", `Combat result policy ${resultId} source ${sourceId} has no action ${actionType}.`, `${where}.allowedActionTypes`));
+      }
+      const matchingBranches = (npc.branches || []).filter((branch) => (
+        (branch.actionHints || []).includes(actionType)
+        && (branch.resolvedResults || []).some((result) => result.category === "combat" && result.resultId === resultId)
+      ));
+      if (matchingBranches.length !== 1) {
+        findings.push(finding("error", `Combat result policy ${resultId} must match exactly one ${sourceId}/${actionType} combat branch; found ${matchingBranches.length}.`, where));
+      }
+    }
   }
 }
 
@@ -141,6 +208,16 @@ for (const key of ["defaultValue", "listDelimiter"]) {
 for (const key of ["compareResultId", "compareWinConditionToken", "inheritanceResultIdPrefix", "autoTextArg", "autoTextMarkerArg"]) {
   if (!String(runtimeMutationPolicy.combatFollowup?.[key] || "").trim()) {
     findings.push(finding("error", `Runtime mutation policy is missing combatFollowup.${key}.`, `chapterSystem.resultEffectPolicies.runtimeMutation.combatFollowup.${key}`));
+  }
+}
+const textInterpolationTokens = Object.entries(runtimeMutationPolicy.textInterpolation?.tokens || {});
+const textInterpolationValues = runtimeMutationPolicy.textInterpolation?.values || {};
+if (new Set(textInterpolationTokens.map(([, token]) => token)).size !== textInterpolationTokens.length) {
+  findings.push(finding("error", "Runtime text interpolation tokens must be unique.", "chapterSystem.resultEffectPolicies.runtimeMutation.textInterpolation.tokens"));
+}
+for (const [semanticId, token] of textInterpolationTokens) {
+  if (!textInterpolationValues[semanticId]) {
+    findings.push(finding("error", `Runtime text interpolation token ${token} has no configured value source.`, `chapterSystem.resultEffectPolicies.runtimeMutation.textInterpolation.values.${semanticId}`));
   }
 }
 if (runtimeMutationPolicy.failurePolicy !== "reject_entire_branch_and_discard_draft") {

@@ -8,6 +8,13 @@ const content = JSON.parse(fs.readFileSync(path.join(root, "config", "wuxia_comb
 const simulation = JSON.parse(fs.readFileSync(path.join(root, "config", "wuxia_combat_simulation.json"), "utf8"));
 const validation = validateCombatContent(content);
 if (!validation.accepted) throw new Error(`combat content is invalid: ${JSON.stringify(validation.findings)}`);
+const args = process.argv.slice(2);
+const scenarioArgIndex = args.indexOf("--scenario-id");
+const scenarioId = scenarioArgIndex >= 0 ? String(args[scenarioArgIndex + 1] || "") : "";
+const selectedScenarios = scenarioId
+  ? simulation.scenarios.filter((scenario) => scenario.scenarioId === scenarioId)
+  : simulation.scenarios;
+if (scenarioId && !selectedScenarios.length) throw new Error(`unknown combat simulation scenario: ${scenarioId}`);
 
 function percentile(values, p) {
   const sorted = [...values].sort((a, b) => a - b);
@@ -82,7 +89,7 @@ function runScenario(scenario, runIndex) {
 }
 
 const reports = [];
-for (const scenario of simulation.scenarios) {
+for (const scenario of selectedScenarios) {
   const runs = [];
   for (let index = 0; index < simulation.runsPerScenario; index += 1) runs.push(runScenario(scenario, index));
   const wins = runs.filter((run) => run.outcome === "victory").length;
@@ -124,8 +131,9 @@ const report = {
   reports,
   accepted: reports.every((entry) => entry.balancePass),
 };
-fs.writeFileSync(path.join(outputDir, "combat_simulation_report.json"), JSON.stringify(report, null, 2), "utf8");
-fs.writeFileSync(path.join(outputDir, "combat_simulation_report.md"), [
+const outputStem = scenarioId ? `combat_simulation_${scenarioId}_report` : "combat_simulation_report";
+fs.writeFileSync(path.join(outputDir, `${outputStem}.json`), JSON.stringify(report, null, 2), "utf8");
+fs.writeFileSync(path.join(outputDir, `${outputStem}.md`), [
   "# Combat Simulation Report",
   "",
   `Generated: ${report.generatedAt}`,

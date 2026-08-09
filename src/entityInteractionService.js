@@ -39,6 +39,7 @@ export function createEntityInteractionService({
   conditionLookup,
   entityInteractionPolicy = {},
   combatActionPolicies = {},
+  combatResultPolicies = {},
   branchEnabled = () => true,
   evaluateBranch = () => ({ accepted: false, checks: [] }),
   validateBranch = () => ({ accepted: true }),
@@ -48,6 +49,7 @@ export function createEntityInteractionService({
   const conditions = asLookup(conditionLookup);
   const policy = cloneData(entityInteractionPolicy || {});
   const combatPolicies = cloneData(combatActionPolicies || {});
+  const resultCombatPolicies = cloneData(combatResultPolicies || {});
   const visibilityField = String(policy.visibility?.interactableField || "");
   const dialogueActionType = String(policy.branchRouting?.dialogueActionType || "");
   const defaultNarrativeConditionToken = String(policy.branchRouting?.defaultNarrativeConditionToken || "");
@@ -77,11 +79,72 @@ export function createEntityInteractionService({
     && policy.failurePolicy === "reject_unknown_hidden_out_of_room_or_unrouted_action"
   );
 
-  const allCombatOutcomeTokens = new Set(Object.values(combatPolicies).flatMap((combatPolicy) => [
-    combatPolicy?.successConditionToken,
-    combatPolicy?.failureConditionToken,
-    combatPolicy?.runawayConditionToken,
-  ]).filter(Boolean));
+  const allCombatOutcomeTokens = new Set([
+    ...Object.values(combatPolicies).flatMap((combatPolicy) => [
+      combatPolicy?.successConditionToken,
+      combatPolicy?.failureConditionToken,
+      combatPolicy?.runawayConditionToken,
+    ]),
+    ...Object.values(resultCombatPolicies).flatMap((combatPolicy) => [
+      combatPolicy?.successConditionToken,
+      combatPolicy?.failureConditionToken,
+      combatPolicy?.runawayConditionToken,
+    ]),
+  ].filter(Boolean));
+
+  function combatResultIds(branches = []) {
+    return [...new Set(branches.flatMap((branch) => (
+      (branch.resolvedResults || [])
+        .filter((result) => result.category === "combat")
+        .map((result) => String(result.resultId || ""))
+        .filter(Boolean)
+    )))];
+  }
+
+  function resultCombatPolicyDecision(npc, actionType, branches = []) {
+    const resultIds = combatResultIds(branches);
+    if (!resultIds.length) return { configured: false, policy: null, triggerResultId: "", reason: "" };
+    if (resultIds.length !== 1) {
+      return {
+        configured: false,
+        policy: null,
+        triggerResultId: "",
+        reason: "combat result routing is ambiguous",
+      };
+    }
+    const triggerResultId = resultIds[0];
+    const combatPolicy = resultCombatPolicies[triggerResultId] || null;
+    if (!combatPolicy || combatPolicy.resultId !== triggerResultId) {
+      return {
+        configured: false,
+        policy: null,
+        triggerResultId,
+        reason: "combat result policy is not configured",
+      };
+    }
+    if (!(combatPolicy.allowedSourceIds || []).includes(npc?.roleId || "")) {
+      return {
+        configured: false,
+        policy: null,
+        triggerResultId,
+        reason: "combat result policy disallows source",
+      };
+    }
+    if (!(combatPolicy.allowedActionTypes || []).includes(actionType)) {
+      return {
+        configured: false,
+        policy: null,
+        triggerResultId,
+        reason: "combat result policy disallows action",
+      };
+    }
+    return {
+      configured: true,
+      policy: combatPolicy,
+      triggerResultId,
+      reason: "",
+    };
+  }
 
   function activeEntityIdsForRoom(room, lifecycle = {}) {
     const hidden = asSet(lifecycle.hiddenEntityIds);
@@ -229,7 +292,7 @@ export function createEntityInteractionService({
     if (!configured) return { actionType, branch: null, visible: false, available: false, reason: "entity interaction policy is not configured", checks: [] };
     const action = (npc?.actions || []).find((candidate) => candidate.actionType === actionType);
     if (!action) return { actionType, branch: null, available: false, reason: "npc action unavailable", checks: [] };
-    const combatPolicy = combatPolicies[actionType] || null;
+    const actionCombatPolicy = combatPolicies[actionType] || null;
     const branches = enabledBranches(npc);
     const exactBranches = branches.filter((branch) => (branch.actionHints || []).includes(actionType));
     const candidates = exactBranches.length
@@ -239,14 +302,26 @@ export function createEntityInteractionService({
       action.evidenceLevel,
       action.evidence?.level,
       npc?.evidence?.level,
-      combatPolicy?.evidence?.level,
+      actionCombatPolicy?.evidence?.level,
     );
-    const hasUnroutedCombatResult = !combatPolicy && candidates.some((branch) => (
-      (branch.resolvedResults || []).some((result) => result.category === "combat")
-    ));
-    if (hasUnroutedCombatResult) {
-      return { actionType, branch: null, visible: false, available: false, reason: "combat runtime module is postponed", checks: [], evidenceLevel: sourceEvidenceLevel };
+    const resultPolicyDecision = actionCombatPolicy
+      ? { configured: false, policy: null, triggerResultId: "", reason: "" }
+      : resultCombatPolicyDecision(npc, actionType, candidates);
+    const hasCombatResult = combatResultIds(candidates).length > 0;
+    if (!actionCombatPolicy && hasCombatResult && !resultPolicyDecision.configured) {
+      return {
+        actionType,
+        branch: null,
+        visible: false,
+        available: false,
+        reason: resultPolicyDecision.reason || "combat result policy is not configured",
+        checks: [],
+        evidenceLevel: sourceEvidenceLevel,
+        triggerResultId: resultPolicyDecision.triggerResultId,
+      };
     }
+    const combatPolicy = actionCombatPolicy || resultPolicyDecision.policy;
+    const triggerResultId = resultPolicyDecision.triggerResultId || "";
     if (!candidates.length && actionType === dialogueActionType && (npc?.defaultNarrativeLines || []).length) {
       return {
         actionType,
@@ -285,7 +360,10 @@ export function createEntityInteractionService({
       ...validated,
       executionKind: combatPolicy ? "combat" : "result",
       combatPolicy: cloneData(combatPolicy),
-      feedbackLines: feedbackForNpcAction(npc, action).lines,
+      triggerResultId,
+      feedbackLines: (combatPolicy?.startFeedbackLines || []).length
+        ? cloneData(combatPolicy.startFeedbackLines)
+        : feedbackForNpcAction(npc, action).lines,
       action: cloneData(action),
     };
   }

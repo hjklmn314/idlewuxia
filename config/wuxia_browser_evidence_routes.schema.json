@@ -27,10 +27,10 @@
           "purpose": {"type": "string", "minLength": 1},
           "initialPlayerPatch": {
             "type": "object",
-            "required": ["sectId", "inheritableMarkers"],
             "properties": {
-              "sectId": {"const": "tangmen"},
-              "inheritableMarkers": {"type": "object", "required": ["唐门内功进修"], "properties": {"唐门内功进修": {"anyOf": [{"type": "string"}, {"type": "number"}]}}, "additionalProperties": {"anyOf": [{"type": "string"}, {"type": "number"}]}}
+              "sectId": {"type": "string", "minLength": 1},
+              "inheritableMarkers": {"type": "object", "additionalProperties": {"anyOf": [{"type": "string"}, {"type": "number"}]}},
+              "inventory": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0}}
             },
             "additionalProperties": false
           },
@@ -53,13 +53,15 @@
           },
           "expected": {
             "type": "object",
-            "required": ["chapterId", "roomId", "roleId", "actionType", "choiceId"],
+            "required": ["chapterId", "roomId", "roleId", "actionType"],
             "properties": {
               "chapterId": {"type": "string"},
               "roomId": {"type": "string"},
               "roleId": {"type": "string"},
               "actionType": {"type": "string"},
               "choiceId": {"type": "string"},
+              "triggerResultId": {"type": "string"},
+              "encounterId": {"type": "string"},
               "replacementChain": {"type": "array"}
             },
             "additionalProperties": false

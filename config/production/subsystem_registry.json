@@ -106,15 +106,19 @@
         "src/resultEffectExecutor.js",
         "src/resultPreparation.js",
         "src/resultExecutionModules.js",
+        "src/runtimeTextInterpolation.js",
         "src/wuxiaFirstSessionFlow.js"
       ],
       "configuration": [
-        "config/wuxia_first_session_flow.json"
+        "config/wuxia_first_session_flow.json",
+        "config/wuxia_chapter_combat_result_policies.schema.json",
+        "config/wuxia_runtime_mutation_policy.schema.json"
       ],
-      "status": "transactional-prepare-and-commit-modularized-combat-postponed",
+      "status": "transactional-prepare-and-commit-modularized-with-configured-combat-outcome-dispatch",
       "nextTaskIds": [
-        "T03-01",
-        "COMBAT-002"
+        "COMBAT-002B",
+        "SAVE-001",
+        "OBS-001"
       ]
     },
     {
@@ -130,10 +134,12 @@
       "configuration": [
         "config/wuxia_combat_content.json",
         "config/wuxia_combat_content.schema.json",
+        "config/wuxia_first_session_flow.json",
+        "config/wuxia_chapter_combat_result_policies.schema.json",
         "config/wuxia_combat_simulation.json",
         "config/wuxia_combat_simulation.schema.json"
       ],
-      "status": "logic-v1-manual-turns-pause-replay-save-restore-and-shared-runtime-simulation",
+      "status": "logic-v2-manual-turns-result-routing-pause-replay-save-restore-and-shared-runtime-simulation",
       "nextTaskIds": [
         "COMBAT-002B",
         "COMBAT-002",

@@ -48,6 +48,36 @@
           ["tmnpc01c", "tmnpc01d"]
         ]
       }
+    },
+    {
+      "routeId": "fb01-capture-combat-result",
+      "purpose": "Reproduce the configured Yin Quanan capture combat and its comparewin item condition on localhost only.",
+      "initialPlayerPatch": {
+        "inventory": {
+          "xuan1": 1
+        }
+      },
+      "steps": [
+        {"type": "dispatchAction", "actionId": "ACTION_FS_001_ORIGIN_SCHOLAR"},
+        {"type": "dispatchAction", "actionId": "ACTION_FS_001_ORIGIN_RESULT_CONTINUE"},
+        {"type": "dispatchAction", "actionId": "ACTION_FS_002_TITLE_START"},
+        {"type": "dispatchAction", "actionId": "ACTION_FS_003_CHARACTER_STATUS"},
+        {"type": "dispatchAction", "actionId": "ACTION_FS_004_IDLE_CONFIRM"},
+        {"type": "dispatchAction", "actionId": "ACTION_FS_005_IDLE_TASK_CLICK_POOL_FISH"},
+        {"type": "dispatchAction", "actionId": "ACTION_FS_005_IDLE_TASK_LIST_CONTINUE"},
+        {"type": "dispatchAction", "actionId": "ACTION_FS_007_CHAPTER_CARD_ENTRY"},
+        {"type": "selectRoom", "roomId": "fb01_16"},
+        {"type": "selectNpc", "roleId": "fb01r16_3"},
+        {"type": "interactNpc", "roleId": "fb01r16_3", "actionType": "custom_caozuo"}
+      ],
+      "expected": {
+        "chapterId": "fb01",
+        "roomId": "fb01_16",
+        "roleId": "fb01r16_3",
+        "actionType": "custom_caozuo",
+        "triggerResultId": "compare",
+        "encounterId": "encounter_fb01_capture_yin_quanan"
+      }
     }
   ]
 }

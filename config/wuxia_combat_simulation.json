@@ -38,6 +38,39 @@
         "medianRoundsMax": 40,
         "p95EventsMax": 512
       }
+    },
+    {
+      "scenarioId": "capture-yin-greedy",
+      "encounterId": "encounter_fb01_capture_yin_quanan",
+      "playerPolicy": "greedy_damage",
+      "balance": {
+        "winRateMin": 0.85,
+        "winRateMax": 1.0,
+        "medianRoundsMax": 40,
+        "p95EventsMax": 512
+      }
+    },
+    {
+      "scenarioId": "inner-demon-greedy",
+      "encounterId": "encounter_fb01_inner_demon",
+      "playerPolicy": "greedy_damage",
+      "balance": {
+        "winRateMin": 0.8,
+        "winRateMax": 1.0,
+        "medianRoundsMax": 40,
+        "p95EventsMax": 512
+      }
+    },
+    {
+      "scenarioId": "nightmare-greedy",
+      "encounterId": "encounter_fb01_nightmare",
+      "playerPolicy": "greedy_damage",
+      "balance": {
+        "winRateMin": 0.75,
+        "winRateMax": 1.0,
+        "medianRoundsMax": 40,
+        "p95EventsMax": 512
+      }
     }
   ]
 }

@@ -13,6 +13,7 @@
     "argKeys",
     "defaultValue",
     "listDelimiter",
+    "textInterpolation",
     "combatFollowup",
     "failurePolicy",
     "evidenceLevel"
@@ -70,6 +71,33 @@
     },
     "defaultValue": { "$ref": "#/$defs/nonEmptyString" },
     "listDelimiter": { "$ref": "#/$defs/nonEmptyString" },
+    "textInterpolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tokens", "values"],
+      "properties": {
+        "tokens": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["playerName", "inheritanceName", "inheritancePronoun"],
+          "properties": {
+            "playerName": { "$ref": "#/$defs/nonEmptyString" },
+            "inheritanceName": { "$ref": "#/$defs/nonEmptyString" },
+            "inheritancePronoun": { "$ref": "#/$defs/nonEmptyString" }
+          }
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["playerName", "inheritanceName", "inheritancePronoun"],
+          "properties": {
+            "playerName": { "$ref": "#/$defs/textValueSource" },
+            "inheritanceName": { "$ref": "#/$defs/textValueSource" },
+            "inheritancePronoun": { "$ref": "#/$defs/textValueSource" }
+          }
+        }
+      }
+    },
     "combatFollowup": {
       "type": "object",
       "additionalProperties": false,
@@ -86,6 +114,33 @@
     "evidenceLevel": { "$ref": "#/$defs/nonEmptyString" }
   },
   "$defs": {
-    "nonEmptyString": { "type": "string", "minLength": 1 }
+    "nonEmptyString": { "type": "string", "minLength": 1 },
+    "textValueSource": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "fallback"],
+          "properties": {
+            "path": { "$ref": "#/$defs/nonEmptyString" },
+            "fallback": { "$ref": "#/$defs/nonEmptyString" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["selectorPath", "selectorMap", "fallback"],
+          "properties": {
+            "selectorPath": { "$ref": "#/$defs/nonEmptyString" },
+            "selectorMap": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": { "$ref": "#/$defs/nonEmptyString" }
+            },
+            "fallback": { "$ref": "#/$defs/nonEmptyString" }
+          }
+        }
+      ]
+    }
   }
 }

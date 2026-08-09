@@ -367,8 +367,8 @@ assert(craftingRuntime.snapshot().player.inventory.chunjie7 === 0, "hecheng114 s
 assert(craftingRuntime.snapshot().player.inventory.chunjie20celue === 1, "hecheng114 should grant chunjie20celue");
 
 const captureRuntime = createFixtureRuntime(["fb01r16_3"], {
-  initialState: screen.defaultStartState,
-  initialFlags: screen.defaultStartFlags,
+  initialState: "STATE_FS_008_MAP_EXPLORE",
+  initialFlags: ["chapter_fb01_entered"],
   initialPlayer: {
     ...flow.playerSeed,
     inventory: {
@@ -377,17 +377,26 @@ const captureRuntime = createFixtureRuntime(["fb01r16_3"], {
   },
 });
 const captureYin = captureRuntime.interactWithChapterNpc("fb01r16_3", "custom_caozuo");
-assert(!captureYin.accepted, "Yin Quanan capture operation must stay hidden until a real combat policy exists");
-assert(captureYin.event.reason === "combat runtime module is postponed", "capture placeholder must fail closed");
+assert(captureYin.accepted, "Yin Quanan capture operation should enter its configured CombatSession");
+assert(captureYin.snapshot.pendingCombat?.triggerResultId === "compare", "Yin Quanan capture must route by the compare result ID");
+assert(captureYin.snapshot.pendingCombat?.encounterId === "encounter_fb01_capture_yin_quanan", "Yin Quanan capture must bind the configured encounter");
+assert(!captureYin.event.sideEffects.some((effect) => effect.resultId), "capture results must remain deferred until a terminal combat outcome");
 
-const combatTriggerRuntime = createFixtureRuntime(["fb01r41_1", "fb01r42_1"], {
-  initialState: screen.defaultStartState,
-  initialFlags: screen.defaultStartFlags,
+const combatTriggerRuntime = createFixtureRuntime(["fb01r41_1"], {
+  initialState: "STATE_FS_008_MAP_EXPLORE",
+  initialFlags: ["chapter_fb01_entered"],
 });
 const inheritedCombat = combatTriggerRuntime.interactWithChapterNpc("fb01r41_1", "custom_caozuo");
-assert(!inheritedCombat.accepted, "inheritance combat placeholder must stay hidden while combat work is postponed");
-const revengeCombat = combatTriggerRuntime.interactWithChapterNpc("fb01r42_1", "custom_caozuo");
-assert(!revengeCombat.accepted, "second inheritance combat placeholder must stay hidden while combat work is postponed");
+assert(inheritedCombat.accepted, "inheritance combat should enter its configured CombatSession");
+assert(inheritedCombat.snapshot.pendingCombat?.triggerResultId === "inattack201", "heart-demon combat must preserve its configured result route");
+
+const revengeCombatRuntime = createFixtureRuntime(["fb01r42_1"], {
+  initialState: "STATE_FS_008_MAP_EXPLORE",
+  initialFlags: ["chapter_fb01_entered"],
+});
+const revengeCombat = revengeCombatRuntime.interactWithChapterNpc("fb01r42_1", "custom_caozuo");
+assert(revengeCombat.accepted, "nightmare combat should enter its configured CombatSession");
+assert(revengeCombat.snapshot.pendingCombat?.triggerResultId === "inattack202", "nightmare combat must preserve its configured result route");
 
 const skillRuntime = createFixtureRuntime(["fb01r05_1"], {
   initialState: screen.defaultStartState,
@@ -507,4 +516,3 @@ console.log(JSON.stringify({
   finalPotential: output.finalPotential,
   events: output.events.length,
 }, null, 2));
-

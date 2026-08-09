@@ -117,7 +117,7 @@
 | 3 | COMBAT-003 | combat-model-and-simulator + runtime + QA | **done**：暂停/继续、保存恢复、命令 replay、200×3 配置场景数值模拟与平衡报告 |
 | 4 | ASSET-007/008 首个可玩套装 | asset-content-pipeline | 1 玩家、1 敌人、1 干净场景的完整动作闭环；缺失时继续使用开发期参考绑定，不把参考 bytes 带入 shipping |
 | 5 | ASSET-009/010 首个打击闭环 | combat presentation + asset/audio | 命中、格挡、控制、胜负的 VFX/SFX 证据；缺失时登记需求，不伪造 production PASS |
-| 6 | COMBAT-002B + 三条未授权 Combat Result | HTML runtime + combat + QA | 资产挂载和 `fight/kill/escape` 等剩余结果的合法配置映射，不再保持 placeholder |
+| 6 | COMBAT-005 + COMBAT-002B | HTML runtime + combat + QA | **COMBAT-005 done**：`compare/inattack201/inattack202` 已合法映射真实 CombatSession；**COMBAT-002B blocked**：仍待生产资产、打击表现与真机人工门 |
 | 7 | ASSET-002～006 + T05-01 | UI/asset + Android + QA | 全 UI kit、33/33 自动证据与严格人工签名表 |
 | 8 | SAVE-001 + OBS-001 + HYGIENE-001 | save + observability + auditor | G4 关闭证据与活动/历史权威分层 |
 | 9 | SEC/REL-001～003 | release team | 签名 RC、真机、性能、商店、灰度和回滚 |
@@ -126,7 +126,7 @@
 
 - `COMBAT-002A`：done，配置与运行时能力合同已闭合。
 - `COMBAT-003`：done，暂停/继续、存档恢复、确定性命令 replay 与同一运行时数值模拟已通过 focused tests；仍不等于批准资产或发行通过。
-- `AUDIT-003`：blocked；完整读取、静态与运行时门已执行，但人工视觉、10 个必需资产槽及 3 条未授权战斗结果没有关闭。
+- `AUDIT-003`：blocked；完整读取、静态与运行时门已执行，COMBAT-005 已关闭 3 条未授权战斗结果，但人工视觉、10 个必需资产槽和 Release 证据仍未关闭。
 - `T05-01`：blocked；最终自动矩阵位于 `outputs/wuxia_visual_matrix/20260804_post_truthful_node_fix/`，但人工视觉明确失败。
 - `wuxia:audit:online-standard`：预期失败，当前 11 个 P0、1 个 P1；只有这些问题真实关闭后才允许转绿。
 
@@ -136,3 +136,13 @@
 - 普通结构门禁：PASS；`runtime:combat-presentation:test` 覆盖正例、缺 cue、未知引用和严格生产阻断；结构验证报告当前登记 53 个 production-blocked 绑定。
 - 严格生产门禁：BLOCKED（符合预期）；当前无批准的侧视三头身角色、VFX 生产族和自有/授权 OGG，参考场景/音频/Buff 仅限开发覆盖层。
 - 下一施工顺序保持：ASSET-007 → ASSET-008 → ASSET-009 → ASSET-010 → COMBAT-002B；任何一项未通过人工 Gate C 都不得宣称上线。
+
+## 2026-08-09 COMBAT-005 章节战斗结果路由更新
+
+- `COMBAT-005`：**done**。`compare`、`inattack201`、`inattack202` 已从章节 Result 通过 Schema 化 policy 唯一映射到真实 `CombatSession`，并按胜利/失败/逃跑终局配置分发后续结果。
+- 三条 policy 全部声明允许来源、动作、Encounter、手动回合模式、最大步数、终局 token 和证据来源；缺 policy、错误来源、未知结果或歧义映射均 fail-closed。
+- 正例、负例、存档恢复、文本插值和 6×200 局数值模拟通过；三条路线在 360×800、390×844、540×960 完成真实 Edge 人工功能验收，权威矩阵 126 步、0 failure，调参后梦魇额外复跑 42 步、0 failure。
+- 已知 `FIRST_SESSION_SIMULATION_MISMATCH` 保持独立，不纳入本项 verdict。
+- 这只关闭“3 条未授权 Combat Result”这个 P1 阻断；`COMBAT-002B`、`ASSET-007`～`ASSET-010`、`T05-01` 与发行门仍 blocked。
+- 旧审计已同步：Result-token 316/316 为 P3，`runtime_result_token` issue=0；online-standard 剩余 11 P0 + 3 P1 仅属于资产、资产合同和人工视觉，并继续按设计非零退出。
+- 证据：`COMBAT_005_RESULT_ROUTING_COMPLETION_20260809.md`、`COMBAT_005_MANUAL_VISUAL_ACCEPTANCE_20260809.md`、`outputs/combat/combat_result_routing_report.json`、`outputs/combat_simulation/combat_simulation_report.json`。

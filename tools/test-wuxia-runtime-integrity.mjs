@@ -178,7 +178,9 @@ runCase("global_feedback_only_action_is_rejected", () => {
 });
 
 runCase("combat_result_without_policy_is_hidden", () => {
-  const runtime = createNpcFixtureRuntime(clone(flow), ["fb01r16_3"], {
+  const contract = clone(flow);
+  delete contract.chapterSystem.combatResultPolicies.compare;
+  const runtime = createNpcFixtureRuntime(contract, ["fb01r16_3"], {
     initialPlayer: {
       ...flow.playerSeed,
       inventory: { xuan1: 1 },
@@ -190,7 +192,7 @@ runCase("combat_result_without_policy_is_hidden", () => {
   assert.equal(availability.visible, false);
   const result = runtime.interactWithChapterNpc("fb01r16_3", "custom_caozuo");
   assert.equal(result.accepted, false);
-  assert.equal(result.event.reason, "combat runtime module is postponed");
+  assert.equal(result.event.reason, "combat result policy is not configured");
 });
 
 runCase("choice_result_opens_data_driven_pending_choice", () => {

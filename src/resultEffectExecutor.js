@@ -5,6 +5,7 @@ import {
   createSkillConversionPlan,
   isValidPendingChoice,
 } from "./resultExecutionModules.js";
+import { interpolateRuntimeTextLines } from "./runtimeTextInterpolation.js";
 
 class EffectTransactionError extends Error {
   constructor(reason, detail = {}) {
@@ -82,6 +83,7 @@ export function createResultEffectExecutor({
   const officialMeritPolicy = resultEffectPolicies.officialMerit || {};
   const seasonalPolicy = resultEffectPolicies.seasonalActivity || {};
   const runtimePolicy = resultEffectPolicies.runtimeMutation || {};
+  const textInterpolationPolicy = runtimePolicy.textInterpolation || {};
   const categoryNames = runtimePolicy.categoryNames || {};
   const actionNames = runtimePolicy.actionNames || {};
   const argKeys = runtimePolicy.argKeys || {};
@@ -143,14 +145,20 @@ export function createResultEffectExecutor({
     return delta;
   }
 
-  function narrativeLines(result) {
+  function narrativeLines(result, draft = null) {
+    let lines;
     if (Array.isArray(result.narrativeLines) && result.narrativeLines.length) {
-      return result.narrativeLines.filter(Boolean);
+      lines = result.narrativeLines.filter(Boolean);
+    } else {
+      lines = String(argument(result.args || {}, "primary") || "")
+        .split("|")
+        .map((line) => line.trim())
+        .filter(Boolean);
     }
-    return String(argument(result.args || {}, "primary") || "")
-      .split("|")
-      .map((line) => line.trim())
-      .filter(Boolean);
+    return interpolateRuntimeTextLines(lines, {
+      policy: textInterpolationPolicy,
+      player: draft?.player || {},
+    });
   }
 
   function chapterClearEntry(resultId = "") {
@@ -256,7 +264,7 @@ export function createResultEffectExecutor({
         status: "resolved_inheritance_combat_via_autotext",
         autoTextId,
         marker,
-        feedbackLines: narrativeLines(autoText),
+        feedbackLines: narrativeLines(autoText, draft),
       };
     }
     return { status: "started_combat_without_known_resolution" };
@@ -314,7 +322,7 @@ export function createResultEffectExecutor({
       }
 
       if (matchesCategory(category, "narrativeFeedback")) {
-        sideEffects.push({ ...effect, status: "applied_text_feedback", feedbackLines: narrativeLines(result) });
+        sideEffects.push({ ...effect, status: "applied_text_feedback", feedbackLines: narrativeLines(result, draft) });
         continue;
       }
 

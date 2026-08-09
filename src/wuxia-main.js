@@ -7,6 +7,7 @@ import { createUiFlowAdapter } from "./uiFlowAdapter.js";
 import { createWuxiaDomAdapter } from "./wuxiaDomAdapter.js";
 import { applyEvidencePlayerPatch, resolveBrowserEvidenceRoute } from "./browserEvidenceRoute.js";
 import { createAssetRegistry, createReferenceAssetRegistry } from "./assetRegistry.js";
+import { interpolateRuntimeText, interpolateRuntimeTextLines } from "./runtimeTextInterpolation.js";
 
 const CONFIG_FILES = {
   wuxiaFirstSessionFlow: "./config/wuxia_first_session_flow.json",
@@ -48,6 +49,20 @@ function activeChapterFromFlow(flowContract = {}) {
 
 function activeChapterFromSnapshot(snapshot = {}) {
   return snapshot?.chapter || snapshot?.chapter1 || {};
+}
+
+function runtimeText(value, snapshot = {}) {
+  return interpolateRuntimeText(value, {
+    policy: state.config?.wuxiaFirstSessionFlow?.chapterSystem?.resultEffectPolicies?.runtimeMutation?.textInterpolation || {},
+    player: snapshot?.player || {},
+  });
+}
+
+function runtimeTextLines(lines = [], snapshot = {}) {
+  return interpolateRuntimeTextLines(lines, {
+    policy: state.config?.wuxiaFirstSessionFlow?.chapterSystem?.resultEffectPolicies?.runtimeMutation?.textInterpolation || {},
+    player: snapshot?.player || {},
+  });
 }
 
 function escapeHtml(value) {
@@ -581,7 +596,14 @@ function roomPeople(room, flowContract, snapshot) {
     .map((roleId) => {
       if (!roleId || seen.has(roleId) || !npcById.has(roleId)) return null;
       seen.add(roleId);
-      return npcById.get(roleId);
+      const npc = npcById.get(roleId);
+      const name = runtimeText(npc.name || npc.displayName?.zhCN || "", snapshot);
+      return {
+        ...npc,
+        name,
+        displayName: { ...(npc.displayName || {}), zhCN: name },
+        defaultNarrativeLines: runtimeTextLines(npc.defaultNarrativeLines || [], snapshot),
+      };
     })
     .filter(Boolean);
 }
@@ -716,7 +738,7 @@ function renderRoomExplore(block, flowContract, snapshot) {
   const people = roomPeople(room, flowContract, snapshot);
   const objects = roomObjects(room, flowContract, snapshot);
   const selectedNpcId = snapshotChapter?.selectedNpcId || "";
-  const selectedNpc = selectedNpcId && people.some((npc) => npc.roleId === selectedNpcId) ? npcByIdForFlow().get(selectedNpcId) : null;
+  const selectedNpc = people.find((npc) => npc.roleId === selectedNpcId) || null;
   const selectedInteractableId = snapshotChapter?.selectedInteractableId || "";
   const selectedItem = selectedInteractableId && objects.some((item) => item.interactableId === selectedInteractableId)
     ? interactableByIdForFlow().get(selectedInteractableId)

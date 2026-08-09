@@ -23,6 +23,9 @@ const crawlExpectedVisibleNpcId = argValue("--expected-visible-npc-id", "");
 const routeUnlockPlanPath = argValue("--route-unlock-plan", "");
 const routeGateEvidence = argValue("--route-gate-evidence", "");
 const evidenceRouteId = argValue("--evidence-route-id", process.env.WUXIA_EVIDENCE_ROUTE || "");
+const combatResultActionType = argValue("--combat-action-type", "custom_caozuo");
+const expectedCombatResultId = argValue("--expected-combat-result-id", "");
+const expectedCombatEncounterId = argValue("--expected-combat-encounter-id", "");
 const edgePath = process.env.EDGE_PATH || "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe";
 const url = process.env.WUXIA_URL || `http://127.0.0.1:5187/?real-browser-flow=20260707&scenario=${encodeURIComponent(scenario)}${evidenceRouteId ? `&evidenceRoute=${encodeURIComponent(evidenceRouteId)}` : ""}`;
 const port = Number(process.env.EDGE_DEBUG_PORT || 9227);
@@ -484,7 +487,7 @@ try {
       const result = window.__idleWuxiaAutomation?.dispatchAction?.("ACT_CH1_SELECT_SETTLEMENT_LOOP");
       return { clicked: Boolean(result?.clicked), actionId: "ACT_CH1_SELECT_SETTLEMENT_LOOP", reason: result?.reason || "" };
     })()`), "STATE_FS_011_CHAPTER_LOOP_RETURN");
-  } else if (scenario !== "entity-actions" && scenario !== "route-unlock-plan" && scenario !== "interaction-contract") {
+  } else if (scenario !== "entity-actions" && scenario !== "route-unlock-plan" && scenario !== "interaction-contract" && scenario !== "combat-result-route") {
     await clickAndCapture(cdp, "gate_room", () => clickSelector(cdp, '[data-wuxia-room-id="fb01_01"]'), "STATE_FS_008_MAP_EXPLORE");
     await clickAndCapture(cdp, "old_steward_selected", () => clickSelector(cdp, '[data-wuxia-npc-id="fb01r01_1"]'), "STATE_FS_008_MAP_EXPLORE");
     await clickAndCapture(cdp, "old_steward_talk", () => clickSelector(cdp, '[data-wuxia-npc-id="fb01r01_1"][data-wuxia-npc-action="talk"]'), "STATE_FS_008_MAP_EXPLORE");
@@ -526,6 +529,47 @@ try {
         `crawl_expected_visible_npc_${crawlExpectedVisibleNpcId}`.replace(/[^a-zA-Z0-9_]+/g, "_"),
       );
     }
+  }
+
+  if (scenario === "combat-result-route") {
+    if (!crawlRoomId || !crawlEntityId || !combatResultActionType || !expectedCombatResultId || !expectedCombatEncounterId) {
+      throw new Error("combat-result-route requires --room-id, --entity-id, --combat-action-type, --expected-combat-result-id, and --expected-combat-encounter-id.");
+    }
+    await clickAndCapture(
+      cdp,
+      `combat_result_room_${crawlRoomId}`.replace(/[^a-zA-Z0-9_]+/g, "_"),
+      () => evalValue(cdp, `window.__idleWuxiaAutomation?.selectRoom?.(${JSON.stringify(crawlRoomId)})`),
+      "STATE_FS_008_MAP_EXPLORE",
+      crawlRoomId,
+    );
+    await clickAndCapture(
+      cdp,
+      `combat_result_npc_${crawlEntityId}`.replace(/[^a-zA-Z0-9_]+/g, "_"),
+      () => evalValue(cdp, `window.__idleWuxiaAutomation?.selectNpc?.(${JSON.stringify(crawlEntityId)})`),
+      "STATE_FS_008_MAP_EXPLORE",
+      crawlRoomId,
+    );
+    await clickAndCapture(
+      cdp,
+      `combat_result_start_${expectedCombatResultId}`.replace(/[^a-zA-Z0-9_]+/g, "_"),
+      () => evalValue(cdp, `window.__idleWuxiaAutomation?.interactNpc?.(${JSON.stringify(crawlEntityId)}, ${JSON.stringify(combatResultActionType)})`),
+      "STATE_FS_009_EARLY_COMBAT",
+    );
+    await captureInteractionContract(cdp, `combat_result_contract_${expectedCombatResultId}`.replace(/[^a-zA-Z0-9_]+/g, "_"), `(() => {
+      const snapshot = window.__idleWuxiaAutomation?.snapshot?.() || {};
+      const pending = snapshot.pendingCombat || {};
+      return {
+        passed: pending.triggerResultId === ${JSON.stringify(expectedCombatResultId)}
+          && pending.encounterId === ${JSON.stringify(expectedCombatEncounterId)}
+          && pending.runtimeMode === 'manual_player_turns'
+          && pending.combatSnapshot?.status === 'active',
+        triggerResultId: pending.triggerResultId || '',
+        encounterId: pending.encounterId || '',
+        runtimeMode: pending.runtimeMode || '',
+        combatStatus: pending.combatSnapshot?.status || '',
+      };
+    })()`, "combat result route did not bind the expected live CombatSession");
+    await playConfiguredCombatAndCapture(cdp, `combat_result_resolved_${expectedCombatResultId}`.replace(/[^a-zA-Z0-9_]+/g, "_"), "STATE_FS_008_MAP_EXPLORE");
   }
 
   if (scenario === "route-unlock-plan") {

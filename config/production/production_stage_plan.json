@@ -108,6 +108,7 @@
         "VISUAL-STANDARD-001",
         "COMBAT-002A",
         "COMBAT-004",
+        "COMBAT-005",
         "COMBAT-002B",
         "QA-UI-001",
         "COMBAT-002",
@@ -911,6 +912,38 @@
         "npm run runtime:combat-reference-overlay:test",
         "docs/codex_game_development_os/COMBAT_004_PRESENTATION_BINDING_READINESS_20260808.md",
         "npm run runtime:combat-presentation:test"
+      ]
+    },
+    {
+      "id": "COMBAT-005",
+      "title": "章节 Combat Result 到真实 CombatSession 的配置化闭环",
+      "priority": "P0",
+      "gate": "G5",
+      "status": "done",
+      "owner": "combat-system-designer",
+      "dependsOn": ["COMBAT-002A", "COMBAT-003"],
+      "acceptance": [
+        "The compare, inattack201 and inattack202 chapter combat results enter a configured real CombatSession instead of returning feedback-only acceptance.",
+        "Result ID, allowed source/action, encounter, terminal outcome and follow-up result dispatch are schema-valid and fail closed on ambiguity or missing configuration.",
+        "Victory, defeat, runaway, source allowlist, missing policy, missing result and save/restore paths have focused assertions with atomic outcome semantics.",
+        "All three configured routes pass real-browser manual functional review at 360x800, 390x844 and 540x960 without raw runtime text tokens, clipping or unreachable combat controls."
+      ],
+      "evidence": [
+        "config/wuxia_chapter_combat_result_policies.schema.json",
+        "config/wuxia_first_session_flow.json",
+        "config/wuxia_combat_content.json",
+        "src/entityInteractionService.js",
+        "src/chapterSession.js",
+        "src/runtimeTextInterpolation.js",
+        "tools/test-wuxia-combat-result-routing.mjs",
+        "tools/wuxia-combat-result-audit-policy.mjs",
+        "tools/test-wuxia-combat-result-audit-policy.mjs",
+        "tools/audit-wuxia-fb01-result-token-runtime-coverage.mjs",
+        "outputs/combat/combat_result_routing_report.json",
+        "outputs/combat_simulation/combat_simulation_report.json",
+        "docs/codex_game_development_os/COMBAT_005_RESULT_ROUTING_COMPLETION_20260809.md",
+        "docs/codex_game_development_os/COMBAT_005_MANUAL_VISUAL_ACCEPTANCE_20260809.md",
+        "npm run runtime:combat-result-routing:test"
       ]
     },
     {

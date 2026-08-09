@@ -6,6 +6,7 @@ import { createResultEffectExecutor } from "./resultEffectExecutor.js";
 import { createResultPreparation } from "./resultPreparation.js";
 import { isValidPendingChoice } from "./resultExecutionModules.js";
 import { createCombatSession, replayCombatSession } from "./combatSession.js";
+import { interpolateRuntimeText, interpolateRuntimeTextLines } from "./runtimeTextInterpolation.js";
 
 function resolveActiveChapter(contract, options = {}) {
   return (
@@ -59,6 +60,7 @@ export function createChapterSession(sourceContract, options = {}) {
   });
   const resultEffectPolicies = contract?.chapterSystem?.resultEffectPolicies || {};
   const combatActionPolicies = contract?.chapterSystem?.combatActionPolicies || {};
+  const combatResultPolicies = contract?.chapterSystem?.combatResultPolicies || {};
   const seasonalActivityPolicy = resultEffectPolicies.seasonalActivity || {};
   const inventoryMutationPolicy = resultEffectPolicies.inventoryMutation || {};
   const choiceResultPolicy = resultEffectPolicies.choiceResult || {};
@@ -79,6 +81,7 @@ export function createChapterSession(sourceContract, options = {}) {
     conditionLookup,
     entityInteractionPolicy: contract?.chapterSystem?.entityInteractionPolicy || {},
     combatActionPolicies,
+    combatResultPolicies,
     branchEnabled: (branch) => resultPreparation.isBranchEnabled(branch),
     evaluateBranch: (branch, context) => conditionEvaluator.evaluateBranch(branch, {
       ...context,
@@ -129,6 +132,9 @@ export function createChapterSession(sourceContract, options = {}) {
   if (player.officialType === undefined) player.officialType = 0;
   if (player.officialAchievement === undefined) player.officialAchievement = 0;
   if (player.yueli === undefined) player.yueli = 0;
+  const textInterpolationPolicy = resultEffectPolicies.runtimeMutation?.textInterpolation || {};
+  const runtimeText = (value) => interpolateRuntimeText(value, { policy: textInterpolationPolicy, player });
+  const runtimeTextLines = (lines) => interpolateRuntimeTextLines(lines, { policy: textInterpolationPolicy, player });
   const taskState = {
     activeTaskId: "",
     completedClicks: 0,
@@ -500,9 +506,9 @@ export function createChapterSession(sourceContract, options = {}) {
     const room = decision.room;
     const blocker = decision.blocker;
     if (blocker) {
-      const feedbackLines = blocker.branch?.narrativeLines?.length
+      const feedbackLines = runtimeTextLines(blocker.branch?.narrativeLines?.length
         ? blocker.branch.narrativeLines
-        : [`${blocker.npc.name || blocker.npc.displayName?.zhCN || "有人"}拦住了你。`];
+        : [`${runtimeText(blocker.npc.name || blocker.npc.displayName?.zhCN || "有人")}拦住了你。`]);
       const transaction = commitResultEffects(blocker.npc.roleId, blocker.branch);
       if (!transaction.accepted) {
         const event = {
@@ -510,7 +516,7 @@ export function createChapterSession(sourceContract, options = {}) {
           roomId: selectedChapterRoomId,
           targetRoomId: roomId,
           sourceRoleId: blocker.npc.roleId,
-          sourceName: blocker.npc.name || blocker.npc.displayName?.zhCN || "",
+          sourceName: runtimeText(blocker.npc.name || blocker.npc.displayName?.zhCN || ""),
           reason: transaction.reason,
           resultId: transaction.resultId || "",
           category: transaction.category || "",
@@ -531,7 +537,7 @@ export function createChapterSession(sourceContract, options = {}) {
         roomId: selectedChapterRoomId,
         targetRoomId: roomId,
         sourceRoleId: blocker.npc.roleId,
-        sourceName: blocker.npc.name || blocker.npc.displayName?.zhCN || "",
+        sourceName: runtimeText(blocker.npc.name || blocker.npc.displayName?.zhCN || ""),
         feedback: feedbackLines.join("\n"),
         feedbackLines: clone(feedbackLines),
         conditionTokens: clone(blocker.branch?.conditionTokens || []),
@@ -608,9 +614,9 @@ export function createChapterSession(sourceContract, options = {}) {
     const event = {
       type: "npcSelected",
       roleId,
-      name: npc.name || npc.displayName?.zhCN || "",
+      name: runtimeText(npc.name || npc.displayName?.zhCN || ""),
       actions: clone(npc.actions || []),
-      defaultNarrativeLines: clone(npc.defaultNarrativeLines || []),
+      defaultNarrativeLines: clone(runtimeTextLines(npc.defaultNarrativeLines || [])),
       evidence: clone(npc.evidence || {}),
     };
     events.push(event);
@@ -694,6 +700,8 @@ export function createChapterSession(sourceContract, options = {}) {
       successConditionToken: policy.successConditionToken || "",
       failureConditionToken: policy.failureConditionToken || "",
       runawayConditionToken: policy.runawayConditionToken || "",
+      outcomeResultTokens: cloneData(policy.outcomeResultTokens || {}),
+      triggerResultId: policy.resultId || "",
       startedFromState: currentState,
       encounterId: policy.encounterId || combatSnapshot?.encounterId || "",
       previewId: policy.previewId || `combat_${sourceId}`,
@@ -852,12 +860,40 @@ export function createChapterSession(sourceContract, options = {}) {
       : outcome === "runaway"
         ? pendingCombat.runawayConditionToken
         : pendingCombat.failureConditionToken;
-    const branch = outcomeToken && source
+    const matchedBranch = outcomeToken && source
       ? (source.branches || []).find((candidate) => (
         (candidate.conditionTokens || []).includes(outcomeToken)
         && branchConditionsMet(candidate, { satisfiedCombatToken: outcomeToken }).accepted
       ))
       : null;
+    const configuredResultTokens = cloneData(pendingCombat.outcomeResultTokens?.[outcome] || []);
+    const resolvedOutcomeRecords = configuredResultTokens.map((resultId) => resultPreparation.resolveRecord(resultId));
+    if (!matchedBranch && resolvedOutcomeRecords.some((record) => !record)) {
+      const missingResultToken = configuredResultTokens.find((_resultId, index) => !resolvedOutcomeRecords[index]) || "";
+      const resolution = {
+        accepted: false,
+        outcome,
+        outcomeToken,
+        sourceId: pendingCombat.sourceId,
+        feedbackLines: [],
+        resultTokens: configuredResultTokens,
+        sideEffects: [],
+        reason: `unknown configured combat outcome result ${missingResultToken}`,
+      };
+      events.push({ type: "combatResolutionRejected", ...clone(resolution) });
+      return resolution;
+    }
+    const configuredOutcomeBranch = !matchedBranch && configuredResultTokens.length
+      ? {
+          conditionTokens: [],
+          resultTokens: configuredResultTokens,
+          resolvedResults: resolvedOutcomeRecords,
+          narrativeLines: [],
+          evidenceLevel: pendingCombat.evidence?.level || "unknown",
+          matchPolicy: "configured_combat_outcome_result",
+        }
+      : null;
+    const branch = matchedBranch || configuredOutcomeBranch;
     const validation = branch ? validateResultEffects(branch) : { accepted: true, reason: "ok" };
     if (branch && !validation.accepted) {
       const resolution = {
@@ -894,14 +930,17 @@ export function createChapterSession(sourceContract, options = {}) {
       return resolution;
     }
     const sideEffects = transaction.sideEffects;
+    const committedFeedbackLines = feedbackLinesFromSideEffects(sideEffects);
     const resolution = {
       accepted: true,
       outcome,
       combatOutcome: pendingCombat.combatOutcome || "",
       outcomeToken,
       sourceId: pendingCombat.sourceId,
-      matchedOutcomeBranch: Boolean(branch),
-      feedbackLines: clone(branch?.narrativeLines || []),
+      matchedOutcomeBranch: Boolean(matchedBranch),
+      configuredOutcomeResult: Boolean(configuredOutcomeBranch),
+      triggerResultId: pendingCombat.triggerResultId || "",
+      feedbackLines: clone(committedFeedbackLines.length ? committedFeedbackLines : (branch?.narrativeLines || [])),
       resultTokens: clone(branch?.resultTokens || []),
       sideEffects: clone(sideEffects),
       reason: "",
@@ -1077,14 +1116,17 @@ export function createChapterSession(sourceContract, options = {}) {
       selectedChapterNpcId = roleId;
       selectedChapterInteractableId = "";
       const fallback = globalNpcActionFeedback(npc, action);
+      const feedbackLines = runtimeTextLines((decision.feedbackLines || []).length
+        ? decision.feedbackLines
+        : fallback.lines);
       const event = {
         type: "npcInteraction",
         roleId,
         actionType,
         actionLabel: action.label || "",
-        name: npc.name || npc.displayName?.zhCN || "",
-        feedback: fallback.lines.join("\n"),
-        feedbackLines: clone(fallback.lines),
+        name: runtimeText(npc.name || npc.displayName?.zhCN || ""),
+        feedback: feedbackLines.join("\n"),
+        feedbackLines: clone(feedbackLines),
         conditionTokens: [],
         resultTokens: [],
         sideEffects: [{ status: "pending_combat", actionType }],
@@ -1148,15 +1190,15 @@ export function createChapterSession(sourceContract, options = {}) {
       ...(effect.feedbackLines || []),
       ...((effect.followupSideEffects || []).flatMap((followup) => followup.feedbackLines || [])),
     ]).filter(Boolean);
-    const feedbackLines = branch?.narrativeLines?.length
+    const feedbackLines = runtimeTextLines(branch?.narrativeLines?.length
       ? branch.narrativeLines
-      : (sideEffectFeedbackLines.length ? sideEffectFeedbackLines : fallback.lines);
+      : (sideEffectFeedbackLines.length ? sideEffectFeedbackLines : fallback.lines));
     const event = {
       type: "npcInteraction",
       roleId,
       actionType,
       actionLabel: action.label || "",
-      name: npc.name || npc.displayName?.zhCN || "",
+      name: runtimeText(npc.name || npc.displayName?.zhCN || ""),
       feedback: feedbackLines.join("\n"),
       feedbackLines: clone(feedbackLines),
       conditionTokens: clone(branch?.conditionTokens || []),
@@ -1253,9 +1295,9 @@ export function createChapterSession(sourceContract, options = {}) {
       ...(effect.feedbackLines || []),
       ...((effect.followupSideEffects || []).flatMap((followup) => followup.feedbackLines || [])),
     ]).filter(Boolean);
-    const feedbackLines = branch?.narrativeLines?.length
+    const feedbackLines = runtimeTextLines(branch?.narrativeLines?.length
       ? branch.narrativeLines
-      : (sideEffectFeedbackLines.length ? sideEffectFeedbackLines : [fallbackLine]);
+      : (sideEffectFeedbackLines.length ? sideEffectFeedbackLines : [fallbackLine]));
     const event = {
       type: "interactableInteraction",
       interactableId,

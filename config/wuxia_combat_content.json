@@ -2,7 +2,7 @@
   "$schema": "idlewuxia.combat_content.v1",
   "schemaVersion": "idlewuxia.combat_content.v1",
   "version": 1,
-  "contentVersion": "combat-core-1",
+  "contentVersion": "combat-core-2-fb01-result-routing",
   "rules": {
     "maxRounds": 40,
     "maxEvents": 512,
@@ -127,9 +127,11 @@
     }
   },
   "factions": [
-    { "factionId": "player", "displayName": "少侠", "hostileTo": ["martial_hall", "bandit"] },
+    { "factionId": "player", "displayName": "少侠", "hostileTo": ["martial_hall", "bandit", "fugitive", "inner_demon"] },
     { "factionId": "martial_hall", "displayName": "武馆", "hostileTo": ["player"] },
-    { "factionId": "bandit", "displayName": "江湖匪徒", "hostileTo": ["player"] }
+    { "factionId": "bandit", "displayName": "江湖匪徒", "hostileTo": ["player"] },
+    { "factionId": "fugitive", "displayName": "通缉目标", "hostileTo": ["player"] },
+    { "factionId": "inner_demon", "displayName": "心魔幻境", "hostileTo": ["player"] }
   ],
   "units": [
     {
@@ -164,6 +166,62 @@
       "skillIds": ["skill_basic_strike", "skill_double_slash", "skill_bleeding_cut", "skill_smoke_step", "skill_trap_root", "skill_blood_fury", "skill_sweeping_blade", "skill_random_needle", "skill_true_point", "skill_taunt"],
       "aiPolicyId": "ai_aggressive",
       "visual": { "pose": "guard", "symbol": "刀", "cueFamily": "wuxia_side_profile", "palette": { "coat": "#303344", "accent": "#8f9dbd", "skin": "#c9825c" } }
+    },
+    {
+      "unitId": "unit_yin_quanan",
+      "displayName": "尹全安",
+      "roleLabel": "通缉目标",
+      "factionId": "fugitive",
+      "level": 3,
+      "attributes": { "vitality": 20, "spirit": 9, "strength": 17, "constitution": 12, "speed": 11, "skillPower": 5, "armor": 4, "luck": 4, "critRating": 0.03, "evasionRating": 0.04, "accuracy": 0.91, "tenacity": 0.12, "physicalResistance": 0.05, "internalResistance": 0.03, "fireResistance": 0, "iceResistance": 0, "poisonResistance": 0.05, "blockChance": 0.05, "blockPower": 0.28, "lifesteal": 0 },
+      "skillIds": ["skill_basic_strike", "skill_guard", "skill_double_slash", "skill_smoke_step", "skill_trap_root"],
+      "aiPolicyId": "ai_aggressive",
+      "visual": { "pose": "guard", "symbol": "缉", "cueFamily": "wuxia_side_profile", "palette": { "coat": "#4a3730", "accent": "#b98a4b", "skin": "#c9825c" } },
+      "sourceProfile": {
+        "sourceRoleId": "fb01r16_3",
+        "sourceBaseId": "npc01_33",
+        "sourceLevel": 173,
+        "sourceQi": 2500,
+        "sourceNeili": 5000,
+        "mappingPolicy": "project_combat_scale_v1_normalized_for_first_chapter",
+        "claimBoundary": "Source identity and capability family are confirmed; active numeric attributes are project-normalized and do not claim Lua balance parity."
+      }
+    },
+    {
+      "unitId": "unit_inner_demon",
+      "displayName": "心魔",
+      "roleLabel": "心魔幻形",
+      "factionId": "inner_demon",
+      "level": 3,
+      "attributes": { "vitality": 18, "spirit": 13, "strength": 15, "constitution": 11, "speed": 13, "skillPower": 8, "armor": 3, "luck": 5, "critRating": 0.04, "evasionRating": 0.06, "accuracy": 0.92, "tenacity": 0.18, "physicalResistance": 0.02, "internalResistance": 0.1, "fireResistance": 0.04, "iceResistance": 0.04, "poisonResistance": 0.1, "blockChance": 0.03, "blockPower": 0.24, "lifesteal": 0.04 },
+      "skillIds": ["skill_basic_strike", "skill_silencing_needle", "skill_reflecting_mirror", "skill_random_needle", "skill_true_point"],
+      "aiPolicyId": "ai_inner_demon",
+      "visual": { "pose": "guard", "symbol": "魔", "cueFamily": "wuxia_side_profile", "palette": { "coat": "#352544", "accent": "#9b6db3", "skin": "#b66f61" } },
+      "sourceProfile": {
+        "sourceRoleId": "fb01r41_1",
+        "sourceBaseId": "npc01_201",
+        "sourceStatStatus": "runtime_dynamic_unknown",
+        "mappingPolicy": "project_combat_scale_v1_inner_demon_archetype",
+        "claimBoundary": "Reference export has no fixed level, qi, neili or skill list; project attributes are explicit first-chapter content, not inferred source facts."
+      }
+    },
+    {
+      "unitId": "unit_nightmare",
+      "displayName": "梦魇",
+      "roleLabel": "仇敌幻形",
+      "factionId": "inner_demon",
+      "level": 4,
+      "attributes": { "vitality": 19, "spirit": 11, "strength": 16, "constitution": 11, "speed": 12, "skillPower": 7, "armor": 3, "luck": 5, "critRating": 0.05, "evasionRating": 0.05, "accuracy": 0.91, "tenacity": 0.16, "physicalResistance": 0.05, "internalResistance": 0.08, "fireResistance": 0.02, "iceResistance": 0.02, "poisonResistance": 0.08, "blockChance": 0.04, "blockPower": 0.26, "lifesteal": 0.03 },
+      "skillIds": ["skill_basic_strike", "skill_bleeding_cut", "skill_trap_root", "skill_blood_fury", "skill_true_point"],
+      "aiPolicyId": "ai_aggressive",
+      "visual": { "pose": "guard", "symbol": "魇", "cueFamily": "wuxia_side_profile", "palette": { "coat": "#2b2538", "accent": "#a2474e", "skin": "#b66f61" } },
+      "sourceProfile": {
+        "sourceRoleId": "fb01r42_1",
+        "sourceBaseId": "npc01_203",
+        "sourceStatStatus": "runtime_dynamic_unknown",
+        "mappingPolicy": "project_combat_scale_v1_nightmare_archetype",
+        "claimBoundary": "Reference export has no fixed level, qi, neili or skill list; project attributes are explicit first-chapter content, not inferred source facts."
+      }
     }
   ],
   "skills": [
@@ -215,6 +273,7 @@
   "aiPolicies": [
     { "aiPolicyId": "ai_balanced", "mode": "weighted_skill", "fallbackSkillId": "skill_steward_test_strike", "weights": { "skill_steward_test_strike": 5, "skill_guard": 2, "skill_iron_wall": 1, "skill_venom_thrust": 2, "skill_silencing_needle": 2, "skill_taunt": 1 } },
     { "aiPolicyId": "ai_aggressive", "mode": "weighted_skill", "fallbackSkillId": "skill_basic_strike", "weights": { "skill_double_slash": 5, "skill_bleeding_cut": 3, "skill_basic_strike": 2, "skill_sweeping_blade": 2, "skill_true_point": 1 } },
+    { "aiPolicyId": "ai_inner_demon", "mode": "weighted_skill", "fallbackSkillId": "skill_basic_strike", "weights": { "skill_basic_strike": 3, "skill_silencing_needle": 2, "skill_reflecting_mirror": 1, "skill_random_needle": 2, "skill_true_point": 1 } },
     { "aiPolicyId": "ai_player_safe", "mode": "player_queue_then_basic", "fallbackSkillId": "skill_basic_strike", "weights": { "skill_basic_strike": 1 } }
   ],
   "encounters": [
@@ -238,6 +297,39 @@
       "enemyUnitIds": ["unit_bandit_blade", "unit_old_steward"],
       "rules": { "victoryOnAllEnemiesDefeated": true, "allowRunaway": true, "runawayChance": 0.1 },
       "rewardIds": ["reward_bandit_combat"],
+      "presentationCueFamily": "wuxia_duel"
+    },
+    {
+      "encounterId": "encounter_fb01_capture_yin_quanan",
+      "name": "缉拿尹全安",
+      "sceneId": "scene_fb01_courtyard_rain",
+      "seed": 190721,
+      "playerUnitIds": ["unit_unnamed_girl"],
+      "enemyUnitIds": ["unit_yin_quanan"],
+      "rules": { "victoryOnAllEnemiesDefeated": true, "allowRunaway": true, "runawayChance": 0.1 },
+      "rewardIds": [],
+      "presentationCueFamily": "wuxia_duel"
+    },
+    {
+      "encounterId": "encounter_fb01_inner_demon",
+      "name": "心魔试炼",
+      "sceneId": "scene_fb01_wuguan_courtyard",
+      "seed": 190722,
+      "playerUnitIds": ["unit_unnamed_girl"],
+      "enemyUnitIds": ["unit_inner_demon"],
+      "rules": { "victoryOnAllEnemiesDefeated": true, "allowRunaway": true, "runawayChance": 0.08 },
+      "rewardIds": [],
+      "presentationCueFamily": "wuxia_duel"
+    },
+    {
+      "encounterId": "encounter_fb01_nightmare",
+      "name": "梦魇复仇",
+      "sceneId": "scene_fb01_courtyard_rain",
+      "seed": 190723,
+      "playerUnitIds": ["unit_unnamed_girl"],
+      "enemyUnitIds": ["unit_nightmare"],
+      "rules": { "victoryOnAllEnemiesDefeated": true, "allowRunaway": true, "runawayChance": 0.06 },
+      "rewardIds": [],
       "presentationCueFamily": "wuxia_duel"
     }
   ],

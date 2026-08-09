@@ -797,3 +797,16 @@ reported separately with `excludedFromVerdict=true`; its historical combat
 lifecycle mismatch remains a T03-01/Combat scope item and is not used to pass
 or fail T02-02. `COMBAT-002`, Rest/Repair, full 358-action state assertions,
 T05-01/T05-02, device and commercial release gates remain open.
+
+## 2026-08-09 COMBAT-005 current authority update
+
+The current combat authority has advanced beyond the historical postponed-combat statements above. `compare`, `inattack201`, and `inattack202` now enter configured real `CombatSession` instances and dispatch configured follow-up results only after a terminal outcome. The authoritative completion and manual acceptance records are:
+
+- `docs/codex_game_development_os/COMBAT_005_RESULT_ROUTING_COMPLETION_20260809.md`;
+- `docs/codex_game_development_os/COMBAT_005_MANUAL_VISUAL_ACCEPTANCE_20260809.md`;
+- `outputs/combat/combat_result_routing_report.json`;
+- `outputs/combat_simulation/combat_simulation_report.json`.
+
+Focused configuration/runtime tests, 1,200 shared-formula simulations, and three Result routes at 360×800, 390×844, and 540×960 pass. Raw `$IN/$S/$N` narrative tokens are no longer visible. The known unrelated first-session simulation mismatch remains explicitly separate.
+
+This update closes only the three unauthorized chapter combat-result routes. `COMBAT-002B`, production actor/scene/VFX/audio assets, full `T05-01`, Android device, signing, store, monitoring and rollback gates remain blocked. `REST-REPAIR-001` remains postponed.

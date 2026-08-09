@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "idlewuxia.chapter_combat_result_policies.v1",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+    },
+    "resultTokenList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "policy": {
+      "type": "object",
+      "required": [
+        "resultId",
+        "allowedSourceIds",
+        "allowedActionTypes",
+        "startActionId",
+        "resolveActionId",
+        "encounterId",
+        "previewId",
+        "runtimeMode",
+        "autoResolveOnFinish",
+        "maxSteps",
+        "outcomeResultTokens",
+        "startFeedbackLines",
+        "resolutionPolicy",
+        "evidence"
+      ],
+      "properties": {
+        "resultId": { "$ref": "#/$defs/id" },
+        "allowedSourceIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "allowedActionTypes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "startActionId": { "$ref": "#/$defs/id" },
+        "resolveActionId": { "$ref": "#/$defs/id" },
+        "encounterId": { "$ref": "#/$defs/id" },
+        "previewId": { "$ref": "#/$defs/id" },
+        "sceneTheme": { "$ref": "#/$defs/id" },
+        "runtimeMode": { "const": "manual_player_turns" },
+        "autoResolveOnFinish": { "const": true },
+        "maxSteps": { "type": "integer", "minimum": 1, "maximum": 2048 },
+        "successConditionToken": { "$ref": "#/$defs/id" },
+        "failureConditionToken": { "$ref": "#/$defs/id" },
+        "runawayConditionToken": { "$ref": "#/$defs/id" },
+        "outcomeResultTokens": {
+          "type": "object",
+          "required": ["success", "failure", "runaway"],
+          "properties": {
+            "success": { "$ref": "#/$defs/resultTokenList" },
+            "failure": { "$ref": "#/$defs/resultTokenList" },
+            "runaway": { "$ref": "#/$defs/resultTokenList" }
+          },
+          "additionalProperties": false
+        },
+        "startFeedbackLines": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "resolutionPolicy": { "const": "terminal_combat_result_then_configured_outcome_dispatch" },
+        "evidence": {
+          "type": "object",
+          "required": ["level", "source", "record", "claim"],
+          "properties": {
+            "level": { "type": "string", "minLength": 1 },
+            "source": { "type": "string", "minLength": 1 },
+            "record": { "type": "string", "minLength": 1 },
+            "claim": { "type": "string", "minLength": 1 }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "minProperties": 1,
+  "additionalProperties": { "$ref": "#/$defs/policy" }
+}
