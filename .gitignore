@@ -33,6 +33,7 @@ public/generated-ui/
 *.ogg
 
 # Local/generated evidence and caches.
+.codex-os/temp/
 .DS_Store
 Thumbs.db
 *.log

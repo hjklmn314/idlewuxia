@@ -41,8 +41,8 @@
 | ASSET-008 | P0 | G5 | open | asset-content-pipeline | 敌人和干净战斗场景资产 |
 | ASSET-009 | P0 | G5 | open | asset-content-pipeline | 战斗 VFX/Buff 表现资产 |
 | ASSET-010 | P0 | G5 | open | asset-content-pipeline | 战斗 SFX/BGM 资产 |
-| AUDIT-003 | P0 | G5 | ready | project-and-engine-auditor | 全代码配置资源与近五日发布前重审计 |
-| HYGIENE-001 | P1 | G4 | open | project-and-engine-auditor | 活动武侠、旧射击与参考证据分层 |
+| AUDIT-003 | P0 | G5 | blocked | project-and-engine-auditor | 全代码配置资源与近五日发布前重审计；生产视觉/Android 严格门仍阻断 |
+| HYGIENE-001 | P1 | G4 | done | project-and-engine-auditor | 407 tracked files 四类互斥分层，29-file shipping 前后 hash 不变 |
 | CONTENT-001 | P1 | G6 | open | modular-feature-framework | 第二章节 Feature Package |
 | EDITOR-ROI-001 | P2 | G6 | open | editor-framework-architect | 内容编辑器 ROI 决策 |
 | SEC-001 | P0 | G7 | open | security-compliance | 信任边界、隐私和权限 |
@@ -52,11 +52,11 @@
 
 ## 当前可开工
 
-1. `AUDIT-003`：机器计划仍为 ready；其严格 Android/生产视觉门不得用浏览器功能 PASS 代替。
-2. `HYGIENE-001`：待 AUDIT-003 依赖裁决后，完成活动武侠、旧射击和只读参考的可回滚分层。
+1. `SEC-001`：审计 Android 权限、WebView/CSP、secret、依赖、隐私和未激活支付/广告边界。
+2. `AUDIT-003`：依赖矛盾已裁决，但其严格 Android/生产视觉门不得用浏览器功能 PASS 代替，继续 blocked。
 3. 资产输入不阻断程序/配置工作，但 `ASSET-007`～`010`、`COMBAT-002B` 与 `T05-01` 在批准资产到位前保持 blocked/open。
 
-G4 的 ARCH/T03/COMBAT-003/SAVE/OBS 已完成，当前只剩 `HYGIENE-001`；G5/G7 的生产视觉和发行门继续独立阻断。
+G4 的 ARCH/T03/COMBAT-003/SAVE/OBS/HYGIENE 已全部完成，当前 Gate 为 pass；G5/G7 的生产视觉和发行门继续独立阻断。
 
 2026-08-09 权威更新：`SAVE-001` 与 `OBS-001` 均已完成浏览器 Runtime 范围。OBS 现提供 7 类版本化事件、36 条状态投影、稳定错误码、Combat replay ID、build/config/save tags、性能样本和可定位首个分歧的诊断回放；远端上传仍禁用。详见 `OBS_001_COMPLETION_AND_DIAGNOSTIC_RUNBOOK_20260809.md`。
 

@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "idlewuxia.workspace_hygiene_manifest.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "projectId", "authorityRoot", "migrationMode", "activeAuthority", "dormantLegacy", "referenceOnly", "sharedGovernance", "safety"],
+  "properties": {
+    "$schema": { "const": "idlewuxia.workspace_hygiene_manifest.v1" },
+    "projectId": { "const": "idlewuxia" },
+    "authorityRoot": { "type": "string", "minLength": 1 },
+    "migrationMode": { "const": "manifest_only_no_file_moves" },
+    "activeAuthority": { "$ref": "#/$defs/active" },
+    "dormantLegacy": { "$ref": "#/$defs/fileClass" },
+    "referenceOnly": { "$ref": "#/$defs/fileClass" },
+    "sharedGovernance": { "$ref": "#/$defs/governance" },
+    "safety": { "$ref": "#/$defs/safety" }
+  },
+  "$defs": {
+    "active": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "entry", "description"],
+      "properties": {
+        "source": { "const": "config/project_scope.json#shippingFiles" },
+        "entry": { "const": "src/wuxia-main.js" },
+        "description": { "type": "string", "minLength": 1 }
+      }
+    },
+    "fileClass": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy", "description", "exactFiles"],
+      "properties": {
+        "policy": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "exactFiles": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[^\\\\]+(?:/[^\\\\]+)*$" }
+        }
+      }
+    },
+    "governance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy", "description"],
+      "properties": {
+        "policy": { "const": "tracked_remainder_after_exact_exclusions" },
+        "description": { "type": "string", "minLength": 1 }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["forbidPhysicalMoves", "forbidPermanentDeletion", "requireHashManifestForFutureMove", "requiredTemporaryRoot", "rollback"],
+      "properties": {
+        "forbidPhysicalMoves": { "const": true },
+        "forbidPermanentDeletion": { "const": true },
+        "requireHashManifestForFutureMove": { "const": true },
+        "requiredTemporaryRoot": { "const": ".codex-os/temp/" },
+        "rollback": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

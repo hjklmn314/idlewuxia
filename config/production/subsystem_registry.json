@@ -8,11 +8,18 @@
       "owner": "project-and-engine-auditor",
       "stateAuthority": "config/project_scope.json",
       "runtimeModules": [
-        "tools/lib/project-baseline.mjs"
+        "tools/lib/project-baseline.mjs",
+        "tools/lib/workspace-hygiene.mjs",
+        "tools/audit-workspace-hygiene.mjs"
       ],
-      "status": "implemented",
+      "configuration": [
+        "config/project_scope.json",
+        "config/production/workspace_hygiene_manifest.json",
+        "config/production/schemas/workspace_hygiene_manifest.schema.json"
+      ],
+      "status": "implemented-with-tracked-file-authority-classification",
       "nextTaskIds": [
-        "PROD-OS-001"
+        "SEC-001"
       ]
     },
     {

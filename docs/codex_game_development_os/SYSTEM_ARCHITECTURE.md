@@ -142,3 +142,18 @@ UI registry + first-session flow + modal probe
 The sweep is a QA adapter only. It cannot unlock NPCs, mutate save state, or
 replace runtime conditions. A missing route is therefore a product blocker,
 not a test shortcut.
+
+## 2026-08-09 Workspace authority boundary
+
+```text
+Git tracked files
+  -> project_scope.shippingFiles -> active Wuxia authority (29)
+  -> hygiene exact legacy list   -> dormant shooter material (50)
+  -> hygiene exact reference list-> reference-only evidence (15)
+  -> remaining tracked files     -> shared governance/tooling (313)
+```
+
+`tools/audit-workspace-hygiene.mjs` validates the manifest with JSON Schema,
+hashes every tracked file, walks the active static ESM graph, rejects any
+active-to-legacy edge and compares shipping closure snapshots. This boundary
+is manifest-only: no historical source or evidence was moved or deleted.

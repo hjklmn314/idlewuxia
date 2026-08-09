@@ -69,7 +69,7 @@
     {
       "id": "G4",
       "name": "可维护的模块化运行时",
-      "status": "blocked",
+      "status": "pass",
       "requiredTaskIds": [
         "ARCH-001",
         "T03-00",
@@ -1068,9 +1068,9 @@
       "title": "2026-08-04 全代码配置资源与近五日发布前重审计",
       "priority": "P0",
       "gate": "G5",
-      "status": "ready",
+      "status": "blocked",
       "owner": "project-and-engine-auditor",
-      "dependsOn": ["AUDIT-001", "COMBAT-002"],
+      "dependsOn": ["AUDIT-001"],
       "acceptance": [
         "Tracked code, config, resources, Markdown and all commits from the previous five days have a complete-reading ledger.",
         "Three independent gates pass: static contract, runtime regression, then strict manual browser and Android acceptance.",
@@ -1079,6 +1079,7 @@
       "evidence": [
         "docs/codex_game_development_os/FULL_RELEASE_AUDIT_20260804.md",
         "docs/codex_game_development_os/FULL_READING_LEDGER_20260804.md",
+        "docs/codex_game_development_os/LATEST_CHANGESET_STRICT_AUDIT_20260809.md",
         "outputs/wuxia_visual_matrix/20260804_post_truthful_node_fix/browser_surface_sweep_report.json",
         "outputs/skill_waterfall_stage_audit_20260706/summary.json"
       ]
@@ -1088,17 +1089,26 @@
       "title": "活动武侠权威、旧射击残留与只读参考分层",
       "priority": "P1",
       "gate": "G4",
-      "status": "open",
+      "status": "done",
       "owner": "project-and-engine-auditor",
       "dependsOn": [
-        "AUDIT-003"
+        "AUDIT-001",
+        "OBS-001"
       ],
       "acceptance": [
         "Active Wuxia source/config, dormant shooter material and reference-only evidence have explicit non-overlapping roots or manifests.",
-        "The 26-file shipping closure is byte-identical before and after the hygiene migration.",
+        "The 29-file shipping closure is byte-identical before and after the hygiene migration.",
         "Every move has a manifest, hash and rollback path and no historical evidence is silently deleted."
       ],
-      "evidence": []
+      "evidence": [
+        "config/production/workspace_hygiene_manifest.json",
+        "config/production/schemas/workspace_hygiene_manifest.schema.json",
+        "tools/audit-workspace-hygiene.mjs",
+        "tools/test-workspace-hygiene.mjs",
+        "docs/codex_game_development_os/HYGIENE_001_COMPLETION_AND_ROLLBACK_20260809.md",
+        "outputs/workspace_hygiene/hygiene_report.json",
+        "npm run workspace:hygiene:audit"
+      ]
     },
     {
       "id": "SEC-001",

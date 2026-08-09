@@ -33,6 +33,15 @@
       "notes": "Reads every Git-tracked file to EOF, hashes it, counts full text and parses every tracked JSON document."
     },
     {
+      "id": "workspace-hygiene-gate",
+      "command": "npm run workspace:hygiene:audit",
+      "artifact": "outputs/workspace_hygiene/hygiene_report.json",
+      "stage": "G4",
+      "status": "enabled",
+      "taskId": "HYGIENE-001",
+      "notes": "Classifies every tracked file, rejects active-to-legacy imports and protects the exact shipping closure with per-file SHA-256."
+    },
+    {
       "id": "runtime-fast-gate",
       "command": "npm run wuxia:check:fast",
       "artifact": "outputs/wuxia_p2_closure_gate",

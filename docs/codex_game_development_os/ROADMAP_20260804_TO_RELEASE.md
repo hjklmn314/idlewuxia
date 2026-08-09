@@ -7,7 +7,7 @@
 - G0、G3：pass。
 - G1：pass-with-open-acceptance。
 - G2：pass-with-known-unknowns。
-- G4：blocked（Save/Observability）。
+- G4：pass（ARCH/T03/COMBAT-003/SAVE/OBS/HYGIENE 均已完成）。
 - G5：blocked（T05-01、COMBAT-002、ASSET-002～010）。
 - G6：not-started。
 - G7：blocked。
@@ -41,7 +41,7 @@
 1. `COMBAT-003`：**已完成运行时能力闭环**。暂停/继续、命令日志、确定性 replay ID、存档恢复和同一 CombatSession 数值模拟已接入；此项不替代正式美术/音频发行验收。
 2. `SAVE-001`：**已完成浏览器侧运行时治理闭环**。SaveEnvelope v2、v1→v2 迁移、staging/backup/rollback 四键事务、校验和、损坏回退、未来版本 fail-closed 与跨版本 fixture 已接入；Android 真机断电/容量故障注入和商业回滚演练继续由 `REL-002/REL-003` 承担。
 3. `OBS-001`：**已完成浏览器 Runtime 范围**。7 类稳定事件、错误码、战斗 replay ID、build/config/save tags、去敏错误、render performance 字段、状态 delta 与首分歧诊断 replay 已接入；upload 关闭，远端 dashboard/alert 仍属于发行运维范围。
-4. `HYGIENE-001`：把旧 idledotshoot 代码/配置、只读参考和活动 Wuxia authority 分层；更新 scope，证明 shipping closure 不变并提供回滚清单。
+4. `HYGIENE-001`：**已完成**。407 个 tracked files 分为 29 active authority、50 dormant legacy、15 reference only、313 shared governance；活动模块到 legacy 可达数为 0，29-file shipping closure 前后 hash 变化为 0，未做高风险物理移动。
 
 完成标准：升级/降级/损坏/断电测试可复现，且 telemetry 不泄露敏感数据；活动入口不再需要维护者猜测。
 
