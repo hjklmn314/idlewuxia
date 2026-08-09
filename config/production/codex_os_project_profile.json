@@ -61,7 +61,7 @@
   },
   "workspacePolicy": {
     "runtimeRepository": "H:/MyProjectBack/idlewuxia",
-    "evidenceWorkspace": "G:/codex",
+    "evidenceWorkspace": "H:/MyProjectBack/idlewuxia/development_evidence",
     "canonicalTempRoot": ".codex-os/temp",
     "forbidPermanentDelete": true,
     "forbidReferenceAssetAutoCopy": true,

@@ -83,7 +83,7 @@
         "source": "fangzhijianghu/outputs/competitor_recording_first_session_package_20260625/first_session_runtime_package.json",
         "record": "FS_001_OPENING_STORY",
         "frameSecond": 0,
-        "framePath": "G:\\codex\\武侠掌门放置挂机\\outputs\\competitor_recording_flow_20260625\\wmp_frames_1fps\\frame_000s.png"
+        "framePath": "H:\\MyProjectBack\\idlewuxia\\development_evidence\\legacy_g_workspace\\competitor_recording_flow_20260625\\wmp_frames_1fps\\frame_000s.png"
       }
     },
     {
@@ -122,7 +122,7 @@
         "source": "fangzhijianghu/outputs/competitor_recording_first_session_package_20260625/first_session_runtime_package.json",
         "record": "FS_002_TITLE_START",
         "frameSecond": 60,
-        "framePath": "G:\\codex\\武侠掌门放置挂机\\outputs\\competitor_recording_flow_20260625\\wmp_frames_1fps\\frame_060s.png"
+        "framePath": "H:\\MyProjectBack\\idlewuxia\\development_evidence\\legacy_g_workspace\\competitor_recording_flow_20260625\\wmp_frames_1fps\\frame_060s.png"
       }
     },
     {
@@ -142,7 +142,7 @@
         "source": "fangzhijianghu/outputs/competitor_recording_first_session_package_20260625/first_session_runtime_package.json",
         "record": "FS_003_CHARACTER_STATUS",
         "frameSecond": 90,
-        "framePath": "G:\\codex\\武侠掌门放置挂机\\outputs\\competitor_recording_flow_20260625\\wmp_frames_1fps\\frame_090s.png"
+        "framePath": "H:\\MyProjectBack\\idlewuxia\\development_evidence\\legacy_g_workspace\\competitor_recording_flow_20260625\\wmp_frames_1fps\\frame_090s.png"
       }
     },
     {
@@ -162,7 +162,7 @@
         "source": "fangzhijianghu/outputs/competitor_recording_first_session_package_20260625/first_session_runtime_package.json",
         "record": "FS_004_IDLE_CONFIRM",
         "frameSecond": 120,
-        "framePath": "G:\\codex\\武侠掌门放置挂机\\outputs\\competitor_recording_flow_20260625\\wmp_frames_1fps\\frame_120s.png"
+        "framePath": "H:\\MyProjectBack\\idlewuxia\\development_evidence\\legacy_g_workspace\\competitor_recording_flow_20260625\\wmp_frames_1fps\\frame_120s.png"
       }
     },
     {
@@ -182,7 +182,7 @@
         "source": "fangzhijianghu/outputs/competitor_recording_first_session_package_20260625/first_session_runtime_package.json",
         "record": "FS_005_IDLE_TASK_LIST",
         "frameSecond": 210,
-        "framePath": "G:\\codex\\武侠掌门放置挂机\\outputs\\competitor_recording_flow_20260625\\wmp_frames_1fps\\frame_210s.png"
+        "framePath": "H:\\MyProjectBack\\idlewuxia\\development_evidence\\legacy_g_workspace\\competitor_recording_flow_20260625\\wmp_frames_1fps\\frame_210s.png"
       }
     },
     {
@@ -240,7 +240,7 @@
         "source": "fangzhijianghu/outputs/competitor_recording_first_session_package_20260625/first_session_runtime_package.json",
         "record": "FS_008_MAP_EXPLORE",
         "frameSecond": 450,
-        "framePath": "G:\\codex\\武侠掌门放置挂机\\outputs\\competitor_recording_flow_20260625\\wmp_frames_1fps\\frame_450s.png"
+        "framePath": "H:\\MyProjectBack\\idlewuxia\\development_evidence\\legacy_g_workspace\\competitor_recording_flow_20260625\\wmp_frames_1fps\\frame_450s.png"
       }
     },
     {
@@ -260,7 +260,7 @@
         "source": "fangzhijianghu/outputs/competitor_recording_first_session_package_20260625/first_session_runtime_package.json",
         "record": "FS_009_EARLY_COMBAT",
         "frameSecond": 480,
-        "framePath": "G:\\codex\\武侠掌门放置挂机\\outputs\\competitor_recording_flow_20260625\\wmp_frames_1fps\\frame_480s.png"
+        "framePath": "H:\\MyProjectBack\\idlewuxia\\development_evidence\\legacy_g_workspace\\competitor_recording_flow_20260625\\wmp_frames_1fps\\frame_480s.png"
       }
     },
     {
@@ -280,7 +280,7 @@
         "source": "fangzhijianghu/outputs/competitor_recording_first_session_package_20260625/first_session_runtime_package.json",
         "record": "FS_010_NPC_INTERACTION",
         "frameSecond": 600,
-        "framePath": "G:\\codex\\武侠掌门放置挂机\\outputs\\competitor_recording_flow_20260625\\wmp_frames_1fps\\frame_600s.png"
+        "framePath": "H:\\MyProjectBack\\idlewuxia\\development_evidence\\legacy_g_workspace\\competitor_recording_flow_20260625\\wmp_frames_1fps\\frame_600s.png"
       }
     },
     {
@@ -300,7 +300,7 @@
         "source": "fangzhijianghu/outputs/competitor_recording_first_session_package_20260625/first_session_runtime_package.json",
         "record": "FS_011_CHAPTER_LOOP_RETURN",
         "frameSecond": 630,
-        "framePath": "G:\\codex\\武侠掌门放置挂机\\outputs\\competitor_recording_flow_20260625\\wmp_frames_1fps\\frame_630s.png"
+        "framePath": "H:\\MyProjectBack\\idlewuxia\\development_evidence\\legacy_g_workspace\\competitor_recording_flow_20260625\\wmp_frames_1fps\\frame_630s.png"
       }
     }
   ],
@@ -2150,7 +2150,7 @@
         "evidence": {
           "level": "reverse_tested",
           "source": "fangzhijianghu/outputs/chapter1_progression_gate_package_20260628/chapter1_progression_runtime_contract.json",
-          "sourceEvidence": "G:\\codex\\武侠掌门放置挂机\\outputs\\fb01_quest_runtime_binding_20260627\\front_hall_runtime_smoke_summary.json",
+          "sourceEvidence": "H:\\MyProjectBack\\idlewuxia\\development_evidence\\legacy_g_workspace\\fb01_quest_runtime_binding_20260627\\front_hall_runtime_smoke_summary.json",
           "record": "GATE_FB01_FRONT_HALL_BLOCK_NAKED_ATTEMPT"
         }
       },
@@ -2170,7 +2170,7 @@
         "evidence": {
           "level": "design_proposal",
           "source": "fangzhijianghu/outputs/chapter1_progression_gate_package_20260628/chapter1_progression_runtime_contract.json",
-          "sourceEvidence": "G:\\codex\\武侠掌门放置挂机\\outputs\\hangup_award_class_index_20260627\\first_session_hangup_reward_binding.csv",
+          "sourceEvidence": "H:\\MyProjectBack\\idlewuxia\\development_evidence\\legacy_g_workspace\\hangup_award_class_index_20260627\\first_session_hangup_reward_binding.csv",
           "record": "GATE_FB01_FRONT_HALL_RECOMMENDED_READY"
         }
       },

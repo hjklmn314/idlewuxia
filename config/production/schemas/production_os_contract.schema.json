@@ -198,7 +198,7 @@
               "const": "H:/MyProjectBack/idlewuxia"
             },
             "evidenceWorkspace": {
-              "const": "G:/codex"
+              "const": "H:/MyProjectBack/idlewuxia/development_evidence"
             },
             "canonicalTempRoot": {
               "const": ".codex-os/temp"
