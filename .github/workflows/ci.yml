@@ -36,3 +36,6 @@ jobs:
       - name: Assemble clean-checkout Android debug artifact
         working-directory: android
         run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
+
+      - name: Audit merged Android permissions and exported components
+        run: npm run security:audit:android-merged

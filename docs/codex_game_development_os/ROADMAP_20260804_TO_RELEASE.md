@@ -47,7 +47,7 @@
 
 ### Wave 4 — G7 Release Candidate
 
-1. `SEC-001`：Android 权限、WebView、CSP/网络、secrets、依赖、隐私、支付/广告后端真实性。
+1. `SEC-001`：**已完成当前离线客户端范围**。11 条 CSP directive、0 source permission、私有 FileProvider、source/merged manifest Gate、technical-no-PII memory-only observability、secret scan、runtime dependency allowlist 与未激活外部服务边界均已闭合；商店法律解释和真机故障注入仍归 REL。
 2. `REL-001`：外部安全签名、release APK/AAB、版本号、R8/ProGuard、SBOM、clean rebuild、commit/config/APK hash 追踪。
 3. `REL-002`：代表性 Android 真机矩阵；冷/热启动、前后台、离线、存档恢复、内存、CPU/GPU、帧稳定、音频延迟、触控、安全区。
 4. `REL-003`：商店材料、分阶段发布、指标/告警、事故响应、回滚包与一次真实演练。

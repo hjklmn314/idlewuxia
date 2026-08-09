@@ -242,9 +242,11 @@
       ],
       "configuration": [
         "config/web_bundle_contract.json",
-        "config/android_identity_contract.json"
+        "config/android_identity_contract.json",
+        "config/production/security_release_contract.json",
+        "config/production/schemas/security_release_contract.schema.json"
       ],
-      "status": "debug-proven-release-blocked",
+      "status": "debug-proven-security-source-audited-release-blocked",
       "nextTaskIds": [
         "REL-001",
         "REL-002",

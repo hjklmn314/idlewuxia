@@ -107,6 +107,15 @@
       "status": "enabled"
     },
     {
+      "id": "security-release-contract-gate",
+      "command": "npm run security:audit",
+      "artifact": "outputs/security/sec001_security_audit.json",
+      "stage": "G7",
+      "status": "enabled",
+      "taskId": "SEC-001",
+      "notes": "Validates CSP, Android permissions/exported components/FileProvider scope, privacy retention, runtime dependency allowlist, external SDK absence and high-confidence secret patterns."
+    },
+    {
       "id": "android-debug-audit",
       "command": "npm run android:audit:wuxia",
       "artifact": "outputs/android_debug_audit",

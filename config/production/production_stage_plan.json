@@ -1115,7 +1115,7 @@
       "title": "发布信任边界、隐私与权限审计",
       "priority": "P0",
       "gate": "G7",
-      "status": "open",
+      "status": "done",
       "owner": "security-compliance",
       "dependsOn": [
         "OBS-001"
@@ -1125,7 +1125,15 @@
         "No secrets or development evidence ship.",
         "Privacy disclosure matches collected data."
       ],
-      "evidence": []
+      "evidence": [
+        "config/production/security_release_contract.json",
+        "config/production/schemas/security_release_contract.schema.json",
+        "tools/validate-security-release-contract.mjs",
+        "tools/test-security-release-contract.mjs",
+        "docs/codex_game_development_os/SEC_001_COMPLETION_AND_RELEASE_BOUNDARY_20260809.md",
+        "outputs/security/sec001_security_audit.json",
+        "npm run security:audit"
+      ]
     },
     {
       "id": "REL-001",

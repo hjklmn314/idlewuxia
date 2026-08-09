@@ -157,3 +157,20 @@ Git tracked files
 hashes every tracked file, walks the active static ESM graph, rejects any
 active-to-legacy edge and compares shipping closure snapshots. This boundary
 is manifest-only: no historical source or evidence was moved or deleted.
+
+## 2026-08-09 Client security boundary
+
+```text
+security_release_contract
+  -> HTML CSP / same-origin local config
+  -> source Android manifest / private FileProvider
+  -> Gradle merged manifest permission + exported-component audit
+  -> technical-no-PII memory ledger / upload disabled
+  -> secret + runtime dependency + external SDK scan
+  -> CI source gate + post-assemble merged gate
+```
+
+The current client activates no external service. Dormant ads/IAP definitions
+are not shipping authority and cannot be enabled without a server-validation
+and platform-policy review. Signing, SBOM, device fault injection and store
+declarations remain release adapters rather than browser runtime concerns.

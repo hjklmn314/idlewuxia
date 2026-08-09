@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "idlewuxia.security_release_contract.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "projectId", "runtimeProfile", "web", "android", "privacy", "externalServices", "secrets", "dependencyPolicy", "knownReleaseBoundaries"],
+  "properties": {
+    "$schema": { "const": "idlewuxia.security_release_contract.v1" },
+    "projectId": { "const": "idlewuxia" },
+    "runtimeProfile": { "const": "offline_first_local_webview" },
+    "web": { "$ref": "#/$defs/web" },
+    "android": { "$ref": "#/$defs/android" },
+    "privacy": { "$ref": "#/$defs/privacy" },
+    "externalServices": { "$ref": "#/$defs/externalServices" },
+    "secrets": { "$ref": "#/$defs/secrets" },
+    "dependencyPolicy": { "$ref": "#/$defs/dependencyPolicy" },
+    "knownReleaseBoundaries": { "$ref": "#/$defs/stringArray" }
+  },
+  "$defs": {
+    "stringArray": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "web": {
+      "type": "object", "additionalProperties": false,
+      "required": ["requiredCspDirectives", "inlineScriptAllowed", "inlineStyleReason", "externalOrigins"],
+      "properties": {
+        "requiredCspDirectives": { "type": "object", "minProperties": 1, "additionalProperties": { "$ref": "#/$defs/stringArray" } },
+        "inlineScriptAllowed": { "const": false },
+        "inlineStyleReason": { "type": "string", "minLength": 1 },
+        "externalOrigins": { "$ref": "#/$defs/stringArray" }
+      }
+    },
+    "android": {
+      "type": "object", "additionalProperties": false,
+      "required": ["allowedPermissions", "allowedMergedPermissionPatterns", "allowBackup", "fullBackupContent", "usesCleartextTraffic", "allowedExportedComponents", "allowedMergedExportedComponents", "allowedFileProviderPathElements", "forbiddenFileProviderPathElements"],
+      "properties": {
+        "allowedPermissions": { "$ref": "#/$defs/stringArray" },
+        "allowedMergedPermissionPatterns": { "$ref": "#/$defs/stringArray" },
+        "allowBackup": { "const": false },
+        "fullBackupContent": { "const": false },
+        "usesCleartextTraffic": { "const": false },
+        "allowedExportedComponents": { "$ref": "#/$defs/stringArray" },
+        "allowedMergedExportedComponents": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["namePattern", "requiredPermission"],
+            "properties": {
+              "namePattern": { "type": "string", "minLength": 1 },
+              "requiredPermission": { "type": "string" }
+            }
+          }
+        },
+        "allowedFileProviderPathElements": { "$ref": "#/$defs/stringArray" },
+        "forbiddenFileProviderPathElements": { "$ref": "#/$defs/stringArray" }
+      }
+    },
+    "privacy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["dataClass", "analyticsPersistence", "analyticsUpload", "maxAnalyticsEvents", "forbiddenFields"],
+      "properties": {
+        "dataClass": { "const": "technical_no_pii" },
+        "analyticsPersistence": { "const": "memory_only" },
+        "analyticsUpload": { "const": "disabled" },
+        "maxAnalyticsEvents": { "type": "integer", "minimum": 1, "maximum": 10000 },
+        "forbiddenFields": { "$ref": "#/$defs/stringArray" }
+      }
+    },
+    "externalServices": {
+      "type": "object", "additionalProperties": false,
+      "required": ["activated", "forbiddenClientSdkTokens", "monetizationPolicy"],
+      "properties": {
+        "activated": { "$ref": "#/$defs/stringArray" },
+        "forbiddenClientSdkTokens": { "$ref": "#/$defs/stringArray" },
+        "monetizationPolicy": { "const": "dormant_legacy_not_shipping_backend_required_before_activation" }
+      }
+    },
+    "secrets": {
+      "type": "object", "additionalProperties": false,
+      "required": ["scanRoots", "forbiddenTrackedFiles"],
+      "properties": {
+        "scanRoots": { "$ref": "#/$defs/stringArray" },
+        "forbiddenTrackedFiles": { "$ref": "#/$defs/stringArray" }
+      }
+    },
+    "dependencyPolicy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["allowedRuntimePackages", "lockfileRequired", "releaseSbomTask"],
+      "properties": {
+        "allowedRuntimePackages": { "$ref": "#/$defs/stringArray" },
+        "lockfileRequired": { "const": true },
+        "releaseSbomTask": { "const": "REL-001" }
+      }
+    }
+  }
+}

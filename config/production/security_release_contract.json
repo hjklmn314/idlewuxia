@@ -1,0 +1,69 @@
+{
+  "$schema": "idlewuxia.security_release_contract.v1",
+  "projectId": "idlewuxia",
+  "runtimeProfile": "offline_first_local_webview",
+  "web": {
+    "requiredCspDirectives": {
+      "default-src": ["'self'"],
+      "base-uri": ["'none'"],
+      "object-src": ["'none'"],
+      "form-action": ["'none'"],
+      "script-src": ["'self'"],
+      "style-src": ["'self'", "'unsafe-inline'"],
+      "img-src": ["'self'", "data:", "blob:", "file:"],
+      "media-src": ["'self'", "data:", "blob:", "file:"],
+      "font-src": ["'self'", "data:"],
+      "connect-src": ["'self'"],
+      "worker-src": ["'self'", "blob:"]
+    },
+    "inlineScriptAllowed": false,
+    "inlineStyleReason": "Runtime progress widths and configuration-driven CSS variables currently require inline style attributes; script execution remains self-only.",
+    "externalOrigins": []
+  },
+  "android": {
+    "allowedPermissions": [],
+    "allowedMergedPermissionPatterns": ["^com\\.idlewuxia\\.app(?:\\.debug)?\\.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION$"],
+    "allowBackup": false,
+    "fullBackupContent": false,
+    "usesCleartextTraffic": false,
+    "allowedExportedComponents": [".MainActivity"],
+    "allowedMergedExportedComponents": [
+      {
+        "namePattern": "^com\\.idlewuxia\\.app\\.MainActivity$",
+        "requiredPermission": ""
+      },
+      {
+        "namePattern": "^androidx\\.profileinstaller\\.ProfileInstallReceiver$",
+        "requiredPermission": "android.permission.DUMP"
+      }
+    ],
+    "allowedFileProviderPathElements": ["files-path", "cache-path"],
+    "forbiddenFileProviderPathElements": ["root-path", "external-path", "external-files-path", "external-cache-path"]
+  },
+  "privacy": {
+    "dataClass": "technical_no_pii",
+    "analyticsPersistence": "memory_only",
+    "analyticsUpload": "disabled",
+    "maxAnalyticsEvents": 512,
+    "forbiddenFields": ["name", "playerName", "email", "phone", "address", "deviceId", "advertisingId", "rawText", "feedback"]
+  },
+  "externalServices": {
+    "activated": [],
+    "forbiddenClientSdkTokens": ["com.google.gms.google-services", "firebase", "admob", "play-billing", "stripe", "facebook"],
+    "monetizationPolicy": "dormant_legacy_not_shipping_backend_required_before_activation"
+  },
+  "secrets": {
+    "scanRoots": ["src/", "config/", "android/", ".github/", "index.html", "package.json", "package-lock.json", "capacitor.config.json"],
+    "forbiddenTrackedFiles": ["google-services.json", "GoogleService-Info.plist", ".env", ".env.local", "keystore.properties", "release.keystore", "release.jks"]
+  },
+  "dependencyPolicy": {
+    "allowedRuntimePackages": ["@capacitor/android", "@capacitor/core"],
+    "lockfileRequired": true,
+    "releaseSbomTask": "REL-001"
+  },
+  "knownReleaseBoundaries": [
+    "Release minification, signing, SBOM and artifact provenance belong to REL-001.",
+    "Android device network, storage, lifecycle and performance injection belong to REL-002.",
+    "Store privacy declarations, staged rollout and incident rollback belong to REL-003."
+  ]
+}

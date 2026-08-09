@@ -45,14 +45,14 @@
 | HYGIENE-001 | P1 | G4 | done | project-and-engine-auditor | 407 tracked files 四类互斥分层，29-file shipping 前后 hash 不变 |
 | CONTENT-001 | P1 | G6 | open | modular-feature-framework | 第二章节 Feature Package |
 | EDITOR-ROI-001 | P2 | G6 | open | editor-framework-architect | 内容编辑器 ROI 决策 |
-| SEC-001 | P0 | G7 | open | security-compliance | 信任边界、隐私和权限 |
+| SEC-001 | P0 | G7 | done | security-compliance | CSP、Android source/merged 权限、FileProvider、隐私、secret 与依赖边界 |
 | REL-001 | P0 | G7 | open | build-deployment-release-engineer | 签名 Release AAB/APK |
 | REL-002 | P0 | G7 | open | qa-bot-regression-engineer | 真机、性能、兼容和商店 |
 | REL-003 | P0 | G7 | open | release-incident-response | 分阶段发布、监控和回滚 |
 
 ## 当前可开工
 
-1. `SEC-001`：审计 Android 权限、WebView/CSP、secret、依赖、隐私和未激活支付/广告边界。
+1. `REL-001`：建立 Release build、R8/ProGuard、SBOM、外部签名输入和 commit/config/artifact 追踪；在 T05-01 blocked 时只能完成工具链，不能标记发行通过。
 2. `AUDIT-003`：依赖矛盾已裁决，但其严格 Android/生产视觉门不得用浏览器功能 PASS 代替，继续 blocked。
 3. 资产输入不阻断程序/配置工作，但 `ASSET-007`～`010`、`COMBAT-002B` 与 `T05-01` 在批准资产到位前保持 blocked/open。
 
