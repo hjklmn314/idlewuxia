@@ -43,7 +43,7 @@
 | ASSET-010 | P0 | G5 | open | asset-content-pipeline | 战斗 SFX/BGM 资产 |
 | AUDIT-003 | P0 | G5 | blocked | project-and-engine-auditor | 全代码配置资源与近五日发布前重审计；生产视觉/Android 严格门仍阻断 |
 | HYGIENE-001 | P1 | G4 | done | project-and-engine-auditor | 407 tracked files 四类互斥分层，29-file shipping 前后 hash 不变 |
-| CONTENT-001 | P1 | G6 | open | modular-feature-framework | 第二章节 Feature Package |
+| CONTENT-001 | P1 | G6 | done | modular-feature-framework | 第二章节配置复用认证完成；生产章节内容未激活，EDITOR-ROI-001 仍开放 |
 | EDITOR-ROI-001 | P2 | G6 | open | editor-framework-architect | 内容编辑器 ROI 决策 |
 | SEC-001 | P0 | G7 | done | security-compliance | CSP、Android source/merged 权限、FileProvider、隐私、secret 与依赖边界 |
 | REL-001 | P0 | G7 | open | build-deployment-release-engineer | 签名 Release AAB/APK |
@@ -107,9 +107,31 @@ The machine-readable task status remains in `config/production/production_stage_
 | Task | Current status | Evidence / reason |
 |---|---|---|
 | `AUDIT-003` | `blocked` | `AUDIT_003_CURRENT_PRODUCTION_STATUS_20260812.md`; Gate A and Gate B pass, but strict production visual and Android acceptance are not complete. |
-| `CONTENT-001` | `open` | The generic `ChapterSession` supports `initialChapter`; only chapter1/FB01 content is authored. Next work is an isolated config-only reuse fixture with schema, foreign-key, result-routing, save and rollback evidence. |
+| `CONTENT-001` | `done` | `CONTENT_001_COMPLETION_RECORD_20260812.md`; isolated schema/foreign-key/runtime/diff/rollback fixture passed. No production story or chapter-specific runtime branch was added. |
 | `COMBAT-002` | `blocked` | Runtime/session is complete; production presentation is blocked by ASSET-007–010 and strict manual visual acceptance. |
 | `T05-01` | `blocked` | Browser functional matrix is 33/33 with zero console problems, but manual production art review fails and no Android device evidence exists. |
 | `REL-001`–`REL-003` | `open` | Signed release, physical-device, store, monitoring and rollback gates remain outstanding. |
 
 The known `FIRST_SESSION_SIMULATION_LIFECYCLE` mismatch remains a separately tracked diagnostic and is excluded from the UI/combat routing verdict. `REST-REPAIR-001` remains postponed by user instruction.
+
+## Authoritative delta — 2026-08-12 CONTENT-001
+
+`CONTENT-001` is now **done** for configuration-only later-chapter reuse. The
+test-only package `chapter2_config_fixture` is schema-valid, foreign-key clean,
+hash-diffable and rollback-safe. Generic node/room/NPC/interactable/result/
+condition/reward/save/combat paths all passed positive and negative assertions;
+no chapter-specific source branch was added and no production story was
+activated.
+
+Evidence: `config/wuxia_chapter_definition.schema.json`,
+`tests/fixtures/chapter_reuse/chapter2_config_fixture.json`,
+`tools/test-wuxia-later-chapter-config-reuse.mjs`,
+`outputs/content001_chapter_reuse/chapter_reuse_report.json`,
+`CONTENT_001_COMPLETION_RECORD_20260812.md`, and
+`CONTENT_001_MANUAL_VISUAL_ACCEPTANCE_20260812.md`.
+
+The browser retry passed 33/33 matrix pairs, 6/6 conditional pairs and 3/3
+modal probes with zero console problems. Manual review passed changed-route
+regression but retained the pre-existing production visual block. `EDITOR-ROI-
+001` remains open, so G6 stays `not-started`; the next serial work is approved
+combat asset intake and strict visual acceptance.

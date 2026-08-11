@@ -1,0 +1,158 @@
+{
+  "$schema": "idlewuxia.chapter_definition.v1",
+  "schema": "idlewuxia.chapter_definition.v1",
+  "schemaVersion": 1,
+  "chapterId": "chapter2_config_fixture",
+  "displayText": {
+    "zhCN": "第二章配置复用夹具"
+  },
+  "nodes": [
+    {
+      "nodeId": "CH2_FIXTURE_NODE_GATE",
+      "order": 1,
+      "nodeType": "chapter_gate",
+      "displayText": { "zhCN": "第二章·山门试炼" },
+      "sourceRooms": ["CH2_FIXTURE_ROOM_GATE"],
+      "connections": [],
+      "gates": ["CH2_FIXTURE_GATE"],
+      "rewards": ["CH2_FIXTURE_REWARD"],
+      "encounters": ["encounter_ch2_config_fixture"],
+      "interactables": ["CH2_FIXTURE_SCROLL"],
+      "progressFlags": ["ch2_fixture_started"],
+      "primaryAction": { "actionId": "CH2_FIXTURE_ENTER" }
+    }
+  ],
+  "gates": [
+    {
+      "gateId": "CH2_FIXTURE_GATE",
+      "nodeId": "CH2_FIXTURE_NODE_GATE",
+      "gateType": "configuration_fixture_gate",
+      "requirements": { "experience": 1 },
+      "reason": "Configuration-only chapter gate fixture."
+    }
+  ],
+  "rewards": [
+    {
+      "rewardId": "CH2_FIXTURE_REWARD",
+      "nodeId": "CH2_FIXTURE_NODE_GATE",
+      "rewardType": "attribute_reward",
+      "amount": 5,
+      "itemId": "exp"
+    }
+  ],
+  "rooms": [
+    {
+      "roomId": "CH2_FIXTURE_ROOM_GATE",
+      "order": 1,
+      "displayName": { "zhCN": "山门前" },
+      "parentNodeId": "CH2_FIXTURE_NODE_GATE",
+      "nodeType": "room",
+      "connections": [],
+      "gates": [],
+      "encounterIds": ["CH2_FIXTURE_GUARD"],
+      "encounterDefinitions": ["encounter_ch2_config_fixture"],
+      "interactableIds": ["CH2_FIXTURE_SCROLL"],
+      "interactableNames": ["门派令"],
+      "rewardIds": ["CH2_FIXTURE_REWARD"],
+      "fightBackground": "scene_fb01_wuguan_courtyard",
+      "roomBgm": "combat_start"
+    }
+  ],
+  "npcs": [
+    {
+      "roleId": "CH2_FIXTURE_GUARD",
+      "name": "山门守卫",
+      "displayName": { "zhCN": "山门守卫" },
+      "actions": [
+        { "actionType": "talk", "label": "交谈", "evidenceLevel": "fixture" },
+        { "actionType": "compete", "label": "切磋", "evidenceLevel": "fixture" }
+      ],
+      "branches": [
+        {
+          "order": 1,
+          "conditionTokens": ["talk"],
+          "actionHints": ["talk"],
+          "resultTokens": ["CH2_FIXTURE_DIALOGUE"],
+          "narrativeLines": ["守卫打量着你的门派令。"],
+          "resolvedResults": [
+            {
+              "resultId": "CH2_FIXTURE_DIALOGUE",
+              "category": "narrative_feedback",
+              "action": "文本输出",
+              "narrativeLines": ["守卫打量着你的门派令。"],
+              "args": { "Arg2": "守卫打量着你的门派令。" }
+            }
+          ],
+          "evidenceLevel": "fixture"
+        }
+      ],
+      "defaultNarrativeLines": ["守卫沉默不语。"]
+    }
+  ],
+  "interactables": [
+    {
+      "interactableId": "CH2_FIXTURE_SCROLL",
+      "name": "门派令",
+      "description": "一枚刻着山门印记的令牌。",
+      "canSee": true,
+      "canUse": true,
+      "canOpen": false,
+      "canPickUp": false,
+      "canPushIn": false,
+      "canExtract": false,
+      "actions": [
+        { "actionType": "use", "label": "查看", "evidenceLevel": "fixture" }
+      ],
+      "branches": [
+        {
+          "order": 1,
+          "conditionTokens": ["use", "CH2_FIXTURE_PROGRESS"],
+          "actionHints": ["use"],
+          "resultTokens": ["CH2_FIXTURE_REWARD_RESULT"],
+          "narrativeLines": ["门派令映出一道微光。"],
+          "resolvedResults": [
+            {
+              "resultId": "CH2_FIXTURE_REWARD_RESULT",
+              "category": "attribute_reward",
+              "action": "玩家属性变化",
+              "narrativeLines": ["获得 5 点经验。"],
+              "args": { "Arg2": "exp", "Arg3": "5" }
+            }
+          ],
+          "evidenceLevel": "fixture"
+        }
+      ],
+      "defaultNarrativeLines": ["门派令没有反应。"]
+    }
+  ],
+  "resultLookup": {
+    "CH2_FIXTURE_DIALOGUE": {
+      "resultId": "CH2_FIXTURE_DIALOGUE",
+      "category": "narrative_feedback",
+      "action": "文本输出",
+      "narrativeLines": ["守卫打量着你的门派令。"],
+      "args": { "Arg2": "守卫打量着你的门派令。" }
+    },
+    "CH2_FIXTURE_REWARD_RESULT": {
+      "resultId": "CH2_FIXTURE_REWARD_RESULT",
+      "category": "attribute_reward",
+      "action": "玩家属性变化",
+      "narrativeLines": ["获得 5 点经验。"],
+      "args": { "Arg2": "exp", "Arg3": "5" }
+    }
+  },
+  "conditionLookup": {
+    "CH2_FIXTURE_PROGRESS": {
+      "conditionId": "CH2_FIXTURE_PROGRESS",
+      "arg1": "玩家属性大于",
+      "arg2": "exp",
+      "arg3": 0
+    }
+  },
+  "evidence": {
+    "level": "test_fixture",
+    "sourceFile": "tests/fixtures/chapter_reuse/chapter2_config_fixture.json",
+    "sourceRecord": "CONTENT-001",
+    "sourceKind": "project_config"
+  }
+}

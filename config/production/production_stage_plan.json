@@ -713,7 +713,7 @@
       "title": "第二章节 Feature Package 复用验证",
       "priority": "P1",
       "gate": "G6",
-      "status": "open",
+      "status": "done",
       "owner": "modular-feature-framework",
       "dependsOn": [
         "T03-01",
@@ -724,7 +724,14 @@
         "Definition, rule, composition and runtime instance boundaries remain intact.",
         "Config diff and rollback are validated."
       ],
-      "evidence": []
+      "evidence": [
+        "config/wuxia_chapter_definition.schema.json",
+        "tests/fixtures/chapter_reuse/chapter2_config_fixture.json",
+        "tools/test-wuxia-later-chapter-config-reuse.mjs",
+        "outputs/content001_chapter_reuse/chapter_reuse_report.json",
+        "docs/codex_game_development_os/CONTENT_001_COMPLETION_RECORD_20260812.md",
+        "docs/codex_game_development_os/CONTENT_001_MANUAL_VISUAL_ACCEPTANCE_20260812.md"
+      ]
     },
     {
       "id": "EDITOR-ROI-001",

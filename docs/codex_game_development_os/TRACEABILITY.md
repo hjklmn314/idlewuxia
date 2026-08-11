@@ -201,3 +201,20 @@
 | Production visual and Android release gates are complete | T05-01, COMBAT-002B, REL-001/002/003 | manual screenshot review, production asset contract (10 open slots), no signed artifact/device evidence | BLOCKED |
 
 This entry is an evidence pointer; it does not override the machine task status in `config/production/production_stage_plan.json`.
+
+## CONTENT-001 configuration-only later-chapter traceability entry (2026-08-12)
+
+| Requirement | Configuration / code authority | Evidence | Verdict |
+|---|---|---|---|
+| A later chapter can be represented without chapter-specific runtime branches | `config/wuxia_chapter_definition.schema.json`; `src/chapterSession.js` `initialChapter` boundary | `runtime:chapter-config-reuse:test`; `chapter_reuse_report.json` | PASS |
+| Definition, rule, composition and runtime instance boundaries remain intact | chapter fixture node/room/NPC/interactable/gate/reward/lookup maps | positive node/room/NPC/interactable/reward/combat assertions | PASS |
+| Condition and result references are schema/foreign-key safe and truthful | fixture `conditionLookup`/`resultLookup` plus branch resolver | semantic findings `[]`; negative experience condition rejects without mutation | PASS |
+| Configuration changes are diffable and reversible | fixture SHA-256 before/after/rollback | original `9ab54b19...4e4d33`; changed `a48ce322...e159c`; rollback equals original | PASS |
+| Chapter identity survives persistence | `createChapterSession` save envelope boundary | export/restore deep equality and chapter id assertion | PASS |
+| Runtime combat routing remains generic | configured `compete` policy and fixture Encounter alias | pending combat reaches `encounter_ch2_config_fixture` / `STATE_FS_009_EARLY_COMBAT` | PASS |
+| Existing UI remains usable after the configuration-only change | UI registry and real-browser sweep | `content001_20260812_retry/browser_surface_sweep_report.json`; 33/33 + conditional/modal, console 0 | PASS functional; production art remains blocked |
+
+This task certifies reusable infrastructure with a test-only chapter package. It
+does not claim a player-facing second-chapter story, production art, Android
+device acceptance, or Release readiness. `EDITOR-ROI-001` remains open and
+`REST-REPAIR-001` remains postponed.

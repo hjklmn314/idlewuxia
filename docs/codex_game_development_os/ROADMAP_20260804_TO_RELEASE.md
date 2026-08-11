@@ -167,8 +167,36 @@ The current production re-audit is recorded in `AUDIT_003_CURRENT_PRODUCTION_STA
 
 ### Next serial work packages
 
-1. `CONTENT-001`: perform a config-only later-chapter reuse certification. Use `initialChapter` with an isolated second-chapter fixture; validate schema, foreign keys, dialogue/result branches, Encounter/reward/combat references, save identity, diff and rollback. Do not add chapter-specific runtime branches and do not invent production story content without an approved package.
+1. `CONTENT-001`: **done** as a config-only later-chapter reuse certification. The isolated second-chapter fixture passed schema, foreign keys, dialogue/result branches, Encounter/reward/combat references, save identity, diff and rollback without chapter-specific runtime branches. It is test-only and does not invent or activate production story content.
 2. `ASSET-007` → `ASSET-010`, `COMBAT-002B`, `T05-01`: continue using the original-project overlay for development only. Production requires approved side-view three-head pixel actors, clean scenes, authored VFX/Buff, owned/licensed OGG and strict manual visual acceptance.
 3. `REL-001` → `REL-002` → `REL-003`: signed Release AAB/APK, physical Android acceptance, performance/audio/touch evidence, store materials, monitoring and rollback rehearsal.
 
 `REST-REPAIR-001` remains postponed by user instruction and must not auto-resume. The machine authority is `config/production/production_stage_plan.json`; historical sections in this file do not override the current report.
+
+## 2026-08-12 CONTENT-001 configuration-only reuse certification
+
+`CONTENT-001` is now **done** for the generic content/runtime contract. A
+schema-validated second-chapter fixture was loaded through the existing
+`createChapterSession({ initialChapter })` boundary. It exercised node, room,
+NPC dialogue, interactable condition/result, reward state mutation, negative
+condition rejection, save identity, diff/rollback hashes and Encounter routing
+without adding a chapter-specific runtime branch or production story.
+
+- Schema: `config/wuxia_chapter_definition.schema.json`.
+- Fixture: `tests/fixtures/chapter_reuse/chapter2_config_fixture.json`.
+- Regression command: `npm run runtime:chapter-config-reuse:test`.
+- Machine evidence: `outputs/content001_chapter_reuse/chapter_reuse_report.json`.
+- Completion record: `CONTENT_001_COMPLETION_RECORD_20260812.md`.
+- Manual/browser record: `CONTENT_001_MANUAL_VISUAL_ACCEPTANCE_20260812.md`.
+
+The authoritative retry kept the development server alive for the whole real
+browser matrix: 33/33 screen/viewport pairs, 6/6 conditional pairs and 3/3
+modal probes passed with zero console problems and zero coverage gaps. Manual
+review found no new layout regression. The existing production visual block
+(CSS/geometric combat actors, placeholder stage, missing authored VFX and owned
+audio) remains unchanged and is not waived by this task. `G6` therefore remains
+`not-started` until `EDITOR-ROI-001` also passes.
+
+The next serial work package is `ASSET-007`/`ASSET-008` followed by
+`ASSET-009`/`ASSET-010`, `COMBAT-002B` and the strict `T05-01` visual gate;
+`REST-REPAIR-001` remains postponed.

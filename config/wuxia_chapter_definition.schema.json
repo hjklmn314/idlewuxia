@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://idlewuxia.local/schemas/wuxia_chapter_definition.v1.json",
+  "title": "Idlewuxia Generic Chapter Definition",
+  "description": "Engine-neutral chapter content package. Runtime code interprets this shape; it does not own concrete chapter content.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema",
+    "schemaVersion",
+    "chapterId",
+    "nodes",
+    "gates",
+    "rewards",
+    "rooms",
+    "npcs",
+    "interactables",
+    "resultLookup",
+    "conditionLookup"
+  ],
+  "properties": {
+    "schema": { "const": "idlewuxia.chapter_definition.v1" },
+    "schemaVersion": { "type": "integer", "minimum": 1 },
+    "chapterId": { "type": "string", "minLength": 1 },
+    "displayText": { "type": "object" },
+    "nodes": { "type": "array", "items": { "$ref": "#/$defs/node" } },
+    "gates": { "type": "array", "items": { "$ref": "#/$defs/gate" } },
+    "rewards": { "type": "array", "items": { "$ref": "#/$defs/reward" } },
+    "rooms": { "type": "array", "items": { "$ref": "#/$defs/room" } },
+    "npcs": { "type": "array", "items": { "$ref": "#/$defs/npc" } },
+    "interactables": { "type": "array", "items": { "$ref": "#/$defs/interactable" } },
+    "resultLookup": { "type": "object", "additionalProperties": { "$ref": "#/$defs/result" } },
+    "conditionLookup": { "type": "object", "additionalProperties": { "$ref": "#/$defs/condition" } }
+  },
+  "$defs": {
+    "id": { "type": "string", "minLength": 1 },
+    "node": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["nodeId", "sourceRooms"],
+      "properties": {
+        "nodeId": { "$ref": "#/$defs/id" },
+        "sourceRooms": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "connections": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "gates": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "rewards": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "encounters": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "interactables": { "type": "array", "items": { "$ref": "#/$defs/id" } }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["gateId"],
+      "properties": { "gateId": { "$ref": "#/$defs/id" } }
+    },
+    "reward": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["rewardId"],
+      "properties": { "rewardId": { "$ref": "#/$defs/id" } }
+    },
+    "room": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["roomId", "parentNodeId", "connections", "encounterIds", "interactableIds", "rewardIds"],
+      "properties": {
+        "roomId": { "$ref": "#/$defs/id" },
+        "parentNodeId": { "$ref": "#/$defs/id" },
+        "connections": { "type": "array", "items": { "$ref": "#/$defs/connection" } },
+        "encounterIds": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "interactableIds": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "rewardIds": { "type": "array", "items": { "$ref": "#/$defs/id" } }
+      }
+    },
+    "connection": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["roomId"],
+      "properties": { "roomId": { "$ref": "#/$defs/id" }, "direction": { "type": "string" } }
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["actionType"],
+      "properties": { "actionType": { "$ref": "#/$defs/id" } }
+    },
+    "branch": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["conditionTokens", "actionHints", "resultTokens", "resolvedResults"],
+      "properties": {
+        "conditionTokens": { "type": "array", "items": { "type": "string" } },
+        "actionHints": { "type": "array", "items": { "type": "string" } },
+        "resultTokens": { "type": "array", "items": { "type": "string" } },
+        "resolvedResults": { "type": "array", "items": { "$ref": "#/$defs/result" } }
+      }
+    },
+    "npc": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["roleId", "actions", "branches"],
+      "properties": {
+        "roleId": { "$ref": "#/$defs/id" },
+        "actions": { "type": "array", "items": { "$ref": "#/$defs/action" } },
+        "branches": { "type": "array", "items": { "$ref": "#/$defs/branch" } }
+      }
+    },
+    "interactable": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["interactableId", "canSee", "actions", "branches"],
+      "properties": {
+        "interactableId": { "$ref": "#/$defs/id" },
+        "canSee": { "type": "boolean" },
+        "actions": { "type": "array", "items": { "$ref": "#/$defs/action" } },
+        "branches": { "type": "array", "items": { "$ref": "#/$defs/branch" } }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["resultId", "category", "action"],
+      "properties": {
+        "resultId": { "$ref": "#/$defs/id" },
+        "category": { "type": "string", "minLength": 1 },
+        "action": { "type": "string", "minLength": 1 },
+        "args": { "type": "object" }
+      }
+    },
+    "condition": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["conditionId", "arg1"],
+      "properties": {
+        "conditionId": { "$ref": "#/$defs/id" },
+        "arg1": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

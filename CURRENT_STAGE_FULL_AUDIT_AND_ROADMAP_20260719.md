@@ -850,5 +850,25 @@ The historical sections above are retained for traceability. The current authori
 - Gate A: static/schema/content-boundary checks pass; 10 production asset slots and the strict manual visual gate remain open.
 - Gate B: configuration-driven runtime pass, including 358/358 action assertions, combat mechanics, chapter routing, save/replay and simulation.
 - Gate C: 33/33 browser functional matrix pass with zero console problems; manual production visual review fails for placeholder combat actors/stage and missing owned VFX/audio. Android device and signed Release evidence are still absent.
-- Next serial task: `CONTENT-001` config-only later-chapter reuse certification. It proves generic chapter runtime reuse and config rollback without adding chapter-specific code or unapproved story content. Then proceed to approved asset intake, `COMBAT-002B`/`T05-01`, and finally `REL-001`→`REL-003`.
+- `CONTENT-001` is now complete as an isolated config-only reuse certification; the next serial task is approved asset intake, `COMBAT-002B`/`T05-01`, and finally `REL-001`→`REL-003`.
 - `REST-REPAIR-001` remains postponed and must not auto-resume.
+
+## Current authority pointer — CONTENT-001 completion 2026-08-12
+
+`CONTENT-001` is complete for generic configuration/runtime reuse. The
+authoritative completion and manual acceptance records are
+`docs/codex_game_development_os/CONTENT_001_COMPLETION_RECORD_20260812.md` and
+`docs/codex_game_development_os/CONTENT_001_MANUAL_VISUAL_ACCEPTANCE_20260812.md`.
+
+- A schema-validated, isolated second-chapter fixture passed node, room, NPC,
+  dialogue, condition, result, reward, save/restore, diff/rollback and combat
+  routing checks through the existing generic `ChapterSession` boundary.
+- No chapter-specific source branch or production story was added.
+- The final real-browser retry passed 33/33 screen/viewport pairs, 6/6
+  conditional pairs and 3/3 modal probes with zero console problems; manual
+  changed-route review passed.
+- This does not advance `G6` because `EDITOR-ROI-001` remains open, and it does
+  not waive the existing `ASSET-007`–`ASSET-010`, `COMBAT-002B`, `T05-01`,
+  Android or Release blocks.
+- Next serial task: approved combat asset intake and strict visual acceptance;
+  `REST-REPAIR-001` remains postponed.
