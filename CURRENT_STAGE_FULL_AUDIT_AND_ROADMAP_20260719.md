@@ -841,3 +841,14 @@ The final online-standard rerun correctly exited 1 with 14 release blockers: 11 
 `HYGIENE-001` is now complete through a manifest-only migration. `AUDIT-003` no longer depends on completion of the subsystem it audits, but remains blocked by its own strict production-visual and Android acceptance. The 407 tracked files are classified as 29 active Wuxia authority, 50 dormant legacy shooter files, 15 reference-only files and 313 shared governance files. The active static module graph reaches no legacy file, and all 29 shipping files are byte-identical to the pre-migration snapshot. No historical file was moved or deleted. G4 is now pass; G5 and G7 remain blocked.
 
 `SEC-001` is now complete for the offline-first client scope. The active HTML has an explicit self-only script/connect CSP, Android source permissions are zero, FileProvider is private-only, Google Services cannot auto-activate from an incidental file, and source plus real merged manifests are independently audited. The current debug build succeeded and contains only the generated signature permission plus the explicitly allowed DUMP-protected AndroidX profile receiver. Real Edge 390×844 remained functional with zero console/data-quality problems, but the screenshot still fails product visual quality. `REL-001` through `REL-003`, T05-01 and production assets remain blocked.
+## Current authority pointer — AUDIT-003 re-audit 2026-08-12
+
+The historical sections above are retained for traceability. The current authority is `docs/codex_game_development_os/AUDIT_003_CURRENT_PRODUCTION_STATUS_20260812.md` together with `config/production/production_stage_plan.json`.
+
+- Audit process: **PASS WITH KNOWN LIMITATIONS**.
+- Product/release: **RELEASE_BLOCKED_ACTIVE_REMEDIATION**.
+- Gate A: static/schema/content-boundary checks pass; 10 production asset slots and the strict manual visual gate remain open.
+- Gate B: configuration-driven runtime pass, including 358/358 action assertions, combat mechanics, chapter routing, save/replay and simulation.
+- Gate C: 33/33 browser functional matrix pass with zero console problems; manual production visual review fails for placeholder combat actors/stage and missing owned VFX/audio. Android device and signed Release evidence are still absent.
+- Next serial task: `CONTENT-001` config-only later-chapter reuse certification. It proves generic chapter runtime reuse and config rollback without adding chapter-specific code or unapproved story content. Then proceed to approved asset intake, `COMBAT-002B`/`T05-01`, and finally `REL-001`→`REL-003`.
+- `REST-REPAIR-001` remains postponed and must not auto-resume.

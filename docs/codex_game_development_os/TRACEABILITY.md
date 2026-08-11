@@ -189,3 +189,15 @@
 | Telemetry failure cannot change gameplay | no content ownership | UI Adapter fail-open observation seam | injected throwing observer regression | PASS; authoritative accepted result unchanged |
 | Privacy and data quality are explicit | allowed Intent fields, forbidden fields, memory-only/upload-disabled retention | event emitter quality ledger | 0 missing, 0 privacy, 0 sequence findings in Node and Edge | PASS WITH KNOWN LIMITATIONS; no remote ingestion/dashboard |
 | Browser wiring remains visually non-regressive | same screen/config contracts | Edge 390×844 OBS route | `outputs/obs001_browser_acceptance_20260809_final_current/` | Functional PASS and console 0; manual screenshot has no new breakage, overall placeholder art still BLOCKED |
+## AUDIT-003 current re-audit traceability — 2026-08-12
+
+| Requirement | Configuration / code authority | Evidence | Verdict |
+|---|---|---|---|
+| Every bounded project file and recent commit is read and ledgered | `config/project_scope.json`; full-release ledger generator | `outputs/full_release_audit_20260804/full_release_audit_ledger.json` (414/414 files, 20 recent commits, 138 recent touched files) | PASS |
+| Active Wuxia audit does not report stale Boss-hook or dynamic-template false positives | `tools/audit-p1p2-open-items.mjs`; `tools/audit-wuxia-stage-online-standard.mjs` | commit `43cb4b8`; `npm run audit:p1p2` = 5 pass / 1 known gap / 0 errors; online-standard P0s are asset/visual only | PASS WITH KNOWN LIMITATIONS |
+| Generic runtime remains configuration-driven | `src/chapterSession.js`; `config/wuxia_first_session_flow.json` | `npm run wuxia:audit:content-boundary`; high-risk findings 0; chapter content is resolved through generic definitions/maps | PASS for runtime capability; chapter2 content not authored |
+| Combat runtime semantics are complete and deterministic | `src/combatSession.js`; `config/wuxia_combat_content.json` | preflight, 358/358 assertions, combat module/session/result-routing/simulation reports | PASS |
+| Browser functional surface is covered | `config/production/ui_experience_registry.json`; browser sweep runner | `outputs/wuxia_visual_matrix/audit_20260812_current/browser_surface_sweep_report.json` (33/33, conditional and modal pass, console 0) | PASS functional |
+| Production visual and Android release gates are complete | T05-01, COMBAT-002B, REL-001/002/003 | manual screenshot review, production asset contract (10 open slots), no signed artifact/device evidence | BLOCKED |
+
+This entry is an evidence pointer; it does not override the machine task status in `config/production/production_stage_plan.json`.

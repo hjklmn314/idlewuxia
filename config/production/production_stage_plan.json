@@ -1080,6 +1080,9 @@
         "docs/codex_game_development_os/FULL_RELEASE_AUDIT_20260804.md",
         "docs/codex_game_development_os/FULL_READING_LEDGER_20260804.md",
         "docs/codex_game_development_os/LATEST_CHANGESET_STRICT_AUDIT_20260809.md",
+        "docs/codex_game_development_os/AUDIT_003_CURRENT_PRODUCTION_STATUS_20260812.md",
+        "outputs/full_release_audit_20260804/full_release_audit_ledger.json",
+        "outputs/wuxia_visual_matrix/audit_20260812_current/browser_surface_sweep_report.json",
         "outputs/wuxia_visual_matrix/20260804_post_truthful_node_fix/browser_surface_sweep_report.json",
         "outputs/skill_waterfall_stage_audit_20260706/summary.json"
       ]

@@ -100,3 +100,16 @@ zero blockers and zero page console problems. The three `UI_EarlyCombat`
 pairs remain postponed under `COMBAT-002`; this closure does not waive that
 postponement or any release gate. See the 2026-07-25 completion and manual
 visual acceptance records.
+## Authoritative delta — 2026-08-12 AUDIT-003
+
+The machine-readable task status remains in `config/production/production_stage_plan.json`. This delta records the latest independent re-audit without changing completed task history:
+
+| Task | Current status | Evidence / reason |
+|---|---|---|
+| `AUDIT-003` | `blocked` | `AUDIT_003_CURRENT_PRODUCTION_STATUS_20260812.md`; Gate A and Gate B pass, but strict production visual and Android acceptance are not complete. |
+| `CONTENT-001` | `open` | The generic `ChapterSession` supports `initialChapter`; only chapter1/FB01 content is authored. Next work is an isolated config-only reuse fixture with schema, foreign-key, result-routing, save and rollback evidence. |
+| `COMBAT-002` | `blocked` | Runtime/session is complete; production presentation is blocked by ASSET-007–010 and strict manual visual acceptance. |
+| `T05-01` | `blocked` | Browser functional matrix is 33/33 with zero console problems, but manual production art review fails and no Android device evidence exists. |
+| `REL-001`–`REL-003` | `open` | Signed release, physical-device, store, monitoring and rollback gates remain outstanding. |
+
+The known `FIRST_SESSION_SIMULATION_LIFECYCLE` mismatch remains a separately tracked diagnostic and is excluded from the UI/combat routing verdict. `REST-REPAIR-001` remains postponed by user instruction.

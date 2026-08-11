@@ -156,3 +156,19 @@
 - 最新三 Result × 三尺寸真实 Edge 证据位于 `outputs/combat_result_visual/audit_20260809_final_current/`：126 步、0 failure、0 console problem、0 横向溢出帧；18 张启动/终局截图已在最终配置基数上人工逐张检查。功能门通过，生产美术门仍失败。
 - `SAVE-001`：**done**。v2 SaveEnvelope、迁移、校验和、staging/backup/rollback、损坏恢复、未来版本拒绝、写入中断和浏览器可见恢复均已验收。权威手册为 `SAVE_001_COMPLETION_AND_RECOVERY_RUNBOOK_20260809.md`。
 - `OBS-001` 已完成并由 `OBS_001_COMPLETION_AND_DIAGNOSTIC_RUNBOOK_20260809.md` 接管权威说明。下一治理项是先裁决 `AUDIT-003` 的严格依赖，再施工 `HYGIENE-001`；`SEC-001`、`REL-001`～`REL-003` 依赖顺序不变。项目整体仍是 `RELEASE_BLOCKED`。
+## 2026-08-12 AUDIT-003 current re-audit authority
+
+The current production re-audit is recorded in `AUDIT_003_CURRENT_PRODUCTION_STATUS_20260812.md`. The audit process is `PASS WITH KNOWN LIMITATIONS`; the product remains `RELEASE_BLOCKED_ACTIVE_REMEDIATION`.
+
+- Gate A static/schema/boundary checks pass. The active Wuxia audit now reports 5 P1/P2 checks pass, one known backend SKU gap, zero errors, and 11 production P0 findings only for ten open asset slots plus the strict manual visual gate.
+- Gate B runtime checks pass: 358/358 action state assertions, 316 result-token rows with P0/P1 zero, config-driven CombatSession mechanics, replay/pause/save restore, chapter combat routing and balance simulation.
+- Gate C browser function checks pass at 33/33 screen/viewport pairs plus conditional and modal routes with zero console problems. Manual production visual acceptance fails for CSS/geometric combat actors, placeholder stage/art and missing owned VFX/audio; no Android device or signed Release evidence exists.
+- The combat runtime is complete as a generic configuration interpreter. Combat presentation and release remain independently blocked; do not convert functional PASS into product/release PASS.
+
+### Next serial work packages
+
+1. `CONTENT-001`: perform a config-only later-chapter reuse certification. Use `initialChapter` with an isolated second-chapter fixture; validate schema, foreign keys, dialogue/result branches, Encounter/reward/combat references, save identity, diff and rollback. Do not add chapter-specific runtime branches and do not invent production story content without an approved package.
+2. `ASSET-007` → `ASSET-010`, `COMBAT-002B`, `T05-01`: continue using the original-project overlay for development only. Production requires approved side-view three-head pixel actors, clean scenes, authored VFX/Buff, owned/licensed OGG and strict manual visual acceptance.
+3. `REL-001` → `REL-002` → `REL-003`: signed Release AAB/APK, physical Android acceptance, performance/audio/touch evidence, store materials, monitoring and rollback rehearsal.
+
+`REST-REPAIR-001` remains postponed by user instruction and must not auto-resume. The machine authority is `config/production/production_stage_plan.json`; historical sections in this file do not override the current report.
