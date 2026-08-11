@@ -193,7 +193,7 @@
 
 | Requirement | Configuration / code authority | Evidence | Verdict |
 |---|---|---|---|
-| Every bounded project file and recent commit is read and ledgered | `config/project_scope.json`; full-release ledger generator | `outputs/full_release_audit_20260804/full_release_audit_ledger.json` (414/414 files, 20 recent commits, 138 recent touched files) | PASS |
+| Every bounded project file and recent commit is read and ledgered | `config/project_scope.json`; full-release ledger generator | `outputs/full_release_audit_20260804/full_release_audit_ledger.json` (415/415 files, 21 recent commits, 139 recent touched files) | PASS |
 | Active Wuxia audit does not report stale Boss-hook or dynamic-template false positives | `tools/audit-p1p2-open-items.mjs`; `tools/audit-wuxia-stage-online-standard.mjs` | commit `43cb4b8`; `npm run audit:p1p2` = 5 pass / 1 known gap / 0 errors; online-standard P0s are asset/visual only | PASS WITH KNOWN LIMITATIONS |
 | Generic runtime remains configuration-driven | `src/chapterSession.js`; `config/wuxia_first_session_flow.json` | `npm run wuxia:audit:content-boundary`; high-risk findings 0; chapter content is resolved through generic definitions/maps | PASS for runtime capability; chapter2 content not authored |
 | Combat runtime semantics are complete and deterministic | `src/combatSession.js`; `config/wuxia_combat_content.json` | preflight, 358/358 assertions, combat module/session/result-routing/simulation reports | PASS |

@@ -3,7 +3,7 @@
 ## 1. Authority and verdict
 
 - **Authoritative project:** `H:/MyProjectBack/idlewuxia`
-- **Audit baseline commit:** `43cb4b8be827ca1ca7732358f08089315aa31563`
+- **Audit baseline commit:** `41a65662f9e147576b6e0ca1a2df0d271d158ae8` (runtime/audit correction commit: `43cb4b8be827ca1ca7732358f08089315aa31563`)
 - **Audit scope:** active HTML/Capacitor Wuxia product only. `G:/codex` is historical/evidence storage and is not an implementation source.
 - **Audit mode:** three gates in order: Gate A static/contract, Gate B runtime/regression, Gate C real-browser/manual visual and Android acceptance.
 - **Audit verdict:** `PASS WITH KNOWN LIMITATIONS` for the audit process and evidence integrity.
@@ -17,13 +17,13 @@ The full-release ledger was regenerated from the authoritative worktree after th
 
 | Coverage item | Result |
 |---|---:|
-| Tracked files read | 414 |
-| Present project files read | 414 |
-| Text files / binary files | 409 / 5 |
-| Text lines read | 100,296 |
-| Project bytes read | 4,150,651 |
-| Commits in the previous five-day window | 20 |
-| Files touched by that window | 138 |
+| Tracked files read | 415 |
+| Present project files read | 415 |
+| Text files / binary files | 410 / 5 |
+| Text lines read | 100,498 |
+| Project bytes read | 4,170,091 |
+| Commits in the previous five-day window | 21 |
+| Files touched by that window | 139 |
 | Runtime/config/document/tool categories | all covered |
 | Resources on disk | 47 |
 | Tracked resources / ignored or untracked resources | 1 / 46 |
@@ -143,4 +143,3 @@ Every step retains the three-gate rule: static evidence, runtime regression, the
 - Tool correction rollback: revert commit `43cb4b8be827ca1ca7732358f08089315aa31563`; no runtime/config content is lost.
 - This report, the stage-plan evidence update and future content-fixture evidence are ordinary tracked Markdown/config changes. Generated reports, screenshots, APKs and browser profiles remain ignored outputs.
 - The machine authority remains `config/production/production_stage_plan.json`; this report is the current human-readable audit interpretation and does not override task status.
-
