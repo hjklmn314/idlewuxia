@@ -86,19 +86,27 @@ addCheck(
   },
 );
 
+const activeWuxiaEntry = files.index.includes('src="./src/wuxia-main.js"');
+const hasLegacyBossDom = files.index.includes('id="bossBtn"');
+const hasLegacyBossHandler = files.main.includes("ui.bossBtn.addEventListener");
+const legacyBossHookSafe = !hasLegacyBossDom && !hasLegacyBossHandler;
 addCheck(
   "boss-debug-hook-hidden",
   "P1",
-  !files.main.includes("ui.bossBtn.addEventListener") &&
-    files.main.includes("ui.bossBtn.hidden = true") &&
-    files.main.includes("ui.bossBtn.disabled = true") &&
-    files.main.includes('ui.galaxyBossTabBtn.addEventListener("click", () => travelGalaxy("ad"))')
+  activeWuxiaEntry && legacyBossHookSafe
     ? "pass"
-    : "error",
-  "Standalone Boss button must remain hidden/disabled; Galaxy tab should route through configured travel/reward flow, not Enter Boss.",
+    : !activeWuxiaEntry &&
+        legacyBossHookSafe &&
+        files.main.includes("ui.bossBtn.hidden = true") &&
+        files.main.includes("ui.bossBtn.disabled = true") &&
+        files.main.includes('ui.galaxyBossTabBtn.addEventListener("click", () => travelGalaxy("ad"))')
+      ? "pass"
+      : "error",
+  "The active Wuxia shell must not expose the legacy standalone Boss debug button. If the legacy shell is active, it must hide and disable the button and route Galaxy through configured travel.",
   {
-    hasBossButtonDom: files.index.includes('id="bossBtn"'),
-    hasBossButtonClickHandler: files.main.includes("ui.bossBtn.addEventListener"),
+    activeWuxiaEntry,
+    hasBossButtonDom: hasLegacyBossDom,
+    hasBossButtonClickHandler: hasLegacyBossHandler,
     hidesBossButton: files.main.includes("ui.bossBtn.hidden = true"),
     disablesBossButton: files.main.includes("ui.bossBtn.disabled = true"),
   },

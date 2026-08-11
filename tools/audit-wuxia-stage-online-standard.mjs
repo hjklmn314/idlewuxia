@@ -286,9 +286,15 @@ const highRiskByStatus = Object.entries(countBy(highRiskRows, "status"))
 
 const sourceTexts = [
   { source: "index.html", text: indexHtml },
-  { source: "src/wuxia-main.js", text: activeMain },
   { source: "src/wuxia.css", text: styles },
 ];
+// Do not regex-scan the runtime module for HTML attributes.  Its template
+// strings contain dynamic values such as `${escapeHtml(iconUrl)}` and
+// `${escapeHtml(referenceSceneUrl)}`; those are resolved through the logical
+// asset registries at runtime, not literal file paths.  Treating the source
+// placeholders as paths creates false P1 missing-asset findings.  Shipping
+// asset existence/provenance is checked by the production asset contract and
+// the reference overlay validator.
 const assetRefs = [];
 for (const { source, text } of sourceTexts) {
   const regex = /(?:href|src)=["']([^"']+)["']|url\(["']?([^)"']+)["']?\)/g;
