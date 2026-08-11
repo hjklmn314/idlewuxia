@@ -1,5 +1,9 @@
 import path from "node:path";
 
+export function normalizeStaticRequestPathname(pathname) {
+  return String(pathname || "").replaceAll("\\", "/").replace(/^\/+/, "");
+}
+
 export function resolveStaticRequestPath(rootDirectory, requestUrl = "/") {
   const root = path.resolve(rootDirectory);
   let pathname;
@@ -8,7 +12,7 @@ export function resolveStaticRequestPath(rootDirectory, requestUrl = "/") {
   } catch {
     return { accepted: false, status: 400, reason: "malformed request path", target: "" };
   }
-  const relativeRequestPath = pathname.replace(/^[/\\]+/, "");
+  const relativeRequestPath = normalizeStaticRequestPathname(pathname);
   const target = path.resolve(root, relativeRequestPath || "index.html");
   const relativeTarget = path.relative(root, target);
   const escapesRoot = relativeTarget === ".."

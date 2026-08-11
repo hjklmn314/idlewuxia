@@ -1,9 +1,14 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 
-import { resolveStaticRequestPath } from "./dev-server-path-policy.mjs";
+import {
+  normalizeStaticRequestPathname,
+  resolveStaticRequestPath,
+} from "./dev-server-path-policy.mjs";
 
-const root = path.resolve("H:/MyProjectBack/idlewuxia");
+const root = path.resolve("test-fixtures", "idlewuxia-root");
+
+assert.equal(normalizeStaticRequestPathname("/..\\idlewuxia-secret\\private.txt"), "../idlewuxia-secret/private.txt");
 
 assert.deepEqual(
   resolveStaticRequestPath(root, "/"),
