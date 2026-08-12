@@ -697,6 +697,180 @@
         }
       }
     },
+    "editorRoiDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$schema",
+        "decisionId",
+        "taskId",
+        "measuredAtCommit",
+        "targetUser",
+        "productionPain",
+        "knownFacts",
+        "bottlenecks",
+        "options",
+        "selectedOption",
+        "decisionStatus",
+        "workflow",
+        "reconsiderEditorWhen",
+        "risks",
+        "acceptanceOwner",
+        "verdict"
+      ],
+      "properties": {
+        "$schema": {
+          "const": "idlewuxia.production.editor_roi_decision.v1"
+        },
+        "decisionId": {
+          "$ref": "#/$defs/id"
+        },
+        "taskId": {
+          "const": "EDITOR-ROI-001"
+        },
+        "measuredAtCommit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "targetUser": {
+          "$ref": "#/$defs/id"
+        },
+        "productionPain": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "knownFacts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "activeChapterAuthority",
+            "activeChapterBytes",
+            "activeChapterLines",
+            "activeChapterNodes",
+            "activeChapterRooms",
+            "activeChapterNpcs",
+            "activeChapterInteractables",
+            "activeCombatAuthority",
+            "activeCombatBytes",
+            "chapterSchema",
+            "schemaProductionPackages",
+            "schemaTestPackages",
+            "schemaAllowsExtensionFields",
+            "chapterAuthorityCommitCount",
+            "chapterAuthorityLinesAdded",
+            "chapterAuthorityLinesDeleted"
+          ],
+          "properties": {
+            "activeChapterAuthority": { "$ref": "#/$defs/nonEmptyString" },
+            "activeChapterBytes": { "type": "integer", "minimum": 1 },
+            "activeChapterLines": { "type": "integer", "minimum": 1 },
+            "activeChapterNodes": { "type": "integer", "minimum": 1 },
+            "activeChapterRooms": { "type": "integer", "minimum": 1 },
+            "activeChapterNpcs": { "type": "integer", "minimum": 1 },
+            "activeChapterInteractables": { "type": "integer", "minimum": 1 },
+            "activeCombatAuthority": { "$ref": "#/$defs/nonEmptyString" },
+            "activeCombatBytes": { "type": "integer", "minimum": 1 },
+            "chapterSchema": { "$ref": "#/$defs/nonEmptyString" },
+            "schemaProductionPackages": { "type": "integer", "minimum": 0 },
+            "schemaTestPackages": { "type": "integer", "minimum": 1 },
+            "schemaAllowsExtensionFields": { "type": "boolean" },
+            "chapterAuthorityCommitCount": { "type": "integer", "minimum": 1 },
+            "chapterAuthorityLinesAdded": { "type": "integer", "minimum": 1 },
+            "chapterAuthorityLinesDeleted": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "bottlenecks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "frequency", "severity", "evidence"],
+            "properties": {
+              "id": { "$ref": "#/$defs/id" },
+              "frequency": { "$ref": "#/$defs/id" },
+              "severity": { "enum": ["low", "medium", "high"] },
+              "evidence": { "$ref": "#/$defs/nonEmptyString" }
+            }
+          }
+        },
+        "options": {
+          "type": "array",
+          "minItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "decision", "score", "reason"],
+            "properties": {
+              "id": { "$ref": "#/$defs/id" },
+              "decision": { "enum": ["select", "defer", "reject"] },
+              "score": { "type": "integer", "minimum": 0, "maximum": 100 },
+              "reason": { "$ref": "#/$defs/nonEmptyString" }
+            }
+          }
+        },
+        "selectedOption": {
+          "enum": ["raw-json-only", "validated-script-workflow", "specialized-visual-editor"]
+        },
+        "decisionStatus": {
+          "enum": ["no-editor-selected", "script-tool-selected-editor-deferred", "specialized-editor-approved"]
+        },
+        "workflow": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sourceAuthority",
+            "outputAuthority",
+            "runtimeConsumer",
+            "schema",
+            "externalEncounterIds",
+            "validationCommand",
+            "previewCommand",
+            "diffCommand",
+            "undoStrategy",
+            "previewBehavior",
+            "versioning",
+            "migration",
+            "batchOperations",
+            "sourceControl"
+          ],
+          "properties": {
+            "sourceAuthority": { "$ref": "#/$defs/nonEmptyString" },
+            "outputAuthority": { "const": "json-in-git" },
+            "runtimeConsumer": { "$ref": "#/$defs/nonEmptyString" },
+            "schema": { "$ref": "#/$defs/nonEmptyString" },
+            "externalEncounterIds": { "$ref": "#/$defs/stringArray" },
+            "validationCommand": { "$ref": "#/$defs/nonEmptyString" },
+            "previewCommand": { "$ref": "#/$defs/nonEmptyString" },
+            "diffCommand": { "$ref": "#/$defs/nonEmptyString" },
+            "undoStrategy": { "$ref": "#/$defs/nonEmptyString" },
+            "previewBehavior": { "$ref": "#/$defs/nonEmptyString" },
+            "versioning": { "$ref": "#/$defs/nonEmptyString" },
+            "migration": { "$ref": "#/$defs/nonEmptyString" },
+            "batchOperations": { "$ref": "#/$defs/nonEmptyString" },
+            "sourceControl": { "$ref": "#/$defs/nonEmptyString" }
+          }
+        },
+        "reconsiderEditorWhen": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/nonEmptyString" },
+          "uniqueItems": true
+        },
+        "risks": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/nonEmptyString" },
+          "uniqueItems": true
+        },
+        "acceptanceOwner": {
+          "$ref": "#/$defs/id"
+        },
+        "verdict": {
+          "enum": ["PASS", "PASS_WITH_KNOWN_LIMITATIONS", "REVISE", "BLOCKED", "DEFER", "KILL"]
+        }
+      }
+    },
     "stagePlan": {
       "type": "object",
       "additionalProperties": false,

@@ -37,8 +37,12 @@ read as evidence, but they are not source or task-status authority.
   configuration IDs. CSS geometric fighters and oscillator audio are not
   production fallbacks.
 - `REST-REPAIR-001` remains postponed. Combat logic and asset contracts are
-  active, but `COMBAT-002B`, `T05-01`, ASSET-002 through ASSET-010, G4 and G7
+  active, but `COMBAT-002B`, `T05-01`, ASSET-002 through ASSET-010, G5 and G7
   remain release blockers.
+- `CONTENT-001` and `EDITOR-ROI-001` are complete; G6 is pass. Chapter content
+  remains JSON-authoritative with a validated script inspection workflow.
+  A specialized visual editor is deferred until a stable multi-chapter
+  production corpus and measured author demand exist.
 - 做事前充分思考，避免仓促、粗糙结论。用户不需要进度播报时，静默执行，最终统一汇报。
 
 ## GitHub synchronization policy

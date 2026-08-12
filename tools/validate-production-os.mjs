@@ -15,6 +15,7 @@ const contracts = [
   ["uiExperienceRegistry", "ui_experience_registry.json"],
   ["assetRegistry", "asset_registry.json"],
   ["toolchainRegistry", "toolchain_registry.json"],
+  ["editorRoiDecision", "editor_roi_decision.json"],
   ["stagePlan", "production_stage_plan.json"],
 ];
 
@@ -105,6 +106,7 @@ function validateSemantics(documents, findings) {
   const ui = documents.uiExperienceRegistry;
   const assets = documents.assetRegistry;
   const tools = documents.toolchainRegistry;
+  const editorRoi = documents.editorRoiDecision;
   const plan = documents.stagePlan;
 
   const taskIds = new Set(plan.tasks.map((task) => task.id));
@@ -120,6 +122,7 @@ function validateSemantics(documents, findings) {
     ["assets", assets.assets.map((item) => item.id)],
     ["asset slots", assets.requiredSlots.map((item) => item.id)],
     ["tools", tools.tools.map((item) => item.id)],
+    ["editor options", editorRoi.options.map((item) => item.id)],
   ];
   for (const [subject, values] of idCollections) {
     const duplicates = duplicateValues(values);
@@ -272,6 +275,35 @@ function validateSemantics(documents, findings) {
   for (const tool of tools.tools) {
     if (tool.taskId && !taskIds.has(tool.taskId)) {
       addFinding(findings, "P0", "UNKNOWN_TOOL_TASK", tool.id, `Unknown task: ${tool.taskId}`);
+    }
+  }
+
+  const selectedEditorOptions = editorRoi.options.filter((option) => option.decision === "select");
+  if (selectedEditorOptions.length !== 1 || selectedEditorOptions[0]?.id !== editorRoi.selectedOption) {
+    addFinding(
+      findings,
+      "P0",
+      "EDITOR_ROI_SELECTION_INVALID",
+      "editor_roi_decision.selectedOption",
+      "Exactly one selected option must match selectedOption.",
+    );
+  }
+  if (editorRoi.selectedOption === "specialized-visual-editor" && editorRoi.knownFacts.schemaProductionPackages < 3) {
+    addFinding(
+      findings,
+      "P0",
+      "EDITOR_PREMATURE_SPECIALIZATION",
+      "editor_roi_decision.selectedOption",
+      "A specialized editor requires at least three production packages on a stable schema.",
+    );
+  }
+  for (const [key, file] of Object.entries({
+    sourceAuthority: editorRoi.workflow.sourceAuthority,
+    runtimeConsumer: editorRoi.workflow.runtimeConsumer,
+    schema: editorRoi.workflow.schema,
+  })) {
+    if (!fs.existsSync(path.join(root, file))) {
+      addFinding(findings, "P0", "EDITOR_WORKFLOW_FILE_MISSING", `editor_roi_decision.workflow.${key}`, `Missing project file: ${file}`);
     }
   }
 

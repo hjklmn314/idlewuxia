@@ -1,0 +1,105 @@
+{
+  "$schema": "idlewuxia.production.editor_roi_decision.v1",
+  "decisionId": "idlewuxia-chapter-authoring-roi-20260812",
+  "taskId": "EDITOR-ROI-001",
+  "measuredAtCommit": "4c9c6fbb8327a9f96dea0f3e87236e12662659df",
+  "targetUser": "systems-and-content-designer",
+  "productionPain": "Chapter content is configuration-driven, but the active chapter authority is large and cross-linked. Authors need deterministic validation, semantic preview, diff and rollback evidence before a specialized visual editor is justified.",
+  "knownFacts": {
+    "activeChapterAuthority": "config/wuxia_first_session_flow.json",
+    "activeChapterBytes": 1012574,
+    "activeChapterLines": 31503,
+    "activeChapterNodes": 7,
+    "activeChapterRooms": 45,
+    "activeChapterNpcs": 116,
+    "activeChapterInteractables": 23,
+    "activeCombatAuthority": "config/wuxia_combat_content.json",
+    "activeCombatBytes": 36355,
+    "chapterSchema": "config/wuxia_chapter_definition.schema.json",
+    "schemaProductionPackages": 0,
+    "schemaTestPackages": 1,
+    "schemaAllowsExtensionFields": true,
+    "chapterAuthorityCommitCount": 15,
+    "chapterAuthorityLinesAdded": 31684,
+    "chapterAuthorityLinesDeleted": 181
+  },
+  "bottlenecks": [
+    {
+      "id": "cross-reference-integrity",
+      "frequency": "every-chapter-change",
+      "severity": "high",
+      "evidence": "Nodes, rooms, NPCs, interactables, conditions, results, rewards and encounters use foreign keys across multiple collections."
+    },
+    {
+      "id": "large-json-review",
+      "frequency": "every-active-chapter-review",
+      "severity": "high",
+      "evidence": "The active chapter authority is 31,503 lines and 1,012,574 bytes at the measured commit."
+    },
+    {
+      "id": "runtime-preview-cost",
+      "frequency": "every-new-branch-or-encounter",
+      "severity": "medium",
+      "evidence": "A configuration row must be checked through ChapterSession, condition/result execution and CombatSession routing before browser acceptance."
+    },
+    {
+      "id": "schema-instability-risk",
+      "frequency": "current-stage",
+      "severity": "high",
+      "evidence": "The generic chapter schema has one test package, no production package and intentionally permits extension fields."
+    }
+  ],
+  "options": [
+    {
+      "id": "raw-json-only",
+      "decision": "reject",
+      "score": 32,
+      "reason": "Low maintenance cost, but it does not provide semantic foreign-key validation, compact preview or rollback evidence."
+    },
+    {
+      "id": "validated-script-workflow",
+      "decision": "select",
+      "score": 86,
+      "reason": "Uses the existing JSON authority while adding headless validation, preview, semantic diff and hash-verified rollback evidence with low maintenance cost."
+    },
+    {
+      "id": "specialized-visual-editor",
+      "decision": "defer",
+      "score": 41,
+      "reason": "The generic schema and production author workflow are not yet stable enough to justify a second UI surface and its maintenance burden."
+    }
+  ],
+  "selectedOption": "validated-script-workflow",
+  "decisionStatus": "script-tool-selected-editor-deferred",
+  "workflow": {
+    "sourceAuthority": "tests/fixtures/chapter_reuse/chapter2_config_fixture.json",
+    "outputAuthority": "json-in-git",
+    "runtimeConsumer": "src/chapterSession.js",
+    "schema": "config/wuxia_chapter_definition.schema.json",
+    "externalEncounterIds": [
+      "encounter_ch2_config_fixture"
+    ],
+    "validationCommand": "npm run runtime:chapter-authoring:audit",
+    "previewCommand": "node tools/inspect-wuxia-chapter-package.mjs --input tests/fixtures/chapter_reuse/chapter2_config_fixture.json --allow-external-encounters encounter_ch2_config_fixture",
+    "diffCommand": "node tools/inspect-wuxia-chapter-package.mjs --input <candidate.json> --compare <baseline.json> --allow-external-encounters <approved-external-encounter-ids>",
+    "undoStrategy": "Source control remains the undo authority. The inspection tool records baseline, changed and rollback hashes; it never mutates the input package.",
+    "previewBehavior": "Emit a compact machine-readable summary of chapter identity, collection counts, referenced encounter IDs, result categories and semantic findings.",
+    "versioning": "schemaVersion on every chapter package; migrations require a new schema version and fixture pair.",
+    "migration": "No migration is required for v1. A future version must ship forward and rollback fixtures before activation.",
+    "batchOperations": "Deferred until at least three production chapter packages expose a repeated bulk operation.",
+    "sourceControl": "Review JSON and semantic diff together; generated preview/report files remain ignored evidence."
+  },
+  "reconsiderEditorWhen": [
+    "At least three production chapter packages use a stable schema version.",
+    "At least two non-programmer authors repeat the workflow for four weeks.",
+    "Measured validation or cross-reference mistakes exceed two per chapter iteration after script-tool adoption.",
+    "Median chapter iteration time remains above four hours after the script workflow is adopted."
+  ],
+  "risks": [
+    "The active chapter-one document is not yet represented one-to-one by the generic chapter package schema.",
+    "A compact preview cannot replace real-browser interaction and manual visual acceptance.",
+    "Reference assets may support development preview but cannot satisfy production ownership or release gates."
+  ],
+  "acceptanceOwner": "qa-bot-regression-engineer",
+  "verdict": "PASS_WITH_KNOWN_LIMITATIONS"
+}

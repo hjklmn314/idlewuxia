@@ -117,7 +117,7 @@ Therefore, browser functional PASS does not promote `T05-01`, `COMBAT-002B` or `
 4. `ASSET-009`: authored hit/parry/dodge/critical/control/Buff/victory/defeat VFX and Buff icon atlas.
 5. `ASSET-010`: owned/licensed OGG SFX/BGM with loudness, peak and device-latency evidence.
 6. `COMBAT-002B` and `T05-01`: remain blocked until the above inputs and strict manual visual acceptance are complete.
-7. `CONTENT-001`: later-chapter configuration reuse certification is open; it is not a request to add hard-coded chapter logic.
+7. `CONTENT-001` and `EDITOR-ROI-001` are complete; G6 is pass. A player-facing second chapter remains future approved content, not a runtime blocker.
 8. `REL-001`–`REL-003`: signing, Release AAB/APK, device/performance, store, observability operations and rollback rehearsal.
 9. Known non-P0 gap: 24 IAP product mappings remain `backend_pending`.
 
@@ -127,14 +127,17 @@ The original/reference project may continue to supply development-time scene, Bu
 
 Configuration-driven runtime means the same interpreter can consume chapter 2, chapter 3 and later packages without adding `if chapter === ...` code. It does **not** generate the content itself. Each chapter still needs a versioned, schema-valid package containing its rooms, nodes, NPCs, interactables, dialogue/result tokens, conditions, encounters, rewards, combat references, navigation and rollback metadata. The package must be exercised through the generic runtime and pass positive/negative foreign-key, result-routing, save/restore, visual-route and balance checks.
 
-The next content task is therefore a **config-only reuse certification fixture**, not an invented production story: clone the generic chapter definition in an isolated test fixture, load it with `initialChapter`, prove the same runtime paths and fail-closed validation, and validate the config diff/rollback. A real second chapter should only be authored when its design/content package is approved.
+That config-only reuse certification fixture is now complete under
+`CONTENT-001`. The follow-on `EDITOR-ROI-001` decision selected a validated
+script workflow and deferred a specialized editor until a stable production
+chapter corpus and author measurements exist. A real second chapter should
+only be authored when its design/content package is approved.
 
 ## 9. Next execution order
 
-1. **CONTENT-001 — config-only later-chapter reuse certification.** No `src/` chapter branch. Add only a test fixture/tool and evidence; prove schema, foreign keys, encounters, rewards, result policies, save DTO chapter identity and rollback.
-2. **ASSET-007 → ASSET-010 / COMBAT-002B / T05-01.** Use the original-project overlay for development while the asset requirement tables remain the production source of truth; do not promote reference bytes or CSS fallbacks.
-3. **REL-001 → REL-002 → REL-003.** Release build/signing, physical Android acceptance, store/monitoring/rollback.
-4. Keep `REST-REPAIR-001` postponed per user instruction; it must not be auto-resumed by combat work.
+1. **ASSET-007 → ASSET-010 / COMBAT-002B / T05-01.** Use the original-project overlay for development while the asset requirement tables remain the production source of truth; do not promote reference bytes or CSS fallbacks.
+2. **REL-001 → REL-002 → REL-003.** Release build/signing, physical Android acceptance, store/monitoring/rollback.
+3. Keep `REST-REPAIR-001` postponed per user instruction; it must not be auto-resumed by combat work.
 
 Every step retains the three-gate rule: static evidence, runtime regression, then strict manual visual/device acceptance. An automated green result never overrides a manual visual FAIL.
 

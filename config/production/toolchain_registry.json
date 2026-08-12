@@ -107,6 +107,15 @@
       "status": "enabled"
     },
     {
+      "id": "chapter-authoring-inspection",
+      "command": "npm run runtime:chapter-authoring:audit",
+      "artifact": "outputs/editor_roi001/editor_roi_report.json",
+      "stage": "G6",
+      "status": "enabled-script-workflow",
+      "taskId": "EDITOR-ROI-001",
+      "notes": "Keeps JSON as the only content authority and adds headless schema/semantic validation, compact preview, semantic diff and hash-verified rollback evidence. A specialized visual editor remains deferred."
+    },
+    {
       "id": "security-release-contract-gate",
       "command": "npm run security:audit",
       "artifact": "outputs/security/sec001_security_audit.json",

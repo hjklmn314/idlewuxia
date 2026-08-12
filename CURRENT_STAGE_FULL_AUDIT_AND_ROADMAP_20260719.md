@@ -850,7 +850,7 @@ The historical sections above are retained for traceability. The current authori
 - Gate A: static/schema/content-boundary checks pass; 10 production asset slots and the strict manual visual gate remain open.
 - Gate B: configuration-driven runtime pass, including 358/358 action assertions, combat mechanics, chapter routing, save/replay and simulation.
 - Gate C: 33/33 browser functional matrix pass with zero console problems; manual production visual review fails for placeholder combat actors/stage and missing owned VFX/audio. Android device and signed Release evidence are still absent.
-- `CONTENT-001` is now complete as an isolated config-only reuse certification; the next serial task is approved asset intake, `COMBAT-002B`/`T05-01`, and finally `REL-001`→`REL-003`.
+- `CONTENT-001` and `EDITOR-ROI-001` are complete; `G6` is pass. The next serial task is approved asset intake, `COMBAT-002B`/`T05-01`, and finally `REL-001`→`REL-003`.
 - `REST-REPAIR-001` remains postponed and must not auto-resume.
 
 ## Current authority pointer — CONTENT-001 completion 2026-08-12
@@ -867,8 +867,28 @@ authoritative completion and manual acceptance records are
 - The final real-browser retry passed 33/33 screen/viewport pairs, 6/6
   conditional pairs and 3/3 modal probes with zero console problems; manual
   changed-route review passed.
-- This does not advance `G6` because `EDITOR-ROI-001` remains open, and it does
-  not waive the existing `ASSET-007`–`ASSET-010`, `COMBAT-002B`, `T05-01`,
-  Android or Release blocks.
+- This did not by itself advance `G6`; the completed `EDITOR-ROI-001` decision
+  below closes the remaining G6 requirement. It does not waive the existing
+  `ASSET-007`–`ASSET-010`, `COMBAT-002B`, `T05-01`, Android or Release blocks.
 - Next serial task: approved combat asset intake and strict visual acceptance;
   `REST-REPAIR-001` remains postponed.
+
+## Current authority pointer — EDITOR-ROI-001 completion 2026-08-12
+
+`EDITOR-ROI-001` is complete. The project will not build a specialized visual
+chapter editor at the current stage. JSON remains the only content authority,
+with a validated script workflow for Schema/semantic checks, compact preview,
+semantic diff, explicit external Encounter approval and hash-verified rollback
+evidence. `CONTENT-001` plus this decision advances `G6` to `pass`.
+
+Authoritative records:
+
+- `config/production/editor_roi_decision.json`
+- `docs/codex_game_development_os/EDITOR_ROI_001_COMPLETION_AND_DECISION_20260812.md`
+- `docs/codex_game_development_os/EDITOR_ROI_001_MANUAL_ACCEPTANCE_20260812.md`
+- `outputs/editor_roi001/editor_roi_report.json`
+
+The project verdict remains `RELEASE_BLOCKED_ACTIVE_REMEDIATION`. The next
+serial work remains `ASSET-007`–`ASSET-010`, then `COMBAT-002B`, `T05-01`, and
+the `REL-001`→`REL-003` chain. Missing assets remain requirements/open rows;
+the original-project overlay is development-only and cannot satisfy shipping.

@@ -105,5 +105,6 @@ this task.
   stopped before all viewport workers completed. The authoritative retry kept
   the server alive for the whole run and is recorded in
   `CONTENT_001_MANUAL_VISUAL_ACCEPTANCE_20260812.md`.
-- `G6` remains `not-started` until `EDITOR-ROI-001` is complete; finishing
-  CONTENT-001 alone must not advance the gate.
+- CONTENT-001 alone did not advance G6. The later completed
+  `EDITOR-ROI-001` decision now closes the remaining G6 requirement and the
+  machine gate is `pass`.

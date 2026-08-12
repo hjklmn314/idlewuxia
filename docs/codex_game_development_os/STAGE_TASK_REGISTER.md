@@ -43,8 +43,8 @@
 | ASSET-010 | P0 | G5 | open | asset-content-pipeline | 战斗 SFX/BGM 资产 |
 | AUDIT-003 | P0 | G5 | blocked | project-and-engine-auditor | 全代码配置资源与近五日发布前重审计；生产视觉/Android 严格门仍阻断 |
 | HYGIENE-001 | P1 | G4 | done | project-and-engine-auditor | 407 tracked files 四类互斥分层，29-file shipping 前后 hash 不变 |
-| CONTENT-001 | P1 | G6 | done | modular-feature-framework | 第二章节配置复用认证完成；生产章节内容未激活，EDITOR-ROI-001 仍开放 |
-| EDITOR-ROI-001 | P2 | G6 | open | editor-framework-architect | 内容编辑器 ROI 决策 |
+| CONTENT-001 | P1 | G6 | done | modular-feature-framework | 第二章节配置复用认证完成；生产章节内容未激活 |
+| EDITOR-ROI-001 | P2 | G6 | done | editor-framework-architect | 选择 JSON 权威＋校验/预览/diff/rollback 脚本工具；专用编辑器延期 |
 | SEC-001 | P0 | G7 | done | security-compliance | CSP、Android source/merged 权限、FileProvider、隐私、secret 与依赖边界 |
 | REL-001 | P0 | G7 | open | build-deployment-release-engineer | 签名 Release AAB/APK |
 | REL-002 | P0 | G7 | open | qa-bot-regression-engineer | 真机、性能、兼容和商店 |
@@ -133,5 +133,5 @@ Evidence: `config/wuxia_chapter_definition.schema.json`,
 The browser retry passed 33/33 matrix pairs, 6/6 conditional pairs and 3/3
 modal probes with zero console problems. Manual review passed changed-route
 regression but retained the pre-existing production visual block. `EDITOR-ROI-
-001` remains open, so G6 stays `not-started`; the next serial work is approved
-combat asset intake and strict visual acceptance.
+001` is complete, so G6 is `pass`; the next serial work is approved combat
+asset intake and strict visual acceptance.

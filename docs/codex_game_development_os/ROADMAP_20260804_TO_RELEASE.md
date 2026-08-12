@@ -9,7 +9,7 @@
 - G2：pass-with-known-unknowns。
 - G4：pass（ARCH/T03/COMBAT-003/SAVE/OBS/HYGIENE 均已完成）。
 - G5：blocked（T05-01、COMBAT-002、ASSET-002～010）。
-- G6：not-started。
+- G6：pass（CONTENT-001 配置复用与 EDITOR-ROI-001 脚本工具决策均已完成）。
 - G7：blocked。
 - 总体：`RELEASE_BLOCKED_ACTIVE_REMEDIATION`。
 
@@ -98,7 +98,7 @@
 ## P1/P2 后续
 
 - `CONTENT-001`：第二章节证明没有章节特例代码。
-- `EDITOR-ROI-001`：根据重复生产成本决定脚本工具或编辑器；必须有 diff/undo/validate/preview。
+- `EDITOR-ROI-001`：**已完成**。选择“JSON 权威＋校验/预览/语义 diff/回滚 hash 脚本工具”，专用可视化编辑器延期，待至少 3 个生产章节与稳定作者工作流后重新测量。
 - `REST-REPAIR-001`：按用户要求继续 postponed，不因战斗施工自动恢复。
 - 商业化旧占位目录只有在产品需求确认、后端和合规设计后才能启用；当前不得进入武侠 shipping closure。
 
@@ -200,3 +200,32 @@ audio) remains unchanged and is not waived by this task. `G6` therefore remains
 The next serial work package is `ASSET-007`/`ASSET-008` followed by
 `ASSET-009`/`ASSET-010`, `COMBAT-002B` and the strict `T05-01` visual gate;
 `REST-REPAIR-001` remains postponed.
+
+## 2026-08-12 EDITOR-ROI-001 authoring workflow decision
+
+`EDITOR-ROI-001` is now **done** and `G6` is **pass**. The measured active
+chapter authority is 1,012,574 bytes / 31,503 lines with 7 nodes, 45 rooms,
+116 NPCs and 23 interactables. The generic chapter Schema has one test package
+and zero production packages, so a specialized visual editor would create a
+second unstable surface.
+
+The selected workflow keeps JSON in Git as the only authority and adds a
+read-only script tool for Schema/foreign-key validation, compact preview,
+semantic diff, explicit external Encounter allowlisting and hash-verified
+rollback evidence. Focused validation and fail-closed tests pass; the complete
+11×3 browser regression also passed without a new layout or interaction
+failure. This does not alter the existing product-art failure.
+
+Evidence:
+
+- `config/production/editor_roi_decision.json`
+- `tools/inspect-wuxia-chapter-package.mjs`
+- `outputs/editor_roi001/editor_roi_report.json`
+- `EDITOR_ROI_001_COMPLETION_AND_DECISION_20260812.md`
+- `EDITOR_ROI_001_MANUAL_ACCEPTANCE_20260812.md`
+
+The next executable production work remains the open asset requirement/intake
+chain (`ASSET-007`–`ASSET-010`) and then `COMBAT-002B`/`T05-01`. Because the
+user requested requirements rather than new asset generation, missing bytes
+stay open and development continues through the original-project overlay
+without converting it into shipping approval.

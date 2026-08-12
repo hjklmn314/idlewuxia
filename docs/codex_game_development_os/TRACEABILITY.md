@@ -216,5 +216,23 @@ This entry is an evidence pointer; it does not override the machine task status 
 
 This task certifies reusable infrastructure with a test-only chapter package. It
 does not claim a player-facing second-chapter story, production art, Android
-device acceptance, or Release readiness. `EDITOR-ROI-001` remains open and
-`REST-REPAIR-001` remains postponed.
+device acceptance, or Release readiness. `EDITOR-ROI-001` is closed by the
+decision entry below; `REST-REPAIR-001` remains postponed.
+
+## EDITOR-ROI-001 chapter authoring decision traceability entry (2026-08-12)
+
+| Link | Authority/evidence |
+|---|---|
+| Requirement | `config/production/production_stage_plan.json` task `EDITOR-ROI-001` |
+| Measured production pain | `config/production/editor_roi_decision.json.knownFacts` and `.bottlenecks` |
+| Decision | `selectedOption=validated-script-workflow`; specialized editor deferred |
+| Data authority | JSON in Git; `config/wuxia_chapter_definition.schema.json` |
+| Runtime consumer | `src/chapterSession.js` |
+| Validation/preview/diff/rollback | `tools/lib/chapter-authoring-workflow.mjs`, `tools/inspect-wuxia-chapter-package.mjs` |
+| Independent negative tests | `tools/test-wuxia-editor-roi.mjs` |
+| Machine evidence | `outputs/editor_roi001/editor_roi_report.json` |
+| Manual regression evidence | `EDITOR_ROI_001_MANUAL_ACCEPTANCE_20260812.md` |
+| Rollback | source-control revert plus baseline/rollback hash equality |
+
+This closes `EDITOR-ROI-001` and advances `G6` to `pass`. It does not advance
+`G5`, `G7`, any ASSET task, `COMBAT-002B`, `T05-01` or Release readiness.

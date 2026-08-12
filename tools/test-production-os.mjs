@@ -53,4 +53,19 @@ assert.equal(validateProductionDocuments(baseline).findings.length, 0, "live pro
   assert.ok(codesFor(documents).has("UNKNOWN_TOOL_TASK"), "tool task references must resolve");
 }
 
-console.log("production OS contract tests: PASS (6 cases)");
+{
+  const documents = clone(baseline);
+  documents.editorRoiDecision.options[0].decision = "select";
+  assert.ok(codesFor(documents).has("EDITOR_ROI_SELECTION_INVALID"), "editor ROI must have one selected option");
+}
+
+{
+  const documents = clone(baseline);
+  documents.editorRoiDecision.selectedOption = "specialized-visual-editor";
+  documents.editorRoiDecision.options.forEach((option) => {
+    option.decision = option.id === "specialized-visual-editor" ? "select" : "defer";
+  });
+  assert.ok(codesFor(documents).has("EDITOR_PREMATURE_SPECIALIZATION"), "unstable content schema must reject a specialized editor");
+}
+
+console.log("production OS contract tests: PASS (8 cases)");

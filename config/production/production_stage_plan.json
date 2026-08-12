@@ -125,7 +125,7 @@
     {
       "id": "G6",
       "name": "内容扩展与编辑效率",
-      "status": "not-started",
+      "status": "pass",
       "requiredTaskIds": [
         "CONTENT-001",
         "EDITOR-ROI-001"
@@ -738,7 +738,7 @@
       "title": "内容编辑器 ROI 决策",
       "priority": "P2",
       "gate": "G6",
-      "status": "open",
+      "status": "done",
       "owner": "editor-framework-architect",
       "dependsOn": [
         "CONTENT-001"
@@ -748,7 +748,18 @@
         "A no-editor, script-tool or editor decision is recorded.",
         "Any editor proposal includes validation, diff, undo and preview."
       ],
-      "evidence": []
+      "evidence": [
+        "config/production/editor_roi_decision.json",
+        "tools/lib/chapter-authoring-workflow.mjs",
+        "tools/inspect-wuxia-chapter-package.mjs",
+        "tools/audit-wuxia-editor-roi.mjs",
+        "tools/test-wuxia-editor-roi.mjs",
+        "outputs/editor_roi001/editor_roi_report.json",
+        "docs/codex_game_development_os/EDITOR_ROI_001_COMPLETION_AND_DECISION_20260812.md",
+        "docs/codex_game_development_os/EDITOR_ROI_001_MANUAL_ACCEPTANCE_20260812.md",
+        "npm run runtime:chapter-authoring:audit",
+        "npm run runtime:chapter-authoring:test"
+      ]
     },
     {
       "id": "ASSET-CONTRACT-001",
