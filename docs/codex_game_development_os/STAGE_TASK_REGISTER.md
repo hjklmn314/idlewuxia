@@ -46,13 +46,13 @@
 | CONTENT-001 | P1 | G6 | done | modular-feature-framework | 第二章节配置复用认证完成；生产章节内容未激活 |
 | EDITOR-ROI-001 | P2 | G6 | done | editor-framework-architect | 选择 JSON 权威＋校验/预览/diff/rollback 脚本工具；专用编辑器延期 |
 | SEC-001 | P0 | G7 | done | security-compliance | CSP、Android source/merged 权限、FileProvider、隐私、secret 与依赖边界 |
-| REL-001 | P0 | G7 | open | build-deployment-release-engineer | 签名 Release AAB/APK |
+| REL-001 | P0 | G7 | open | build-deployment-release-engineer | fail-closed 工具链已实现；仍待 T05-01、外部签名、绿色 CI、双 clean build 与正式制品人工验收 |
 | REL-002 | P0 | G7 | open | qa-bot-regression-engineer | 真机、性能、兼容和商店 |
 | REL-003 | P0 | G7 | open | release-incident-response | 分阶段发布、监控和回滚 |
 
 ## 当前可开工
 
-1. `REL-001`：建立 Release build、R8/ProGuard、SBOM、外部签名输入和 commit/config/artifact 追踪；在 T05-01 blocked 时只能完成工具链，不能标记发行通过。
+1. `REL-001`：工具链基础已完成并纳入 CI；下一步只在 T05-01、外部签名与绿色提交就绪后执行两次正式 clean build、签名/证书/制品清单与手动安装验收，当前不能标记发行通过。
 2. `AUDIT-003`：依赖矛盾已裁决，但其严格 Android/生产视觉门不得用浏览器功能 PASS 代替，继续 blocked。
 3. 资产输入不阻断程序/配置工作，但 `ASSET-007`～`010`、`COMBAT-002B` 与 `T05-01` 在批准资产到位前保持 blocked/open。
 
@@ -110,7 +110,7 @@ The machine-readable task status remains in `config/production/production_stage_
 | `CONTENT-001` | `done` | `CONTENT_001_COMPLETION_RECORD_20260812.md`; isolated schema/foreign-key/runtime/diff/rollback fixture passed. No production story or chapter-specific runtime branch was added. |
 | `COMBAT-002` | `blocked` | Runtime/session is complete; production presentation is blocked by ASSET-007–010 and strict manual visual acceptance. |
 | `T05-01` | `blocked` | Browser functional matrix is 33/33 with zero console problems, but manual production art review fails and no Android device evidence exists. |
-| `REL-001`–`REL-003` | `open` | Signed release, physical-device, store, monitoring and rollback gates remain outstanding. |
+| `REL-001`–`REL-003` | `open` | REL-001 contract/tooling is implemented but no eligible signed reproducible artifact exists; physical-device, store, monitoring and rollback gates remain outstanding. |
 
 The known `FIRST_SESSION_SIMULATION_LIFECYCLE` mismatch remains a separately tracked diagnostic and is excluded from the UI/combat routing verdict. `REST-REPAIR-001` remains postponed by user instruction.
 

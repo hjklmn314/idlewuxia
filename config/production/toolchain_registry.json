@@ -132,12 +132,22 @@
       "status": "enabled-debug-only"
     },
     {
-      "id": "signed-release-build",
-      "command": "not-yet-implemented",
-      "artifact": "outputs/release",
+      "id": "release-contract-preflight",
+      "command": "npm run release:preflight",
+      "artifact": "outputs/release/release_build_preflight.json",
       "stage": "G7",
-      "status": "blocked",
-      "taskId": "REL-001"
+      "status": "enabled-release-blocked",
+      "taskId": "REL-001",
+      "notes": "Validates the release Schema, R8/resource shrinking, external-only signing boundary, dependency gates, Git/CI provenance, artifact contract, SBOM and reproducibility policy without claiming release eligibility."
+    },
+    {
+      "id": "signed-release-build",
+      "command": "npm run release:strict",
+      "artifact": "outputs/release/release_artifact_manifest.json",
+      "stage": "G7",
+      "status": "implemented-fail-closed-blocked",
+      "taskId": "REL-001",
+      "notes": "Requires T05-01/T05-02/SEC-001 done, a clean upstream-equal green-CI commit, five external signing/provenance environment values, complete npm+Gradle CycloneDX SBOM, verified APK/AAB signatures, R8 mapping and byte equality across two clean builds. Current T05-01 status keeps formal execution blocked."
     },
     {
       "id": "release-monitor-and-rollback",

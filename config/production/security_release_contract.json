@@ -62,7 +62,7 @@
     "releaseSbomTask": "REL-001"
   },
   "knownReleaseBoundaries": [
-    "Release minification, signing, SBOM and artifact provenance belong to REL-001.",
+    "REL-001 tooling enforces minification, external signing, complete SBOM, artifact provenance and two-clean-build equality; formal artifacts remain blocked until every release dependency and external credential proof passes.",
     "Android device network, storage, lifecycle and performance injection belong to REL-002.",
     "Store privacy declarations, staged rollout and incident rollback belong to REL-003."
   ]

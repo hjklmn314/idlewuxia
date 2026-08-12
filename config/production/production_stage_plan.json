@@ -1173,7 +1173,22 @@
         "Source commit, config hashes and packaged bytes are traceable.",
         "A clean rebuild reproduces the declared artifact set."
       ],
-      "evidence": []
+      "evidence": [
+        "config/production/release_build_contract.json",
+        "config/production/schemas/release_build_contract.schema.json",
+        "tools/lib/release-build.mjs",
+        "tools/validate-release-build-contract.mjs",
+        "tools/test-release-build-contract.mjs",
+        "tools/generate-release-sbom.mjs",
+        "tools/generate-release-artifact-manifest.mjs",
+        "tools/build-android-release.ps1",
+        "android/app/build.gradle",
+        "android/app/proguard-rules.pro",
+        "docs/codex_game_development_os/REL_001_RELEASE_TOOLCHAIN_FOUNDATION_20260812.md",
+        "docs/codex_game_development_os/REL_001_MANUAL_VISUAL_REGRESSION_20260813.md",
+        "outputs/wuxia_visual_matrix/rel001_20260813_visual_accepted/browser_surface_sweep_report.json",
+        "npm run release:preflight"
+      ]
     },
     {
       "id": "REL-002",

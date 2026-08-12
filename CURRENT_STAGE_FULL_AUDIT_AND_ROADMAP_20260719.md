@@ -892,3 +892,26 @@ The project verdict remains `RELEASE_BLOCKED_ACTIVE_REMEDIATION`. The next
 serial work remains `ASSET-007`–`ASSET-010`, then `COMBAT-002B`, `T05-01`, and
 the `REL-001`→`REL-003` chain. Missing assets remain requirements/open rows;
 the original-project overlay is development-only and cannot satisfy shipping.
+
+## Current authority pointer — REL-001 toolchain foundation 2026-08-12
+
+`REL-001` has progressed from an unimplemented placeholder to a validated,
+fail-closed release toolchain. It now covers R8/resource shrinking,
+environment-only signing, APK+AAB, npm+Gradle CycloneDX SBOM, R8 mapping,
+source/config/Web/artifact/certificate/tool-version provenance and two clean
+builds. Its authoritative record is
+`docs/codex_game_development_os/REL_001_RELEASE_TOOLCHAIN_FOUNDATION_20260812.md`.
+
+The task remains `open`; `G7` remains blocked. Current static release-contract
+findings are zero, while strict release is correctly blocked by `T05-01`,
+missing external signing inputs and missing green-CI binding. No Release APK or
+AAB is claimed. The next release order remains strict visual closure, external
+signing custody, signed reproducibility, then `REL-002` and `REL-003`.
+
+Manual browser regression on 2026-08-13 is recorded in
+`docs/codex_game_development_os/REL_001_MANUAL_VISUAL_REGRESSION_20260813.md`.
+The final single-run matrix is 33/33 with zero gaps and blockers after fixing
+task-heading mojibake, title clipping, narrow status-column collision and a
+browser-readiness timeout race. This is a scoped cascade-regression PASS only:
+the CSS combat actors and placeholder stage keep the product visual gate,
+`T05-01`, `COMBAT-002B`, `REL-001` and `G7` blocked.

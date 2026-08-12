@@ -27,6 +27,7 @@
 - [上游文件选择与项目落点](UPSTREAM_SELECTION_CROSSWALK.md)
 - [工具删除与执行安全审计](TOOL_SAFETY_AUDIT.md)
 - [需求与证据追踪](TRACEABILITY.md)
+- [REL-001 手动运行与视觉回归验收](REL_001_MANUAL_VISUAL_REGRESSION_20260813.md)
 
 ## 可重复命令
 
@@ -36,6 +37,7 @@ npm run production:inventory
 npm run production:report
 npm run task:preflight
 npm run wuxia:check:fast
+npm run release:preflight
 ```
 
 `production:inventory` 需要真实 Git 子进程。受限沙箱可能使 `git ls-files` 返回不可用；这种情况必须在正常本地环境重跑，不能把“0 个跟踪文件”当作项目事实。

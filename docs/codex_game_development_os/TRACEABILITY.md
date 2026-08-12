@@ -236,3 +236,32 @@ decision entry below; `REST-REPAIR-001` remains postponed.
 
 This closes `EDITOR-ROI-001` and advances `G6` to `pass`. It does not advance
 `G5`, `G7`, any ASSET task, `COMBAT-002B`, `T05-01` or Release readiness.
+
+## REL-001 release toolchain foundation traceability entry (2026-08-12)
+
+| Link | Authority/evidence |
+|---|---|
+| Requirement | `production_stage_plan.json` task `REL-001`; status remains `open` |
+| Contract and Schema | `release_build_contract.json`; `schemas/release_build_contract.schema.json` |
+| Android minification | `android/app/build.gradle`; R8 + resource shrinking + optimized defaults |
+| External signing | five `IDLEWUXIA_RELEASE_*` environment values; no repository secret file |
+| SBOM | `generate-release-sbom.mjs`; complete CycloneDX 1.6 npm 105 + Gradle 51 components |
+| Reproducibility | `build-android-release.ps1`; two clean APK/AAB builds with per-kind byte hash equality |
+| Signature evidence | APK v1/v2/v3 and SHA-256 certificate via `apksigner`; AAB strict JAR verification and certificate via `jarsigner`/`keytool` |
+| Artifact provenance | `generate-release-artifact-manifest.mjs`; commit/upstream/CI/input/Web/SBOM/R8/artifact/certificate/tool versions |
+| Focused tests | `release:contract:test`; R8, secret, dependency, Git and manifest negative paths |
+| Current verdict | static tooling PASS; strict release BLOCKED by T05-01, external signing and green-CI proof |
+
+This entry does not claim a signed artifact. `REL-001` closes only after its
+dependency, signature, reproducibility, manifest and manual install/launch
+acceptance all pass on the same commit.
+
+### 2026-08-13 manual browser and visual regression supplement
+
+| Link | Authority/evidence |
+|---|---|
+| Final browser matrix | `outputs/wuxia_visual_matrix/rel001_20260813_visual_accepted/browser_surface_sweep_report.json`; 33/33, gaps 0, blockers 0 |
+| Human review | `REL_001_MANUAL_VISUAL_REGRESSION_20260813.md`; 81 formal screenshots, 54 unique visual states plus 27 SHA-256-identical route prefixes |
+| Defects closed | task heading mojibake; clipped title body; narrow status value/portrait collision; fixed 10-second browser readiness race |
+| Scoped verdict | REL-001 cascade regression PASS; product visual release gate FAIL/BLOCKED |
+| Remaining authority | `T05-01`, `COMBAT-002B`, `REL-001` and `G7` remain blocked/open |

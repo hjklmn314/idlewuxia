@@ -31,9 +31,10 @@ const url = process.env.WUXIA_URL || `http://127.0.0.1:5187/?real-browser-flow=2
 const port = Number(process.env.EDGE_DEBUG_PORT || 9227);
 const viewportWidth = Number(argValue("--viewport-width", process.env.WUXIA_VIEWPORT_WIDTH || "540"));
 const viewportHeight = Number(argValue("--viewport-height", process.env.WUXIA_VIEWPORT_HEIGHT || "960"));
+const runtimeReadyTimeoutMs = Number(argValue("--runtime-ready-timeout-ms", process.env.WUXIA_RUNTIME_READY_TIMEOUT_MS || "30000"));
 
-if (!Number.isInteger(viewportWidth) || viewportWidth <= 0 || !Number.isInteger(viewportHeight) || viewportHeight <= 0) {
-  throw new Error("Viewport width and height must be positive integers.");
+if (!Number.isInteger(viewportWidth) || viewportWidth <= 0 || !Number.isInteger(viewportHeight) || viewportHeight <= 0 || !Number.isInteger(runtimeReadyTimeoutMs) || runtimeReadyTimeoutMs <= 0) {
+  throw new Error("Viewport width, viewport height, and runtime ready timeout must be positive integers.");
 }
 
 fs.mkdirSync(outDir, { recursive: true });
@@ -117,7 +118,7 @@ async function evalValue(cdp, expression) {
 }
 
 async function waitForWuxia(cdp) {
-  const deadline = Date.now() + 10000;
+  const deadline = Date.now() + runtimeReadyTimeoutMs;
   while (Date.now() < deadline) {
     const state = await evalValue(cdp, "document.body?.dataset?.wuxiaState || ''");
     if (state) return state;
@@ -133,7 +134,7 @@ async function capture(cdp, label) {
   await delay(60);
   const summary = await evalValue(cdp, `(() => {
     const text = document.body.innerText || "";
-    const badMatches = text.match(/Welcome Back|GALAXY|TURRET|Nova Lite|escapeHtml|锟|undefined|null|\\?\\?/g) || [];
+    const badMatches = text.match(/Welcome Back|GALAXY|TURRET|Nova Lite|escapeHtml|锟|�|褰撳|鐟滅|瑜版|鍙|浠诲|undefined|null|\\?\\?/g) || [];
     return {
       label: ${JSON.stringify(label)},
       state: document.body.dataset.wuxiaState || "",

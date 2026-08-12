@@ -1,0 +1,112 @@
+{
+  "$schema": "idlewuxia.release_build_contract.v1",
+  "projectId": "idlewuxia",
+  "platform": "android-capacitor",
+  "applicationId": "com.idlewuxia.app",
+  "releaseVersion": {
+    "sourceFile": "android/app/build.gradle",
+    "versionCode": 1,
+    "versionName": "0.1.0"
+  },
+  "releaseReadiness": {
+    "requiredTaskIds": ["T05-01", "T05-02", "SEC-001"],
+    "requireAllDependenciesDone": true,
+    "requireCleanWorktree": true,
+    "requireUpstreamEquality": true,
+    "requireGreenCi": true,
+    "allowReferenceAssetsInShipping": false
+  },
+  "androidBuild": {
+    "gradleWrapper": "android/gradlew.bat",
+    "workingDirectory": "android",
+    "cleanTask": ":app:clean",
+    "apkTask": ":app:assembleRelease",
+    "aabTask": ":app:bundleRelease",
+    "minifyRequired": true,
+    "resourceShrinkRequired": true,
+    "optimizedDefaultRulesRequired": true,
+    "mappingEvidence": {
+      "sourcePath": "android/app/build/outputs/mapping/release/mapping.txt",
+      "publishedPath": "outputs/release/r8-mapping.txt"
+    },
+    "artifacts": [
+      {
+        "kind": "apk",
+        "sourcePath": "android/app/build/outputs/apk/release/app-release.apk",
+        "publishedPath": "outputs/release/idlewuxia-release.apk"
+      },
+      {
+        "kind": "aab",
+        "sourcePath": "android/app/build/outputs/bundle/release/app-release.aab",
+        "publishedPath": "outputs/release/idlewuxia-release.aab"
+      }
+    ]
+  },
+  "externalSigning": {
+    "mode": "environment-only",
+    "requiredEnvironment": [
+      "IDLEWUXIA_RELEASE_KEYSTORE",
+      "IDLEWUXIA_RELEASE_STORE_PASSWORD",
+      "IDLEWUXIA_RELEASE_KEY_ALIAS",
+      "IDLEWUXIA_RELEASE_KEY_PASSWORD",
+      "IDLEWUXIA_RELEASE_CERT_SHA256"
+    ],
+    "certificateFingerprintEnvironment": "IDLEWUXIA_RELEASE_CERT_SHA256",
+    "forbiddenTrackedSuffixes": [".jks", ".keystore", ".p12", ".pfx", "keystore.properties"],
+    "apkSchemes": ["v1", "v2", "v3"]
+  },
+  "traceability": {
+    "hashAlgorithm": "sha256",
+    "manifestSchema": "idlewuxia.release_artifact_manifest.v1",
+    "manifestPath": "outputs/release/release_artifact_manifest.json",
+    "requiredInputFiles": [
+      "package.json",
+      "package-lock.json",
+      "capacitor.config.json",
+      "config/project_scope.json",
+      "config/web_bundle_contract.json",
+      "config/wuxia_runtime_asset_registry.json",
+      "config/production/production_stage_plan.json",
+      "config/production/security_release_contract.json",
+      "config/production/release_build_contract.json",
+      "android/app/build.gradle",
+      "android/app/proguard-rules.pro",
+      "android/build.gradle",
+      "android/variables.gradle",
+      "android/gradle/wrapper/gradle-wrapper.properties"
+    ],
+    "requiredManifestFields": [
+      "sourceCommit",
+      "upstreamCommit",
+      "configAndBuildInputs",
+      "webBundleManifestSha256",
+      "sbomSha256",
+      "artifacts",
+      "r8Mapping",
+      "signingCertificateSha256",
+      "toolVersions",
+      "reproducibility"
+    ]
+  },
+  "sbom": {
+    "format": "CycloneDX",
+    "specVersion": "1.6",
+    "outputPath": "outputs/release/idlewuxia-sbom.cdx.json",
+    "gradleDependencyReportPath": "outputs/release/gradle-release-runtime-classpath.txt",
+    "requireResolvedNpmLock": true,
+    "requireResolvedGradleRuntimeClasspath": true
+  },
+  "reproducibility": {
+    "required": true,
+    "cleanBuildCount": 2,
+    "compareKinds": ["apk", "aab"],
+    "reportPath": "outputs/release/reproducibility_report.json"
+  },
+  "commands": {
+    "validate": "npm run release:contract:validate",
+    "test": "npm run release:contract:test",
+    "sbom": "npm run release:sbom",
+    "preflight": "npm run release:preflight",
+    "strictBuild": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/build-android-release.ps1 -ReproducibilityCheck"
+  }
+}

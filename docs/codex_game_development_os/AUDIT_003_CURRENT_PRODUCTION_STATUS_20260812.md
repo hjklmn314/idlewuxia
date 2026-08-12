@@ -146,3 +146,16 @@ Every step retains the three-gate rule: static evidence, runtime regression, the
 - Tool correction rollback: revert commit `43cb4b8be827ca1ca7732358f08089315aa31563`; no runtime/config content is lost.
 - This report, the stage-plan evidence update and future content-fixture evidence are ordinary tracked Markdown/config changes. Generated reports, screenshots, APKs and browser profiles remain ignored outputs.
 - The machine authority remains `config/production/production_stage_plan.json`; this report is the current human-readable audit interpretation and does not override task status.
+
+## 11. REL-001 foundation audit update (2026-08-12)
+
+The release toolchain is no longer unimplemented. Schema, R8/resource
+shrinking, external-only signing, APK/AAB, complete npm+Gradle SBOM, R8 mapping,
+artifact provenance and two-clean-build comparison are implemented and covered
+by positive/negative tests. The static contract has zero findings.
+
+This does not alter the production verdict. Strict release correctly fails
+before packaging because `T05-01` remains blocked, external signing inputs are
+absent and no green-CI binding exists. No signed artifact, device evidence or
+store evidence was created. `REL-001` therefore remains `open` and `G7` remains
+`blocked`.

@@ -229,3 +229,46 @@ chain (`ASSET-007`–`ASSET-010`) and then `COMBAT-002B`/`T05-01`. Because the
 user requested requirements rather than new asset generation, missing bytes
 stay open and development continues through the original-project overlay
 without converting it into shipping approval.
+
+## 2026-08-12 REL-001 release toolchain foundation
+
+`REL-001` now has an implemented fail-closed toolchain, but the task remains
+**open** and `G7` remains **blocked**. The implementation adds a Draft 2020-12
+release contract, R8/resource shrinking, environment-only signing, APK+AAB
+production, complete npm+Gradle CycloneDX SBOM, R8 mapping retention,
+commit/config/Web/SBOM/artifact/certificate provenance and two-clean-build byte
+comparison.
+
+The ordinary `release:preflight` passes the static contract and truthfully
+returns `tooling-pass-release-blocked`. The strict path rejects the current
+workspace before building because `T05-01` is blocked, external signing inputs
+are absent and a pushed green-CI commit has not yet been bound. Direct Gradle
+`assembleRelease` also rejects missing signing inputs, so the Node gate cannot
+be bypassed.
+
+Current order:
+
+1. retain the implemented REL-001 tools under continuous CI validation;
+2. close `T05-01` only with approved visual evidence, not reference bytes;
+3. supply external signing custody and certificate fingerprint;
+4. run two clean signed builds and publish the artifact manifest;
+5. continue `REL-002` device/performance acceptance and `REL-003` store/rollback.
+
+Authority: `REL_001_RELEASE_TOOLCHAIN_FOUNDATION_20260812.md` and
+`config/production/release_build_contract.json`. `REST-REPAIR-001` remains
+postponed.
+
+### 2026-08-13 REL-001 manual regression gate
+
+The final browser matrix after remediation is 11 screens × 3 portrait sizes,
+33/33 with zero coverage gaps and blockers. Human review closed visible
+mojibake, clipped title content and the narrow status-column collision; it also
+separated and retained an infrastructure timeout failure before proving the
+final single-run PASS. Authority:
+`REL_001_MANUAL_VISUAL_REGRESSION_20260813.md`.
+
+This does not reorder or close the production gates. Product visual acceptance
+is still blocked by the geometric combat actors, placeholder stage and missing
+final presentation/assets. Continue to keep `T05-01` and `COMBAT-002B` ahead
+of signed release closure; external signing custody and green CI remain
+mandatory for `REL-001`.

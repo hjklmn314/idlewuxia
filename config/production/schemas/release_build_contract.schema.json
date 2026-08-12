@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "idlewuxia.release_build_contract.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "projectId", "platform", "applicationId", "releaseVersion", "releaseReadiness", "androidBuild", "externalSigning", "traceability", "sbom", "reproducibility", "commands"],
+  "properties": {
+    "$schema": { "const": "idlewuxia.release_build_contract.v1" },
+    "projectId": { "const": "idlewuxia" },
+    "platform": { "const": "android-capacitor" },
+    "applicationId": { "type": "string", "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$" },
+    "releaseVersion": {
+      "type": "object", "additionalProperties": false,
+      "required": ["sourceFile", "versionCode", "versionName"],
+      "properties": {
+        "sourceFile": { "$ref": "#/$defs/path" },
+        "versionCode": { "type": "integer", "minimum": 1 },
+        "versionName": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(?:[-+][0-9A-Za-z.-]+)?$" }
+      }
+    },
+    "releaseReadiness": {
+      "type": "object", "additionalProperties": false,
+      "required": ["requiredTaskIds", "requireAllDependenciesDone", "requireCleanWorktree", "requireUpstreamEquality", "requireGreenCi", "allowReferenceAssetsInShipping"],
+      "properties": {
+        "requiredTaskIds": { "$ref": "#/$defs/uniqueStrings" },
+        "requireAllDependenciesDone": { "const": true },
+        "requireCleanWorktree": { "const": true },
+        "requireUpstreamEquality": { "const": true },
+        "requireGreenCi": { "const": true },
+        "allowReferenceAssetsInShipping": { "const": false }
+      }
+    },
+    "androidBuild": {
+      "type": "object", "additionalProperties": false,
+      "required": ["gradleWrapper", "workingDirectory", "cleanTask", "apkTask", "aabTask", "minifyRequired", "resourceShrinkRequired", "optimizedDefaultRulesRequired", "mappingEvidence", "artifacts"],
+      "properties": {
+        "gradleWrapper": { "$ref": "#/$defs/path" },
+        "workingDirectory": { "$ref": "#/$defs/path" },
+        "cleanTask": { "type": "string", "const": ":app:clean" },
+        "apkTask": { "type": "string", "const": ":app:assembleRelease" },
+        "aabTask": { "type": "string", "const": ":app:bundleRelease" },
+        "minifyRequired": { "const": true },
+        "resourceShrinkRequired": { "const": true },
+        "optimizedDefaultRulesRequired": { "const": true },
+        "mappingEvidence": {
+          "type": "object", "additionalProperties": false,
+          "required": ["sourcePath", "publishedPath"],
+          "properties": {
+            "sourcePath": { "$ref": "#/$defs/path" },
+            "publishedPath": { "$ref": "#/$defs/path" }
+          }
+        },
+        "artifacts": {
+          "type": "array", "minItems": 2, "maxItems": 2,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["kind", "sourcePath", "publishedPath"],
+            "properties": {
+              "kind": { "enum": ["apk", "aab"] },
+              "sourcePath": { "$ref": "#/$defs/path" },
+              "publishedPath": { "$ref": "#/$defs/path" }
+            }
+          }
+        }
+      }
+    },
+    "externalSigning": {
+      "type": "object", "additionalProperties": false,
+      "required": ["mode", "requiredEnvironment", "certificateFingerprintEnvironment", "forbiddenTrackedSuffixes", "apkSchemes"],
+      "properties": {
+        "mode": { "const": "environment-only" },
+        "requiredEnvironment": { "$ref": "#/$defs/envNames" },
+        "certificateFingerprintEnvironment": { "const": "IDLEWUXIA_RELEASE_CERT_SHA256" },
+        "forbiddenTrackedSuffixes": { "$ref": "#/$defs/uniqueStrings" },
+        "apkSchemes": {
+          "type": "array", "uniqueItems": true, "minItems": 3,
+          "items": { "enum": ["v1", "v2", "v3", "v4"] }
+        }
+      }
+    },
+    "traceability": {
+      "type": "object", "additionalProperties": false,
+      "required": ["hashAlgorithm", "manifestSchema", "manifestPath", "requiredInputFiles", "requiredManifestFields"],
+      "properties": {
+        "hashAlgorithm": { "const": "sha256" },
+        "manifestSchema": { "const": "idlewuxia.release_artifact_manifest.v1" },
+        "manifestPath": { "$ref": "#/$defs/path" },
+        "requiredInputFiles": { "type": "array", "minItems": 10, "uniqueItems": true, "items": { "$ref": "#/$defs/path" } },
+        "requiredManifestFields": { "type": "array", "minItems": 8, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "sbom": {
+      "type": "object", "additionalProperties": false,
+      "required": ["format", "specVersion", "outputPath", "gradleDependencyReportPath", "requireResolvedNpmLock", "requireResolvedGradleRuntimeClasspath"],
+      "properties": {
+        "format": { "const": "CycloneDX" },
+        "specVersion": { "const": "1.6" },
+        "outputPath": { "$ref": "#/$defs/path" },
+        "gradleDependencyReportPath": { "$ref": "#/$defs/path" },
+        "requireResolvedNpmLock": { "const": true },
+        "requireResolvedGradleRuntimeClasspath": { "const": true }
+      }
+    },
+    "reproducibility": {
+      "type": "object", "additionalProperties": false,
+      "required": ["required", "cleanBuildCount", "compareKinds", "reportPath"],
+      "properties": {
+        "required": { "const": true },
+        "cleanBuildCount": { "type": "integer", "minimum": 2, "maximum": 3 },
+        "compareKinds": { "type": "array", "uniqueItems": true, "contains": { "const": "apk" }, "minContains": 1, "items": { "enum": ["apk", "aab"] } },
+        "reportPath": { "$ref": "#/$defs/path" }
+      }
+    },
+    "commands": {
+      "type": "object", "additionalProperties": false,
+      "required": ["validate", "test", "sbom", "preflight", "strictBuild"],
+      "properties": {
+        "validate": { "type": "string", "minLength": 1 },
+        "test": { "type": "string", "minLength": 1 },
+        "sbom": { "type": "string", "minLength": 1 },
+        "preflight": { "type": "string", "minLength": 1 },
+        "strictBuild": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "$defs": {
+    "path": { "type": "string", "minLength": 1, "pattern": "^(?![A-Za-z]:)(?![/\\\\])(?!.*(?:^|/)\\.\\.(?:/|$)).+" },
+    "uniqueStrings": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "envNames": { "type": "array", "minItems": 5, "uniqueItems": true, "items": { "type": "string", "pattern": "^IDLEWUXIA_RELEASE_[A-Z0-9_]+$" } }
+  }
+}

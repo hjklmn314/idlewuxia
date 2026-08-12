@@ -102,5 +102,7 @@ assert.equal(scope.shippingFiles.includes("src/legacy-shooting.css"), false);
 for (const forbidden of ["gameCanvas", "fireTesla", "bossNovaReactor", "clean_the_dots", "paint_bloom", "cash_vacuum", "space_glass_ui", ".rail-dot", ".control-panel"]) {
   assert.equal(wuxiaCss.includes(forbidden), false, `legacy selector leaked into Wuxia CSS: ${forbidden}`);
 }
+assert.match(wuxiaCss, /\.wuxia-title-panel\s*\{[\s\S]*?margin:\s*24px 28px 0;[\s\S]*?text-align:\s*center;/);
+assert.match(wuxiaCss, /@media \(max-width:\s*440px\)[\s\S]*?\.wuxia-status-page\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\) 118px;/);
 
 console.log("Wuxia UI architecture contract tests: PASS");

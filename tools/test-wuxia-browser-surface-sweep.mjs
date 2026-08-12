@@ -47,4 +47,7 @@ assert.deepEqual(findSurfaceCoverageGaps(screens, viewports, [
 ]), [], "all four explicit pairs must close coverage");
 const source = fs.readFileSync(path.join(root, "tools", "run-wuxia-browser-surface-sweep.mjs"), "utf8");
 assert.doesNotMatch(source, /gameCanvas|fireTesla|bossNovaReactor|left-rail|right-rail/);
+const browserRunnerSource = fs.readFileSync(path.join(root, "tools", "run-wuxia-real-browser-flow.mjs"), "utf8");
+assert.match(browserRunnerSource, /WUXIA_RUNTIME_READY_TIMEOUT_MS\s*\|\|\s*"30000"/);
+assert.match(browserRunnerSource, /Date\.now\(\)\s*\+\s*runtimeReadyTimeoutMs/);
 console.log(`Wuxia browser surface sweep contract tests: PASS (matrix=${plan.summary.matrixCases}, active=${plan.summary.activeCases}, postponed=${plan.summary.postponedCases}, pair-scoped=true)`);

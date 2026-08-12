@@ -386,6 +386,25 @@ body.wuxia-mode #app {
   margin: 0 0 10px;
 }
 
+.wuxia-title-panel {
+  margin: 24px 28px 0;
+  padding: 20px 24px;
+  text-align: center;
+}
+
+.wuxia-title-panel h2 {
+  margin: 0;
+  color: #f1f1ed;
+  font-size: 30px;
+  text-shadow: 0 2px 0 #000;
+}
+
+.wuxia-title-panel p {
+  margin: 12px 0 0;
+  color: #d8d8d3;
+  font-size: 18px;
+}
+
 .wuxia-choice-list {
   margin: 24px 28px 0;
   display: grid;
@@ -963,7 +982,7 @@ body.wuxia-mode #app {
 }
 
 .wuxia-screen-taskList::before {
-  content: "褰撳墠鍙繘琛岀殑浠诲姟";
+  content: "当前可进行的任务";
   display: block;
   padding: 14px 20px 0;
   color: #f0f0ed;
@@ -1662,7 +1681,7 @@ body.wuxia-mode .wuxia-stage {
 @media (max-width: 440px) {
   .wuxia-status-page {
     padding: 14px 14px 8px;
-    grid-template-columns: minmax(0, 1fr) 130px;
+    grid-template-columns: minmax(0, 1fr) 118px;
     gap: 8px;
   }
 
@@ -1687,26 +1706,26 @@ body.wuxia-mode .wuxia-stage {
 
   .wuxia-stat-row {
     gap: 6px;
-    font-size: 18px;
+    font-size: 16px;
     line-height: 1.1;
     white-space: nowrap;
   }
 
   .wuxia-portrait-box {
     margin-top: 10px;
-    grid-template-columns: 96px 30px;
+    grid-template-columns: 88px 26px;
   }
 
   .wuxia-portrait-box .wuxia-avatar {
-    width: 96px;
-    height: 96px;
-    font-size: 21px;
+    width: 88px;
+    height: 88px;
+    font-size: 19px;
   }
 
   .wuxia-portrait-box button {
-    width: 30px;
-    min-height: 76px;
-    font-size: 18px;
+    width: 26px;
+    min-height: 72px;
+    font-size: 16px;
   }
 
   .wuxia-room-grid {

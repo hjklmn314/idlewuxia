@@ -143,3 +143,18 @@ Gate 2 verdict：**PASS FOR CURRENT AUTHORED RUNTIME AND DEBUG BUILD；NOT A REL
 - SAVE-001 已关闭：v2 SaveEnvelope、v1→v2 连续迁移、staging/backup/rollback 四键事务、稳定校验和、损坏恢复、未来版本拒绝、写入中断与浏览器可见恢复均通过。Android 真机故障注入仍是发行门，不回写为 SAVE-001 未完成。
 - OBS-001 已关闭浏览器 Runtime 范围：7 类事件、36 条状态投影、build/config/save tags、稳定 error code、Combat replay ID、去敏 error、render performance 和 replay divergence 诊断均通过；upload 仍关闭，正式 build ID、真机性能、远端 dashboard/alert 归发行门。
 - 最新人工战斗复验仍得出双结论：三尺寸功能/交互 `PASS`，生产像素角色、场景、VFX/Buff/OGG `FAIL / BLOCKED`。项目总判定保持 `RELEASE_BLOCKED`。
+
+## 9. 2026-08-12 REL-001 current authority addendum
+
+The historical release assessment above is superseded for tool availability,
+not for release readiness. `REL-001` now has an implemented release contract,
+R8/resource shrinking, environment-only signing, APK/AAB build orchestration,
+complete npm+Gradle CycloneDX SBOM, R8 mapping retention, artifact provenance
+and two-clean-build byte comparison. Focused static and negative-path tests
+pass.
+
+Formal release remains blocked: `T05-01` is not done, external signing custody
+is absent, green-CI provenance is absent and no signed reproducible artifact or
+manual Android install evidence exists. Current authority is
+`REL_001_RELEASE_TOOLCHAIN_FOUNDATION_20260812.md` and
+`config/production/release_build_contract.json`.
