@@ -129,4 +129,6 @@ Node 工具负责合同、Schema、任务依赖、工作树/远端/CI 状态、�
 
 提交 `f77345f2a11372f03df13b52c83061a695c2d735` 的首轮远端 Actions 在下载 `gradle-8.2.1-all.zip` 时收到 `Unexpected end of file from server`，失败发生在 Gradle Wrapper 启动阶段，项目编译尚未开始。该失败不能作为代码通过，也不能误归类为项目编译缺陷。
 
-CI 已在 Android Debug 组装前增加最多三次、带递增等待时间的 Gradle Wrapper 引导重试。重试只处理外部下载瞬断；三次均失败时仍保持非零退出，不会吞掉真实编译、测试或资源错误。绿色 CI SHA 仍由 `IDLEWUXIA_GREEN_CI_SHA` 显式提供，工具不会根据“曾经有一次网络错误”放宽正式发行门槛。
+CI 已在 Android Debug 组装前增加最多三次、带递增等待时间的 Gradle Wrapper 引导重试。重试只处理外部下载瞬断；三次均失败时仍保持非零退出，不会吞掉真实编译、测试或资源错误。第二轮远端运行证明重试确实执行，但 GitHub 分发端连续返回一次断流和两次 503，故继续按基础设施失败处理。
+
+Wrapper 分发包由仅供开发环境导航使用的 `all` 包收窄为构建所需的 `bin` 包，下载量由约 184 MB 降为约 123 MB；同时锁定 Gradle 官方公布的 8.2.1 `bin` SHA-256，并把单次网络超时由 10 秒提高到 60 秒。Wrapper JAR 本身也已核对为 Gradle 官方 8.2.1 指纹。绿色 CI SHA 仍由 `IDLEWUXIA_GREEN_CI_SHA` 显式提供，工具不会根据“曾经有网络错误”放宽正式发行门槛。
