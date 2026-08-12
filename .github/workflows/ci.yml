@@ -36,6 +36,25 @@ jobs:
       - name: Reject untracked or unapproved Android product resources
         run: npm run android:resources:validate
 
+      - name: Bootstrap Gradle wrapper with bounded network retry
+        working-directory: android
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            if ./gradlew --version --no-daemon; then
+              exit 0
+            fi
+
+            if [ "$attempt" -eq 3 ]; then
+              echo "Gradle wrapper bootstrap failed after ${attempt} attempts." >&2
+              exit 1
+            fi
+
+            delay=$((attempt * 10))
+            echo "Gradle wrapper bootstrap attempt ${attempt} failed; retrying in ${delay}s." >&2
+            sleep "$delay"
+          done
+
       - name: Assemble clean-checkout Android debug artifact
         working-directory: android
         run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
