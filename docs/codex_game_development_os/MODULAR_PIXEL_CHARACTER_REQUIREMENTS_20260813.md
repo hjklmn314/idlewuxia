@@ -83,7 +83,13 @@ CharacterCompositionDefinition
 - `config/wuxia_character_compositions.json` 是角色部件与组合的唯一活动配置入口；当前状态为 `requirements-ready-assets-missing`，`parts=[]`、`compositions=[]`、`shippingAllowed=false`。
 - `src/characterComposer.js` 只实现部件登记、组合、层序、动画帧同步、调色参数和左右镜像渲染计划，不包含任何具体人物、门派、NPC 或图片路径。
 - `src/wuxia-main.js` 在启动时创建 PartRegistry 与 CharacterComposer；无资产时合法启动，有配置错误或不兼容组合时精确报错并 fail-closed。
-- 实际 DOM/Canvas 像素层挂载要等批准部件资产进入配置后再启用。不能用 CSS 几何角色来伪造该任务完成。
+- 通用 DOM 像素层挂载已由 `src/characterDomRenderer.js` 实现：读取 Composer 计划、裁切配置图集、按层同帧播放并受控镜像。活动配置仍为零部件/零组合，因此真实像素角色未启用；不能用 CSS 几何角色或测试夹具伪造 ASSET-007 完成。
+
+## 11. CHARACTER-PRESENTATION-001 运行时挂载增量
+
+`wuxia_character_compositions.v2` 为每个部件增加图集尺寸、96x96 命名帧区域和 clip 播放策略。战斗单位只通过 `visual.compositionId` 选择组合，战斗状态到 clip 的关系由 `policy.combatClipByState` 配置。运行时不按角色名、单位 ID、门派或图片路径分支。
+
+该增量的程序和配置夹具测试通过，但没有新增/生成/复制任何角色资产，故产品视觉仍是 BLOCKED / NOT TESTABLE。详见 `CHARACTER_PRESENTATION_001_COMPLETION_20260813.md`。
 
 ## 10. 真实浏览器人工验收记录
 

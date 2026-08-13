@@ -111,6 +111,7 @@
         "COMBAT-005",
         "COMBAT-002B",
         "CHARACTER-RUNTIME-001",
+        "CHARACTER-PRESENTATION-001",
         "QA-UI-001",
         "COMBAT-002",
         "AUDIT-003"
@@ -1051,6 +1052,34 @@
         "tools/test-wuxia-character-compositions.mjs",
         "docs/codex_game_development_os/MODULAR_PIXEL_CHARACTER_REQUIREMENTS_20260813.md",
         "npm run runtime:character-composer:test"
+      ]
+    },
+    {
+      "id": "CHARACTER-PRESENTATION-001",
+      "title": "模块化像素角色战斗 DOM 挂载与逐帧适配器",
+      "priority": "P0",
+      "gate": "G5",
+      "status": "done",
+      "owner": "html-web-engine-production-engineer",
+      "dependsOn": [
+        "CHARACTER-RUNTIME-001"
+      ],
+      "acceptance": [
+        "The combat renderer consumes only visual.compositionId and configured combat-state-to-clip mappings; no unit or image path is hardcoded.",
+        "The DOM adapter mounts ordered 96x96 layers, crops approved PNG/WebP atlases, keeps all parts on one frame and mirrors the canonical right-facing stack for enemy presentation.",
+        "Atlas overflow, missing regions, unknown compositions and incomplete production manifests fail closed while the empty live manifest remains truthful and renders no fabricated modular character."
+      ],
+      "evidence": [
+        "src/characterDomRenderer.js",
+        "src/characterComposer.js",
+        "src/wuxia-main.js",
+        "src/wuxia.css",
+        "config/wuxia_character_compositions.json",
+        "config/wuxia_character_compositions.schema.json",
+        "tools/test-character-dom-renderer.mjs",
+        "tools/test-wuxia-character-compositions.mjs",
+        "docs/codex_game_development_os/CHARACTER_PRESENTATION_001_COMPLETION_20260813.md",
+        "npm run runtime:character-dom-renderer:test"
       ]
     },
     {

@@ -958,5 +958,13 @@ PartRegistry, CharacterComposer, approved AssetRegistry binding, independent
 part-frame references, shared canvas/pivot/anchor/body-phase timeline checks,
 ordered optional layers and controlled horizontal mirroring are implemented.
 The live registry has zero parts and zero compositions, so this does not close
-ASSET-007 or produce a visible character. DOM/Canvas mounting remains the next
-runtime adapter only after approved part atlases are available.
+ASSET-007 or produce a visible character.
+
+`CHARACTER-PRESENTATION-001` now closes the previously missing generic DOM
+consumption seam. Character schema v2 describes atlas dimensions, named 96x96
+frame regions, clip playback and combat-state-to-clip mapping;
+`CharacterDomRenderer` mounts ordered layers, keeps them on one frame clock and
+uses controlled mirroring. The live registry deliberately remains zero parts,
+zero compositions and non-shipping. Therefore the program path passes focused
+tests, while real character visual acceptance remains BLOCKED / NOT TESTABLE
+and ASSET-007, COMBAT-002B and T05-01 remain unchanged.

@@ -1568,6 +1568,17 @@ body.wuxia-mode #app {
 .wuxia-runtime-fighter { position: absolute; z-index: 3; bottom: 15%; width: 100px; height: 150px; }
 .wuxia-runtime-fighter.left { left: 29%; }
 .wuxia-runtime-fighter.right { right: 29%; transform: scaleX(-1); }
+.wuxia-runtime-fighter.has-modular-character.right { transform: none; }
+.wuxia-runtime-fighter.has-modular-character .wuxia-runtime-fighter-shadow,
+.wuxia-runtime-fighter.has-modular-character .wuxia-runtime-fighter-body { display: none; }
+.wuxia-character-layer-stack { position: absolute; left: 2px; bottom: 4px; display: block; overflow: visible; transform-origin: 50% 100%; image-rendering: pixelated; image-rendering: crisp-edges; }
+.wuxia-character-layer-stack[data-wuxia-character-mirror="true"] { transform: scaleX(-1); }
+.wuxia-character-layer { position: absolute; inset: 0; display: block; width: 96px; height: 96px; overflow: hidden; image-rendering: pixelated; image-rendering: crisp-edges; }
+.wuxia-character-layer img { position: absolute; max-width: none; image-rendering: pixelated; image-rendering: crisp-edges; pointer-events: none; user-select: none; }
+.wuxia-character-layer-stack[data-wuxia-character-body-phase="compress"] { transform: translateY(2px) scaleY(.96); }
+.wuxia-character-layer-stack[data-wuxia-character-mirror="true"][data-wuxia-character-body-phase="compress"] { transform: scaleX(-1) translateY(2px) scaleY(.96); }
+.wuxia-character-layer-stack[data-wuxia-character-body-phase="translate"] { transform: translateX(2px); }
+.wuxia-character-layer-stack[data-wuxia-character-mirror="true"][data-wuxia-character-body-phase="translate"] { transform: scaleX(-1) translateX(2px); }
 .wuxia-runtime-fighter-shadow { position: absolute; left: 15%; right: 15%; bottom: 0; height: 13px; border-radius: 50%; background: rgba(0,0,0,.58); filter: blur(2px); }
 .wuxia-runtime-fighter-body { position: absolute; left: 19%; bottom: 11px; width: 64px; height: 118px; image-rendering: pixelated; filter: drop-shadow(0 3px 0 rgba(0,0,0,.5)); }
 .wuxia-runtime-fighter-body::before {

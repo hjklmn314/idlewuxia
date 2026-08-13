@@ -17,6 +17,7 @@
 | Android 发布 | build/audit/release tools | identity/web/release contracts | launcher/store assets | signed bundle/device/store | REL-001..003 |
 | 战斗逻辑与运行时回放 | `src/combatSession.js` / `src/chapterSession.js` | `config/wuxia_combat_content.json` + `config/wuxia_combat_simulation.json` | development reference overlay；production 仍需 ASSET-007～010 | pause/replay/save restore + shared-runtime simulation | COMBAT-002A, COMBAT-003 |
 | 战斗表现/Rest/Repair | CombatSession presentation adapter | combat definitions | approved combat feedback assets | strict visual/device gates | COMBAT-002B/COMBAT-002 blocked；REST-REPAIR-001 postponed |
+| 模块化角色表现 | `characterComposer.js` + `characterDomRenderer.js` + combat DOM hook | `wuxia_character_compositions.v2` + unit `visual.compositionId` | approved PNG/WebP part atlases | focused DOM/atlas/fail-closed tests；真实逐帧人工门待资产 | CHARACTER-RUNTIME-001, CHARACTER-PRESENTATION-001 done；ASSET-007/T05-01 open/blocked |
 
 ## 输入证据到项目产物
 
@@ -84,6 +85,14 @@
 | First-session simulation separation | existing simulator report | T02-02 audit report `relatedFirstSessionSimulation` | `outputs/idlewuxia_migration/wuxia_first_session_flow_simulation.json` and T03-01 record | Excluded from T02-02 verdict |
 
 ## ASSET-007 actor requirements traceability entry (2026-08-08)
+
+### CHARACTER-PRESENTATION-001 runtime delta (2026-08-13)
+
+| Requirement | Configuration authority | Runtime/tool authority | Evidence | Verdict |
+|---|---|---|---|---|
+| Configured composition reaches the real combat DOM | unit `visual.compositionId` + `policy.combatClipByState` | `src/characterDomRenderer.js`, `src/wuxia-main.js` | `runtime:character-dom-renderer:test` | PASS for generic code path |
+| Approved atlas cells render deterministically | part `assetId`, `atlas`, `frameRegions`, clip playback | `CharacterComposer` source plan + DOM crop adapter | composer and DOM positive/negative tests | PASS for test fixtures; no live part rows |
+| No false production art completion | active manifest `parts=[]`, `compositions=[]`, `shippingAllowed=false` | strict production flag + AssetRegistry failure paths | `CHARACTER_PRESENTATION_001_COMPLETION_20260813.md` | Product visual BLOCKED / NOT TESTABLE |
 
 | Requirement | Configuration authority | Runtime/tool authority | Evidence | Verdict |
 |---|---|---|---|---|

@@ -19,9 +19,28 @@ const phaseSequence = (clipId, count) => clipId === "move"
   ? ["compress", "translate", "recover", "neutral"]
   : Array.from({ length: count }, () => "neutral");
 const createClips = (partType) => Object.fromEntries([["idle", 4], ["move", 4], ["attack", 6], ["hurt", 4], ["control", 4], ["defeat", 6]].map(([id, count]) => [id, { frameCount: count, fps: 8, frames: Array.from({ length: count }, (_, index) => `${partType}-${id}-${index}`), bodyPhases: phaseSequence(id, count) }]));
-const parts = ["body", "head-base", "eyes", "mouth", "hair", "headwear"].map((partType) => ({ id: `part-${partType}`, partType, assetId: `asset-${partType}`, view: "side", canonicalFacing: "right", legSilhouette: "forbidden", canvas: { width: 96, height: 96 }, pivot: { x: 48, y: 88 }, anchors, clips: createClips(partType) }));
+const withPlayback = (clips) => Object.fromEntries(Object.entries(clips).map(([clipId, clip]) => [clipId, { ...clip, playback: ["defeat", "control"].includes(clipId) ? "hold-last" : "loop" }]));
+const createPart = (partType) => {
+  const clips = withPlayback(createClips(partType));
+  const frames = [...new Set(Object.values(clips).flatMap((clip) => clip.frames))];
+  return {
+    id: `part-${partType}`,
+    partType,
+    assetId: `asset-${partType}`,
+    view: "side",
+    canonicalFacing: "right",
+    legSilhouette: "forbidden",
+    canvas: { width: 96, height: 96 },
+    atlas: { width: 96 * frames.length, height: 96 },
+    frameRegions: Object.fromEntries(frames.map((frame, index) => [frame, { x: 96 * index, y: 0, width: 96, height: 96 }])),
+    pivot: { x: 48, y: 88 },
+    anchors,
+    clips,
+  };
+};
+const parts = ["body", "head-base", "eyes", "mouth", "hair", "headwear"].map(createPart);
 const manifest = { ...live, status: "development-ready", parts };
-const assetRegistry = { resolve(assetId) { return { id: assetId, kind: "character-part" }; } };
+const assetRegistry = { resolve(assetId) { return { id: assetId, kind: "character-part", format: "png", path: `public/test/${assetId}.png` }; } };
 const registry = createCharacterPartRegistry(manifest, { assetRegistry });
 const assetManifest = {
   registryId: "character-test-assets",
@@ -37,6 +56,8 @@ const left = composer.compose("actor-probe", { clipId: "move", frameIndex: 2, fa
 assert.equal(right.layers.length, 6);
 assert.deepEqual(right.layers.map((layer) => layer.partType), ["body", "head-base", "eyes", "mouth", "hair", "headwear"]);
 assert.equal(right.layers.every((layer) => layer.frame.endsWith("-move-2") && layer.frameIndex === 2), true);
+assert.equal(right.layers.every((layer) => layer.bodyPhase === "recover" && layer.source.region.width === 96 && layer.source.path.endsWith(`${layer.assetId}.png`)), true);
+assert.equal(right.playback, "loop");
 assert.equal(right.mirrorX, false);
 assert.equal(left.mirrorX, true);
 assert.deepEqual(right.layers.find((layer) => layer.partType === "body").palette, { primary: "#234765" });
@@ -57,6 +78,22 @@ assert.throws(() => createCharacterComposer({ registry, definitions: [{ ...defin
   const missingPhase = JSON.parse(JSON.stringify(manifest));
   missingPhase.parts[0].clips.move.bodyPhases.pop();
   assert.throws(() => createCharacterPartRegistry(missingPhase, { assetRegistry }), (error) => error.code === "CHARACTER_PART_CLIP_PHASES_INVALID");
+}
+{
+  const missingRegion = JSON.parse(JSON.stringify(manifest));
+  delete missingRegion.parts[0].frameRegions[missingRegion.parts[0].clips.idle.frames[0]];
+  assert.throws(() => createCharacterPartRegistry(missingRegion, { assetRegistry }), (error) => error.code === "CHARACTER_PART_FRAME_REGION_UNKNOWN");
+}
+{
+  const overflowRegion = JSON.parse(JSON.stringify(manifest));
+  const frameId = overflowRegion.parts[0].clips.idle.frames[0];
+  overflowRegion.parts[0].frameRegions[frameId].x = overflowRegion.parts[0].atlas.width;
+  assert.throws(() => createCharacterPartRegistry(overflowRegion, { assetRegistry }), (error) => error.code === "CHARACTER_PART_FRAME_REGION_INVALID");
+}
+{
+  const missingPlayback = JSON.parse(JSON.stringify(manifest));
+  delete missingPlayback.parts[0].clips.idle.playback;
+  assert.throws(() => createCharacterPartRegistry(missingPlayback, { assetRegistry }), (error) => error.code === "CHARACTER_PART_CLIP_PLAYBACK_INVALID");
 }
 {
   assert.throws(() => createCharacterPartRegistry(manifest), (error) => error.code === "CHARACTER_PART_ASSET_REGISTRY_REQUIRED");

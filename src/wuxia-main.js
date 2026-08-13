@@ -9,6 +9,7 @@ import { createWuxiaDomAdapter } from "./wuxiaDomAdapter.js";
 import { applyEvidencePlayerPatch, resolveBrowserEvidenceRoute } from "./browserEvidenceRoute.js";
 import { createAssetRegistry, createReferenceAssetRegistry } from "./assetRegistry.js";
 import { createCharacterComposer, createCharacterPartRegistry } from "./characterComposer.js";
+import { createCharacterDomRenderer } from "./characterDomRenderer.js";
 import { interpolateRuntimeText, interpolateRuntimeTextLines } from "./runtimeTextInterpolation.js";
 
 const CONFIG_FILES = {
@@ -43,6 +44,7 @@ const state = {
   referenceAssetRegistry: null,
   characterPartRegistry: null,
   characterComposer: null,
+  characterDomRenderer: null,
   developmentAssetMode: "",
 };
 
@@ -201,8 +203,14 @@ function renderCombatRuntimeUnit(unit, side) {
 function renderCombatFighter(unit, side, activeKind = "", cueColor = "") {
   const visual = unit?.visual || {};
   const palette = visual.palette || {};
+  const compositionId = visual.compositionId || "";
+  const combatState = !unit?.alive || Number(unit?.hp || 0) <= 0 ? "defeat" : activeKind || "idle";
+  const clipId = state.config?.wuxiaCharacterCompositions?.policy?.combatClipByState?.[combatState] || "idle";
+  const compositionAttributes = compositionId
+    ? ` data-wuxia-character-composition-id="${escapeHtml(compositionId)}" data-wuxia-character-clip="${escapeHtml(clipId)}" data-wuxia-character-facing="${side === "left" ? "right" : "left"}" data-wuxia-character-label="${escapeHtml(unit?.name || "")}"`
+    : "";
   return `
-    <div class="wuxia-runtime-fighter ${escapeHtml(side)} ${escapeHtml(visual.pose || "guard")} ${escapeHtml(activeKind ? `is-${activeKind}` : "")}" data-wuxia-fighter="${escapeHtml(side)}" style="--combat-cue-color:${escapeHtml(cueColor || "#f3d28b")};--fighter-coat:${escapeHtml(palette.coat || (side === "left" ? "#234765" : "#5c2f33"))};--fighter-accent:${escapeHtml(palette.accent || (side === "left" ? "#d6a85c" : "#d08b6e"))};--fighter-skin:${escapeHtml(palette.skin || "#d99a6c")}">
+    <div class="wuxia-runtime-fighter ${escapeHtml(side)} ${escapeHtml(visual.pose || "guard")} ${escapeHtml(activeKind ? `is-${activeKind}` : "")}" data-wuxia-fighter="${escapeHtml(side)}"${compositionAttributes} style="--combat-cue-color:${escapeHtml(cueColor || "#f3d28b")};--fighter-coat:${escapeHtml(palette.coat || (side === "left" ? "#234765" : "#5c2f33"))};--fighter-accent:${escapeHtml(palette.accent || (side === "left" ? "#d6a85c" : "#d08b6e"))};--fighter-skin:${escapeHtml(palette.skin || "#d99a6c")}">
       <div class="wuxia-runtime-fighter-shadow" aria-hidden="true"></div>
       <div class="wuxia-runtime-fighter-body" aria-label="${escapeHtml(unit?.name || "")}">
         <span>${escapeHtml(visual.symbol || "")}</span>
@@ -1363,6 +1371,7 @@ function render() {
       render();
     },
   });
+  state.characterDomRenderer?.mount(stage);
   syncCombatPlayback(snapshot, screen, flowContract);
   bindPendingChoiceDialog(stage, snapshot.pendingChoice);
   const renderEndedAt = globalThis.performance?.now?.() ?? renderStartedAt;
@@ -1384,6 +1393,18 @@ async function init() {
     state.characterComposer = createCharacterComposer({
       registry: state.characterPartRegistry,
       definitions: state.config.wuxiaCharacterCompositions.compositions,
+    });
+    state.characterDomRenderer = createCharacterDomRenderer({
+      composer: state.characterComposer,
+      strict: state.config.wuxiaCharacterCompositions.status === "production-ready",
+      onError: (error) => {
+        state.observability?.recordError?.({
+          errorCode: error.code || "CHARACTER_DOM_RENDER_FAILED",
+          source: "character.dom-renderer",
+          snapshot: state.ui?.snapshot?.() || {},
+        });
+        console.error(error);
+      },
     });
     state.referenceAssetRegistry = state.config.wuxiaCombatReferenceAssetOverlay
       ? createReferenceAssetRegistry(state.config.wuxiaCombatReferenceAssetOverlay)

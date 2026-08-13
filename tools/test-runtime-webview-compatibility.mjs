@@ -39,6 +39,7 @@ for (const relativePath of [
   "src/uiFlowAdapter.js",
   "src/browserAutomationAdapter.js",
   "src/characterComposer.js",
+  "src/characterDomRenderer.js",
   "src/wuxia-main.js",
 ]) {
   const source = fs.readFileSync(path.resolve(relativePath), "utf8");

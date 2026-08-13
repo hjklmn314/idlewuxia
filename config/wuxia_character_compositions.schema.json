@@ -1,19 +1,19 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://idlewuxia.local/schema/wuxia_character_compositions.v1.json",
+  "$id": "https://idlewuxia.local/schema/wuxia_character_compositions.v2.json",
   "type": "object",
   "additionalProperties": false,
   "required": ["$schema", "registryId", "version", "status", "shippingAllowed", "policy", "requiredParts", "optionalParts", "layerOrderBackToFront", "parts", "compositions"],
   "properties": {
-    "$schema": { "const": "idlewuxia.character_compositions.v1" },
+    "$schema": { "const": "idlewuxia.character_compositions.v2" },
     "registryId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
-    "version": { "const": 1 },
+    "version": { "const": 2 },
     "status": { "enum": ["requirements-ready-assets-missing", "development-ready", "production-ready"] },
     "shippingAllowed": { "type": "boolean" },
     "policy": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["construction", "view", "canonicalFacing", "opposingSideTransform", "logicalCanvasPx", "legSilhouette", "movementPhasePolicy", "missingPartPolicy"],
+      "required": ["construction", "view", "canonicalFacing", "opposingSideTransform", "logicalCanvasPx", "legSilhouette", "movementPhasePolicy", "missingPartPolicy", "combatClipByState"],
       "properties": {
         "construction": { "const": "modular-head-body" },
         "view": { "const": "side" },
@@ -22,7 +22,23 @@
         "logicalCanvasPx": { "type": "object", "additionalProperties": false, "required": ["width", "height"], "properties": { "width": { "const": 96 }, "height": { "const": 96 } } },
         "legSilhouette": { "const": "forbidden" },
         "movementPhasePolicy": { "const": "body-compress-translate-recover" },
-        "missingPartPolicy": { "const": "fail-closed" }
+        "missingPartPolicy": { "const": "fail-closed" },
+        "combatClipByState": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["idle", "attack", "skill", "skillResolved", "damage", "hit", "block", "control", "defeat"],
+          "properties": {
+            "idle": { "const": "idle" },
+            "attack": { "const": "attack" },
+            "skill": { "const": "attack" },
+            "skillResolved": { "const": "attack" },
+            "damage": { "const": "hurt" },
+            "hit": { "const": "hurt" },
+            "block": { "const": "hurt" },
+            "control": { "const": "control" },
+            "defeat": { "const": "defeat" }
+          }
+        }
       }
     },
     "requiredParts": { "type": "array", "minItems": 5, "maxItems": 5, "uniqueItems": true, "items": { "enum": ["body", "head-base", "eyes", "mouth", "hair"] } },
@@ -33,11 +49,13 @@
   },
   "$defs": {
     "point": { "type": "object", "additionalProperties": false, "required": ["x", "y"], "properties": { "x": { "type": "integer", "minimum": 0, "maximum": 95 }, "y": { "type": "integer", "minimum": 0, "maximum": 95 } } },
-    "clip": { "type": "object", "additionalProperties": false, "required": ["frameCount", "fps", "frames", "bodyPhases"], "properties": { "frameCount": { "type": "integer", "minimum": 1 }, "fps": { "type": "number", "exclusiveMinimum": 0 }, "frames": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }, "bodyPhases": { "type": "array", "minItems": 1, "items": { "enum": ["neutral", "compress", "translate", "recover"] } } } },
+    "clip": { "type": "object", "additionalProperties": false, "required": ["frameCount", "fps", "playback", "frames", "bodyPhases"], "properties": { "frameCount": { "type": "integer", "minimum": 1 }, "fps": { "type": "number", "exclusiveMinimum": 0 }, "playback": { "enum": ["loop", "hold-last"] }, "frames": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^[a-z0-9-]+$" } }, "bodyPhases": { "type": "array", "minItems": 1, "items": { "enum": ["neutral", "compress", "translate", "recover"] } } } },
+    "atlas": { "type": "object", "additionalProperties": false, "required": ["width", "height"], "properties": { "width": { "type": "integer", "minimum": 96 }, "height": { "type": "integer", "minimum": 96 } } },
+    "frameRegion": { "type": "object", "additionalProperties": false, "required": ["x", "y", "width", "height"], "properties": { "x": { "type": "integer", "minimum": 0 }, "y": { "type": "integer", "minimum": 0 }, "width": { "const": 96 }, "height": { "const": 96 } } },
     "part": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "partType", "assetId", "view", "canonicalFacing", "legSilhouette", "canvas", "pivot", "anchors", "clips"],
+      "required": ["id", "partType", "assetId", "view", "canonicalFacing", "legSilhouette", "canvas", "atlas", "frameRegions", "pivot", "anchors", "clips"],
       "properties": {
         "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
         "partType": { "enum": ["body", "head-base", "eyes", "mouth", "hair", "headwear", "face-accessory", "weapon-rear", "weapon-front", "contact-shadow"] },
@@ -46,6 +64,8 @@
         "canonicalFacing": { "const": "right" },
         "legSilhouette": { "const": "forbidden" },
         "canvas": { "type": "object", "additionalProperties": false, "required": ["width", "height"], "properties": { "width": { "const": 96 }, "height": { "const": 96 } } },
+        "atlas": { "$ref": "#/$defs/atlas" },
+        "frameRegions": { "type": "object", "minProperties": 1, "propertyNames": { "pattern": "^[a-z0-9-]+$" }, "additionalProperties": { "$ref": "#/$defs/frameRegion" } },
         "pivot": { "$ref": "#/$defs/point" },
         "anchors": { "type": "object", "required": ["origin", "head", "face", "weapon-main", "fx-center", "ground-contact"], "properties": { "origin": { "$ref": "#/$defs/point" }, "head": { "$ref": "#/$defs/point" }, "face": { "$ref": "#/$defs/point" }, "weapon-main": { "$ref": "#/$defs/point" }, "fx-center": { "$ref": "#/$defs/point" }, "ground-contact": { "$ref": "#/$defs/point" } }, "additionalProperties": { "$ref": "#/$defs/point" } },
         "clips": { "type": "object", "required": ["idle", "move", "attack", "hurt", "control", "defeat"], "properties": { "idle": { "$ref": "#/$defs/clip" }, "move": { "$ref": "#/$defs/clip" }, "attack": { "$ref": "#/$defs/clip" }, "hurt": { "$ref": "#/$defs/clip" }, "control": { "$ref": "#/$defs/clip" }, "defeat": { "$ref": "#/$defs/clip" } }, "additionalProperties": { "$ref": "#/$defs/clip" } }

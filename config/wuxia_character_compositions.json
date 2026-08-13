@@ -1,7 +1,7 @@
 {
-  "$schema": "idlewuxia.character_compositions.v1",
-  "registryId": "idlewuxia-modular-characters-v1",
-  "version": 1,
+  "$schema": "idlewuxia.character_compositions.v2",
+  "registryId": "idlewuxia-modular-characters-v2",
+  "version": 2,
   "status": "requirements-ready-assets-missing",
   "shippingAllowed": false,
   "policy": {
@@ -12,7 +12,18 @@
     "logicalCanvasPx": { "width": 96, "height": 96 },
     "legSilhouette": "forbidden",
     "movementPhasePolicy": "body-compress-translate-recover",
-    "missingPartPolicy": "fail-closed"
+    "missingPartPolicy": "fail-closed",
+    "combatClipByState": {
+      "idle": "idle",
+      "attack": "attack",
+      "skill": "attack",
+      "skillResolved": "attack",
+      "damage": "hurt",
+      "hit": "hurt",
+      "block": "hurt",
+      "control": "control",
+      "defeat": "defeat"
+    }
   },
   "requiredParts": ["body", "head-base", "eyes", "mouth", "hair"],
   "optionalParts": ["headwear", "face-accessory", "weapon-rear", "weapon-front", "contact-shadow"],

@@ -38,6 +38,7 @@
 | COMBAT-004 | P0 | G5 | done | combat-system-designer | 手动回合、技能和目标选择 |
 | COMBAT-005 | P0 | G5 | done | combat-system-designer | 章节战斗结果路由 |
 | ASSET-007 | P0 | G5 | open | asset-content-pipeline | 玩家战斗角色资产 |
+| CHARACTER-PRESENTATION-001 | P0 | G5 | done | html-web-engine-production-engineer | 模块化像素角色战斗 DOM 挂载、图集裁切与逐帧同步适配器；真实美术仍缺失 |
 | ASSET-008 | P0 | G5 | open | asset-content-pipeline | 敌人和干净战斗场景资产 |
 | ASSET-009 | P0 | G5 | open | asset-content-pipeline | 战斗 VFX/Buff 表现资产 |
 | ASSET-010 | P0 | G5 | open | asset-content-pipeline | 战斗 SFX/BGM 资产 |
@@ -55,6 +56,8 @@
 1. `REL-001`：工具链基础已完成并纳入 CI；下一步只在 T05-01、外部签名与绿色提交就绪后执行两次正式 clean build、签名/证书/制品清单与手动安装验收，当前不能标记发行通过。
 2. `AUDIT-003`：依赖矛盾已裁决，但其严格 Android/生产视觉门不得用浏览器功能 PASS 代替，继续 blocked。
 3. 资产输入不阻断程序/配置工作，但 `ASSET-007`～`010`、`COMBAT-002B` 与 `T05-01` 在批准资产到位前保持 blocked/open。
+
+2026-08-13 权威更新：`CHARACTER-PRESENTATION-001` 已完成通用 DOM 挂载、96x96 图集裁切、逐层同帧、身体阶段和受控镜像；活动清单仍为零部件/零组合，所以本项不得解释为角色美术、ASSET-007、COMBAT-002B 或 T05-01 完成。
 
 G4 的 ARCH/T03/COMBAT-003/SAVE/OBS/HYGIENE 已全部完成，当前 Gate 为 pass；G5/G7 的生产视觉和发行门继续独立阻断。
 

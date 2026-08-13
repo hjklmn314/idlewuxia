@@ -26,6 +26,7 @@
 ### Wave 2 — G5 产品资产与 UI/UX 闭环
 
 1. `ASSET-007` 侧视头身二段模块角色：body、head-base、eyes、mouth、hair；idle、move、attack、hurt、control、defeat；组合替换和身体运动阶段逐帧人工检查。
+   - 2026-08-13 `CHARACTER-PRESENTATION-001` 已完成通用程序链：配置 ID → Composer → DOM 图集裁切/分层/同帧/镜像。它不提供任何角色像素，ASSET-007 仍 open；下一动作只是把后续批准的真实部件填入既有合同并人工逐帧验收。
 2. `ASSET-008` 干净战斗场景：无 baked character，三尺寸安全区与角色落点通过。
 3. `ASSET-009` 打击/VFX/Buff：命中、格挡、闪避、暴击、控制、Buff、胜负，性能预算内可读。
 4. `ASSET-010` 音效/BGM：替换 oscillator，占位音频在 production profile 必须 fail。
