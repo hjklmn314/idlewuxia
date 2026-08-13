@@ -1,0 +1,22 @@
+{
+  "$schema": "idlewuxia.character_compositions.v1",
+  "registryId": "idlewuxia-modular-characters-v1",
+  "version": 1,
+  "status": "requirements-ready-assets-missing",
+  "shippingAllowed": false,
+  "policy": {
+    "construction": "modular-head-body",
+    "view": "side",
+    "canonicalFacing": "right",
+    "opposingSideTransform": "horizontal-mirror",
+    "logicalCanvasPx": { "width": 96, "height": 96 },
+    "legSilhouette": "forbidden",
+    "movementPhasePolicy": "body-compress-translate-recover",
+    "missingPartPolicy": "fail-closed"
+  },
+  "requiredParts": ["body", "head-base", "eyes", "mouth", "hair"],
+  "optionalParts": ["headwear", "face-accessory", "weapon-rear", "weapon-front", "contact-shadow"],
+  "layerOrderBackToFront": ["contact-shadow", "weapon-rear", "body", "head-base", "eyes", "mouth", "hair", "headwear", "face-accessory", "weapon-front"],
+  "parts": [],
+  "compositions": []
+}

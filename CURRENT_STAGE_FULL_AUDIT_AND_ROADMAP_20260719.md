@@ -930,3 +930,33 @@ This does not close `REL-002`: no physical Android phone, signed Release
 APK/AAB, audio-latency, low-storage/power-loss, full physical performance or
 store evidence exists. `REL-001`, `REL-002`, `REL-003`, `T05-01`,
 `COMBAT-002B` and `G7` remain blocked. `REST-REPAIR-001` remains postponed.
+
+## Current authority pointer — modular pixel-character direction 2026-08-13
+
+The user-approved character direction supersedes the former roughly three-head
+full-body requirement. Future player and NPC/combat character assets use a
+side-view, legless, modular head/body silhouette. `body`, `head-base`, `eyes`,
+`mouth` and `hair` are independent replaceable logical parts; optional equipment
+and weapons use additional ordered layers. All parts share a 96x96 logical
+canvas, anchor set and animation timeline. Movement uses body
+compress/translate/recover phases rather than left/right foot animation.
+
+Authoritative contracts are `config/production/visual_standard.json` and
+`config/wuxia_combat_actor_asset_requirements.json`, both version 2. This update
+generates no art and does not close ASSET-007, COMBAT-002B, T05-01 or any Release
+gate. Historical references to the former three-head style are superseded, not
+evidence of current acceptance.
+
+The final REL-002A seven-screenshot manual record is
+`docs/codex_game_development_os/REL_002A_MANUAL_DEVICE_VISUAL_ACCEPTANCE_20260813.md`.
+Its functional visual verdict is PASS and its product-art verdict is FAIL /
+BLOCKED; this preserves the boundary between lifecycle regression evidence and
+production visual acceptance.
+
+`CHARACTER-RUNTIME-001` is complete as a generic configuration interpreter:
+PartRegistry, CharacterComposer, approved AssetRegistry binding, independent
+part-frame references, shared canvas/pivot/anchor/body-phase timeline checks,
+ordered optional layers and controlled horizontal mirroring are implemented.
+The live registry has zero parts and zero compositions, so this does not close
+ASSET-007 or produce a visible character. DOM/Canvas mounting remains the next
+runtime adapter only after approved part atlases are available.

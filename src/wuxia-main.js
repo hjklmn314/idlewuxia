@@ -8,6 +8,7 @@ import { createUiFlowAdapter } from "./uiFlowAdapter.js";
 import { createWuxiaDomAdapter } from "./wuxiaDomAdapter.js";
 import { applyEvidencePlayerPatch, resolveBrowserEvidenceRoute } from "./browserEvidenceRoute.js";
 import { createAssetRegistry, createReferenceAssetRegistry } from "./assetRegistry.js";
+import { createCharacterComposer, createCharacterPartRegistry } from "./characterComposer.js";
 import { interpolateRuntimeText, interpolateRuntimeTextLines } from "./runtimeTextInterpolation.js";
 
 const CONFIG_FILES = {
@@ -16,6 +17,7 @@ const CONFIG_FILES = {
   wuxiaRuntimePersistence: "./config/runtime_persistence_contract.json",
   wuxiaRuntimeObservability: "./config/analytics_events.json",
   wuxiaRuntimeAssetRegistry: "./config/wuxia_runtime_asset_registry.json",
+  wuxiaCharacterCompositions: "./config/wuxia_character_compositions.json",
   wuxiaCombatContent: "./config/wuxia_combat_content.json",
 };
 
@@ -39,6 +41,8 @@ const state = {
     referenceAudio: new Map(),
   },
   referenceAssetRegistry: null,
+  characterPartRegistry: null,
+  characterComposer: null,
   developmentAssetMode: "",
 };
 
@@ -1374,6 +1378,13 @@ async function init() {
   try {
     state.config = await loadConfig();
     state.assetRegistry = createAssetRegistry(state.config.wuxiaRuntimeAssetRegistry);
+    state.characterPartRegistry = createCharacterPartRegistry(state.config.wuxiaCharacterCompositions, {
+      assetRegistry: state.assetRegistry,
+    });
+    state.characterComposer = createCharacterComposer({
+      registry: state.characterPartRegistry,
+      definitions: state.config.wuxiaCharacterCompositions.compositions,
+    });
     state.referenceAssetRegistry = state.config.wuxiaCombatReferenceAssetOverlay
       ? createReferenceAssetRegistry(state.config.wuxiaCombatReferenceAssetOverlay)
       : null;

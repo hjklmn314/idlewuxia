@@ -110,6 +110,7 @@
         "COMBAT-004",
         "COMBAT-005",
         "COMBAT-002B",
+        "CHARACTER-RUNTIME-001",
         "QA-UI-001",
         "COMBAT-002",
         "AUDIT-003"
@@ -789,7 +790,7 @@
     },
     {
       "id": "VISUAL-STANDARD-001",
-      "title": "侧视三头身像素武侠竖屏体验验收标准",
+      "title": "侧视头身二段式模块像素武侠竖屏体验验收标准",
       "priority": "P0",
       "gate": "G5",
       "status": "done",
@@ -798,8 +799,8 @@
         "UX-001"
       ],
       "acceptance": [
-        "The standard requires side-view-only characters at roughly three-head proportion and clean scenes without baked units.",
-        "Portrait safe areas, 44dp touch targets, text hierarchy, combat readability and animation review are measurable at all production viewports.",
+        "The standard requires side-view-only modular characters with independently replaceable body, head-base, eyes, mouth and hair layers, no separate leg silhouette, and clean scenes without baked units.",
+        "Portrait safe areas, 44dp touch targets, text hierarchy, combat readability, shared anchors and body-phase animation review are measurable at all production viewports.",
         "Human review examples distinguish route correctness from product visual acceptance."
       ],
       "evidence": [
@@ -810,7 +811,8 @@
         "npm run production:visual-standard",
         "docs/codex_game_development_os/FULL_RELEASE_AUDIT_20260804.md",
         "docs/codex_game_development_os/ROADMAP_20260804_TO_RELEASE.md",
-        "docs/codex_game_development_os/VISUAL_STANDARD_001_COMPLETION_RECORD_20260806.md"
+        "docs/codex_game_development_os/VISUAL_STANDARD_001_COMPLETION_RECORD_20260806.md",
+        "docs/codex_game_development_os/MODULAR_PIXEL_CHARACTER_REQUIREMENTS_20260813.md"
       ]
     },
     {
@@ -943,12 +945,15 @@
       "gate": "G5",
       "status": "done",
       "owner": "asset-content-pipeline",
-      "dependsOn": ["COMBAT-002A", "COMBAT-003"],
+      "dependsOn": [
+        "COMBAT-002A",
+        "COMBAT-003"
+      ],
       "acceptance": [
         "Every configured actor, scene, VFX cue, audio cue and Buff icon has one logical binding and a required production slot.",
         "Development reference bindings are explicit, reversible and cannot satisfy the production gate.",
         "Strict production validation fails closed for missing assets, CSS actor/VFX fallback, reference-only records and synthesized audio.",
-        "Missing asset requirements are recorded with side-view, three-head, clean-scene, cue coverage, audio and manual review criteria."
+        "Missing asset requirements are recorded with side-view modular head/body, clean-scene, cue coverage, audio and manual review criteria."
       ],
       "evidence": [
         "config/wuxia_combat_presentation_contract.json",
@@ -969,7 +974,10 @@
       "gate": "G5",
       "status": "done",
       "owner": "combat-system-designer",
-      "dependsOn": ["COMBAT-002A", "COMBAT-003"],
+      "dependsOn": [
+        "COMBAT-002A",
+        "COMBAT-003"
+      ],
       "acceptance": [
         "The compare, inattack201 and inattack202 chapter combat results enter a configured real CombatSession instead of returning feedback-only acceptance.",
         "Result ID, allowed source/action, encounter, terminal outcome and follow-up result dispatch are schema-valid and fail closed on ambiguity or missing configuration.",
@@ -996,16 +1004,18 @@
     },
     {
       "id": "ASSET-007",
-      "title": "侧视三头身武侠角色与战斗动画资产",
+      "title": "侧视头身二段式模块武侠角色与战斗动画资产",
       "priority": "P0",
       "gate": "G5",
       "status": "open",
       "owner": "asset-content-pipeline",
-      "dependsOn": ["T05-02"],
+      "dependsOn": [
+        "T05-02"
+      ],
       "acceptance": [
-        "Every combat unit has approved side-view idle, attack, hurt, control and defeat animation bindings.",
-        "Characters use the approved roughly three-head pixel proportion and contain no other viewing angle.",
-        "Source, ownership, hashes, budgets and runtime logical IDs are recorded."
+        "Every combat unit composes approved side-view body, head-base, eyes, mouth and hair parts through logical IDs.",
+        "Characters use the approved legless head/body pixel construction; every part shares the 96x96 canvas, anchors and animation timeline.",
+        "Source, ownership, hashes, budgets, variant compatibility and runtime logical IDs are recorded."
       ],
       "evidence": [
         "config/wuxia_combat_actor_asset_requirements.json",
@@ -1013,7 +1023,34 @@
         "tools/validate-wuxia-combat-actor-asset-requirements.mjs",
         "tools/test-wuxia-combat-actor-asset-requirements.mjs",
         "docs/codex_game_development_os/ASSET_007_ACTOR_ASSET_REQUIREMENTS_AUDIT_20260808.md",
+        "docs/codex_game_development_os/MODULAR_PIXEL_CHARACTER_REQUIREMENTS_20260813.md",
         "npm run runtime:combat-actor-assets:test"
+      ]
+    },
+    {
+      "id": "CHARACTER-RUNTIME-001",
+      "title": "模块化像素角色 PartRegistry 与 CharacterComposer 运行时",
+      "priority": "P0",
+      "gate": "G5",
+      "status": "done",
+      "owner": "production-code-engineer",
+      "dependsOn": [
+        "VISUAL-STANDARD-001",
+        "T05-02"
+      ],
+      "acceptance": [
+        "Runtime resolves body, head-base, eyes, mouth, hair and optional equipment layers only through logical part IDs.",
+        "All selected parts share the 96x96 canvas, pivot, anchors, frame count, FPS and body-phase timeline while retaining independent per-part frame references; drift, missing parts, unknown AssetRegistry IDs, wrong asset/part types, visible legs and unsupported facing fail closed.",
+        "One canonical right-facing part set produces a left-facing render plan through controlled horizontal mirroring without duplicating art or hardcoding a character ID."
+      ],
+      "evidence": [
+        "src/characterComposer.js",
+        "config/wuxia_character_compositions.json",
+        "config/wuxia_character_compositions.schema.json",
+        "tools/validate-wuxia-character-compositions.mjs",
+        "tools/test-wuxia-character-compositions.mjs",
+        "docs/codex_game_development_os/MODULAR_PIXEL_CHARACTER_REQUIREMENTS_20260813.md",
+        "npm run runtime:character-composer:test"
       ]
     },
     {
@@ -1023,7 +1060,9 @@
       "gate": "G5",
       "status": "open",
       "owner": "asset-content-pipeline",
-      "dependsOn": ["T05-02"],
+      "dependsOn": [
+        "T05-02"
+      ],
       "acceptance": [
         "Combat backgrounds contain no baked player or NPC figures.",
         "Portrait crops preserve safe areas for actors, feedback and touch controls.",
@@ -1045,7 +1084,10 @@
       "gate": "G5",
       "status": "open",
       "owner": "asset-content-pipeline",
-      "dependsOn": ["COMBAT-002A", "T05-02"],
+      "dependsOn": [
+        "COMBAT-002A",
+        "T05-02"
+      ],
       "acceptance": [
         "Every configured cue resolves to approved hit, skill, control, buff and outcome visuals.",
         "VFX remain readable at all three portrait viewports and obey performance budgets.",
@@ -1067,7 +1109,10 @@
       "gate": "G5",
       "status": "open",
       "owner": "asset-content-pipeline",
-      "dependsOn": ["COMBAT-002A", "T05-02"],
+      "dependsOn": [
+        "COMBAT-002A",
+        "T05-02"
+      ],
       "acceptance": [
         "Synthesized placeholder oscillators are replaced by approved logical audio assets.",
         "Every hit, block, control, buff, defeat and victory cue has device latency and mix evidence.",
@@ -1089,7 +1134,9 @@
       "gate": "G5",
       "status": "blocked",
       "owner": "project-and-engine-auditor",
-      "dependsOn": ["AUDIT-001"],
+      "dependsOn": [
+        "AUDIT-001"
+      ],
       "acceptance": [
         "Tracked code, config, resources, Markdown and all commits from the previous five days have a complete-reading ledger.",
         "Three independent gates pass: static contract, runtime regression, then strict manual browser and Android acceptance.",

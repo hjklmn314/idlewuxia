@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://idlewuxia.local/schema/production/asset-contract-v1.json",
+  "$id": "https://idlewuxia.local/schema/production/asset-contract-v2.json",
   "type": "object",
   "additionalProperties": false,
   "required": ["$schema", "contractId", "version", "policy", "mountPoints", "slotContracts", "assets"],
   "properties": {
-    "$schema": { "const": "idlewuxia.production.asset_contract.v1" },
+    "$schema": { "const": "idlewuxia.production.asset_contract.v2" },
     "contractId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
-    "version": { "const": 1 },
+    "version": { "const": 2 },
     "policy": {
       "type": "object",
       "additionalProperties": false,
@@ -66,14 +66,18 @@
     "slotRules": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["allowReference", "forbidBakedCharacters", "requiresSideView", "headCountRange", "requiredClips", "requireAlternatingWalkFootPhases", "requireSceneAlphaSeparation", "audioFallbackPolicy"],
+      "required": ["allowReference", "forbidBakedCharacters", "requiresSideView", "characterConstruction", "requiredParts", "optionalParts", "legSilhouette", "headToBodyHeightRatio", "requiredClips", "movementPhasePolicy", "requireSceneAlphaSeparation", "audioFallbackPolicy"],
       "properties": {
         "allowReference": { "const": false },
         "forbidBakedCharacters": { "const": true },
         "requiresSideView": { "type": "boolean" },
-        "headCountRange": { "anyOf": [{ "type": "null" }, { "type": "object", "additionalProperties": false, "required": ["min", "max"], "properties": { "min": { "type": "number", "exclusiveMinimum": 0 }, "max": { "type": "number", "exclusiveMinimum": 0 } } }] },
+        "characterConstruction": { "enum": ["not-applicable", "modular-head-body"] },
+        "requiredParts": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "optionalParts": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "legSilhouette": { "enum": ["not-applicable", "forbidden"] },
+        "headToBodyHeightRatio": { "anyOf": [{ "type": "null" }, { "type": "object", "additionalProperties": false, "required": ["min", "max"], "properties": { "min": { "type": "number", "exclusiveMinimum": 0 }, "max": { "type": "number", "exclusiveMinimum": 0 } } }] },
         "requiredClips": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
-        "requireAlternatingWalkFootPhases": { "type": "boolean" },
+        "movementPhasePolicy": { "enum": ["not-applicable", "body-compress-translate-recover"] },
         "requireSceneAlphaSeparation": { "type": "boolean" },
         "audioFallbackPolicy": { "enum": ["not-applicable", "approved-file-only"] }
       }
@@ -81,7 +85,7 @@
     "asset": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["assetId", "slotId", "kind", "source", "format", "sha256", "bytes", "budgetBytes", "dimensions", "pivot", "alphaPolicy", "containsBakedCharacters", "runtimeMountPoints", "fallbackPolicy", "view", "headCount", "clipFrames"],
+      "required": ["assetId", "slotId", "kind", "source", "format", "sha256", "bytes", "budgetBytes", "dimensions", "pivot", "alphaPolicy", "containsBakedCharacters", "runtimeMountPoints", "fallbackPolicy", "view", "characterPart", "anchors", "clipFrames"],
       "properties": {
         "assetId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
         "slotId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
@@ -98,18 +102,28 @@
         "runtimeMountPoints": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } },
         "fallbackPolicy": { "enum": ["none", "explicit-configured-only", "development-only"] },
         "view": { "enum": ["side", "none"] },
-        "headCount": { "anyOf": [{ "type": "null" }, { "type": "number", "exclusiveMinimum": 0 }] },
+        "characterPart": { "enum": ["not-applicable", "body", "head-base", "eyes", "mouth", "hair", "headwear", "face-accessory", "weapon-rear", "weapon-front", "contact-shadow"] },
+        "anchors": { "type": "object", "propertyNames": { "pattern": "^[a-z][a-z0-9-]*$" }, "additionalProperties": { "$ref": "#/$defs/point" } },
         "clipFrames": { "type": "object", "additionalProperties": { "$ref": "#/$defs/clip" } }
+      }
+    },
+    "point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y"],
+      "properties": {
+        "x": { "type": "integer", "minimum": 0, "maximum": 95 },
+        "y": { "type": "integer", "minimum": 0, "maximum": 95 }
       }
     },
     "clip": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["frameCount", "fps", "footPhases"],
+      "required": ["frameCount", "fps", "bodyPhases"],
       "properties": {
         "frameCount": { "type": "integer", "minimum": 1 },
         "fps": { "type": "number", "exclusiveMinimum": 0 },
-        "footPhases": { "type": "array", "minItems": 1, "items": { "enum": ["left", "right", "neutral"] } }
+        "bodyPhases": { "type": "array", "minItems": 1, "items": { "enum": ["neutral", "compress", "translate", "recover"] } }
       }
     }
   }

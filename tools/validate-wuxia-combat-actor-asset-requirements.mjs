@@ -24,6 +24,15 @@ export function validateCombatActorAssetRequirements({ rootDir = root, manifest,
 
   const actorIds = new Set((activeManifest.actors || []).map((row) => row.id));
   if (actorIds.size !== 2 || !actorIds.has("player") || !actorIds.has("enemy")) findings.push(finding("ASSET_007_ACTOR_COVERAGE", "actors", "ASSET-007 must specify exactly the player and enemy logical actor rows."));
+  const requiredParts = ["body", "head-base", "eyes", "mouth", "hair"];
+  const declaredParts = activeManifest.policy?.requiredParts || [];
+  if (requiredParts.some((part) => !declaredParts.includes(part))) findings.push(finding("ASSET_007_REQUIRED_PARTS", "policy.requiredParts", "Body, head-base, eyes, mouth and hair must all be independently replaceable."));
+  const partRows = new Map((activeManifest.partCatalogRequirements || []).map((row) => [row.partType, row]));
+  if (partRows.size !== requiredParts.length || requiredParts.some((part) => !partRows.has(part))) findings.push(finding("ASSET_007_PART_CATALOG_COVERAGE", "partCatalogRequirements", "The part catalog must contain exactly one requirement row for every required modular part."));
+  if (activeManifest.policy?.legSilhouette !== "forbidden") findings.push(finding("ASSET_007_LEG_SILHOUETTE", "policy.legSilhouette", "The approved head/body construction may not expose a separate leg silhouette."));
+  if (activeManifest.policy?.movementPhasePolicy !== "body-compress-translate-recover") findings.push(finding("ASSET_007_MOVEMENT_POLICY", "policy.movementPhasePolicy", "Movement must use body compress/translate/recover phases."));
+  const layerOrder = activeManifest.policy?.layerOrderBackToFront || [];
+  if (requiredParts.some((part) => !layerOrder.includes(part))) findings.push(finding("ASSET_007_LAYER_ORDER", "policy.layerOrderBackToFront", "Every required part must appear in the frozen layer order."));
   const presentationActors = new Map((activePresentation.actors || []).map((row) => [row.id, row]));
   for (const row of activeManifest.actors || []) {
     const presentationRow = presentationActors.get(row.id);
@@ -32,11 +41,13 @@ export function validateCombatActorAssetRequirements({ rootDir = root, manifest,
     if (row.status !== "missing") findings.push(finding("ASSET_007_FALSE_SATISFACTION", row.id, "This requirements-only manifest may not claim an actor asset is satisfied."));
     if ((row.referenceCandidates || []).length > 0) findings.push(finding("ASSET_007_REFERENCE_BINDING_PRESENT", row.id, "No reference actor candidate passed the audit; reference bytes must not be bound."));
     if (row.runtimeBinding?.fallbackScope !== "development-only") findings.push(finding("ASSET_007_FALLBACK_SCOPE", row.id, "The CSS actor fallback must remain development-only."));
+    if (requiredParts.some((part) => row.defaultComposition?.[part] !== "required")) findings.push(finding("ASSET_007_DEFAULT_COMPOSITION", row.id, "Each actor composition must select every required part."));
+    if (!row.clipAcceptance?.sharedFrameTimeline || !row.clipAcceptance?.allPartsShareAnchors) findings.push(finding("ASSET_007_LAYER_ANIMATION_COMPATIBILITY", row.id, "All modular parts must share the same frame timeline and anchor set."));
   }
   if (activeManifest.shippingAllowed !== false || activeManifest.sourcePolicy?.referenceBytesMayShip !== false || activeManifest.sourcePolicy?.referenceBindingsMaySatisfyProduction !== false) findings.push(finding("ASSET_007_SHIPPING_POLICY", "sourcePolicy", "Reference bytes and bindings must be explicitly excluded from shipping."));
   if ((activeManifest.referenceAudit?.eligibleCandidates || []).length > 0) findings.push(finding("ASSET_007_UNVERIFIED_CANDIDATE", "referenceAudit.eligibleCandidates", "Candidates may not be marked eligible without ownership, hash, clip and manual evidence."));
   const status = findings.length === 0 ? "PASS WITH KNOWN LIMITATIONS" : "REVISE";
-  return { valid: findings.length === 0, status, findings, taskId: activeManifest.taskId, productionStatus: activeManifest.acceptanceGate?.productionStatus, counts: { actorRows: activeManifest.actors?.length || 0, eligibleReferenceCandidates: activeManifest.referenceAudit?.eligibleCandidates?.length || 0, ineligibleEvidence: activeManifest.referenceAudit?.ineligibleEvidence?.length || 0 } };
+  return { valid: findings.length === 0, status, findings, taskId: activeManifest.taskId, productionStatus: activeManifest.acceptanceGate?.productionStatus, counts: { actorRows: activeManifest.actors?.length || 0, partCatalogRows: activeManifest.partCatalogRequirements?.length || 0, eligibleReferenceCandidates: activeManifest.referenceAudit?.eligibleCandidates?.length || 0, ineligibleEvidence: activeManifest.referenceAudit?.ineligibleEvidence?.length || 0 } };
 }
 
 function run() {

@@ -36,4 +36,11 @@ const overlay = JSON.parse(fs.readFileSync("config/wuxia_combat_reference_asset_
   assert.ok(result.findings.some((item) => item.code === "COMBAT_PRESENTATION_PRODUCTION_ASSET_MISSING"));
   assert.ok(result.findings.some((item) => item.code === "COMBAT_PRESENTATION_SYNTH_AUDIO_CONFIGURED"));
 }
+{
+  const broken = JSON.parse(JSON.stringify(contract));
+  broken.requirements.find((row) => row.taskId === "ASSET-007").mustProvide = ["idle", "attack"];
+  const result = validateCombatPresentationContract({ contract: broken, combatContent, overlay });
+  assert.equal(result.valid, false);
+  assert.ok(result.findings.some((item) => item.code === "COMBAT_PRESENTATION_MODULAR_ACTOR_REQUIREMENT"));
+}
 console.log("combat presentation contract tests: PASS (coverage, reference provenance, strict production blocking)");

@@ -10,6 +10,7 @@
     "src/browserAutomationAdapter.js",
     "src/browserEvidenceRoute.js",
     "src/assetRegistry.js",
+    "src/characterComposer.js",
     "src/chapterSession.js",
     "src/combatSession.js",
     "src/conditionEvaluator.js",
@@ -34,6 +35,7 @@
     "config/wuxia_first_session_flow.json",
     "config/wuxia_first_session_screen_contract.json",
     "config/wuxia_runtime_asset_registry.json",
+    "config/wuxia_character_compositions.json",
     "config/wuxia_combat_content.json"
   ],
   "developmentReferenceFiles": [
@@ -55,6 +57,7 @@
     "config/wuxia_browser_evidence_routes.json",
     "config/wuxia_browser_evidence_routes.schema.json",
     "config/wuxia_runtime_asset_registry.schema.json",
+    "config/wuxia_character_compositions.schema.json",
     "config/wuxia_combat_reference_asset_overlay.json",
     "config/wuxia_combat_reference_asset_overlay.schema.json",
     "config/wuxia_combat_presentation_contract.json",
@@ -82,6 +85,7 @@
     "src/browserAutomationAdapter.js",
     "src/browserEvidenceRoute.js",
     "src/assetRegistry.js",
+    "src/characterComposer.js",
     "src/chapterSession.js",
     "src/combatSession.js",
     "src/conditionEvaluator.js",
@@ -104,6 +108,7 @@
     "config/wuxia_first_session_flow.json",
     "config/wuxia_first_session_screen_contract.json",
     "config/wuxia_runtime_asset_registry.json",
+    "config/wuxia_character_compositions.json",
     "config/wuxia_combat_content.json",
     "public/wuxia-brand/icon.svg"
   ],

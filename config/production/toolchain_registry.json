@@ -97,7 +97,16 @@
       "stage": "G5",
       "status": "enabled",
       "taskId": "VISUAL-STANDARD-001",
-      "notes": "Validates portrait viewport thresholds and the side-view, three-head, no-baked-character, no-placeholder standard. It never substitutes for human visual acceptance."
+      "notes": "Validates portrait viewport thresholds and the side-view modular head/body, replaceable-part, no-leg, no-baked-character and no-placeholder standard. It never substitutes for human visual acceptance."
+    },
+    {
+      "id": "modular-character-composer-gate",
+      "command": "npm run runtime:character-composer:validate && npm run runtime:character-composer:test",
+      "artifact": "config/wuxia_character_compositions.json",
+      "stage": "G5",
+      "status": "enabled-requirements-ready-assets-missing",
+      "taskId": "CHARACTER-RUNTIME-001",
+      "notes": "Validates fail-closed AssetRegistry binding, body/head/eyes/mouth/hair composition, shared anchors and body phases, independent per-part frame references, layer order, palette overrides and right/left mirroring. No visual asset bytes are generated."
     },
     {
       "id": "web-bundle-freshness",

@@ -32,10 +32,12 @@ read as evidence, but they are not source or task-status authority.
   animations, resources and neighboring systems. Human failure keeps the task
   blocked.
 - Current product art standard is portrait mobile Wuxia pixel presentation:
-  side-view-only characters at roughly three-head proportion; clean scenes
-  contain no baked units; character/scene/VFX/audio are mounted by logical
-  configuration IDs. CSS geometric fighters and oscillator audio are not
-  production fallbacks.
+  side-view-only, legless modular characters assembled from independently
+  replaceable `body`, `head-base`, `eyes`, `mouth`, and `hair` layers; clean
+  scenes contain no baked units; character/scene/VFX/audio are mounted by
+  logical configuration IDs. CSS geometric fighters and oscillator audio are
+  not production fallbacks. The former roughly-three-head full-body standard
+  is historical and must not be used for new production acceptance.
 - `REST-REPAIR-001` remains postponed. Combat logic and asset contracts are
   active, but `COMBAT-002B`, `T05-01`, ASSET-002 through ASSET-010, G5 and G7
   remain release blockers.

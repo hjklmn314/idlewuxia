@@ -19,13 +19,13 @@
 
 1. `COMBAT-002A`：**已完成逻辑合同冻结**。当前为 26 技能、16 Buff、7 目标、6 伤害、事件、角色挂点、场景挂点、VFX/SFX 逻辑 ID；不等于资产或表现完成。
 2. `ASSET-CONTRACT-001`：**已完成合同冻结**。`asset_contract.json`、Schema、来源/授权/尺寸/帧率/pivot/透明区/预算/hash/fallback/runtime binding 验证链已接入；实际资产槽仍未满足。
-3. `VISUAL-STANDARD-001`：**已完成标准冻结**。侧视、约三头身、干净场景、像素渲染、竖屏安全区、44dp 触控、战斗信息不遮挡等规则已配置化；当前产品画面仍需人工验收。
+3. `VISUAL-STANDARD-001`：**已按 v2 完成标准冻结**。角色为侧视无腿的头身二段式模块像素结构，身体、头底、眼睛、嘴巴、发型可独立替换；场景干净无烘焙角色，同时约束竖屏安全区、44dp 触控和战斗信息不遮挡。当前产品画面仍未通过人工美术验收。
 
-完成标准：配置和样例验证器能拒绝错误视角、错误比例、带人物背景、缺帧、缺授权、超预算与缺逻辑 ID。不得先批量产图再补规则。
+完成标准：配置和样例验证器能拒绝错误视角、可见腿部、缺必需部件、跨部件帧/锚点漂移、带人物背景、缺帧、缺授权、超预算与缺逻辑 ID。不得先批量产图再补规则。
 
 ### Wave 2 — G5 产品资产与 UI/UX 闭环
 
-1. `ASSET-007` 侧视三头身角色：idle、attack、hurt、control、defeat；左右脚/动作帧人工逐帧检查。
+1. `ASSET-007` 侧视头身二段模块角色：body、head-base、eyes、mouth、hair；idle、move、attack、hurt、control、defeat；组合替换和身体运动阶段逐帧人工检查。
 2. `ASSET-008` 干净战斗场景：无 baked character，三尺寸安全区与角色落点通过。
 3. `ASSET-009` 打击/VFX/Buff：命中、格挡、闪避、暴击、控制、Buff、胜负，性能预算内可读。
 4. `ASSET-010` 音效/BGM：替换 oscillator，占位音频在 production profile 必须 fail。
@@ -56,7 +56,7 @@
 
 ## 2026-08-08 ASSET-007 actor reference audit update
 
-- `ASSET-007` remains **open**. The new requirements-only manifest and schema cover both actor logical IDs, the side-view/three-head/alternating-foot policy, runtime mount point and manual evidence requirements.
+- `ASSET-007` remains **open**. This 2026-08-08 record is historical; the 2026-08-13 v2 requirements supersede its former three-head/alternating-foot policy with five independently replaceable head/body parts, shared anchors/timeline and body-phase movement.
 - The read-only reference archive audit found no eligible transparent side-view actor clip set. Scene PNGs, role UI panels, Lua role definitions and the flat-silhouette fight UI demo are explicitly ineligible; no reference bytes were copied or bound.
 - Focused validator and positive/negative tests pass. This is an audit/configuration PASS WITH KNOWN LIMITATIONS, not a production asset pass. The next real dependency is an approved player and enemy actor set, followed by ASSET-008.
 - Evidence: `config/wuxia_combat_actor_asset_requirements.json`, `config/wuxia_combat_actor_asset_requirements.schema.json`, `tools/validate-wuxia-combat-actor-asset-requirements.mjs`, `tools/test-wuxia-combat-actor-asset-requirements.mjs`, `docs/codex_game_development_os/ASSET_007_ACTOR_ASSET_REQUIREMENTS_AUDIT_20260808.md`.
@@ -113,7 +113,7 @@
 | 顺序 | 任务 | 负责人能力 | 产物 |
 |---:|---|---|---|
 | 1 | ASSET-CONTRACT-001 | configuration-data-pipeline + asset pipeline | **done**：角色/场景/动画/VFX/音频/UI 资产 Schema、来源、授权、预算、hash 与 runtime binding 合同 |
-| 2 | VISUAL-STANDARD-001 | ux-ui + asset pipeline | **done**：竖屏侧视三头身像素武侠验收标准与负例门禁；产品人工视觉仍由 T05-01 承担 |
+| 2 | VISUAL-STANDARD-001 | ux-ui + asset pipeline | **done v2**：竖屏侧视无腿模块像素角色验收标准与负例门禁；产品人工视觉仍由 T05-01 承担 |
 | 3 | COMBAT-003 | combat-model-and-simulator + runtime + QA | **done**：暂停/继续、保存恢复、命令 replay、200×3 配置场景数值模拟与平衡报告 |
 | 4 | ASSET-007/008 首个可玩套装 | asset-content-pipeline | 1 玩家、1 敌人、1 干净场景的完整动作闭环；缺失时继续使用开发期参考绑定，不把参考 bytes 带入 shipping |
 | 5 | ASSET-009/010 首个打击闭环 | combat presentation + asset/audio | 命中、格挡、控制、胜负的 VFX/SFX 证据；缺失时登记需求，不伪造 production PASS |
@@ -134,7 +134,7 @@
 
 - `COMBAT-004`：done，新增 `wuxia_combat_presentation_contract`，把 2 个角色挂点、2 个场景、28 个视觉 cue、5 个音频 cue、16 个 Buff 图标和 ASSET-007～010 的需求全部纳入同一配置/Schema/验证链。
 - 普通结构门禁：PASS；`runtime:combat-presentation:test` 覆盖正例、缺 cue、未知引用和严格生产阻断；结构验证报告当前登记 53 个 production-blocked 绑定。
-- 严格生产门禁：BLOCKED（符合预期）；当前无批准的侧视三头身角色、VFX 生产族和自有/授权 OGG，参考场景/音频/Buff 仅限开发覆盖层。
+- 严格生产门禁：BLOCKED（符合预期）；当前无批准的侧视模块头/身/眼/嘴/发型部件族、VFX 生产族和自有/授权 OGG，参考场景/音频/Buff 仅限开发覆盖层。
 - 下一施工顺序保持：ASSET-007 → ASSET-008 → ASSET-009 → ASSET-010 → COMBAT-002B；任何一项未通过人工 Gate C 都不得宣称上线。
 
 ## 2026-08-09 COMBAT-005 章节战斗结果路由更新
@@ -168,7 +168,7 @@ The current production re-audit is recorded in `AUDIT_003_CURRENT_PRODUCTION_STA
 ### Next serial work packages
 
 1. `CONTENT-001`: **done** as a config-only later-chapter reuse certification. The isolated second-chapter fixture passed schema, foreign keys, dialogue/result branches, Encounter/reward/combat references, save identity, diff and rollback without chapter-specific runtime branches. It is test-only and does not invent or activate production story content.
-2. `ASSET-007` → `ASSET-010`, `COMBAT-002B`, `T05-01`: continue using the original-project overlay for development only. Production requires approved side-view three-head pixel actors, clean scenes, authored VFX/Buff, owned/licensed OGG and strict manual visual acceptance.
+2. `ASSET-007` → `ASSET-010`, `COMBAT-002B`, `T05-01`: continue using the original-project overlay for development only. Production requires approved side-view modular head/body pixel part families, clean scenes, authored VFX/Buff, owned/licensed OGG and strict manual visual acceptance.
 3. `REL-001` → `REL-002` → `REL-003`: signed Release AAB/APK, physical Android acceptance, performance/audio/touch evidence, store materials, monitoring and rollback rehearsal.
 
 `REST-REPAIR-001` remains postponed by user instruction and must not auto-resume. The machine authority is `config/production/production_stage_plan.json`; historical sections in this file do not override the current report.
@@ -296,3 +296,34 @@ modern physical Android devices using the strict release budget; finally run
 `REL-003` store, staged rollout, monitoring and rollback rehearsal. Authority:
 `REL_002A_ANDROID_DEVICE_BASELINE_20260813.md` and
 `config/android_device_acceptance_contract.json`.
+
+## 2026-08-13 modular pixel-character direction supersession
+
+The previous “roughly three-head full-body side-view actor” requirement is now
+superseded for all future asset production. The approved character construction
+is a side-view, legless, two-mass silhouette composed at runtime from separate
+`body`, `head-base`, `eyes`, `mouth` and `hair` logical parts. Headwear, face
+accessories, rear/front weapons and contact shadow are optional layers. Enemy
+facing is a controlled horizontal mirror of the canonical right-facing source;
+front, back, three-quarter and isometric art remain forbidden.
+
+The v2 visual and ASSET-007 contracts freeze a 96x96 logical pixel canvas,
+integer scaling, layer order, common anchors, a shared animation timeline and a
+head-to-body height ratio of 0.75–1.15. Because legs are not drawn as an
+independent silhouette, the old left/right-foot cycle is removed. Movement now
+uses `neutral → compress → translate → recover` body phases, while idle, attack,
+hurt, control and defeat remain required states.
+
+No character image was generated or approved by this change. ASSET-007 remains
+**open** until owned/licensed part atlases, compatibility evidence, runtime
+composition binding, browser/Android screenshots and manual frame review exist.
+Historical reports retain the former direction as history only and do not
+override the current v2 contracts.
+
+The authoritative production requirement table is
+`MODULAR_PIXEL_CHARACTER_REQUIREMENTS_20260813.md`. The generic
+`AssetRegistry + PartRegistry + CharacterCompositionDefinition + CharacterComposer` seam is now
+implemented and fail-closed as `CHARACTER-RUNTIME-001`; the live registry
+truthfully contains zero parts and zero compositions. The next program step is
+the DOM/Canvas layer adapter after approved part atlases exist. This runtime
+does not manufacture, approve, or ship missing art.

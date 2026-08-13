@@ -14,8 +14,23 @@ assert.equal(validateVisualStandard({ standard: liveVisual, uiExperience: liveUi
 
 function characterFixture() {
   const contract = clone(liveContract);
-  contract.assets.push({
-    assetId: "fixture-character",
+  const anchors = {
+    origin: { x: 48, y: 88 },
+    head: { x: 48, y: 35 },
+    face: { x: 68, y: 37 },
+    "weapon-main": { x: 70, y: 61 },
+    "fx-center": { x: 48, y: 50 },
+    "ground-contact": { x: 48, y: 88 },
+  };
+  const clipFrames = {
+    idle: { frameCount: 4, fps: 8, bodyPhases: ["neutral", "neutral", "neutral", "neutral"] },
+    move: { frameCount: 4, fps: 8, bodyPhases: ["neutral", "compress", "translate", "recover"] },
+    attack: { frameCount: 6, fps: 8, bodyPhases: ["neutral", "compress", "translate", "translate", "recover", "neutral"] },
+    hurt: { frameCount: 4, fps: 8, bodyPhases: ["neutral", "compress", "translate", "recover"] },
+    control: { frameCount: 4, fps: 8, bodyPhases: ["neutral", "compress", "compress", "neutral"] },
+    defeat: { frameCount: 6, fps: 8, bodyPhases: ["neutral", "compress", "translate", "translate", "recover", "recover"] },
+  };
+  const base = {
     slotId: "combat-side-view-character-sprites",
     kind: "character",
     source: { path: "public/wuxia-brand/icon.svg", provenance: "project-owned", owner: "fixture", licenseStatus: "approved" },
@@ -23,51 +38,78 @@ function characterFixture() {
     sha256: liveContract.assets[0].sha256,
     bytes: 616,
     budgetBytes: 10000,
-    dimensions: { width: 64, height: 192 },
+    dimensions: { width: 96, height: 96 },
     pivot: { x: 0.5, y: 1 },
     alphaPolicy: "preserve",
     containsBakedCharacters: false,
     runtimeMountPoints: ["combat.actor"],
     fallbackPolicy: "none",
     view: "side",
-    headCount: 3,
-    clipFrames: {
-      idle: { frameCount: 2, fps: 8, footPhases: ["neutral", "neutral"] },
-      walk_left: { frameCount: 2, fps: 8, footPhases: ["left", "right"] },
-      walk_right: { frameCount: 2, fps: 8, footPhases: ["right", "left"] },
-      attack: { frameCount: 2, fps: 8, footPhases: ["neutral", "neutral"] },
-      hurt: { frameCount: 2, fps: 8, footPhases: ["neutral", "neutral"] },
-      control: { frameCount: 2, fps: 8, footPhases: ["neutral", "neutral"] },
-      defeat: { frameCount: 2, fps: 8, footPhases: ["neutral", "neutral"] },
-    },
-  });
+    anchors,
+    clipFrames,
+  };
+  for (const part of ["body", "head-base", "eyes", "mouth", "hair"]) contract.assets.push({ ...clone(base), assetId: `fixture-character-${part}`, characterPart: part });
   return contract;
+}
+
+function validateCharacterFixture(contract) {
+  const productionRegistry = clone(liveProduction);
+  for (const asset of contract.assets.filter((row) => row.assetId.startsWith("fixture-character-"))) {
+    productionRegistry.assets.push({
+      id: asset.assetId,
+      kind: "character-part",
+      provenance: "project-owned",
+      licenseStatus: "approved",
+      adoption: "ship",
+      shippingPath: asset.source.path,
+      sha256: asset.sha256,
+      bytes: asset.bytes,
+      consumers: ["test-only"],
+    });
+  }
+  return validateProductionAssetContract({ contract, productionRegistry });
+}
+
+assert.equal(validateCharacterFixture(characterFixture()).valid, true, "complete modular character family must pass");
+
+{
+  const contract = characterFixture();
+  const headwear = clone(contract.assets.find((asset) => asset.characterPart === "hair"));
+  headwear.assetId = "fixture-character-headwear";
+  headwear.characterPart = "headwear";
+  contract.assets.push(headwear);
+  assert.equal(validateCharacterFixture(contract).valid, true, "configured optional character layers must pass without becoming required coverage");
 }
 
 {
   const contract = characterFixture();
-  contract.assets[1].view = "front";
-  assert.ok(validateProductionAssetContract({ contract, productionRegistry: liveProduction }).findings.some((item) => ["ASSET_CONTRACT_CHARACTER_VIEW_INVALID", "ASSET_CONTRACT_SCHEMA_INVALID"].includes(item.code)), "front-view characters must fail");
+  contract.assets.find((asset) => asset.characterPart === "body").view = "front";
+  assert.ok(validateCharacterFixture(contract).findings.some((item) => ["ASSET_CONTRACT_CHARACTER_VIEW_INVALID", "ASSET_CONTRACT_SCHEMA_INVALID"].includes(item.code)), "front-view characters must fail");
 }
 {
   const contract = characterFixture();
-  contract.assets[1].headCount = 7;
-  assert.ok(validateProductionAssetContract({ contract, productionRegistry: liveProduction }).findings.some((item) => item.code === "ASSET_CONTRACT_HEAD_PROPORTION_INVALID"), "wrong head proportion must fail");
+  contract.slotContracts.find((slot) => slot.slotId === "combat-side-view-character-sprites").rules.legSilhouette = "not-applicable";
+  assert.ok(validateCharacterFixture(contract).findings.some((item) => ["ASSET_CONTRACT_SCHEMA_INVALID", "ASSET_CONTRACT_LEG_SILHOUETTE"].includes(item.code)), "visible leg silhouettes must fail");
 }
 {
   const contract = characterFixture();
-  contract.assets[1].containsBakedCharacters = true;
-  assert.ok(validateProductionAssetContract({ contract, productionRegistry: liveProduction }).findings.some((item) => item.code === "ASSET_CONTRACT_BAKED_CHARACTER"), "baked characters must fail");
+  contract.assets.find((asset) => asset.characterPart === "body").containsBakedCharacters = true;
+  assert.ok(validateCharacterFixture(contract).findings.some((item) => item.code === "ASSET_CONTRACT_BAKED_CHARACTER"), "baked characters must fail");
 }
 {
   const contract = characterFixture();
-  delete contract.assets[1].clipFrames.attack;
-  assert.ok(validateProductionAssetContract({ contract, productionRegistry: liveProduction }).findings.some((item) => item.code === "ASSET_CONTRACT_CLIP_MISSING"), "missing animation clips must fail");
+  delete contract.assets.find((asset) => asset.characterPart === "body").clipFrames.attack;
+  assert.ok(validateCharacterFixture(contract).findings.some((item) => item.code === "ASSET_CONTRACT_CLIP_MISSING"), "missing animation clips must fail");
 }
 {
   const contract = characterFixture();
-  contract.assets[1].clipFrames.walk_left.footPhases = ["left", "left"];
-  assert.ok(validateProductionAssetContract({ contract, productionRegistry: liveProduction }).findings.some((item) => item.code === "ASSET_CONTRACT_WALK_FEET_NOT_ALTERNATING"), "non-alternating walk phases must fail");
+  contract.assets.find((asset) => asset.characterPart === "body").clipFrames.move.bodyPhases = ["neutral", "translate", "translate", "recover"];
+  assert.ok(validateCharacterFixture(contract).findings.some((item) => item.code === "ASSET_CONTRACT_BODY_MOVEMENT_PHASES"), "movement without a body compression phase must fail");
+}
+{
+  const contract = characterFixture();
+  contract.assets = contract.assets.filter((asset) => asset.characterPart !== "hair");
+  assert.ok(validateCharacterFixture(contract).findings.some((item) => item.code === "ASSET_CONTRACT_CHARACTER_PART_COVERAGE"), "missing required character part family must fail");
 }
 {
   const contract = clone(liveContract);
@@ -79,6 +121,8 @@ function characterFixture() {
     format: "ogg",
     runtimeMountPoints: ["combat.audio"],
     fallbackPolicy: "explicit-configured-only",
+    characterPart: "not-applicable",
+    anchors: {},
   });
   assert.ok(validateProductionAssetContract({ contract, productionRegistry: liveProduction }).findings.some((item) => item.code === "ASSET_CONTRACT_AUDIO_FALLBACK"), "audio fallback must fail");
 }

@@ -29,11 +29,15 @@ export function validateVisualStandard({ rootDir = root, standard, uiExperience 
   }
   const viewportIds = new Set(activeStandard.portrait.viewports.map((viewport) => viewport.id));
   if (activeStandard.style.characterView !== "side") findings.push(finding("VISUAL_STANDARD_NOT_SIDE_VIEW", "style.characterView", "Characters must use side view."));
-  if (activeStandard.style.characterHeadCountRange.min >= activeStandard.style.characterHeadCountRange.max) findings.push(finding("VISUAL_STANDARD_HEAD_RANGE_INVALID", "style.characterHeadCountRange", "Head-count range must have min < max."));
+  if (activeStandard.style.characterConstruction !== "modular-head-body") findings.push(finding("VISUAL_STANDARD_CHARACTER_CONSTRUCTION", "style.characterConstruction", "Characters must use the modular head/body construction."));
+  const requiredParts = ["body", "head-base", "eyes", "mouth", "hair"];
+  if (requiredParts.some((part) => !activeStandard.style.requiredCharacterParts.includes(part))) findings.push(finding("VISUAL_STANDARD_CHARACTER_PART_MISSING", "style.requiredCharacterParts", "Body, head-base, eyes, mouth and hair must be independently replaceable layers."));
+  if (activeStandard.style.legSilhouette !== "forbidden") findings.push(finding("VISUAL_STANDARD_LEG_SILHOUETTE_ALLOWED", "style.legSilhouette", "The approved head/body character style forbids a separate leg silhouette."));
+  if (activeStandard.style.headToBodyHeightRatio.min >= activeStandard.style.headToBodyHeightRatio.max) findings.push(finding("VISUAL_STANDARD_HEAD_BODY_RATIO_INVALID", "style.headToBodyHeightRatio", "Head-to-body height ratio must have min < max."));
   if (activeStandard.style.sceneContainsBakedCharacters) findings.push(finding("VISUAL_STANDARD_BAKED_SCENE_ALLOWED", "style.sceneContainsBakedCharacters", "Scenes must not contain baked characters."));
   if (activeStandard.portrait.touchTargetMinDp < 44) findings.push(finding("VISUAL_STANDARD_TOUCH_TARGET_TOO_SMALL", "portrait.touchTargetMinDp", "Touch targets must be at least 44dp."));
   if (activeStandard.combat.placeholderPresentation !== "forbidden") findings.push(finding("VISUAL_STANDARD_PLACEHOLDER_ALLOWED", "combat.placeholderPresentation", "Placeholder combat presentation must be forbidden."));
-  if (activeStandard.combat.walkFootPhasePolicy !== "alternate-left-right") findings.push(finding("VISUAL_STANDARD_WALK_PHASE_POLICY", "combat.walkFootPhasePolicy", "Walk cycles must alternate left and right foot phases."));
+  if (activeStandard.combat.movementPhasePolicy !== "body-compress-translate-recover") findings.push(finding("VISUAL_STANDARD_MOVEMENT_PHASE_POLICY", "combat.movementPhasePolicy", "Legless character movement must use body compress/translate/recover phases."));
   const uiViewports = new Map((activeUi.viewports || []).map((viewport) => [viewport.id, viewport]));
   for (const [id, viewport] of uiViewports) {
     const standardViewport = activeStandard.portrait.viewports.find((item) => item.id === id);

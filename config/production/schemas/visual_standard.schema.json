@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://idlewuxia.local/schema/production/visual-standard-v1.json",
+  "$id": "https://idlewuxia.local/schema/production/visual-standard-v2.json",
   "type": "object",
   "additionalProperties": false,
   "required": ["$schema", "standardId", "version", "style", "portrait", "combat", "manualReview"],
   "properties": {
-    "$schema": { "const": "idlewuxia.production.visual_standard.v1" },
+    "$schema": { "const": "idlewuxia.production.visual_standard.v2" },
     "standardId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
-    "version": { "const": 1 },
+    "version": { "const": 2 },
     "style": { "$ref": "#/$defs/style" },
     "portrait": { "$ref": "#/$defs/portrait" },
     "combat": { "$ref": "#/$defs/combat" },
@@ -15,14 +15,23 @@
   },
   "$defs": {
     "range": { "type": "object", "additionalProperties": false, "required": ["min", "max"], "properties": { "min": { "type": "number", "exclusiveMinimum": 0 }, "max": { "type": "number", "exclusiveMinimum": 0 } } },
+    "dimensions": { "type": "object", "additionalProperties": false, "required": ["width", "height"], "properties": { "width": { "type": "integer", "minimum": 16 }, "height": { "type": "integer", "minimum": 16 } } },
     "style": {
       "type": "object", "additionalProperties": false,
-      "required": ["rendering", "characterView", "forbiddenCharacterViews", "characterHeadCountRange", "sceneContainsBakedCharacters", "sceneAndActorLayersSeparated", "antiAliasing", "integerScale", "palettePolicy"],
+      "required": ["rendering", "characterView", "canonicalFacing", "opposingSideTransform", "forbiddenCharacterViews", "characterConstruction", "requiredCharacterParts", "optionalCharacterParts", "bodyPartIncludes", "legSilhouette", "headToBodyHeightRatio", "logicalCanvasPx", "sceneContainsBakedCharacters", "sceneAndActorLayersSeparated", "antiAliasing", "integerScale", "palettePolicy"],
       "properties": {
         "rendering": { "const": "nearest-neighbor-pixel" },
         "characterView": { "const": "side" },
-        "forbiddenCharacterViews": { "type": "array", "minItems": 3, "uniqueItems": true, "items": { "type": "string" } },
-        "characterHeadCountRange": { "$ref": "#/$defs/range" },
+        "canonicalFacing": { "const": "right" },
+        "opposingSideTransform": { "const": "horizontal-mirror" },
+        "forbiddenCharacterViews": { "type": "array", "minItems": 4, "uniqueItems": true, "items": { "type": "string" } },
+        "characterConstruction": { "const": "modular-head-body" },
+        "requiredCharacterParts": { "type": "array", "minItems": 5, "maxItems": 5, "uniqueItems": true, "items": { "enum": ["body", "head-base", "eyes", "mouth", "hair"] } },
+        "optionalCharacterParts": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } },
+        "bodyPartIncludes": { "type": "array", "minItems": 3, "uniqueItems": true, "items": { "type": "string" } },
+        "legSilhouette": { "const": "forbidden" },
+        "headToBodyHeightRatio": { "$ref": "#/$defs/range" },
+        "logicalCanvasPx": { "$ref": "#/$defs/dimensions" },
         "sceneContainsBakedCharacters": { "const": false },
         "sceneAndActorLayersSeparated": { "const": true },
         "antiAliasing": { "const": "forbidden" },
@@ -46,10 +55,12 @@
     },
     "combat": {
       "type": "object", "additionalProperties": false,
-      "required": ["requiredActorStates", "walkFootPhasePolicy", "actorAndFeedbackOcclusion", "minimumFeedbackContrastRatio", "maximumAudioFeedbackLatencyMs", "placeholderPresentation", "requiredFeedbackTypes"],
+      "required": ["requiredActorStates", "movementPhasePolicy", "forbiddenMovementSignals", "layerAnimationPolicy", "actorAndFeedbackOcclusion", "minimumFeedbackContrastRatio", "maximumAudioFeedbackLatencyMs", "placeholderPresentation", "requiredFeedbackTypes"],
       "properties": {
-        "requiredActorStates": { "type": "array", "minItems": 5, "uniqueItems": true, "items": { "type": "string" } },
-        "walkFootPhasePolicy": { "const": "alternate-left-right" },
+        "requiredActorStates": { "type": "array", "minItems": 6, "uniqueItems": true, "items": { "type": "string" } },
+        "movementPhasePolicy": { "const": "body-compress-translate-recover" },
+        "forbiddenMovementSignals": { "type": "array", "minItems": 3, "uniqueItems": true, "items": { "type": "string" } },
+        "layerAnimationPolicy": { "const": "shared-frame-timeline-and-anchor-set" },
         "actorAndFeedbackOcclusion": { "const": "forbidden" },
         "minimumFeedbackContrastRatio": { "type": "number", "minimum": 4.5 },
         "maximumAudioFeedbackLatencyMs": { "type": "integer", "maximum": 120, "minimum": 1 },
@@ -61,9 +72,9 @@
       "type": "object", "additionalProperties": false,
       "required": ["requiredEvidence", "allowedVerdicts", "rejectReasons"],
       "properties": {
-        "requiredEvidence": { "type": "array", "minItems": 6, "uniqueItems": true, "items": { "type": "string" } },
+        "requiredEvidence": { "type": "array", "minItems": 7, "uniqueItems": true, "items": { "type": "string" } },
         "allowedVerdicts": { "const": ["PASS", "FAIL"] },
-        "rejectReasons": { "type": "array", "minItems": 8, "uniqueItems": true, "items": { "type": "string" } }
+        "rejectReasons": { "type": "array", "minItems": 12, "uniqueItems": true, "items": { "type": "string" } }
       }
     }
   }

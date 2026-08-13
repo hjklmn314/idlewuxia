@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://idlewuxia.local/schema/wuxia_combat_presentation_contract.v1.json",
+  "$id": "https://idlewuxia.local/schema/wuxia_combat_presentation_contract.v2.json",
   "type": "object",
   "additionalProperties": false,
   "required": ["$schema", "contractId", "version", "contentVersion", "policy", "actors", "scenes", "vfx", "audio", "buffIcons", "requirements"],
   "properties": {
-    "$schema": { "const": "idlewuxia.combat_presentation_contract.v1" },
+    "$schema": { "const": "idlewuxia.combat_presentation_contract.v2" },
     "contractId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
-    "version": { "const": 1 },
+    "version": { "const": 2 },
     "contentVersion": { "type": "string", "minLength": 1 },
     "policy": {
       "type": "object",

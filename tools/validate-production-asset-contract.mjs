@@ -28,12 +28,21 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-function alternates(phases) {
-  if (!Array.isArray(phases) || phases.length < 2) return false;
-  for (let index = 1; index < phases.length; index += 1) {
-    if (phases[index] === phases[index - 1]) return false;
+function validBodyMovement(phases) {
+  if (!Array.isArray(phases) || phases.length < 4) return false;
+  const requiredOrder = ["compress", "translate", "recover"];
+  let cursor = -1;
+  for (const phase of requiredOrder) {
+    cursor = phases.indexOf(phase, cursor + 1);
+    if (cursor < 0) return false;
   }
-  return phases.includes("left") && phases.includes("right");
+  return true;
+}
+
+function canonicalObject(value) {
+  if (Array.isArray(value)) return value.map(canonicalObject);
+  if (value && typeof value === "object") return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonicalObject(value[key])]));
+  return value;
 }
 
 function validateSchema(contract, schema) {
@@ -94,18 +103,18 @@ export function validateProductionAssetContract({ rootDir = root, contract, prod
     if (slot.rules.forbidBakedCharacters && asset.containsBakedCharacters) findings.push(finding("ASSET_CONTRACT_BAKED_CHARACTER", asset.assetId, "This slot forbids characters baked into the asset."));
     if (slot.rules.requiresSideView && asset.view !== "side") findings.push(finding("ASSET_CONTRACT_CHARACTER_VIEW_INVALID", asset.assetId, "Character assets must be side-view only."));
     if (slot.rules.requiresSideView) {
-      const range = slot.rules.headCountRange;
-      if (!Number.isFinite(asset.headCount) || asset.headCount < range.min || asset.headCount > range.max) findings.push(finding("ASSET_CONTRACT_HEAD_PROPORTION_INVALID", asset.assetId, `Character head count must be within ${range.min}-${range.max}.`));
+      if (slot.rules.characterConstruction !== "modular-head-body") findings.push(finding("ASSET_CONTRACT_CHARACTER_CONSTRUCTION", asset.assetId, "Character slot must use modular head/body construction."));
+      if (slot.rules.legSilhouette !== "forbidden") findings.push(finding("ASSET_CONTRACT_LEG_SILHOUETTE", asset.assetId, "Character slot must forbid a separate leg silhouette."));
+      if (!["body", "head-base", "eyes", "mouth", "hair"].every((part) => slot.rules.requiredParts.includes(part))) findings.push(finding("ASSET_CONTRACT_REQUIRED_PARTS", asset.assetId, "Character slot must require body, head-base, eyes, mouth and hair layers."));
+      if (![...slot.rules.requiredParts, ...slot.rules.optionalParts].includes(asset.characterPart)) findings.push(finding("ASSET_CONTRACT_CHARACTER_PART_INVALID", asset.assetId, "Character assets must declare an allowed required or optional modular part type."));
+      if (asset.dimensions.width !== 96 || asset.dimensions.height !== 96) findings.push(finding("ASSET_CONTRACT_CHARACTER_CANVAS_INVALID", asset.assetId, "Every modular character part atlas must use the frozen 96x96 logical canvas."));
+      for (const anchor of ["origin", "head", "face", "weapon-main", "fx-center", "ground-contact"]) if (!asset.anchors[anchor]) findings.push(finding("ASSET_CONTRACT_CHARACTER_ANCHOR_MISSING", asset.assetId, `Required shared anchor is missing: ${anchor}.`));
       for (const clipId of slot.rules.requiredClips) {
         const clip = asset.clipFrames[clipId];
         if (!clip) findings.push(finding("ASSET_CONTRACT_CLIP_MISSING", asset.assetId, `Required animation clip is missing: ${clipId}.`));
-        else if (clip.frameCount < 2 && ["walk_left", "walk_right"].includes(clipId)) findings.push(finding("ASSET_CONTRACT_WALK_FRAME_COUNT", asset.assetId, `${clipId} requires at least two frames.`));
+        else if (clip.frameCount < 4 && clipId === "move") findings.push(finding("ASSET_CONTRACT_MOVE_FRAME_COUNT", asset.assetId, "move requires at least four body-phase frames."));
       }
-      if (slot.rules.requireAlternatingWalkFootPhases) {
-        for (const clipId of ["walk_left", "walk_right"]) {
-          if (asset.clipFrames[clipId] && !alternates(asset.clipFrames[clipId].footPhases)) findings.push(finding("ASSET_CONTRACT_WALK_FEET_NOT_ALTERNATING", asset.assetId, `${clipId} foot phases must alternate left/right.`));
-        }
-      }
+      if (slot.rules.movementPhasePolicy === "body-compress-translate-recover" && asset.clipFrames.move && !validBodyMovement(asset.clipFrames.move.bodyPhases)) findings.push(finding("ASSET_CONTRACT_BODY_MOVEMENT_PHASES", asset.assetId, "move phases must include compress, translate and recover in order."));
     }
     if (asset.kind === "audio") {
       if (asset.format !== "ogg") findings.push(finding("ASSET_CONTRACT_AUDIO_FORMAT_INVALID", asset.assetId, "Production audio must be OGG."));
@@ -120,6 +129,21 @@ export function validateProductionAssetContract({ rootDir = root, contract, prod
       if (actualBytes !== asset.bytes) findings.push(finding("ASSET_CONTRACT_BYTES_DRIFT", asset.assetId, `Expected ${asset.bytes} bytes, got ${actualBytes}.`));
       if (actualHash !== asset.sha256) findings.push(finding("ASSET_CONTRACT_HASH_DRIFT", asset.assetId, "Source SHA-256 does not match the contract."));
     }
+  }
+
+  const characterAssets = activeContract.assets.filter((asset) => asset.slotId === "combat-side-view-character-sprites");
+  if (characterAssets.length > 0) {
+    const requiredParts = slots.get("combat-side-view-character-sprites")?.rules?.requiredParts || [];
+    const availableParts = new Set(characterAssets.map((asset) => asset.characterPart));
+    for (const part of requiredParts) if (!availableParts.has(part)) findings.push(finding("ASSET_CONTRACT_CHARACTER_PART_COVERAGE", part, `No approved character asset supplies required part ${part}.`));
+    const timelineSignature = (asset) => JSON.stringify(canonicalObject({
+      dimensions: asset.dimensions,
+      pivot: asset.pivot,
+      anchors: asset.anchors,
+      clips: Object.fromEntries(Object.entries(asset.clipFrames).map(([clipId, clip]) => [clipId, { frameCount: clip.frameCount, fps: clip.fps, bodyPhases: clip.bodyPhases }])),
+    }));
+    const expectedSignature = timelineSignature(characterAssets[0]);
+    for (const asset of characterAssets.slice(1)) if (timelineSignature(asset) !== expectedSignature) findings.push(finding("ASSET_CONTRACT_CHARACTER_TIMELINE_DRIFT", asset.assetId, "All modular character parts must share canvas, pivot, anchors, clip frames, FPS and body phases."));
   }
 
   for (const slot of activeProduction.requiredSlots) {

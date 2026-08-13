@@ -1,7 +1,7 @@
 {
-  "$schema": "idlewuxia.combat_presentation_contract.v1",
-  "contractId": "idlewuxia-combat-presentation-v1",
-  "version": 1,
+  "$schema": "idlewuxia.combat_presentation_contract.v2",
+  "contractId": "idlewuxia-combat-presentation-v2",
+  "version": 2,
   "contentVersion": "wuxia-combat-content-v1",
   "policy": {
     "productionGate": "fail-closed",
@@ -119,9 +119,9 @@
     {
       "taskId": "ASSET-007",
       "slotId": "combat-side-view-character-sprites",
-      "purpose": "Side-view three-head player and enemy combat actors.",
-      "mustProvide": ["idle", "walk_left", "walk_right", "attack", "hurt", "control", "defeat", "pivot", "sha256", "ownership"],
-      "acceptance": ["Only side view", "2.7-3.3 head proportion", "Left/right foot phases alternate", "No baked scene pixels", "Manual frame-by-frame signature"]
+      "purpose": "Side-view legless modular head/body player and enemy combat actors.",
+      "mustProvide": ["body", "head-base", "eyes", "mouth", "hair", "idle", "move", "attack", "hurt", "control", "defeat", "shared anchors", "shared frame timeline", "pivot", "sha256", "ownership"],
+      "acceptance": ["Only side view", "No independent leg silhouette", "Every required part independently replaceable", "96x96 shared canvas", "Body compress/translate/recover movement", "No baked scene pixels", "Manual frame-by-frame and composition signature"]
     },
     {
       "taskId": "ASSET-008",

@@ -1,7 +1,7 @@
 {
-  "$schema": "idlewuxia.production.asset_contract.v1",
-  "contractId": "idlewuxia-asset-contract-v1",
-  "version": 1,
+  "$schema": "idlewuxia.production.asset_contract.v2",
+  "contractId": "idlewuxia-asset-contract-v2",
+  "version": 2,
   "policy": {
     "shippingMode": "fail-closed",
     "requireSource": true,
@@ -58,9 +58,13 @@
         "allowReference": false,
         "forbidBakedCharacters": true,
         "requiresSideView": false,
-        "headCountRange": null,
+        "characterConstruction": "not-applicable",
+        "requiredParts": [],
+        "optionalParts": [],
+        "legSilhouette": "not-applicable",
+        "headToBodyHeightRatio": null,
         "requiredClips": [],
-        "requireAlternatingWalkFootPhases": false,
+        "movementPhasePolicy": "not-applicable",
         "requireSceneAlphaSeparation": false,
         "audioFallbackPolicy": "not-applicable"
       }
@@ -75,9 +79,13 @@
         "allowReference": false,
         "forbidBakedCharacters": true,
         "requiresSideView": false,
-        "headCountRange": null,
+        "characterConstruction": "not-applicable",
+        "requiredParts": [],
+        "optionalParts": [],
+        "legSilhouette": "not-applicable",
+        "headToBodyHeightRatio": null,
         "requiredClips": [],
-        "requireAlternatingWalkFootPhases": false,
+        "movementPhasePolicy": "not-applicable",
         "requireSceneAlphaSeparation": false,
         "audioFallbackPolicy": "not-applicable"
       }
@@ -92,9 +100,13 @@
         "allowReference": false,
         "forbidBakedCharacters": true,
         "requiresSideView": false,
-        "headCountRange": null,
+        "characterConstruction": "not-applicable",
+        "requiredParts": [],
+        "optionalParts": [],
+        "legSilhouette": "not-applicable",
+        "headToBodyHeightRatio": null,
         "requiredClips": [],
-        "requireAlternatingWalkFootPhases": false,
+        "movementPhasePolicy": "not-applicable",
         "requireSceneAlphaSeparation": false,
         "audioFallbackPolicy": "not-applicable"
       }
@@ -109,9 +121,13 @@
         "allowReference": false,
         "forbidBakedCharacters": true,
         "requiresSideView": false,
-        "headCountRange": null,
+        "characterConstruction": "not-applicable",
+        "requiredParts": [],
+        "optionalParts": [],
+        "legSilhouette": "not-applicable",
+        "headToBodyHeightRatio": null,
         "requiredClips": [],
-        "requireAlternatingWalkFootPhases": false,
+        "movementPhasePolicy": "not-applicable",
         "requireSceneAlphaSeparation": false,
         "audioFallbackPolicy": "not-applicable"
       }
@@ -126,9 +142,13 @@
         "allowReference": false,
         "forbidBakedCharacters": true,
         "requiresSideView": false,
-        "headCountRange": null,
+        "characterConstruction": "not-applicable",
+        "requiredParts": [],
+        "optionalParts": [],
+        "legSilhouette": "not-applicable",
+        "headToBodyHeightRatio": null,
         "requiredClips": [],
-        "requireAlternatingWalkFootPhases": false,
+        "movementPhasePolicy": "not-applicable",
         "requireSceneAlphaSeparation": false,
         "audioFallbackPolicy": "not-applicable"
       }
@@ -143,9 +163,13 @@
         "allowReference": false,
         "forbidBakedCharacters": true,
         "requiresSideView": false,
-        "headCountRange": null,
+        "characterConstruction": "not-applicable",
+        "requiredParts": [],
+        "optionalParts": [],
+        "legSilhouette": "not-applicable",
+        "headToBodyHeightRatio": null,
         "requiredClips": [],
-        "requireAlternatingWalkFootPhases": false,
+        "movementPhasePolicy": "not-applicable",
         "requireSceneAlphaSeparation": false,
         "audioFallbackPolicy": "not-applicable"
       }
@@ -160,9 +184,13 @@
         "allowReference": false,
         "forbidBakedCharacters": true,
         "requiresSideView": false,
-        "headCountRange": null,
+        "characterConstruction": "not-applicable",
+        "requiredParts": [],
+        "optionalParts": [],
+        "legSilhouette": "not-applicable",
+        "headToBodyHeightRatio": null,
         "requiredClips": [],
-        "requireAlternatingWalkFootPhases": false,
+        "movementPhasePolicy": "not-applicable",
         "requireSceneAlphaSeparation": false,
         "audioFallbackPolicy": "not-applicable"
       }
@@ -177,9 +205,13 @@
         "allowReference": false,
         "forbidBakedCharacters": true,
         "requiresSideView": true,
-        "headCountRange": { "min": 2.7, "max": 3.3 },
-        "requiredClips": ["idle", "walk_left", "walk_right", "attack", "hurt", "control", "defeat"],
-        "requireAlternatingWalkFootPhases": true,
+        "characterConstruction": "modular-head-body",
+        "requiredParts": ["body", "head-base", "eyes", "mouth", "hair"],
+        "optionalParts": ["headwear", "face-accessory", "weapon-rear", "weapon-front", "contact-shadow"],
+        "legSilhouette": "forbidden",
+        "headToBodyHeightRatio": { "min": 0.75, "max": 1.15 },
+        "requiredClips": ["idle", "move", "attack", "hurt", "control", "defeat"],
+        "movementPhasePolicy": "body-compress-translate-recover",
         "requireSceneAlphaSeparation": false,
         "audioFallbackPolicy": "not-applicable"
       }
@@ -194,9 +226,13 @@
         "allowReference": false,
         "forbidBakedCharacters": true,
         "requiresSideView": false,
-        "headCountRange": null,
+        "characterConstruction": "not-applicable",
+        "requiredParts": [],
+        "optionalParts": [],
+        "legSilhouette": "not-applicable",
+        "headToBodyHeightRatio": null,
         "requiredClips": [],
-        "requireAlternatingWalkFootPhases": false,
+        "movementPhasePolicy": "not-applicable",
         "requireSceneAlphaSeparation": true,
         "audioFallbackPolicy": "not-applicable"
       }
@@ -211,9 +247,13 @@
         "allowReference": false,
         "forbidBakedCharacters": true,
         "requiresSideView": false,
-        "headCountRange": null,
+        "characterConstruction": "not-applicable",
+        "requiredParts": [],
+        "optionalParts": [],
+        "legSilhouette": "not-applicable",
+        "headToBodyHeightRatio": null,
         "requiredClips": [],
-        "requireAlternatingWalkFootPhases": false,
+        "movementPhasePolicy": "not-applicable",
         "requireSceneAlphaSeparation": false,
         "audioFallbackPolicy": "not-applicable"
       }
@@ -228,9 +268,13 @@
         "allowReference": false,
         "forbidBakedCharacters": true,
         "requiresSideView": false,
-        "headCountRange": null,
+        "characterConstruction": "not-applicable",
+        "requiredParts": [],
+        "optionalParts": [],
+        "legSilhouette": "not-applicable",
+        "headToBodyHeightRatio": null,
         "requiredClips": [],
-        "requireAlternatingWalkFootPhases": false,
+        "movementPhasePolicy": "not-applicable",
         "requireSceneAlphaSeparation": false,
         "audioFallbackPolicy": "approved-file-only"
       }
@@ -258,7 +302,8 @@
       "runtimeMountPoints": ["ui.brand.logo"],
       "fallbackPolicy": "none",
       "view": "none",
-      "headCount": null,
+      "characterPart": "not-applicable",
+      "anchors": {},
       "clipFrames": {}
     }
   ]

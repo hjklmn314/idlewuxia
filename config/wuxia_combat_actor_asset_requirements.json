@@ -1,7 +1,7 @@
 {
-  "$schema": "idlewuxia.combat_actor_asset_requirements.v1",
-  "contractId": "idlewuxia-combat-actor-asset-requirements-v1",
-  "version": 1,
+  "$schema": "idlewuxia.combat_actor_asset_requirements.v2",
+  "contractId": "idlewuxia-combat-actor-asset-requirements-v2",
+  "version": 2,
   "taskId": "ASSET-007",
   "mode": "requirements-only",
   "shippingAllowed": false,
@@ -13,9 +13,19 @@
   },
   "policy": {
     "view": "side",
-    "headCountRange": { "min": 2.7, "max": 3.3 },
-    "requiredClips": ["idle", "walk_left", "walk_right", "attack", "hurt", "control", "defeat"],
-    "walkFootPhasePolicy": "alternate-left-right",
+    "canonicalFacing": "right",
+    "opposingSideTransform": "horizontal-mirror",
+    "construction": "modular-head-body",
+    "requiredParts": ["body", "head-base", "eyes", "mouth", "hair"],
+    "optionalParts": ["headwear", "face-accessory", "weapon-rear", "weapon-front", "contact-shadow"],
+    "layerOrderBackToFront": ["contact-shadow", "weapon-rear", "body", "head-base", "eyes", "mouth", "hair", "headwear", "face-accessory", "weapon-front"],
+    "bodyPartIncludes": ["torso", "sleeves", "integrated-hands"],
+    "legSilhouette": "forbidden",
+    "headToBodyHeightRatio": { "min": 0.75, "max": 1.15 },
+    "logicalCanvasPx": { "width": 96, "height": 96 },
+    "requiredAnchors": ["origin", "head", "face", "weapon-main", "fx-center", "ground-contact"],
+    "requiredClips": ["idle", "move", "attack", "hurt", "control", "defeat"],
+    "movementPhasePolicy": "body-compress-translate-recover",
     "noBakedScenePixels": true,
     "integerScaleOnly": true,
     "transparentBackgroundRequired": true,
@@ -39,43 +49,50 @@
       {
         "relativePath": "OtherImage/Fight/Scene",
         "kind": "scene-backgrounds",
-        "observed": "12 PNG scene files; no actor animation frames",
+        "observed": "12 PNG scene files; no modular actor layers or animation frames",
         "disposition": "ineligible",
-        "reason": "Scene pixels are not side-view actor clips and must remain separate from runtime-mounted characters."
+        "reason": "Scene pixels are not body/head/face/hair actor parts and must remain separate from runtime-mounted characters."
       },
       {
         "relativePath": "Image/UI/RoleUI",
         "kind": "role-ui",
-        "observed": "6 PNG UI/background files; 11.png is a role-information panel rather than a sprite",
+        "observed": "6 PNG UI/background files; 11.png is a role-information panel rather than a modular sprite",
         "disposition": "ineligible",
-        "reason": "UI chrome cannot satisfy an actor mount or animation clip."
+        "reason": "UI chrome cannot satisfy independently replaceable actor layers or animation clips."
       },
       {
         "relativePath": "Layer/FightUI/demo.jpg",
         "kind": "fight-ui-demo",
         "observed": "1080x1920 UI demonstration with flat silhouette figures",
         "disposition": "ineligible",
-        "reason": "The file is a UI demonstration, not a transparent, frame-addressable, three-head side-view actor set."
+        "reason": "The file is a flattened UI demonstration, not a transparent frame-addressable modular actor set."
       },
       {
         "relativePath": "Anim/FightEffect",
         "kind": "effect-directory",
         "observed": "No raster actor frames in the audited directory",
         "disposition": "ineligible",
-        "reason": "Combat effects do not provide player/enemy actor clips."
+        "reason": "Combat effects do not provide body, head-base, eyes, mouth or hair parts."
       },
       {
         "relativePath": "script/challengeMap/roles",
         "kind": "lua-role-definitions",
         "observed": "Role configuration Lua files only",
         "disposition": "ineligible",
-        "reason": "Definitions describe data/behavior and contain no approved actor pixel source."
+        "reason": "Definitions describe data/behavior and contain no approved modular pixel source."
       }
     ],
-    "conclusion": "No eligible reference side-view actor sprite set was found in the audited raw archive. Actor rows remain missing; no reference bytes are bound or copied.",
-    "auditedAt": "2026-08-08",
+    "conclusion": "No eligible modular side-view head/body pixel set was found in the audited raw archive. Actor rows remain missing; no reference bytes are bound or copied.",
+    "auditedAt": "2026-08-13",
     "auditor": "asset-content-pipeline"
   },
+  "partCatalogRequirements": [
+    { "partType": "body", "minimumVariants": 8, "requiredExpressions": [], "paletteChannels": ["cloth-primary", "cloth-secondary", "skin"], "runtimeMountPoint": "combat.actor.body" },
+    { "partType": "head-base", "minimumVariants": 4, "requiredExpressions": [], "paletteChannels": ["skin"], "runtimeMountPoint": "combat.actor.head-base" },
+    { "partType": "eyes", "minimumVariants": 8, "requiredExpressions": ["neutral", "focused", "hurt", "defeated"], "paletteChannels": ["eye"], "runtimeMountPoint": "combat.actor.eyes" },
+    { "partType": "mouth", "minimumVariants": 8, "requiredExpressions": ["neutral", "attack", "hurt", "defeated"], "paletteChannels": ["mouth"], "runtimeMountPoint": "combat.actor.mouth" },
+    { "partType": "hair", "minimumVariants": 12, "requiredExpressions": [], "paletteChannels": ["hair-primary", "hair-highlight"], "runtimeMountPoint": "combat.actor.hair" }
+  ],
   "actors": [
     {
       "id": "player",
@@ -85,19 +102,16 @@
       "role": "player",
       "status": "missing",
       "referenceCandidates": [],
-      "requiredClips": ["idle", "walk_left", "walk_right", "attack", "hurt", "control", "defeat"],
+      "defaultComposition": { "body": "required", "head-base": "required", "eyes": "required", "mouth": "required", "hair": "required" },
+      "requiredClips": ["idle", "move", "attack", "hurt", "control", "defeat"],
       "clipAcceptance": {
-        "walk_left": "left-foot-forward phase present",
-        "walk_right": "right-foot-forward phase present",
-        "alternatingWalkFrames": true,
-        "allFramesSamePivot": true,
+        "move": "body compresses, translates and recovers without drawing an independent leg or foot cycle",
+        "sharedFrameTimeline": true,
+        "allPartsShareAnchors": true,
+        "allFramesSameOriginPivot": true,
         "manualSignature": "required"
       },
-      "runtimeBinding": {
-        "logicalIdOnly": true,
-        "fallback": "existing_runtime_css_debug_only",
-        "fallbackScope": "development-only"
-      }
+      "runtimeBinding": { "logicalIdOnly": true, "fallback": "existing_runtime_css_debug_only", "fallbackScope": "development-only" }
     },
     {
       "id": "enemy",
@@ -107,33 +121,32 @@
       "role": "enemy",
       "status": "missing",
       "referenceCandidates": [],
-      "requiredClips": ["idle", "walk_left", "walk_right", "attack", "hurt", "control", "defeat"],
+      "defaultComposition": { "body": "required", "head-base": "required", "eyes": "required", "mouth": "required", "hair": "required" },
+      "requiredClips": ["idle", "move", "attack", "hurt", "control", "defeat"],
       "clipAcceptance": {
-        "walk_left": "left-foot-forward phase present",
-        "walk_right": "right-foot-forward phase present",
-        "alternatingWalkFrames": true,
-        "allFramesSamePivot": true,
+        "move": "body compresses, translates and recovers without drawing an independent leg or foot cycle",
+        "sharedFrameTimeline": true,
+        "allPartsShareAnchors": true,
+        "allFramesSameOriginPivot": true,
         "manualSignature": "required"
       },
-      "runtimeBinding": {
-        "logicalIdOnly": true,
-        "fallback": "existing_runtime_css_debug_only",
-        "fallbackScope": "development-only"
-      }
+      "runtimeBinding": { "logicalIdOnly": true, "fallback": "existing_runtime_css_debug_only", "fallbackScope": "development-only" }
     }
   ],
   "acceptanceGate": {
     "productionStatus": "blocked",
     "requiredEvidence": [
       "approved source and redistribution ownership",
-      "sha256 per logical asset and clip atlas",
-      "dimensions, pivot and transparent bounds",
-      "side-view and 2.7-3.3 head proportion review",
-      "idle/attack/hurt/control/defeat plus walk-left/walk-right clips",
-      "manual frame-by-frame foot alternation signature",
+      "sha256 per logical part atlas and clip atlas",
+      "96x96 logical canvas, integer scale, dimensions, pivot and transparent bounds",
+      "side-view-only and no-visible-leg manual review",
+      "independent body, head-base, eyes, mouth and hair replacement test",
+      "shared anchor and shared frame-timeline compatibility matrix",
+      "idle, move, attack, hurt, control and defeat clips",
+      "manual frame-by-frame body movement phase signature",
       "fresh browser screenshots at all portrait viewports",
       "representative Android manual review"
     ],
-    "nextAction": "Supply or approve the two actor sets; then extend this table with owned asset records before ASSET-007 can close."
+    "nextAction": "Create approved modular part sets and a runtime composition resolver; missing bytes remain open and are not generated by this task."
   }
 }

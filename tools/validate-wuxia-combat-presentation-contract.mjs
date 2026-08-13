@@ -106,6 +106,10 @@ export function validateCombatPresentationContract({ rootDir = root, contract, c
   for (const row of [...Object.values(groups).flat(), ...(activeContract.requirements || [])]) {
     for (const taskId of row.requirements || []) if (!requirements.has(taskId)) findings.push(finding("COMBAT_PRESENTATION_REQUIREMENT_UNKNOWN", taskId, `Binding references missing requirement ${taskId}.`));
   }
+  const actorRequirement = requirements.get("ASSET-007");
+  const requiredActorInputs = ["body", "head-base", "eyes", "mouth", "hair", "idle", "move", "attack", "hurt", "control", "defeat", "shared anchors", "shared frame timeline"];
+  if (!actorRequirement || requiredActorInputs.some((item) => !actorRequirement.mustProvide.includes(item))) findings.push(finding("COMBAT_PRESENTATION_MODULAR_ACTOR_REQUIREMENT", "ASSET-007", "ASSET-007 must require all five modular parts, six clips, shared anchors and a shared frame timeline."));
+  if (actorRequirement && (!actorRequirement.acceptance.includes("No independent leg silhouette") || !actorRequirement.acceptance.includes("Every required part independently replaceable"))) findings.push(finding("COMBAT_PRESENTATION_MODULAR_ACTOR_ACCEPTANCE", "ASSET-007", "ASSET-007 must fail visible legs and require independent part replacement evidence."));
   const status = strictProduction
     ? (findings.length === 0 ? "PASS" : "BLOCKED")
     : (findings.length === 0 && productionBlocked.length === 0 ? "PASS" : findings.length === 0 ? "PASS WITH KNOWN LIMITATIONS" : "REVISE");
