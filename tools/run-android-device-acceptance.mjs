@@ -236,6 +236,7 @@ try {
   const installText = adbText("install", "-r", "-t", apkPath);
   assert.ok(installText.includes("Success"), `APK install failed: ${installText}`);
   report.apk.installed = collectInstalledPackage();
+  report.apk.activation = adbText("shell", "pm", "enable", packageName);
   assert.equal(adbText("shell", "pm", "clear", packageName), "Success");
   adbText("logcat", "-c");
   safeAdbText("shell", "dumpsys", "gfxinfo", packageName, "reset");
