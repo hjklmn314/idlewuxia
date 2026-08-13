@@ -272,3 +272,27 @@ is still blocked by the geometric combat actors, placeholder stage and missing
 final presentation/assets. Continue to keep `T05-01` and `COMBAT-002B` ahead
 of signed release closure; external signing custody and green CI remain
 mandatory for `REL-001`.
+
+### 2026-08-13 REL-002A Android development baseline
+
+`REL-002A` is complete as a bounded foundation; `REL-002` remains **open**.
+The v2 device contract and Schema now separate one API 28 development emulator
+from three required physical-device classes. The runner no longer deletes or
+overwrites evidence, no longer uses a fixed tap ratio, fails on rendered
+mojibake, validates save/lifecycle/application-scoped offline restore, and
+records startup, memory and gfx budgets with immutable hashes.
+
+The first real device probe exposed an API 28 blank-screen P0 caused by
+unsupported `Object.hasOwn`. Active Runtime calls to `Object.hasOwn`,
+`String.replaceAll` and `Array.at` now use a shared legacy-WebView-compatible
+module, covered by an expanded compatibility gate and shipped in the Web/APK
+closure. Final development-emulator screenshots receive explicit human
+functional review, but the grey prototype art still fails T05-01 product
+visual quality.
+
+Next release order is unchanged: close the production visual/asset gate and
+external signing for `REL-001`; then execute `REL-002` with low, reference and
+modern physical Android devices using the strict release budget; finally run
+`REL-003` store, staged rollout, monitoring and rollback rehearsal. Authority:
+`REL_002A_ANDROID_DEVICE_BASELINE_20260813.md` and
+`config/android_device_acceptance_contract.json`.

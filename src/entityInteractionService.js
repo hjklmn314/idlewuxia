@@ -1,4 +1,5 @@
 import { cloneData } from "./dataClone.js";
+import { hasOwn } from "./languageCompatibility.js";
 
 function asLookup(value) {
   return value instanceof Map ? value : new Map(Object.entries(value || {}));
@@ -68,7 +69,7 @@ export function createEntityInteractionService({
   const configured = Boolean(
     policy.schema === "idlewuxia.entity_interaction_policy.v1"
     && visibilityField
-    && Object.hasOwn(policy.visibility || {}, "visibleValue")
+    && hasOwn(policy.visibility || {}, "visibleValue")
     && dialogueActionType
     && defaultNarrativeConditionToken
     && Array.isArray(excludedDialogueConditionPrefixes)

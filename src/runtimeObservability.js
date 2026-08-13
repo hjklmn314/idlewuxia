@@ -1,4 +1,5 @@
 import { cloneData } from "./dataClone.js";
+import { lastItem } from "./languageCompatibility.js";
 
 const OBSERVABILITY_EVENT_SCHEMA = "idlewuxia.runtime_observability_event.v1";
 const OBSERVABILITY_REPLAY_SCHEMA = "idlewuxia.runtime_observability_replay.v1";
@@ -166,7 +167,7 @@ export function createRuntimeObservability({
     for (const path of forbiddenKeyHits(event, forbiddenFields)) {
       dataQuality.privacyViolations.push({ eventId: event.eventId, path });
     }
-    const previous = events.at(-1);
+    const previous = lastItem(events);
     if (previous && previous.sequence + 1 !== event.sequence) {
       dataQuality.sequenceViolations.push({ previous: previous.sequence, current: event.sequence });
     }
@@ -282,7 +283,7 @@ export function createRuntimeObservability({
   function exportReplay() {
     return cloneData({
       $schema: OBSERVABILITY_REPLAY_SCHEMA,
-      replayId: `runtime-replay-${digest({ sessionId, runId, commands: replayCommands }).split(":").at(-1)}`,
+      replayId: `runtime-replay-${lastItem(digest({ sessionId, runId, commands: replayCommands }).split(":"))}`,
       context: tags,
       trackedPaths,
       initialStateHash: replayCommands[0]?.expectedBeforeStateHash || "",

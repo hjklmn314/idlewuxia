@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "idlewuxia.android_device_acceptance_contract.v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema", "contractVersion", "schemaPath", "identityContract", "referenceViewport",
+    "matrix", "initialState", "initialScreen", "playerAction", "settleMs",
+    "performanceBudgets", "offlinePolicy", "textIntegrityForbiddenPatterns",
+    "crashPatterns", "requiredScreenshots", "evidencePolicy"
+  ],
+  "properties": {
+    "$schema": { "const": "idlewuxia.android_device_acceptance_contract.v2" },
+    "contractVersion": { "const": "2.0.0" },
+    "schemaPath": { "const": "config/android_device_acceptance_contract.schema.json" },
+    "identityContract": { "$ref": "#/$defs/path" },
+    "referenceViewport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "height", "aspectTolerance"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 320 },
+        "height": { "type": "integer", "minimum": 480 },
+        "aspectTolerance": { "type": "number", "exclusiveMinimum": 0, "maximum": 0.02 }
+      }
+    },
+    "matrix": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requiredEnvironmentClasses", "minimumPhysicalDevices", "profiles"],
+      "properties": {
+        "requiredEnvironmentClasses": {
+          "type": "array", "minItems": 4, "uniqueItems": true,
+          "items": { "enum": ["emulator-development", "physical-low", "physical-reference", "physical-modern"] }
+        },
+        "minimumPhysicalDevices": { "type": "integer", "minimum": 3 },
+        "profiles": {
+          "type": "array", "minItems": 4,
+          "items": { "$ref": "#/$defs/profile" }
+        }
+      }
+    },
+    "initialState": { "type": "string", "minLength": 1 },
+    "initialScreen": { "type": "string", "minLength": 1 },
+    "playerAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "locator", "expectedState", "expectedScreen", "expectedOrigin"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "locator": {
+          "type": "object", "additionalProperties": false,
+          "required": ["strategy", "exactText"],
+          "properties": {
+            "strategy": { "const": "button-text" },
+            "exactText": { "type": "string", "minLength": 1 }
+          }
+        },
+        "expectedState": { "type": "string", "minLength": 1 },
+        "expectedScreen": { "type": "string", "minLength": 1 },
+        "expectedOrigin": { "type": "string", "minLength": 1 }
+      }
+    },
+    "settleMs": {
+      "type": "object", "additionalProperties": false,
+      "required": ["coldStart", "lifecycle", "forceStop", "offline"],
+      "properties": {
+        "coldStart": { "$ref": "#/$defs/milliseconds" },
+        "lifecycle": { "$ref": "#/$defs/milliseconds" },
+        "forceStop": { "$ref": "#/$defs/milliseconds" },
+        "offline": { "$ref": "#/$defs/milliseconds" }
+      }
+    },
+    "performanceBudgets": {
+      "type": "object", "additionalProperties": false,
+      "required": ["developmentEmulator", "releasePhysical"],
+      "properties": {
+        "developmentEmulator": { "$ref": "#/$defs/performanceBudget" },
+        "releasePhysical": { "$ref": "#/$defs/performanceBudget" }
+      }
+    },
+    "offlinePolicy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["required", "disableWifi", "disableMobileData", "restoreConnectivity"],
+      "properties": {
+        "required": { "const": true },
+        "disableWifi": { "const": true },
+        "disableMobileData": { "const": true },
+        "restoreConnectivity": { "const": true }
+      }
+    },
+    "textIntegrityForbiddenPatterns": { "$ref": "#/$defs/uniqueStrings" },
+    "crashPatterns": { "$ref": "#/$defs/uniqueStrings" },
+    "requiredScreenshots": {
+      "type": "array", "minItems": 7, "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[0-9]{2}_[a-z0-9_]+\\.png$" }
+    },
+    "evidencePolicy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["outputRoot", "failIfOutputExists", "hashAlgorithm", "manualVisualReviewRequired", "physicalDeviceEvidenceRequiredForRelease", "debugBuildCanSatisfyRelease"],
+      "properties": {
+        "outputRoot": { "$ref": "#/$defs/path" },
+        "failIfOutputExists": { "const": true },
+        "hashAlgorithm": { "const": "sha256" },
+        "manualVisualReviewRequired": { "const": true },
+        "physicalDeviceEvidenceRequiredForRelease": { "const": true },
+        "debugBuildCanSatisfyRelease": { "const": false }
+      }
+    }
+  },
+  "$defs": {
+    "path": { "type": "string", "minLength": 1, "pattern": "^(?![A-Za-z]:)(?![/\\\\])(?!.*(?:^|/)\\.\\.(?:/|$)).+" },
+    "positiveInteger": { "type": "integer", "minimum": 1 },
+    "milliseconds": { "type": "integer", "minimum": 100, "maximum": 30000 },
+    "uniqueStrings": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "environmentClass", "kind", "availability", "releaseEligible", "notes"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "environmentClass": { "enum": ["emulator-development", "physical-low", "physical-reference", "physical-modern"] },
+        "kind": { "enum": ["emulator", "physical"] },
+        "availability": { "enum": ["available", "required-unavailable"] },
+        "releaseEligible": { "type": "boolean" },
+        "serialHint": { "type": "string", "minLength": 1 },
+        "expectedApiLevel": { "type": "integer", "minimum": 21, "maximum": 40 },
+        "expectedResolution": { "type": "string", "pattern": "^[0-9]+x[0-9]+$" },
+        "minimumApiLevel": { "type": "integer", "minimum": 21, "maximum": 40 },
+        "maximumApiLevel": { "type": "integer", "minimum": 21, "maximum": 40 },
+        "performanceBudgetClass": { "enum": ["developmentEmulator", "releasePhysical"] },
+        "networkIsolationCapabilities": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": { "enum": ["wifi", "mobile-data", "app-firewall-root"] }
+        },
+        "notes": { "type": "string", "minLength": 1 }
+      }
+    },
+    "performanceBudget": {
+      "type": "object", "additionalProperties": false,
+      "required": ["coldStartTotalMs", "warmStartTotalMs", "totalPssKb", "javaHeapKb", "jankyFramePercent", "frameP95Ms", "minimumMeasuredFrames"],
+      "properties": {
+        "coldStartTotalMs": { "$ref": "#/$defs/positiveInteger" },
+        "warmStartTotalMs": { "$ref": "#/$defs/positiveInteger" },
+        "totalPssKb": { "$ref": "#/$defs/positiveInteger" },
+        "javaHeapKb": { "$ref": "#/$defs/positiveInteger" },
+        "jankyFramePercent": { "type": "number", "minimum": 0, "maximum": 100 },
+        "frameP95Ms": { "$ref": "#/$defs/positiveInteger" },
+        "minimumMeasuredFrames": { "$ref": "#/$defs/positiveInteger" }
+      }
+    }
+  }
+}

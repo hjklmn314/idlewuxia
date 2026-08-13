@@ -915,3 +915,18 @@ task-heading mojibake, title clipping, narrow status-column collision and a
 browser-readiness timeout race. This is a scoped cascade-regression PASS only:
 the CSS combat actors and placeholder stage keep the product visual gate,
 `T05-01`, `COMBAT-002B`, `REL-001` and `G7` blocked.
+
+## Current authority pointer — REL-002A Android development baseline 2026-08-13
+
+`REL-002A` is complete only as the Android device-contract and development
+emulator foundation. The authoritative record is
+`docs/codex_game_development_os/REL_002A_ANDROID_DEVICE_BASELINE_20260813.md`.
+The API 28 run found and closed a real blank-screen incompatibility caused by
+`Object.hasOwn`, then verified cold/warm start, configured button input, save,
+background, lock, application-scoped offline, Android back and force-stop
+restore with memory/gfx evidence and manual screenshot review.
+
+This does not close `REL-002`: no physical Android phone, signed Release
+APK/AAB, audio-latency, low-storage/power-loss, full physical performance or
+store evidence exists. `REL-001`, `REL-002`, `REL-003`, `T05-01`,
+`COMBAT-002B` and `G7` remain blocked. `REST-REPAIR-001` remains postponed.

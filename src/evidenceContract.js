@@ -1,3 +1,5 @@
+import { hasOwn, replaceAllText } from "./languageCompatibility.js";
+
 function cleanText(value) {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -23,7 +25,7 @@ function canonicalReference(value = {}) {
 }
 
 export function inferEvidenceSourceKind(sourceFile, evidenceLevel = "") {
-  const normalizedFile = cleanText(sourceFile).replaceAll("\\", "/").toLowerCase();
+  const normalizedFile = replaceAllText(cleanText(sourceFile), "\\", "/").toLowerCase();
   const normalizedLevel = cleanText(evidenceLevel).toLowerCase();
   if (normalizedFile.startsWith("res/script/") || normalizedFile.endsWith(".lua")) return "lua";
   if (normalizedFile.startsWith("config/")) return "project_config";
@@ -36,9 +38,9 @@ export function inferEvidenceSourceKind(sourceFile, evidenceLevel = "") {
 }
 
 export function isExternalEvidenceReference(sourceFile, externalRoots = []) {
-  const normalizedFile = cleanText(sourceFile).replaceAll("\\", "/").replace(/^\.\/+/, "");
+  const normalizedFile = replaceAllText(cleanText(sourceFile), "\\", "/").replace(/^\.\/+/, "");
   return externalRoots.some((root) => {
-    const normalizedRoot = cleanText(root).replaceAll("\\", "/").replace(/^\.\/+/, "");
+    const normalizedRoot = replaceAllText(cleanText(root), "\\", "/").replace(/^\.\/+/, "");
     return normalizedRoot && normalizedFile.startsWith(normalizedRoot);
   });
 }
@@ -158,7 +160,7 @@ export function validateEvidenceContract(flow = {}) {
   if (flow.evidenceSchema !== EVIDENCE_SCHEMA) {
     add("EVIDENCE_SCHEMA_MISMATCH", "$.evidenceSchema", `Expected ${EVIDENCE_SCHEMA}.`);
   }
-  if (Object.hasOwn(flow.playerSeed || {}, "source")) {
+  if (hasOwn(flow.playerSeed || {}, "source")) {
     add(
       "PLAYER_SEED_LEGACY_SOURCE",
       "$.playerSeed.source",
@@ -185,7 +187,7 @@ export function validateEvidenceContract(flow = {}) {
     }
     stats.canonicalEvidenceObjects += 1;
     stats.canonicalReferences += evidence.sources.length;
-    if (Object.hasOwn(evidence, "source") || Object.hasOwn(evidence, "record")) {
+    if (hasOwn(evidence, "source") || hasOwn(evidence, "record")) {
       add(
         "MIXED_EVIDENCE_SHAPES",
         path,
@@ -304,7 +306,7 @@ export function migrateEvidenceContract(flow, { direction = "up", contract = {} 
 
   if (direction === "up") {
     migrated.evidenceSchema = EVIDENCE_SCHEMA;
-    if (Object.hasOwn(migrated.playerSeed || {}, "source")) {
+    if (hasOwn(migrated.playerSeed || {}, "source")) {
       Object.assign(migrated.playerSeed, canonicalReference(playerSeedReference));
       delete migrated.playerSeed.source;
     }
@@ -316,8 +318,8 @@ export function migrateEvidenceContract(flow, { direction = "up", contract = {} 
   if (migrated.evidenceSchema === EVIDENCE_SCHEMA) delete migrated.evidenceSchema;
   if (
     migrated.playerSeed
-    && Object.hasOwn(migrated.playerSeed, "sourceFile")
-    && Object.hasOwn(migrated.playerSeed, "sourceKind")
+    && hasOwn(migrated.playerSeed, "sourceFile")
+    && hasOwn(migrated.playerSeed, "sourceKind")
   ) {
     migrated.playerSeed.source = cleanText(playerSeedReference.legacySource) || "recording_observed";
     delete migrated.playerSeed.sourceFile;

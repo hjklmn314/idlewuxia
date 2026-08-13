@@ -143,6 +143,7 @@
       "requiredTaskIds": [
         "SEC-001",
         "REL-001",
+        "REL-002A",
         "REL-002",
         "REL-003"
       ],
@@ -1191,6 +1192,33 @@
       ]
     },
     {
+      "id": "REL-002A",
+      "title": "Android device matrix contract and development emulator baseline",
+      "priority": "P0",
+      "gate": "G7",
+      "status": "done",
+      "owner": "qa-bot-regression-engineer",
+      "dependsOn": [
+        "SEC-001"
+      ],
+      "acceptance": [
+        "A versioned Schema and semantic validator distinguish development emulators from release-eligible physical devices.",
+        "The available API 28 emulator passes startup, action/save, lifecycle, application-scoped offline restore, memory and development frame budgets.",
+        "All captured device frames receive manual functional visual review without being promoted to product visual or release acceptance.",
+        "Missing low, reference and modern physical-device evidence remains explicit and keeps REL-002 open."
+      ],
+      "evidence": [
+        "config/android_device_acceptance_contract.json",
+        "config/android_device_acceptance_contract.schema.json",
+        "tools/lib/android-device-acceptance.mjs",
+        "tools/validate-android-device-acceptance-contract.mjs",
+        "tools/test-android-device-acceptance-contract.mjs",
+        "tools/run-android-device-acceptance.mjs",
+        "docs/codex_game_development_os/REL_002A_ANDROID_DEVICE_BASELINE_20260813.md",
+        "outputs/android_device_acceptance/rel002a_formal_20260813/device_acceptance_report.json"
+      ]
+    },
+    {
       "id": "REL-002",
       "title": "真机、性能、兼容性与商店检查",
       "priority": "P0",
@@ -1198,7 +1226,8 @@
       "status": "open",
       "owner": "qa-bot-regression-engineer",
       "dependsOn": [
-        "REL-001"
+        "REL-001",
+        "REL-002A"
       ],
       "acceptance": [
         "Supported Android versions and representative devices pass.",

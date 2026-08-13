@@ -28,8 +28,12 @@ try {
   globalThis.structuredClone = originalStructuredClone;
 }
 
-const forbiddenRuntimePatterns = ["structuredClone(", ".at(", ".replaceAll("];
+const forbiddenRuntimePatterns = ["structuredClone(", ".at(", ".replaceAll(", "Object.hasOwn("];
 for (const relativePath of [
+  "src/combatReadability.js",
+  "src/entityInteractionService.js",
+  "src/evidenceContract.js",
+  "src/runtimeObservability.js",
   "src/wuxiaFirstSessionFlow.js",
   "src/runtimePersistence.js",
   "src/uiFlowAdapter.js",

@@ -1,18 +1,91 @@
 {
-  "$schema": "idlewuxia.android_device_acceptance_contract.v1",
+  "$schema": "idlewuxia.android_device_acceptance_contract.v2",
+  "contractVersion": "2.0.0",
+  "schemaPath": "config/android_device_acceptance_contract.schema.json",
   "identityContract": "config/android_identity_contract.json",
   "referenceViewport": {
     "width": 540,
     "height": 960,
     "aspectTolerance": 0.002
   },
+  "matrix": {
+    "requiredEnvironmentClasses": [
+      "emulator-development",
+      "physical-low",
+      "physical-reference",
+      "physical-modern"
+    ],
+    "minimumPhysicalDevices": 3,
+    "profiles": [
+      {
+        "id": "ldplayer-api28-development",
+        "environmentClass": "emulator-development",
+        "kind": "emulator",
+        "availability": "available",
+        "releaseEligible": false,
+        "serialHint": "emulator-5554",
+        "expectedApiLevel": 28,
+        "expectedResolution": "1080x1920",
+        "performanceBudgetClass": "developmentEmulator",
+        "networkIsolationCapabilities": [
+          "app-firewall-root"
+        ],
+        "notes": "Development-only lifecycle and performance baseline; never satisfies the physical-device release gate."
+      },
+      {
+        "id": "physical-low-slot",
+        "environmentClass": "physical-low",
+        "kind": "physical",
+        "availability": "required-unavailable",
+        "releaseEligible": true,
+        "minimumApiLevel": 26,
+        "maximumApiLevel": 28,
+        "performanceBudgetClass": "releasePhysical",
+        "networkIsolationCapabilities": [
+          "wifi",
+          "mobile-data"
+        ],
+        "notes": "A real low-tier Android handset must be assigned and evidenced before REL-002 can close."
+      },
+      {
+        "id": "physical-reference-slot",
+        "environmentClass": "physical-reference",
+        "kind": "physical",
+        "availability": "required-unavailable",
+        "releaseEligible": true,
+        "minimumApiLevel": 29,
+        "maximumApiLevel": 32,
+        "performanceBudgetClass": "releasePhysical",
+        "networkIsolationCapabilities": [
+          "wifi",
+          "mobile-data"
+        ],
+        "notes": "A real reference Android handset must be assigned and evidenced before REL-002 can close."
+      },
+      {
+        "id": "physical-modern-slot",
+        "environmentClass": "physical-modern",
+        "kind": "physical",
+        "availability": "required-unavailable",
+        "releaseEligible": true,
+        "minimumApiLevel": 33,
+        "maximumApiLevel": 35,
+        "performanceBudgetClass": "releasePhysical",
+        "networkIsolationCapabilities": [
+          "wifi",
+          "mobile-data"
+        ],
+        "notes": "A real modern Android handset must be assigned and evidenced before REL-002 can close."
+      }
+    ]
+  },
   "initialState": "STATE_FS_001_OPENING_STORY",
   "initialScreen": "UI_OpeningStory",
   "playerAction": {
     "label": "武学世家",
-    "tapRatio": {
-      "x": 0.277778,
-      "y": 0.442708
+    "locator": {
+      "strategy": "button-text",
+      "exactText": "武学世家"
     },
     "expectedState": "STATE_FS_001_ORIGIN_RESULT",
     "expectedScreen": "UI_OpeningOriginResult",
@@ -21,13 +94,65 @@
   "settleMs": {
     "coldStart": 3500,
     "lifecycle": 1500,
-    "forceStop": 3000
+    "forceStop": 3000,
+    "offline": 2500
   },
+  "performanceBudgets": {
+    "developmentEmulator": {
+      "coldStartTotalMs": 6000,
+      "warmStartTotalMs": 3000,
+      "totalPssKb": 220000,
+      "javaHeapKb": 128000,
+      "jankyFramePercent": 25,
+      "frameP95Ms": 150,
+      "minimumMeasuredFrames": 1
+    },
+    "releasePhysical": {
+      "coldStartTotalMs": 4000,
+      "warmStartTotalMs": 1500,
+      "totalPssKb": 180000,
+      "javaHeapKb": 96000,
+      "jankyFramePercent": 15,
+      "frameP95Ms": 50,
+      "minimumMeasuredFrames": 30
+    }
+  },
+  "offlinePolicy": {
+    "required": true,
+    "disableWifi": true,
+    "disableMobileData": true,
+    "restoreConnectivity": true
+  },
+  "textIntegrityForbiddenPatterns": [
+    "�",
+    "閰嶇疆鍔犺浇澶辫触",
+    "姝﹀涓栧",
+    "褰撳墠",
+    "锛?",
+    "銆?"
+  ],
   "crashPatterns": [
     "FATAL EXCEPTION",
     "ANR in com.idlewuxia.app.debug",
     "net::ERR_",
     "Uncaught ReferenceError",
     "Uncaught TypeError"
-  ]
+  ],
+  "requiredScreenshots": [
+    "00_cold_start.png",
+    "01_player_action.png",
+    "02_background_foreground.png",
+    "03_lock_unlock.png",
+    "04_offline_restore.png",
+    "05_android_back_relaunch.png",
+    "06_force_stop_relaunch.png"
+  ],
+  "evidencePolicy": {
+    "outputRoot": "outputs/android_device_acceptance",
+    "failIfOutputExists": true,
+    "hashAlgorithm": "sha256",
+    "manualVisualReviewRequired": true,
+    "physicalDeviceEvidenceRequiredForRelease": true,
+    "debugBuildCanSatisfyRelease": false
+  }
 }

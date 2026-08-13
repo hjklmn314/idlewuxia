@@ -132,6 +132,24 @@
       "status": "enabled-debug-only"
     },
     {
+      "id": "android-device-acceptance-contract",
+      "command": "npm run device:contract:test && npm run device:contract:validate",
+      "artifact": "outputs/android_device_acceptance_contract/validation-report.json",
+      "stage": "G7",
+      "status": "enabled-development-baseline-release-blocked",
+      "taskId": "REL-002A",
+      "notes": "Validates the versioned device matrix, emulator-versus-physical truth boundary, lifecycle/offline evidence contract, separate development/release performance budgets and mandatory manual review. Live device execution remains explicit and never runs inside CI preflight."
+    },
+    {
+      "id": "android-device-acceptance-live",
+      "command": "npm run device:validate -- --profile <profile> --adb <path> --serial <serial> --apk <apk> --output <new-evidence-directory>",
+      "artifact": "outputs/android_device_acceptance",
+      "stage": "G7",
+      "status": "enabled-explicit-device-only",
+      "taskId": "REL-002A",
+      "notes": "Produces immutable per-run screenshots, UI trees, lifecycle/offline/save assertions, logcat, memory and gfx evidence. The configured development emulator cannot satisfy REL-002 physical-device or Release requirements."
+    },
+    {
       "id": "release-contract-preflight",
       "command": "npm run release:preflight",
       "artifact": "outputs/release/release_build_preflight.json",

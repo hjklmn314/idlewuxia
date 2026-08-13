@@ -1,3 +1,5 @@
+import { replaceAllText } from "./languageCompatibility.js";
+
 const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 
 export const DEFAULT_DAMAGE_COLORS = Object.freeze({
@@ -142,7 +144,7 @@ export function resolveBossPhaseCue(config, phase = "core_warmup", fallbackColor
   const configured = feedback.bossPhases?.[key] || {};
   return {
     phase: key,
-    label: configured.label || defaults.label || String(key).replaceAll("_", " "),
+    label: configured.label || defaults.label || replaceAllText(String(key), "_", " "),
     color: colorWithFallback(configured.color, fallbackPhaseColor(key, fallbackColors)),
     ringAlpha: positiveNumber(configured.ringAlpha, positiveNumber(defaults.ringAlpha, 0.24)),
     hitSparkScale: positiveNumber(configured.hitSparkScale, positiveNumber(defaults.hitSparkScale, 1)),
@@ -169,4 +171,3 @@ export function resolveBossHitCue(config) {
     shieldBreakText: configured.shieldBreakText || DEFAULT_BOSS_HIT.shieldBreakText,
   };
 }
-
