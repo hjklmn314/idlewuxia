@@ -885,10 +885,15 @@
       "acceptance": [
         "Production combat contains no CSS geometric fighter, black-grey placeholder scene or oscillator fallback.",
         "Approved side-view animation, scene, VFX and audio bindings render every configured combat state.",
+        "The combat top HUD is runtime-bound to the shipping combat top-HUD contract; context, turn-order and state-legend are visible with one current actor and an independent pause target.",
         "Real browser and representative Android devices pass human animation, hit feedback, audio latency and readability review."
       ],
       "evidence": [
         "src/wuxia-main.js",
+        "src/combatTopHud.js",
+        "config/wuxia_combat_top_hud.json",
+        "tools/validate-wuxia-combat-top-hud.mjs",
+        "tools/test-wuxia-combat-top-hud.mjs",
         "tools/run-wuxia-combat-reference-binding-acceptance.mjs",
         "outputs/combat_reference_binding_acceptance_20260809_final/reference_binding_acceptance.json",
         "docs/codex_game_development_os/COMBAT_002B_ORIGINAL_PROJECT_DEVELOPMENT_BINDING_20260809.md"

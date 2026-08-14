@@ -10,6 +10,7 @@ import { applyEvidencePlayerPatch, resolveBrowserEvidenceRoute } from "./browser
 import { createAssetRegistry, createReferenceAssetRegistry } from "./assetRegistry.js";
 import { createCharacterComposer, createCharacterPartRegistry } from "./characterComposer.js";
 import { createCharacterDomRenderer } from "./characterDomRenderer.js";
+import { buildCombatTopHudModel, renderCombatTopHud } from "./combatTopHud.js";
 import { interpolateRuntimeText, interpolateRuntimeTextLines } from "./runtimeTextInterpolation.js";
 
 const CONFIG_FILES = {
@@ -20,6 +21,7 @@ const CONFIG_FILES = {
   wuxiaRuntimeAssetRegistry: "./config/wuxia_runtime_asset_registry.json",
   wuxiaCharacterCompositions: "./config/wuxia_character_compositions.json",
   wuxiaCombatContent: "./config/wuxia_combat_content.json",
+  wuxiaCombatTopHud: "./config/wuxia_combat_top_hud.json",
 };
 
 const state = {
@@ -387,6 +389,21 @@ function renderCombatRuntime(block, flowContract, snapshot) {
   const stageClass = referenceSceneUrl ? "has-reference-scene" : "";
   const stageStyle = referenceSceneUrl ? ` style="--reference-scene-image:url('${escapeHtml(referenceSceneUrl)}')"` : "";
   const control = replayMode ? {} : (snapshot?.pendingCombat?.combatControl || {});
+  const topHudContract = state.config?.wuxiaCombatTopHud || {};
+  const hasTopHud = Boolean(topHudContract.contractId);
+  const topHudModel = buildCombatTopHudModel({
+    contract: topHudContract,
+    encounterId: liveRuntime?.encounterId || preview.encounterId || block.previewId || "",
+    encounterLabel: block.title || preview.title || preview.scene?.displayName || "",
+    round: liveRuntime?.round || 0,
+    status: liveRuntime?.status || "preview",
+    paused: liveRuntime?.paused === true,
+    turnOrder: liveRuntime?.turnOrder || [],
+    turnIndex: liveRuntime?.turnIndex || 0,
+    units: liveUnits.length ? liveUnits.map(mergeRuntimeUnit) : previewUnits,
+    playerUnitIds: liveRuntime?.playerUnitIds || livePlayerIds,
+    enemyUnitIds: liveRuntime?.enemyUnitIds || liveEnemyIds,
+  });
   const available = control?.availableActions || { skills: [], canRunaway: false };
   const actionRows = control?.requiresPlayerInput
     ? available.skills.map((skill) => {
@@ -411,6 +428,7 @@ function renderCombatRuntime(block, flowContract, snapshot) {
         : (block.waitingText || "战斗准备中……");
   return `
     <section class="wuxia-combat-runtime" data-testid="combat-runtime" data-wuxia-preview-id="${escapeHtml(preview.previewId || block.previewId || "")}" data-wuxia-combat-status="${escapeHtml(liveRuntime?.status || "preview")}" data-wuxia-combat-player-count="${playerUnits.length || (left.unitId ? 1 : 0)}" data-wuxia-combat-enemy-count="${enemyUnits.length || (right.unitId ? 1 : 0)}" data-wuxia-asset-mode="${escapeHtml(state.developmentAssetMode || (state.referenceAssetRegistry ? "reference-only-development" : "shipping-registry"))}">
+      ${renderCombatTopHud(topHudModel)}
       <div class="wuxia-combat-runtime-stage ${stageClass}" data-wuxia-scene-theme="${escapeHtml(scene.theme || "courtyard")}"${stageStyle}>
         <div class="wuxia-runtime-scene-backdrop" aria-hidden="true">
           ${referenceSceneUrl ? `<img class="wuxia-runtime-scene-reference" src="${escapeHtml(referenceSceneUrl)}" alt="" decoding="async" />` : ""}
@@ -442,9 +460,9 @@ function renderCombatRuntime(block, flowContract, snapshot) {
         ${control?.requiresPlayerInput && available.canRunaway ? `<button type="button" class="wuxia-combat-runaway" data-wuxia-combat-unit-id="${escapeHtml(control.actorId || "")}">尝试脱离</button>` : ""}
         ${replayMode
           ? `<button type="button" class="wuxia-combat-replay-stop">退出重播</button>`
-          : liveRuntime?.status === "active" && liveRuntime?.paused
+          : liveRuntime?.status === "active" && liveRuntime?.paused && !hasTopHud
             ? `<button type="button" class="wuxia-combat-resume">继续战斗</button>`
-            : liveRuntime?.status === "active"
+            : liveRuntime?.status === "active" && !hasTopHud
               ? `<button type="button" class="wuxia-combat-pause">暂停战斗</button>`
               : liveRuntime?.status === "finished"
                 ? `<button type="button" class="wuxia-combat-replay">重播本场</button>`

@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://idlewuxia.local/schema/wuxia_combat_top_hud.v1.json",
+  "title": "Idlewuxia combat top HUD runtime contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "contractId", "version", "screenId", "maxHeightRatio", "referenceHeightDp", "zones", "turnOrder", "sideSemantics", "stateLabels", "contextLabels", "fallbackPolicy"],
+  "properties": {
+    "$schema": { "const": "idlewuxia.combat_top_hud.v1" },
+    "contractId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "version": { "type": "integer", "minimum": 1 },
+    "screenId": { "const": "UI_EarlyCombat" },
+    "maxHeightRatio": { "type": "number", "exclusiveMinimum": 0, "maximum": 0.18 },
+    "referenceHeightDp": { "type": "number", "exclusiveMinimum": 0, "maximum": 160 },
+    "zones": {
+      "type": "array", "minItems": 3, "maxItems": 3, "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "heightDp", "purpose"],
+        "properties": {
+          "id": { "enum": ["context", "turn-order", "state-legend"] },
+          "heightDp": { "type": "number", "exclusiveMinimum": 0 },
+          "purpose": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "turnOrder": {
+      "type": "object", "additionalProperties": false,
+      "required": ["direction", "currentActorEmphasis", "futureActorTreatment", "defeatedActorTreatment", "maxVisibleTokens", "minimumTokenDp", "minimumTouchTargetDp", "requiredFields"],
+      "properties": {
+        "direction": { "const": "left-to-right-next-actor" },
+        "currentActorEmphasis": { "const": "single-highlighted-token" },
+        "futureActorTreatment": { "const": "dimmed" },
+        "defeatedActorTreatment": { "const": "crossed-out" },
+        "maxVisibleTokens": { "type": "integer", "minimum": 3, "maximum": 7 },
+        "minimumTokenDp": { "type": "number", "minimum": 32 },
+        "minimumTouchTargetDp": { "const": 44 },
+        "requiredFields": { "type": "array", "minItems": 6, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "sideSemantics": {
+      "type": "object", "additionalProperties": false, "required": ["player", "enemy"],
+      "properties": {
+        "player": { "$ref": "#/$defs/side" },
+        "enemy": { "$ref": "#/$defs/side" }
+      }
+    },
+    "stateLabels": { "$ref": "#/$defs/stringMap" },
+    "contextLabels": { "$ref": "#/$defs/stringMap" },
+    "fallbackPolicy": { "$ref": "#/$defs/stringMap" }
+  },
+  "$defs": {
+    "side": {
+      "type": "object", "additionalProperties": false,
+      "required": ["label", "labelKey", "shape"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "labelKey": { "type": "string", "minLength": 1 },
+        "shape": { "type": "string", "minLength": 1 }
+      }
+    },
+    "stringMap": {
+      "type": "object", "minProperties": 1,
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    }
+  }
+}

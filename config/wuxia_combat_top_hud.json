@@ -1,0 +1,48 @@
+{
+  "$schema": "idlewuxia.combat_top_hud.v1",
+  "contractId": "idlewuxia-combat-top-hud-v1",
+  "version": 1,
+  "screenId": "UI_EarlyCombat",
+  "maxHeightRatio": 0.18,
+  "referenceHeightDp": 128,
+  "zones": [
+    { "id": "context", "heightDp": 44, "purpose": "encounter-context-round-pause" },
+    { "id": "turn-order", "heightDp": 64, "purpose": "ordered-unit-tokens-and-current-actor" },
+    { "id": "state-legend", "heightDp": 20, "purpose": "shape-plus-label-state-legend" }
+  ],
+  "turnOrder": {
+    "direction": "left-to-right-next-actor",
+    "currentActorEmphasis": "single-highlighted-token",
+    "futureActorTreatment": "dimmed",
+    "defeatedActorTreatment": "crossed-out",
+    "maxVisibleTokens": 7,
+    "minimumTokenDp": 36,
+    "minimumTouchTargetDp": 44,
+    "requiredFields": ["unitId", "side", "displayName", "alive", "actorMount", "turnIndex"]
+  },
+  "sideSemantics": {
+    "player": { "label": "我方", "labelKey": "combat.side.player", "shape": "jade-seal" },
+    "enemy": { "label": "敌方", "labelKey": "combat.side.enemy", "shape": "cinnabar-seal" }
+  },
+  "stateLabels": {
+    "current": "当前行动",
+    "future": "后续行动",
+    "defeated": "已倒地",
+    "paused": "已暂停",
+    "finished": "战斗结束"
+  },
+  "contextLabels": {
+    "encounter": "遭遇",
+    "defaultEncounter": "战斗",
+    "round": "回合",
+    "pause": "暂停",
+    "resume": "继续",
+    "replay": "重播"
+  },
+  "fallbackPolicy": {
+    "missingUnitSymbol": "·",
+    "missingDisplayName": "未命名单位",
+    "missingTurnOrder": "roster-order",
+    "finishedCurrentActor": "none"
+  }
+}

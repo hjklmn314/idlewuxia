@@ -223,3 +223,14 @@ is an independent 44dp target; and each token must bind to authoritative unit
 identity and turn fields. The replacement concept image remains blocked as a
 production asset until runtime binding, real assets and manual viewport/device
 evidence exist.
+
+## 14. 2026-08-15 top-HUD runtime binding
+
+The runtime now consumes `config/wuxia_combat_top_hud.json` and renders a
+separate top HUD from the live `CombatSession` snapshot. The browser acceptance
+matrix was manually inspected at 360×800, 390×844 and 412×915: current/next
+ordering, enemy/player semantics, pause isolation and the no-raw-encounter-ID
+surface are readable, with zero page console problems and no horizontal
+overflow. This is a bounded COMBAT-002B slice, not a release pass: CSS
+geometric actors, placeholder scene, real VFX/audio ownership, device evidence
+and T05-01 remain blocking.

@@ -14,6 +14,7 @@
     "src/characterDomRenderer.js",
     "src/chapterSession.js",
     "src/combatSession.js",
+    "src/combatTopHud.js",
     "src/conditionEvaluator.js",
     "src/dataClone.js",
     "src/entityInteractionService.js",
@@ -37,7 +38,8 @@
     "config/wuxia_first_session_screen_contract.json",
     "config/wuxia_runtime_asset_registry.json",
     "config/wuxia_character_compositions.json",
-    "config/wuxia_combat_content.json"
+    "config/wuxia_combat_content.json",
+    "config/wuxia_combat_top_hud.json"
   ],
   "developmentReferenceFiles": [
     "config/wuxia_competitor_first_session_reference.json",
@@ -90,6 +92,7 @@
     "src/characterDomRenderer.js",
     "src/chapterSession.js",
     "src/combatSession.js",
+    "src/combatTopHud.js",
     "src/conditionEvaluator.js",
     "src/dataClone.js",
     "src/entityInteractionService.js",
@@ -112,6 +115,7 @@
     "config/wuxia_runtime_asset_registry.json",
     "config/wuxia_character_compositions.json",
     "config/wuxia_combat_content.json",
+    "config/wuxia_combat_top_hud.json",
     "public/wuxia-brand/icon.svg"
   ],
   "shippingSanitization": {

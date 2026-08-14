@@ -1481,11 +1481,109 @@ body.wuxia-mode #app {
    compact status strips, a shared scene, units in the field, then prose log. */
 .wuxia-combat-runtime {
   display: grid;
-  grid-template-rows: minmax(390px, 1fr) minmax(150px, auto) auto;
+  grid-template-rows: auto minmax(390px, 1fr) minmax(150px, auto) auto;
   gap: 0;
   min-height: 640px;
   background: #050505;
 }
+
+/* Runtime-bound combat top HUD.  It is deliberately compact: context,
+   turn-order and state legend are the only persistent top-level concerns. */
+.wuxia-combat-top-hud {
+  position: relative;
+  z-index: 12;
+  display: grid;
+  grid-template-rows: 38px 62px 20px;
+  min-height: 120px;
+  max-height: min(128px, 18svh);
+  overflow: hidden;
+  padding: 4px 8px 2px;
+  border-bottom: 2px solid #7d6032;
+  background: linear-gradient(180deg, #102131 0%, #08131c 100%);
+  color: #f7e9c5;
+  font-size: 12px;
+}
+.wuxia-combat-top-context {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  gap: 8px;
+}
+.wuxia-combat-top-context-copy {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+  gap: 7px;
+  white-space: nowrap;
+}
+.wuxia-combat-top-context-copy span,
+.wuxia-combat-top-context-copy small,
+.wuxia-combat-top-context-copy em { color: #b7c6c7; font-size: 11px; font-style: normal; }
+.wuxia-combat-top-context-copy strong { max-width: 38vw; overflow: hidden; color: #f5d994; font-size: 14px; text-overflow: ellipsis; }
+.wuxia-combat-top-context-copy em { color: #f4bd58; }
+.wuxia-combat-top-pause {
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  margin-top: 1px;
+  border: 1px solid #d1a857;
+  border-radius: 8px;
+  background: #172a38;
+  color: #ffe6a0;
+  font: 700 20px/1 sans-serif;
+  touch-action: manipulation;
+}
+.wuxia-combat-top-pause:active { transform: translateY(1px); filter: brightness(1.18); }
+.wuxia-combat-top-turn-order {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  margin: 0;
+  padding: 0 2px;
+  overflow: hidden;
+  list-style: none;
+}
+.wuxia-combat-top-token {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 1 44px;
+  width: 44px;
+  min-width: 34px;
+  max-width: 52px;
+  height: 54px;
+  padding: 2px 1px 0;
+  border: 2px solid #597172;
+  border-radius: 8px;
+  background: #12202a;
+  color: #e9f2e7;
+  opacity: .58;
+  text-align: center;
+}
+.wuxia-combat-top-token.player { border-color: #3f9b91; }
+.wuxia-combat-top-token.enemy { border-color: #a24d43; }
+.wuxia-combat-top-token.current { z-index: 2; border-color: #f5d06a; box-shadow: 0 0 0 2px rgba(245,208,106,.35), 0 0 12px rgba(245,208,106,.34); opacity: 1; transform: translateY(-2px); }
+.wuxia-combat-top-token.defeated { filter: grayscale(1); opacity: .38; }
+.wuxia-combat-top-token.defeated::after { content: ""; position: absolute; inset: 2px; border-top: 3px solid #d94d42; border-bottom: 3px solid #d94d42; transform: rotate(-27deg); pointer-events: none; }
+.wuxia-combat-top-token-symbol { display: grid; place-items: center; width: 25px; height: 25px; border: 1px solid currentColor; border-radius: 50%; background: #263b44; color: #f8e7b4; font-size: 13px; font-weight: 900; }
+.wuxia-combat-top-token.enemy .wuxia-combat-top-token-symbol { background: #4d282a; }
+.wuxia-combat-top-token-name { width: 100%; overflow: hidden; margin-top: 1px; color: #f2ead7; font-size: 9px; line-height: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.wuxia-combat-top-token-state { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.wuxia-combat-top-arrow { flex: 0 0 12px; color: #d6ae55; font-size: 20px; line-height: 1; text-align: center; }
+.wuxia-combat-top-legend { display: flex; align-items: center; justify-content: center; gap: 12px; overflow: hidden; color: #9eafb1; font-size: 10px; white-space: nowrap; }
+.wuxia-combat-top-legend span::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 3px; border: 1px solid currentColor; border-radius: 50%; vertical-align: 1px; }
+.wuxia-combat-top-legend .player { color: #72c8b4; }
+.wuxia-combat-top-legend .enemy { color: #dc7561; }
+.wuxia-combat-top-legend .current { color: #f5d06a; }
+.wuxia-combat-top-legend .defeated { color: #c08d88; text-decoration: line-through; }
+.wuxia-combat-top-legend .current::before { border-radius: 1px; box-shadow: 0 0 0 1px #f5d06a; }
+.wuxia-combat-top-legend .defeated::before { border-radius: 0; transform: rotate(-25deg); }
 
 .wuxia-combat-runtime-stage {
   position: relative;

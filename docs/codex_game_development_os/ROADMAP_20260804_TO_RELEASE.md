@@ -384,6 +384,21 @@ single current-actor emphasis and explicit left-to-right direction. The new
 image is concept-only evidence; runtime implementation and the strict visual
 gate remain open under `COMBAT-002B` and `T05-01`.
 
+## 2026-08-15 COMBAT-002B top-HUD runtime slice
+
+The top HUD is now connected to the live `CombatSession` snapshot in the HTML
+runtime. `config/wuxia_combat_top_hud.json` is the shipping runtime contract;
+`src/combatTopHud.js` derives ordered tokens from `turnOrder`/`turnIndex`, binds
+`unitId`, `side`, `displayName`, `alive`, `actorMount` and `turnIndex`, and keeps
+the pause control as a single independent 44dp target. The old bottom duplicate
+pause control is suppressed while this contract is active.
+
+Focused runtime tests and real-browser captures pass at 360×800, 390×844 and
+412×915 with zero page console problems and no horizontal overflow. This closes
+only the top-HUD runtime slice. `COMBAT-002B` remains blocked because the field
+actors, clean scene, VFX/audio ownership and the strict 11-screen visual gate
+are still open.
+
 ## 2026-08-14 UI-STYLE-001 中性 UI 合同与战斗/关卡艺术方向
 
 `UI-STYLE-001` 已完成“规范定义”范围：UI/UX 边界、中性 UI 图规则、可测组件合同、战斗与章节屏绑定、无障碍/触控/安全区约束均已进入 `ui_neutral_visual_contract.json` 与 Draft 2020-12 Schema。验证器和正负例测试已接入 `task:preflight`，当前结果为 PASS。

@@ -204,6 +204,8 @@ must not cover the actor, status bar or action controls.
 HP/MP 条、路线图、节点详情或技能卡。暂停按钮必须是独立的 44dp 触控目标，
 不能和当前行动者高亮争夺视觉焦点。该规则由
 `ui_neutral_visual_contract.json.combatTopHud` 负责机器校验。
+运行时必须读取 `config/wuxia_combat_top_hud.json`，不得在 UI 脚本中另造
+一套回合顺序或暂停状态。
 
 ### Chapter/level screen boundary
 

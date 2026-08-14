@@ -63,7 +63,7 @@
 SHA-256 `601A7B18DFC1992714BEEE5C4F4B59FEC031E1578491FFE4CC0DC7A3C1A5F8DD`。
 它只用于审计顶部信息架构，不是可直接导入的 UI 贴图。
 
-机器合同位于 `ui_neutral_visual_contract.json` 的 `combatTopHud`：它禁止装饰进度线、大型中央字形、竖幅、仅颜色状态、未绑定头像、回合轨道中的完整 HP/MP 条、路线图和节点详情。
+机器合同位于 `ui_neutral_visual_contract.json` 的 `combatTopHud`，运行时落地合同为 `config/wuxia_combat_top_hud.json`：它禁止装饰进度线、大型中央字形、竖幅、仅颜色状态、未绑定头像、回合轨道中的完整 HP/MP 条、路线图和节点详情。
 
 ### 2.2 `UI_MapExplore` 的 route 模式：关卡路径样板
 

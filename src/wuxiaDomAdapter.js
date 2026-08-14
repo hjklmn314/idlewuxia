@@ -118,6 +118,13 @@ export function createWuxiaDomAdapter({
     bindAll(stage, ".wuxia-combat-pause", (button) => {
       button.addEventListener("click", () => pauseCombat());
     });
+    bindAll(stage, "[data-wuxia-combat-top-pause='true']", (button) => {
+      button.addEventListener("click", () => {
+        const hud = button.closest("[data-testid='combat-top-hud']");
+        if (hud?.dataset?.wuxiaCombatTopPaused === "true") resumeCombat();
+        else pauseCombat();
+      });
+    });
     bindAll(stage, ".wuxia-combat-resume", (button) => {
       button.addEventListener("click", () => resumeCombat());
     });

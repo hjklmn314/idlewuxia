@@ -203,6 +203,7 @@
   },
   "combatTopHud": {
     "screenId": "UI_EarlyCombat",
+    "runtimeContract": "config/wuxia_combat_top_hud.json",
     "maxHeightRatio": 0.18,
     "referenceHeightDp": 128,
     "zones": [

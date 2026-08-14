@@ -65,6 +65,7 @@ export function validateUiNeutralContract({ rootDir = root, contract, schema, sc
   }
   const topHud = activeContract.combatTopHud;
   if (!screenIds.has(topHud.screenId)) findings.push(finding("UI_NEUTRAL_TOP_HUD_SCREEN_UNKNOWN", topHud.screenId, "Combat top HUD is bound to a screen absent from the active screen contract."));
+  if (topHud.runtimeContract !== "config/wuxia_combat_top_hud.json") findings.push(finding("UI_NEUTRAL_TOP_HUD_RUNTIME_CONTRACT_UNKNOWN", topHud.runtimeContract, "Combat top HUD must point to the shipping runtime contract."));
   if (topHud.maxHeightRatio > 0.18) findings.push(finding("UI_NEUTRAL_TOP_HUD_TOO_TALL", "combatTopHud.maxHeightRatio", "Combat top HUD must not exceed 18 percent of the portrait usable height."));
   const hudZoneIds = new Set(topHud.zones.map((zone) => zone.id));
   for (const requiredZone of ["context", "turn-order", "state-legend"]) if (!hudZoneIds.has(requiredZone)) findings.push(finding("UI_NEUTRAL_TOP_HUD_ZONE_MISSING", requiredZone, "Combat top HUD must define context, turn-order and state-legend zones."));
