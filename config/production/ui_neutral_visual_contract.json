@@ -171,6 +171,36 @@
       "primaryActionPolicy": "selected-node-or-room-must-expose-one-clear-next-action"
     }
   ],
+  "screenSeparation": {
+    "onePrimaryGoalPerScreen": true,
+    "forbiddenCombinedModes": [
+      ["route", "node-detail", "combat"]
+    ],
+    "modes": {
+      "route": {
+        "screenId": "UI_MapExplore",
+        "allowedPersistentComponentIds": ["screen-frame", "chapter-node-card", "primary-action"],
+        "forbiddenPersistentComponentIds": ["combat-unit-card", "feedback-stack"]
+      },
+      "node-detail": {
+        "screenId": "UI_MapExplore",
+        "allowedPersistentComponentIds": ["screen-frame", "chapter-node-card", "state-card", "primary-action"],
+        "forbiddenPersistentComponentIds": ["combat-unit-card", "feedback-stack"]
+      },
+      "combat": {
+        "screenId": "UI_EarlyCombat",
+        "allowedPersistentComponentIds": ["screen-frame", "combat-unit-card", "state-card", "primary-action", "feedback-stack"],
+        "forbiddenPersistentComponentIds": ["chapter-node-card"]
+      }
+    },
+    "flow": [
+      { "fromScreenId": "UI_MapExplore", "fromMode": "route", "action": "selectNode", "toMode": "node-detail" },
+      { "fromScreenId": "UI_MapExplore", "fromMode": "node-detail", "action": "enterEncounter", "toScreenId": "UI_EarlyCombat", "toMode": "combat" },
+      { "fromScreenId": "UI_EarlyCombat", "fromMode": "combat", "action": "resolveCombat", "toScreenId": "UI_ChapterLoop", "toMode": "result" },
+      { "fromScreenId": "UI_ChapterLoop", "fromMode": "result", "action": "continueChapter", "toScreenId": "UI_MapExplore", "toMode": "route" }
+    ],
+    "nodeDetailImplementation": "transient-state-within-UI_MapExplore-until-dedicated-screen-contract-is-approved"
+  },
   "interactionRules": {
     "everyVisibleActionRequires": ["intentId", "precondition", "commandOrLocalTransition", "expectedStateChange", "successFeedback", "failureFeedback"],
     "acceptedActionMustProve": ["runtimeStateDelta-or-declared-narrative-transition", "visible-feedback-within-900ms", "replayable-event-or-navigation-record"],
@@ -189,7 +219,7 @@
     "localization": "allow-30-percent-CJK-expansion-without-overflow"
   },
   "manualAcceptance": {
-    "requiredEvidence": ["neutral-wireframe-image", "combat-art-example", "map-art-example", "360x800", "390x844", "412x915", "interaction-state-review"],
+    "requiredEvidence": ["neutral-wireframe-image", "route-art-example", "node-detail-art-example", "combat-art-example", "360x800", "390x844", "412x915", "interaction-state-review"],
     "reviewOrder": ["layout", "hierarchy", "readability", "touch-targets", "state-feedback", "motion", "asset-binding", "release-boundary"],
     "allowedVerdicts": ["PASS", "PASS WITH KNOWN LIMITATIONS", "REVISE", "BLOCKED"],
     "automaticPassDoesNotProve": ["art-quality", "licensed-asset-ownership", "device-performance", "audio-latency", "release-readiness"]

@@ -24,6 +24,7 @@ for (const mutate of [
   (value) => { value.screenBindings[0].screenId = "UI_Missing"; },
   (value) => { value.screenBindings[1].requiredIntentTypes = ["inventedIntent"]; },
   (value) => { value.neutralImage.rendering = "colorful-final-art"; },
+  (value) => { value.screenSeparation.onePrimaryGoalPerScreen = false; },
 ]) {
   const invalid = clone(base);
   mutate(invalid);

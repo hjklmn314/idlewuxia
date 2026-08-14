@@ -56,6 +56,13 @@ export function validateUiNeutralContract({ rootDir = root, contract, schema, sc
   for (const componentId of requiredComponents) if (!actualComponents.has(componentId)) findings.push(finding("UI_NEUTRAL_COMPONENT_MISSING", componentId, "Required neutral UI component contract is missing."));
   if (!activeContract.neutralImage.forbiddenContent.includes("raw-runtime-id")) findings.push(finding("UI_NEUTRAL_RAW_ID_ALLOWED", "neutralImage.forbiddenContent", "Raw runtime IDs must be forbidden in the player-facing neutral image."));
   if (!activeContract.forbiddenPatterns.includes("placeholder-art-marked-as-production")) findings.push(finding("UI_NEUTRAL_PLACEHOLDER_BOUNDARY_MISSING", "forbiddenPatterns", "Placeholder art must be explicitly prevented from becoming production art."));
+  const separation = activeContract.screenSeparation;
+  if (!separation.onePrimaryGoalPerScreen) findings.push(finding("UI_NEUTRAL_MULTI_GOAL_SCREEN", "screenSeparation.onePrimaryGoalPerScreen", "Each screen must have one primary player goal."));
+  if (!separation.forbiddenCombinedModes.some((modes) => modes.includes("route") && modes.includes("node-detail") && modes.includes("combat"))) findings.push(finding("UI_NEUTRAL_COMBINED_MODES_ALLOWED", "screenSeparation.forbiddenCombinedModes", "Route, node detail and combat must be explicitly forbidden from being composed as one persistent screen."));
+  for (const [mode, definition] of Object.entries(separation.modes)) {
+    const overlap = definition.allowedPersistentComponentIds.filter((componentId) => definition.forbiddenPersistentComponentIds.includes(componentId));
+    if (overlap.length) findings.push(finding("UI_NEUTRAL_MODE_COMPONENT_OVERLAP", mode, `Mode allows and forbids the same persistent component: ${overlap.join(", ")}.`));
+  }
   return { valid: findings.length === 0, findings, screenBindingCount: activeContract.screenBindings.length, viewportCount: activeContract.platform.supportedViewports.length, componentCount: activeContract.componentContracts.length };
 }
 

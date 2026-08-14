@@ -106,3 +106,24 @@ route blocker at all three viewports; no dialog is fabricated.
 战斗屏 `UI_EarlyCombat` 必须提供单位绑定 HP/MP、Buff/控制、行动顺序、技能与目标选择、暂停/重播和可见结果差异；章节屏 `UI_MapExplore` 必须提供当前房间、可达路线、节点状态、条件原因、奖励来源和唯一下一步动作。两者均不得把业务状态写入 UI 脚本或用颜色作为唯一状态信号。
 
 本次艺术方向概念板与人工判定见 `UI_COMBAT_LEVEL_ART_DIRECTION_EXAMPLE_20260814.md`：概念方向通过，生产资产阻断。它不改变当前 `T05-01`、`COMBAT-002B` 和发行门状态。
+
+## 2026-08-15 屏幕边界纠偏
+
+上一版把关卡路径、节点详情和战斗界面合成一张长图，现审计为
+`REJECTED AS SCREEN COMPOSITION`。这不是可接受的“竖屏信息密度”，而是
+把三个玩家目标和多个下一步动作同时暴露，破坏导航上下文与状态归属。
+
+后续体验必须遵循：
+
+```text
+UI_MapExplore(route)
+ -> node-detail
+ -> UI_EarlyCombat(combat)
+ -> UI_ChapterLoop(result)
+ -> UI_MapExplore(route)
+```
+
+route、node-detail、combat、result 都是独立模式；任何模式不得持久携带
+另一模式的完整地图、节点奖励面板、单位卡、技能卡或战斗反馈堆栈。当前
+node-detail 允许暂时作为 `UI_MapExplore` 的瞬态状态，但其边界已进入
+`ui_neutral_visual_contract.json` 的 `screenSeparation`，不能借此把三屏重新合并。

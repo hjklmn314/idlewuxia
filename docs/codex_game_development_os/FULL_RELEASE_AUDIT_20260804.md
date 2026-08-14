@@ -196,3 +196,18 @@ device performance or audio-latency proof. It therefore does not close
 `T05-01`, `COMBAT-002B`, ASSET-007～010 or any release gate. The known current
 visual failures remain geometric/placeholder combat presentation and missing
 owned VFX/audio, independently of the neutral-contract PASS.
+
+## 12. 2026-08-15 UI composition correction
+
+The former single board that combined chapter route, node detail and combat is
+rejected as a screen composition. This is a product-boundary defect, not a
+minor art preference: each persistent screen must have one primary player goal
+and one clear next action.
+
+The corrected flow is `UI_MapExplore(route)` → `node-detail` →
+`UI_EarlyCombat(combat)` → `UI_ChapterLoop(result)` → `UI_MapExplore(route)`.
+The current runtime uses `UI_MapExplore` for route plus a transient node-detail
+mode; a dedicated screen ID is required before a larger detail surface enters
+content production. Three standalone concept references now replace the old
+board for direction review. This correction does not close the runtime visual,
+asset, device or release gates.

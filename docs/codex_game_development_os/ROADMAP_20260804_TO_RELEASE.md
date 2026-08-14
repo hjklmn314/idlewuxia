@@ -353,6 +353,25 @@ The current serial path is therefore `ASSET-007`–`ASSET-010` → `COMBAT-002B`
 `COMBAT_002_AUTHORITY_HARDENING_COMPLETION_20260814.md` and
 `config/production/production_stage_plan.json`.
 
+## 2026-08-15 UI composition correction
+
+The previous combined concept board that placed chapter route, node detail and
+combat in one portrait canvas is rejected as a runtime screen composition. It
+violates the one-primary-goal rule and must not be used as a layout or visual
+acceptance reference.
+
+The production experience order is now explicit:
+
+`UI_MapExplore(route)` → `node-detail` → `UI_EarlyCombat(combat)` →
+`UI_ChapterLoop(result)` → `UI_MapExplore(route)`.
+
+Until a dedicated screen ID is approved, `node-detail` is a transient mode of
+`UI_MapExplore`; it is not permission to keep the full route map and combat
+panels persistently visible together. The three new concept references are
+separate, concept-only evidence. `UI-STYLE-001` remains done only for contract
+definition; `COMBAT-002B` and `T05-01` remain blocked pending runtime
+implementation, owned assets and manual 11-screen × 3-viewport acceptance.
+
 ## 2026-08-14 UI-STYLE-001 中性 UI 合同与战斗/关卡艺术方向
 
 `UI-STYLE-001` 已完成“规范定义”范围：UI/UX 边界、中性 UI 图规则、可测组件合同、战斗与章节屏绑定、无障碍/触控/安全区约束均已进入 `ui_neutral_visual_contract.json` 与 Draft 2020-12 Schema。验证器和正负例测试已接入 `task:preflight`，当前结果为 PASS。

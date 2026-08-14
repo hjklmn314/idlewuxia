@@ -210,6 +210,37 @@ Locked nodes may not be rendered as unexplained disabled decoration. A blocked
 route must show a human-readable reason and preserve a stable back or retry
 path.
 
+### 2026-08-15 组合概念板纠偏
+
+前一版概念图把关卡路径、节点详情和战斗面板叠在同一张长图中。这是
+**错误的屏幕组合**，不能作为运行时布局、视觉验收或生产拆解依据。该图
+现标记为 `REJECTED AS SCREEN COMPOSITION`，仅保留为历史审计证据。
+
+本项目采用“一屏一个主要玩家目标”的边界：
+
+1. `UI_MapExplore / route`：只读当前位置、可达路线、节点状态和选择结果。
+2. `node-detail`：只读选中节点的目标、条件、风险、奖励和唯一进入动作。
+3. `UI_EarlyCombat / combat`：只读战斗舞台、单位状态、回合、技能/目标、反馈和暂停/重播。
+4. `UI_ChapterLoop / result`：只读战斗结果、奖励结算和继续/返回动作。
+
+体验流为：
+
+```text
+UI_MapExplore(route)
+  -> selectNode
+node-detail
+  -> enterEncounter
+UI_EarlyCombat(combat)
+  -> resolveCombat
+UI_ChapterLoop(result)
+  -> continueChapter
+UI_MapExplore(route)
+```
+
+在尚未批准新的独立 `ScreenId` 前，`node-detail` 只能作为
+`UI_MapExplore` 的瞬态模式；它不得与 route 的完整地图或 combat 的单位/技能
+面板同时持久存在。若详情内容超过紧凑详情单，先扩充屏幕合同，再进入内容生产。
+
 ## 4. UI-neutral image standard
 
 The neutral image is the pre-art gate. It answers “does the screen work?”
@@ -362,8 +393,10 @@ The UI must not hard-code:
 Every UI milestone requires:
 
 - the neutral wireframe image;
-- a combat example;
-- a chapter/level example;
+- a standalone route example;
+- a standalone node-detail example;
+- a standalone combat example;
+- a standalone result example when the result flow is implemented;
 - 360×800, 390×844 and 412×915 screenshots;
 - DOM/runtime state evidence;
 - console and overflow results;
