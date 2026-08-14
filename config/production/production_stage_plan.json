@@ -106,6 +106,7 @@
         "ASSET-010",
         "ASSET-CONTRACT-001",
         "VISUAL-STANDARD-001",
+        "UI-STYLE-001",
         "COMBAT-002A",
         "COMBAT-004",
         "COMBAT-005",
@@ -814,6 +815,33 @@
         "docs/codex_game_development_os/ROADMAP_20260804_TO_RELEASE.md",
         "docs/codex_game_development_os/VISUAL_STANDARD_001_COMPLETION_RECORD_20260806.md",
         "docs/codex_game_development_os/MODULAR_PIXEL_CHARACTER_REQUIREMENTS_20260813.md"
+      ]
+    },
+    {
+      "id": "UI-STYLE-001",
+      "title": "UI/UX 边界、中性 UI 图合同与战斗/关卡艺术方向示例",
+      "priority": "P0",
+      "gate": "G5",
+      "status": "done",
+      "owner": "ui-ux-feedback-designer",
+      "dependsOn": [
+        "UI-ARCH-001",
+        "VISUAL-STANDARD-001",
+        "ASSET-CONTRACT-001"
+      ],
+      "acceptance": [
+        "Neutral UI contract is schema validated and explicitly non-shipping.",
+        "Portrait zones, touch, contrast, state/intent/feedback and screen bindings are measurable.",
+        "Combat and chapter art direction example is manually reviewed and explicitly marked concept-only.",
+        "Current UI visual limitations remain separate from contract-definition PASS."
+      ],
+      "evidence": [
+        "config/production/ui_neutral_visual_contract.json",
+        "config/production/schemas/ui_neutral_visual_contract.schema.json",
+        "tools/validate-ui-neutral-contract.mjs",
+        "tools/test-ui-neutral-contract.mjs",
+        "docs/codex_game_development_os/UI_UX_BOUNDARY_AND_NEUTRAL_UI_STANDARD_20260814.md",
+        "docs/codex_game_development_os/UI_COMBAT_LEVEL_ART_DIRECTION_EXAMPLE_20260814.md"
       ]
     },
     {

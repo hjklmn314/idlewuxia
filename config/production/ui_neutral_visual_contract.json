@@ -1,0 +1,209 @@
+{
+  "$schema": "idlewuxia.production.ui_neutral_visual_contract.v1",
+  "contractId": "idlewuxia-ui-neutral-portrait-v1",
+  "version": 1,
+  "purpose": "Content-neutral portrait UI layout and interaction contract used before final art is bound.",
+  "shipping": false,
+  "authority": {
+    "screenRegistry": "config/production/ui_experience_registry.json",
+    "intentSchema": "config/wuxia_ui_intent_contract.schema.json",
+    "visualStandard": "config/production/visual_standard.json",
+    "runtime": "config/wuxia_first_session_screen_contract.json"
+  },
+  "platform": {
+    "orientation": "portrait",
+    "referenceViewport": { "id": "android-baseline", "width": 390, "height": 844 },
+    "supportedViewports": [
+      { "id": "android-compact", "width": 360, "height": 800 },
+      { "id": "android-baseline", "width": 390, "height": 844 },
+      { "id": "android-tall", "width": 412, "height": 915 }
+    ],
+    "safeAreaDp": { "top": 16, "right": 16, "bottom": 16, "left": 16 },
+    "minimumTouchTargetDp": 44,
+    "minimumGapBetweenTargetsDp": 8,
+    "minimumBodyTextPx": 14,
+    "minimumTitleTextPx": 18,
+    "minimumContrastRatio": 4.5,
+    "reducedMotionMustPreserveState": true
+  },
+  "neutralImage": {
+    "role": "layout-and-interaction-proof-only",
+    "rendering": "flat-neutral-grayscale",
+    "imageSize": { "width": 1170, "height": 2532 },
+    "pixelGrid": 4,
+    "allowedSurfaces": ["canvas", "panel", "card", "control", "divider", "focus-ring", "text-placeholder"],
+    "forbiddenContent": [
+      "named-character-art",
+      "baked-scene-art",
+      "chapter-specific-copy",
+      "real-item-iconography",
+      "final-brand-mark",
+      "unverified-reference-asset",
+      "raw-runtime-id",
+      "debug-label",
+      "decorative-effect-that-could-hide-a-state-change"
+    ],
+    "placeholderRules": {
+      "labels": "semantic-role-only",
+      "icons": "neutral-geometric-silhouette",
+      "artSlots": "solid-block-with-slot-name",
+      "stateColors": "tone-and-pattern-must-work-without-color"
+    },
+    "acceptance": [
+      "Every zone has a stable slot ID and a visible bounding box.",
+      "Primary action, secondary action and back action are visually distinct.",
+      "Selected, locked, disabled, loading, error and empty states are shown at least once.",
+      "The image contains no player-facing concrete chapter, NPC, skill, reward or asset identity.",
+      "All interactive boxes meet the 44dp minimum after mapping to a supported viewport."
+    ]
+  },
+  "layout": {
+    "grid": {
+      "baseUnitDp": 4,
+      "outerPaddingDp": 16,
+      "sectionGapDp": 12,
+      "controlGapDp": 8,
+      "cornerRadiusDp": { "small": 6, "medium": 10, "large": 16 },
+      "borderWidthDp": { "hairline": 1, "strong": 2 }
+    },
+    "zones": {
+      "systemSafeTop": { "heightDp": 16, "purpose": "notch-and-status-bar clearance" },
+      "contextHeader": { "minHeightDp": 56, "purpose": "back, title, context and optional utility" },
+      "primaryStage": { "minHeightRatio": 0.34, "purpose": "combat actors or chapter route" },
+      "contextDetail": { "minHeightDp": 112, "purpose": "selected unit/node/NPC state and next action" },
+      "actionDock": { "minHeightDp": 64, "purpose": "primary action and immediate feedback" },
+      "systemSafeBottom": { "heightDp": 16, "purpose": "gesture-and-home-indicator clearance" }
+    },
+    "layerOrder": ["background", "route-or-stage", "actors-or-node-state", "context-detail", "feedback", "action-dock", "modal", "system-focus"],
+    "responsivePolicy": "zones-reflow-before-content-overflow",
+    "overflowPolicy": "no-horizontal-scroll; vertical-scroll-only-in-explicit-list-zone"
+  },
+  "styleTokens": {
+    "neutral": {
+      "canvas": "#121212",
+      "panel": "#1e1e1e",
+      "card": "#2a2a2a",
+      "control": "#383838",
+      "controlPressed": "#505050",
+      "controlDisabled": "#242424",
+      "divider": "#686868",
+      "textPrimary": "#f2f2f2",
+      "textSecondary": "#b9b9b9",
+      "textDisabled": "#767676",
+      "focusRing": "#ffffff",
+      "errorPattern": "diagonal-hatch",
+      "lockedPattern": "dot-hatch"
+    },
+    "finalWuxiaDirection": {
+      "canvas": "ink-navy",
+      "panel": "lacquer-black",
+      "surface": "warm-rice-paper",
+      "primaryAction": "jade-blue",
+      "dangerAction": "cinnabar",
+      "rewardAccent": "old-gold",
+      "positiveState": "jade",
+      "negativeState": "cinnabar",
+      "secondaryState": "ink-blue",
+      "linework": "charcoal-ink",
+      "texture": "restrained-paper-grain-and-ink-edge"
+    },
+    "typography": {
+      "display": { "minPx": 24, "weight": 700, "lineHeight": 1.15 },
+      "screenTitle": { "minPx": 18, "weight": 700, "lineHeight": 1.2 },
+      "body": { "minPx": 14, "weight": 400, "lineHeight": 1.35 },
+      "button": { "minPx": 15, "weight": 700, "lineHeight": 1.2 },
+      "numeric": { "minPx": 16, "weight": 700, "tabular": true }
+    }
+  },
+  "componentContracts": [
+    {
+      "componentId": "screen-frame",
+      "requiredInputs": ["screenId", "title", "navigationState", "safeArea"],
+      "requiredStates": ["default", "loading", "error", "empty"],
+      "forbidden": ["raw-id-label", "implicit-back-navigation"]
+    },
+    {
+      "componentId": "state-card",
+      "requiredInputs": ["label", "value", "valueState", "delta", "sourceField"],
+      "requiredStates": ["default", "changed-positive", "changed-negative", "locked", "unknown"],
+      "forbidden": ["value-without-source-field", "color-only-state"]
+    },
+    {
+      "componentId": "primary-action",
+      "requiredInputs": ["actionId", "label", "enabled", "expectedState", "feedbackCue"],
+      "requiredStates": ["enabled", "pressed", "disabled", "pending", "success", "failure"],
+      "minimumTouchTargetDp": 44
+    },
+    {
+      "componentId": "combat-unit-card",
+      "requiredInputs": ["unitId", "displayName", "hp", "hpMax", "mp", "mpMax", "buffs", "actorMount"],
+      "requiredStates": ["active", "hurt", "controlled", "defeated"],
+      "forbidden": ["detached-health-bar", "unbound-buff-icon", "occluded-actor"]
+    },
+    {
+      "componentId": "chapter-node-card",
+      "requiredInputs": ["nodeId", "displayName", "routeState", "requirements", "rewards", "entryActionId"],
+      "requiredStates": ["available", "selected", "completed", "locked", "blocked-by-requirement"],
+      "forbidden": ["locked-node-without-reason", "route-without-direction", "reward-without-source"]
+    },
+    {
+      "componentId": "feedback-stack",
+      "requiredInputs": ["eventId", "eventType", "sourceUnitId", "targetUnitId", "text", "visualCueId", "audioCueId"],
+      "requiredStates": ["queued", "visible", "dismissed", "replayed"],
+      "forbidden": ["feedback-without-event", "feedback-over-actor", "debug-feedback"]
+    }
+  ],
+  "screenBindings": [
+    {
+      "screenId": "UI_EarlyCombat",
+      "playerGoal": "Choose a legal combat action and understand its result.",
+      "zones": ["contextHeader", "primaryStage", "contextDetail", "actionDock"],
+      "requiredIntentTypes": ["submitCombatAction", "pauseCombat", "replayCombat"],
+      "requiredStateProof": ["hpDelta", "mpDelta", "buffDelta", "eventLog", "turnOwner"],
+      "primaryActionPolicy": "skill-and-target-selection-must-be-explicit-when-player-owned"
+    },
+    {
+      "screenId": "UI_MapExplore",
+      "playerGoal": "Understand current location, reachable routes and the next chapter action.",
+      "zones": ["contextHeader", "primaryStage", "contextDetail", "actionDock"],
+      "requiredIntentTypes": ["selectRoom", "selectNode", "selectNpc", "selectInteractable"],
+      "requiredStateProof": ["currentRoom", "routeState", "selectionState", "requirementReason", "nextAction"],
+      "primaryActionPolicy": "selected-node-or-room-must-expose-one-clear-next-action"
+    }
+  ],
+  "interactionRules": {
+    "everyVisibleActionRequires": ["intentId", "precondition", "commandOrLocalTransition", "expectedStateChange", "successFeedback", "failureFeedback"],
+    "acceptedActionMustProve": ["runtimeStateDelta-or-declared-narrative-transition", "visible-feedback-within-900ms", "replayable-event-or-navigation-record"],
+    "rejectedActionMustProve": ["zero-domain-mutation", "human-readable-reason", "stable-retry-or-back-path"],
+    "backBehavior": "returns-to-previous-state-without-losing-pending-save-or-selection",
+    "modalBehavior": "modal-captures-focus-and-restores-focus-on-close",
+    "inputPriority": ["system-modal", "primary-action", "context-selection", "scroll", "background"]
+  },
+  "accessibility": {
+    "colorCannotBeSoleSignal": true,
+    "textMustRemainReadableAt": ["360x800", "390x844", "412x915"],
+    "focusVisible": true,
+    "touchTargetMinDp": 44,
+    "reducedMotion": "replace-motion-with-state-emphasis",
+    "screenReader": "every-action-and-state-card-has-semantic-label",
+    "localization": "allow-30-percent-CJK-expansion-without-overflow"
+  },
+  "manualAcceptance": {
+    "requiredEvidence": ["neutral-wireframe-image", "combat-art-example", "map-art-example", "360x800", "390x844", "412x915", "interaction-state-review"],
+    "reviewOrder": ["layout", "hierarchy", "readability", "touch-targets", "state-feedback", "motion", "asset-binding", "release-boundary"],
+    "allowedVerdicts": ["PASS", "PASS WITH KNOWN LIMITATIONS", "REVISE", "BLOCKED"],
+    "automaticPassDoesNotProve": ["art-quality", "licensed-asset-ownership", "device-performance", "audio-latency", "release-readiness"]
+  },
+  "forbiddenPatterns": [
+    "legacy-shooting-rail-or-tab-copy",
+    "debug-panel-in-player-view",
+    "raw-runtime-id-in-player-view",
+    "character-baked-into-scene-background",
+    "front-back-three-quarter-character-view",
+    "leg-silhouette-in-modular-character",
+    "color-only-locked-or-error-state",
+    "primary-action-under-44dp",
+    "linear-demo-without-intent-and-state-proof",
+    "placeholder-art-marked-as-production"
+  ]
+}

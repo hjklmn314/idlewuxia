@@ -352,3 +352,21 @@ The current serial path is therefore `ASSET-007`–`ASSET-010` → `COMBAT-002B`
 `REST-REPAIR-001` stays postponed. Authority:
 `COMBAT_002_AUTHORITY_HARDENING_COMPLETION_20260814.md` and
 `config/production/production_stage_plan.json`.
+
+## 2026-08-14 UI-STYLE-001 中性 UI 合同与战斗/关卡艺术方向
+
+`UI-STYLE-001` 已完成“规范定义”范围：UI/UX 边界、中性 UI 图规则、可测组件合同、战斗与章节屏绑定、无障碍/触控/安全区约束均已进入 `ui_neutral_visual_contract.json` 与 Draft 2020-12 Schema。验证器和正负例测试已接入 `task:preflight`，当前结果为 PASS。
+
+本项同时登记一张战斗 + 章节的竖屏艺术方向概念板。人工评审判定为
+`PASS AS CONCEPT DIRECTION / BLOCKED AS PRODUCTION ASSET`：墨青/漆黑/暖米纸、青玉/朱砂/旧金、紧凑侧视头身组合、单位绑定状态卡、章节路由节点和底部行动区符合目标方向；图中的伪文字、无来源角色/场景/VFX/音频和未验证尺寸不能进入 shipping。
+
+权威资料：
+
+- `config/production/ui_neutral_visual_contract.json`
+- `config/production/schemas/ui_neutral_visual_contract.schema.json`
+- `tools/validate-ui-neutral-contract.mjs`
+- `tools/test-ui-neutral-contract.mjs`
+- `UI_UX_BOUNDARY_AND_NEUTRAL_UI_STANDARD_20260814.md`
+- `UI_COMBAT_LEVEL_ART_DIRECTION_EXAMPLE_20260814.md`
+
+该项不关闭 `T05-01`、`COMBAT-002B` 或任何资产/真机/发行门。下一串行路径仍为：先用原项目参考绑定维持功能验证，补齐批准的侧视模块角色、干净场景、VFX/Buff、音频和 UI kit，再按中性合同实现最终皮肤，最后执行 11 屏 × 3 尺寸人工视觉验收。

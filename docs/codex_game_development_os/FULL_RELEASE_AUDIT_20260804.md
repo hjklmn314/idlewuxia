@@ -179,3 +179,20 @@ The product verdict does not change: current combat art still visibly fails
 the strict human gate, and physical Android, signing, Release, store and
 rollback evidence remain open. `FIRST_SESSION_SIMULATION_MISMATCH` remains a
 separate diagnostic; `REST-REPAIR-001` remains postponed.
+
+## 11. 2026-08-14 UI/UX boundary and neutral-art contract
+
+`UI-STYLE-001` is closed only for the contract-definition slice. The new
+`ui_neutral_visual_contract.json` and Draft 2020-12 Schema define portrait
+zones, safe areas, 44dp touch targets, state/intent/feedback proof, neutral
+wireframe rules, `UI_EarlyCombat`/`UI_MapExplore` bindings and the boundary
+between layout proof and shipping art. Its validator and focused positive/
+negative tests pass and are now included in `task:preflight`.
+
+The accompanying combat + chapter art board is manually accepted as a
+concept direction and explicitly blocked as a production asset. It has no
+shipping copy, asset ownership, runtime binding, three-viewport evidence,
+device performance or audio-latency proof. It therefore does not close
+`T05-01`, `COMBAT-002B`, ASSET-007～010 or any release gate. The known current
+visual failures remain geometric/placeholder combat presentation and missing
+owned VFX/audio, independently of the neutral-contract PASS.

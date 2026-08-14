@@ -98,3 +98,11 @@ console, overflow). `UI_NpcInteraction` and `UI_ChapterLoop` are conditional
 surfaces and remain coverage gaps until reached through legitimate configured
 conditions. The configured choice-result probe currently reports the same
 route blocker at all three viewports; no dialog is fabricated.
+
+## 2026-08-14 UI/UX 边界与中性 UI 图合同
+
+后续 UI 生产以 `config/production/ui_neutral_visual_contract.json` 为中性布局与交互基线，以 `config/production/visual_standard.json` 为视觉边界。中性图只能证明区域、层级、状态和触控目标，不得含有具体角色、章节、NPC、技能、奖励、品牌或未授权资产；它明确是 `shipping: false` 的设计证据。
+
+战斗屏 `UI_EarlyCombat` 必须提供单位绑定 HP/MP、Buff/控制、行动顺序、技能与目标选择、暂停/重播和可见结果差异；章节屏 `UI_MapExplore` 必须提供当前房间、可达路线、节点状态、条件原因、奖励来源和唯一下一步动作。两者均不得把业务状态写入 UI 脚本或用颜色作为唯一状态信号。
+
+本次艺术方向概念板与人工判定见 `UI_COMBAT_LEVEL_ART_DIRECTION_EXAMPLE_20260814.md`：概念方向通过，生产资产阻断。它不改变当前 `T05-01`、`COMBAT-002B` 和发行门状态。

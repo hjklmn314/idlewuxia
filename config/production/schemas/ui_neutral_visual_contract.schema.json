@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://idlewuxia.local/schema/production/ui_neutral_visual_contract.v1.json",
+  "title": "Idlewuxia neutral portrait UI visual contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "contractId", "version", "purpose", "shipping", "authority", "platform", "neutralImage", "layout", "styleTokens", "componentContracts", "screenBindings", "interactionRules", "accessibility", "manualAcceptance", "forbiddenPatterns"],
+  "properties": {
+    "$schema": { "const": "idlewuxia.production.ui_neutral_visual_contract.v1" },
+    "contractId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "version": { "const": 1 },
+    "purpose": { "type": "string", "minLength": 1 },
+    "shipping": { "const": false },
+    "authority": { "type": "object", "additionalProperties": { "type": "string", "minLength": 1 }, "minProperties": 4 },
+    "platform": { "$ref": "#/$defs/platform" },
+    "neutralImage": { "$ref": "#/$defs/neutralImage" },
+    "layout": { "$ref": "#/$defs/layout" },
+    "styleTokens": { "$ref": "#/$defs/styleTokens" },
+    "componentContracts": { "type": "array", "minItems": 6, "uniqueItems": true, "items": { "$ref": "#/$defs/component" } },
+    "screenBindings": { "type": "array", "minItems": 2, "uniqueItems": true, "items": { "$ref": "#/$defs/screenBinding" } },
+    "interactionRules": { "$ref": "#/$defs/interactionRules" },
+    "accessibility": { "$ref": "#/$defs/accessibility" },
+    "manualAcceptance": { "$ref": "#/$defs/manualAcceptance" },
+    "forbiddenPatterns": { "type": "array", "minItems": 10, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+  },
+  "$defs": {
+    "positiveNumber": { "type": "number", "exclusiveMinimum": 0 },
+    "positiveInteger": { "type": "integer", "minimum": 1 },
+    "viewport": {
+      "type": "object", "additionalProperties": false, "required": ["id", "width", "height"],
+      "properties": { "id": { "type": "string", "minLength": 1 }, "width": { "type": "integer", "minimum": 320 }, "height": { "type": "integer", "minimum": 568 } }
+    },
+    "platform": {
+      "type": "object", "additionalProperties": false,
+      "required": ["orientation", "referenceViewport", "supportedViewports", "safeAreaDp", "minimumTouchTargetDp", "minimumGapBetweenTargetsDp", "minimumBodyTextPx", "minimumTitleTextPx", "minimumContrastRatio", "reducedMotionMustPreserveState"],
+      "properties": {
+        "orientation": { "const": "portrait" }, "referenceViewport": { "$ref": "#/$defs/viewport" }, "supportedViewports": { "type": "array", "minItems": 3, "items": { "$ref": "#/$defs/viewport" } },
+        "safeAreaDp": { "$ref": "#/$defs/insets" }, "minimumTouchTargetDp": { "const": 44 }, "minimumGapBetweenTargetsDp": { "type": "number", "minimum": 4 }, "minimumBodyTextPx": { "type": "number", "minimum": 14 }, "minimumTitleTextPx": { "type": "number", "minimum": 18 }, "minimumContrastRatio": { "type": "number", "minimum": 4.5 }, "reducedMotionMustPreserveState": { "const": true }
+      }
+    },
+    "insets": {
+      "type": "object", "additionalProperties": false, "required": ["top", "right", "bottom", "left"],
+      "properties": { "top": { "type": "number", "minimum": 0 }, "right": { "type": "number", "minimum": 0 }, "bottom": { "type": "number", "minimum": 0 }, "left": { "type": "number", "minimum": 0 } }
+    },
+    "neutralImage": {
+      "type": "object", "additionalProperties": false,
+      "required": ["role", "rendering", "imageSize", "pixelGrid", "allowedSurfaces", "forbiddenContent", "placeholderRules", "acceptance"],
+      "properties": {
+        "role": { "const": "layout-and-interaction-proof-only" }, "rendering": { "const": "flat-neutral-grayscale" }, "imageSize": { "$ref": "#/$defs/dimensions" }, "pixelGrid": { "type": "integer", "minimum": 1 }, "allowedSurfaces": { "type": "array", "minItems": 7, "uniqueItems": true, "items": { "type": "string" } }, "forbiddenContent": { "type": "array", "minItems": 9, "uniqueItems": true, "items": { "type": "string" } }, "placeholderRules": { "type": "object", "additionalProperties": { "type": "string", "minLength": 1 }, "minProperties": 4 }, "acceptance": { "type": "array", "minItems": 5, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "dimensions": {
+      "type": "object", "additionalProperties": false, "required": ["width", "height"], "properties": { "width": { "type": "integer", "minimum": 16 }, "height": { "type": "integer", "minimum": 16 } }
+    },
+    "layout": {
+      "type": "object", "additionalProperties": false, "required": ["grid", "zones", "layerOrder", "responsivePolicy", "overflowPolicy"],
+      "properties": {
+        "grid": { "type": "object", "additionalProperties": false, "required": ["baseUnitDp", "outerPaddingDp", "sectionGapDp", "controlGapDp", "cornerRadiusDp", "borderWidthDp"], "properties": { "baseUnitDp": { "type": "integer", "minimum": 1 }, "outerPaddingDp": { "type": "number", "minimum": 8 }, "sectionGapDp": { "type": "number", "minimum": 8 }, "controlGapDp": { "type": "number", "minimum": 4 }, "cornerRadiusDp": { "type": "object", "additionalProperties": { "type": "number", "minimum": 0 } }, "borderWidthDp": { "type": "object", "additionalProperties": { "type": "number", "minimum": 0 } } } },
+        "zones": { "type": "object", "minProperties": 6, "additionalProperties": { "type": "object", "additionalProperties": true } }, "layerOrder": { "type": "array", "minItems": 8, "uniqueItems": true, "items": { "type": "string" } }, "responsivePolicy": { "type": "string", "minLength": 1 }, "overflowPolicy": { "type": "string", "minLength": 1 }
+      }
+    },
+    "styleTokens": { "type": "object", "required": ["neutral", "finalWuxiaDirection", "typography"], "properties": { "neutral": { "type": "object" }, "finalWuxiaDirection": { "type": "object" }, "typography": { "type": "object" } }, "additionalProperties": true },
+    "component": {
+      "type": "object", "additionalProperties": false, "required": ["componentId", "requiredInputs", "requiredStates"], "properties": { "componentId": { "type": "string", "minLength": 1 }, "requiredInputs": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } }, "requiredStates": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } }, "forbidden": { "type": "array", "items": { "type": "string" } }, "minimumTouchTargetDp": { "type": "number", "minimum": 44 } }
+    },
+    "screenBinding": {
+      "type": "object", "additionalProperties": false, "required": ["screenId", "playerGoal", "zones", "requiredIntentTypes", "requiredStateProof", "primaryActionPolicy"], "properties": { "screenId": { "type": "string", "minLength": 1 }, "playerGoal": { "type": "string", "minLength": 1 }, "zones": { "type": "array", "minItems": 3, "uniqueItems": true, "items": { "type": "string" } }, "requiredIntentTypes": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } }, "requiredStateProof": { "type": "array", "minItems": 2, "uniqueItems": true, "items": { "type": "string" } }, "primaryActionPolicy": { "type": "string", "minLength": 1 } }
+    },
+    "interactionRules": {
+      "type": "object", "additionalProperties": false, "required": ["everyVisibleActionRequires", "acceptedActionMustProve", "rejectedActionMustProve", "backBehavior", "modalBehavior", "inputPriority"], "properties": { "everyVisibleActionRequires": { "type": "array", "minItems": 6, "uniqueItems": true, "items": { "type": "string" } }, "acceptedActionMustProve": { "type": "array", "minItems": 3, "uniqueItems": true, "items": { "type": "string" } }, "rejectedActionMustProve": { "type": "array", "minItems": 3, "uniqueItems": true, "items": { "type": "string" } }, "backBehavior": { "type": "string", "minLength": 1 }, "modalBehavior": { "type": "string", "minLength": 1 }, "inputPriority": { "type": "array", "minItems": 5, "uniqueItems": true, "items": { "type": "string" } } }
+    },
+    "accessibility": {
+      "type": "object", "additionalProperties": false, "required": ["colorCannotBeSoleSignal", "textMustRemainReadableAt", "focusVisible", "touchTargetMinDp", "reducedMotion", "screenReader", "localization"], "properties": { "colorCannotBeSoleSignal": { "const": true }, "textMustRemainReadableAt": { "type": "array", "minItems": 3, "uniqueItems": true, "items": { "type": "string" } }, "focusVisible": { "const": true }, "touchTargetMinDp": { "const": 44 }, "reducedMotion": { "type": "string", "minLength": 1 }, "screenReader": { "type": "string", "minLength": 1 }, "localization": { "type": "string", "minLength": 1 } }
+    },
+    "manualAcceptance": {
+      "type": "object", "additionalProperties": false, "required": ["requiredEvidence", "reviewOrder", "allowedVerdicts", "automaticPassDoesNotProve"], "properties": { "requiredEvidence": { "type": "array", "minItems": 7, "uniqueItems": true, "items": { "type": "string" } }, "reviewOrder": { "type": "array", "minItems": 8, "uniqueItems": true, "items": { "type": "string" } }, "allowedVerdicts": { "const": ["PASS", "PASS WITH KNOWN LIMITATIONS", "REVISE", "BLOCKED"] }, "automaticPassDoesNotProve": { "type": "array", "minItems": 5, "uniqueItems": true, "items": { "type": "string" } } }
+    }
+  }
+}
