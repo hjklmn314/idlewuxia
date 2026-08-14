@@ -63,6 +63,13 @@ export function validateUiNeutralContract({ rootDir = root, contract, schema, sc
     const overlap = definition.allowedPersistentComponentIds.filter((componentId) => definition.forbiddenPersistentComponentIds.includes(componentId));
     if (overlap.length) findings.push(finding("UI_NEUTRAL_MODE_COMPONENT_OVERLAP", mode, `Mode allows and forbids the same persistent component: ${overlap.join(", ")}.`));
   }
+  const topHud = activeContract.combatTopHud;
+  if (!screenIds.has(topHud.screenId)) findings.push(finding("UI_NEUTRAL_TOP_HUD_SCREEN_UNKNOWN", topHud.screenId, "Combat top HUD is bound to a screen absent from the active screen contract."));
+  if (topHud.maxHeightRatio > 0.18) findings.push(finding("UI_NEUTRAL_TOP_HUD_TOO_TALL", "combatTopHud.maxHeightRatio", "Combat top HUD must not exceed 18 percent of the portrait usable height."));
+  const hudZoneIds = new Set(topHud.zones.map((zone) => zone.id));
+  for (const requiredZone of ["context", "turn-order", "state-legend"]) if (!hudZoneIds.has(requiredZone)) findings.push(finding("UI_NEUTRAL_TOP_HUD_ZONE_MISSING", requiredZone, "Combat top HUD must define context, turn-order and state-legend zones."));
+  for (const requiredPattern of ["decorative-progress-line", "large-central-glyph", "vertical-side-banner", "unbound-portrait-token"]) if (!topHud.forbiddenPatterns.includes(requiredPattern)) findings.push(finding("UI_NEUTRAL_TOP_HUD_DECORATION_ALLOWED", requiredPattern, "Combat top HUD must explicitly forbid ambiguous decorative or unbound content."));
+  for (const requiredField of ["unitId", "side", "displayName", "alive", "actorMount", "turnIndex"]) if (!topHud.turnOrder.requiredFields.includes(requiredField)) findings.push(finding("UI_NEUTRAL_TOP_HUD_BINDING_FIELD_MISSING", requiredField, "Turn-order tokens must bind to authoritative runtime unit fields."));
   return { valid: findings.length === 0, findings, screenBindingCount: activeContract.screenBindings.length, viewportCount: activeContract.platform.supportedViewports.length, componentCount: activeContract.componentContracts.length };
 }
 

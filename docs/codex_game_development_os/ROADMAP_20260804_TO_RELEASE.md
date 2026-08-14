@@ -372,6 +372,18 @@ separate, concept-only evidence. `UI-STYLE-001` remains done only for contract
 definition; `COMBAT-002B` and `T05-01` remain blocked pending runtime
 implementation, owned assets and manual 11-screen × 3-viewport acceptance.
 
+## 2026-08-15 combat top-HUD correction
+
+The previous top strip direction is rejected: its red/green diamond line,
+oversized central glyph, vertical banner and unbound portraits do not tell the
+player who acts now, who acts next or what a defeated token means. The new
+`combatTopHud` contract limits the top area to 18% of portrait height and
+requires context, turn-order and state-legend zones. It binds every token to
+`unitId`, `side`, `displayName`, `alive`, `actorMount` and `turnIndex`, with a
+single current-actor emphasis and explicit left-to-right direction. The new
+image is concept-only evidence; runtime implementation and the strict visual
+gate remain open under `COMBAT-002B` and `T05-01`.
+
 ## 2026-08-14 UI-STYLE-001 中性 UI 合同与战斗/关卡艺术方向
 
 `UI-STYLE-001` 已完成“规范定义”范围：UI/UX 边界、中性 UI 图规则、可测组件合同、战斗与章节屏绑定、无障碍/触控/安全区约束均已进入 `ui_neutral_visual_contract.json` 与 Draft 2020-12 Schema。验证器和正负例测试已接入 `task:preflight`，当前结果为 PASS。

@@ -25,6 +25,8 @@ for (const mutate of [
   (value) => { value.screenBindings[1].requiredIntentTypes = ["inventedIntent"]; },
   (value) => { value.neutralImage.rendering = "colorful-final-art"; },
   (value) => { value.screenSeparation.onePrimaryGoalPerScreen = false; },
+  (value) => { value.combatTopHud.maxHeightRatio = 0.25; },
+  (value) => { value.combatTopHud.forbiddenPatterns = value.combatTopHud.forbiddenPatterns.filter((pattern) => pattern !== "decorative-progress-line"); },
 ]) {
   const invalid = clone(base);
   mutate(invalid);
@@ -32,4 +34,4 @@ for (const mutate of [
   assert.equal(result.valid, false, "mutated neutral UI contract must fail closed");
 }
 
-console.log("UI neutral visual contract tests: PASS (schema + viewport + screen + intent + shipping boundary)");
+console.log("UI neutral visual contract tests: PASS (schema + viewport + screen + intent + separation + combat-top-HUD + shipping boundary)");

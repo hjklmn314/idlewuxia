@@ -211,3 +211,15 @@ mode; a dedicated screen ID is required before a larger detail surface enters
 content production. Three standalone concept references now replace the old
 board for direction review. This correction does not close the runtime visual,
 asset, device or release gates.
+
+## 13. 2026-08-15 combat top-HUD audit
+
+The attached top-strip direction is rejected in its original form. Its diamond
+progress rail, large central glyph, vertical banner and color-only markers do
+not expose a truthful current actor, next direction or defeated state. The
+replacement `combatTopHud` contract is now machine-validated: context,
+turn-order and state-legend are separate zones; height is capped at 18%; pause
+is an independent 44dp target; and each token must bind to authoritative unit
+identity and turn fields. The replacement concept image remains blocked as a
+production asset until runtime binding, real assets and manual viewport/device
+evidence exist.

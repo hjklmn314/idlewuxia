@@ -834,6 +834,7 @@
         "Portrait zones, touch, contrast, state/intent/feedback and screen bindings are measurable.",
         "Route, node-detail and combat are separate experience modes; the previous composite board is rejected as a screen composition.",
         "Three standalone route, node-detail and combat art-direction references are manually reviewed and explicitly marked concept-only.",
+        "Combat top HUD uses context, turn-order and state-legend zones, stays within 18 percent height, and binds tokens to authoritative unit/turn fields.",
         "Current UI visual limitations remain separate from contract-definition PASS."
       ],
       "evidence": [

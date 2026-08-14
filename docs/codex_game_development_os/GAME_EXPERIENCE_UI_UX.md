@@ -127,3 +127,9 @@ route、node-detail、combat、result 都是独立模式；任何模式不得持
 另一模式的完整地图、节点奖励面板、单位卡、技能卡或战斗反馈堆栈。当前
 node-detail 允许暂时作为 `UI_MapExplore` 的瞬态状态，但其边界已进入
 `ui_neutral_visual_contract.json` 的 `screenSeparation`，不能借此把三屏重新合并。
+
+战斗顶部另有独立边界：它只放遭遇上下文、回合顺序和暂停入口，最多占
+可用竖屏高度 18%；回合 token 绑定运行时单位字段，当前行动者单一高亮，
+未来行动者降权，倒地单位划除。上一版红绿菱形、中央大字形和竖幅装饰不
+提供可解释状态，已从通过标准中删除，详细规则见
+`ui_neutral_visual_contract.json.combatTopHud`。

@@ -201,6 +201,48 @@
     ],
     "nodeDetailImplementation": "transient-state-within-UI_MapExplore-until-dedicated-screen-contract-is-approved"
   },
+  "combatTopHud": {
+    "screenId": "UI_EarlyCombat",
+    "maxHeightRatio": 0.18,
+    "referenceHeightDp": 128,
+    "zones": [
+      { "id": "context", "heightDp": 44, "purpose": "encounter-context-round-pause" },
+      { "id": "turn-order", "heightDp": 64, "purpose": "ordered-unit-tokens-and-current-actor" },
+      { "id": "state-legend", "heightDp": 20, "purpose": "shape-plus-label-state-legend" }
+    ],
+    "turnOrder": {
+      "direction": "left-to-right-next-actor",
+      "currentActorEmphasis": "single-highlighted-token",
+      "futureActorTreatment": "dimmed",
+      "defeatedActorTreatment": "crossed-out",
+      "maxVisibleTokens": 7,
+      "minimumTokenDp": 36,
+      "minimumTouchTargetDp": 44,
+      "requiredFields": ["unitId", "side", "displayName", "alive", "actorMount", "turnIndex"]
+    },
+    "sideSemantics": {
+      "player": { "labelKey": "combat.side.player", "shape": "jade-seal" },
+      "enemy": { "labelKey": "combat.side.enemy", "shape": "cinnabar-seal" }
+    },
+    "forbiddenPatterns": [
+      "decorative-progress-line",
+      "ambiguous-dot-only-state",
+      "large-central-glyph",
+      "vertical-side-banner",
+      "full-hp-mp-bars-in-turn-rail",
+      "route-map-in-combat-top-hud",
+      "node-detail-in-combat-top-hud",
+      "unbound-portrait-token"
+    ],
+    "acceptance": [
+      "Player can identify current actor and next direction within 1 second.",
+      "Player and enemy tokens are distinguishable by shape and label as well as accent color.",
+      "Top HUD occupies no more than 18 percent of the portrait usable height.",
+      "Pause remains a separate 44dp target and does not compete with the current actor.",
+      "Turn tokens bind to runtime unitId, side, alive state and turnIndex.",
+      "Top HUD contains no route, node-detail, skill-card or full health-bar content."
+    ]
+  },
   "interactionRules": {
     "everyVisibleActionRequires": ["intentId", "precondition", "commandOrLocalTransition", "expectedStateChange", "successFeedback", "failureFeedback"],
     "acceptedActionMustProve": ["runtimeStateDelta-or-declared-narrative-transition", "visible-feedback-within-900ms", "replayable-event-or-navigation-record"],
@@ -219,7 +261,7 @@
     "localization": "allow-30-percent-CJK-expansion-without-overflow"
   },
   "manualAcceptance": {
-    "requiredEvidence": ["neutral-wireframe-image", "route-art-example", "node-detail-art-example", "combat-art-example", "360x800", "390x844", "412x915", "interaction-state-review"],
+    "requiredEvidence": ["neutral-wireframe-image", "route-art-example", "node-detail-art-example", "combat-art-example", "combat-top-hud-art-example", "360x800", "390x844", "412x915", "interaction-state-review"],
     "reviewOrder": ["layout", "hierarchy", "readability", "touch-targets", "state-feedback", "motion", "asset-binding", "release-boundary"],
     "allowedVerdicts": ["PASS", "PASS WITH KNOWN LIMITATIONS", "REVISE", "BLOCKED"],
     "automaticPassDoesNotProve": ["art-quality", "licensed-asset-ownership", "device-performance", "audio-latency", "release-readiness"]

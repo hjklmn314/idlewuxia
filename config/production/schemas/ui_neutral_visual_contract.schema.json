@@ -4,7 +4,7 @@
   "title": "Idlewuxia neutral portrait UI visual contract",
   "type": "object",
   "additionalProperties": false,
-  "required": ["$schema", "contractId", "version", "purpose", "shipping", "authority", "platform", "neutralImage", "layout", "styleTokens", "componentContracts", "screenBindings", "screenSeparation", "interactionRules", "accessibility", "manualAcceptance", "forbiddenPatterns"],
+  "required": ["$schema", "contractId", "version", "purpose", "shipping", "authority", "platform", "neutralImage", "layout", "styleTokens", "componentContracts", "screenBindings", "screenSeparation", "combatTopHud", "interactionRules", "accessibility", "manualAcceptance", "forbiddenPatterns"],
   "properties": {
     "$schema": { "const": "idlewuxia.production.ui_neutral_visual_contract.v1" },
     "contractId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
@@ -19,6 +19,7 @@
     "componentContracts": { "type": "array", "minItems": 6, "uniqueItems": true, "items": { "$ref": "#/$defs/component" } },
     "screenBindings": { "type": "array", "minItems": 2, "uniqueItems": true, "items": { "$ref": "#/$defs/screenBinding" } },
     "screenSeparation": { "$ref": "#/$defs/screenSeparation" },
+    "combatTopHud": { "$ref": "#/$defs/combatTopHud" },
     "interactionRules": { "$ref": "#/$defs/interactionRules" },
     "accessibility": { "$ref": "#/$defs/accessibility" },
     "manualAcceptance": { "$ref": "#/$defs/manualAcceptance" },
@@ -97,6 +98,44 @@
         "toScreenId": { "type": "string", "minLength": 1 },
         "toMode": { "type": "string", "minLength": 1 }
       }
+    },
+    "combatTopHud": {
+      "type": "object", "additionalProperties": false,
+      "required": ["screenId", "maxHeightRatio", "referenceHeightDp", "zones", "turnOrder", "sideSemantics", "forbiddenPatterns", "acceptance"],
+      "properties": {
+        "screenId": { "type": "string", "minLength": 1 },
+        "maxHeightRatio": { "type": "number", "exclusiveMinimum": 0, "maximum": 0.18 },
+        "referenceHeightDp": { "type": "number", "exclusiveMinimum": 0, "maximum": 160 },
+        "zones": { "type": "array", "minItems": 3, "maxItems": 3, "uniqueItems": true, "items": { "$ref": "#/$defs/combatTopHudZone" } },
+        "turnOrder": { "$ref": "#/$defs/combatTurnOrder" },
+        "sideSemantics": { "type": "object", "additionalProperties": false, "required": ["player", "enemy"], "properties": { "player": { "$ref": "#/$defs/combatSide" }, "enemy": { "$ref": "#/$defs/combatSide" } } },
+        "forbiddenPatterns": { "type": "array", "minItems": 8, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "acceptance": { "type": "array", "minItems": 6, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "combatTopHudZone": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "heightDp", "purpose"],
+      "properties": { "id": { "type": "string", "minLength": 1 }, "heightDp": { "type": "number", "exclusiveMinimum": 0 }, "purpose": { "type": "string", "minLength": 1 } }
+    },
+    "combatTurnOrder": {
+      "type": "object", "additionalProperties": false,
+      "required": ["direction", "currentActorEmphasis", "futureActorTreatment", "defeatedActorTreatment", "maxVisibleTokens", "minimumTokenDp", "minimumTouchTargetDp", "requiredFields"],
+      "properties": {
+        "direction": { "const": "left-to-right-next-actor" },
+        "currentActorEmphasis": { "const": "single-highlighted-token" },
+        "futureActorTreatment": { "const": "dimmed" },
+        "defeatedActorTreatment": { "const": "crossed-out" },
+        "maxVisibleTokens": { "type": "integer", "minimum": 3, "maximum": 7 },
+        "minimumTokenDp": { "type": "number", "minimum": 32 },
+        "minimumTouchTargetDp": { "const": 44 },
+        "requiredFields": { "type": "array", "minItems": 6, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "combatSide": {
+      "type": "object", "additionalProperties": false,
+      "required": ["labelKey", "shape"],
+      "properties": { "labelKey": { "type": "string", "minLength": 1 }, "shape": { "type": "string", "minLength": 1 } }
     },
     "interactionRules": {
       "type": "object", "additionalProperties": false, "required": ["everyVisibleActionRequires", "acceptedActionMustProve", "rejectedActionMustProve", "backBehavior", "modalBehavior", "inputPriority"], "properties": { "everyVisibleActionRequires": { "type": "array", "minItems": 6, "uniqueItems": true, "items": { "type": "string" } }, "acceptedActionMustProve": { "type": "array", "minItems": 3, "uniqueItems": true, "items": { "type": "string" } }, "rejectedActionMustProve": { "type": "array", "minItems": 3, "uniqueItems": true, "items": { "type": "string" } }, "backBehavior": { "type": "string", "minLength": 1 }, "modalBehavior": { "type": "string", "minLength": 1 }, "inputPriority": { "type": "array", "minItems": 5, "uniqueItems": true, "items": { "type": "string" } } }

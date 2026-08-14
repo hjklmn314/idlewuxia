@@ -193,6 +193,18 @@ visually detached from the unit it represents. Damage, heal, block, miss,
 control and Buff feedback must be anchored to the source or target unit and
 must not cover the actor, status bar or action controls.
 
+#### Combat top HUD boundary
+
+顶部 HUD 不是章节进度条，也不是装饰性标题。它只承担“当前遭遇上下文、
+回合顺序和暂停入口”三个任务，最多占可用竖屏高度的 18%。回合 token 必须
+绑定 `unitId`、`side`、`displayName`、`alive`、`actorMount` 和 `turnIndex`；
+当前行动者只能有一个高亮，未来行动者降权，倒地单位必须有划除/形状变化。
+
+顶部禁止放置大型中央字形、竖向装饰幅、装饰进度线、仅颜色状态点、完整
+HP/MP 条、路线图、节点详情或技能卡。暂停按钮必须是独立的 44dp 触控目标，
+不能和当前行动者高亮争夺视觉焦点。该规则由
+`ui_neutral_visual_contract.json.combatTopHud` 负责机器校验。
+
 ### Chapter/level screen boundary
 
 The chapter screen must make these facts readable without guessing:
