@@ -2,13 +2,11 @@
   "$schema": "idlewuxia.combat_content.v1",
   "schemaVersion": "idlewuxia.combat_content.v1",
   "version": 1,
-  "contentVersion": "combat-core-2-fb01-result-routing",
+  "contentVersion": "combat-core-3-authority-hardening",
   "rules": {
     "maxRounds": 40,
     "maxEvents": 512,
     "turnOrder": "speed_then_seeded_tiebreak",
-    "roundStartEffects": true,
-    "roundEndEffects": true,
     "defaultActionId": "skill_basic_strike",
     "defaultAiPolicyId": "ai_balanced",
     "defaultEncounterId": "encounter_first_session_old_steward",
@@ -271,10 +269,10 @@
     { "buffId": "buff_focus", "name": "护脉", "iconLabel": "护", "tags": ["positive"], "stackPolicy": "unique", "maxStacks": 1, "duration": 2, "modifiers": [{ "attribute": "damageTakenMultiplier", "op": "mul", "value": 0.85 }] }
   ],
   "aiPolicies": [
-    { "aiPolicyId": "ai_balanced", "mode": "weighted_skill", "fallbackSkillId": "skill_steward_test_strike", "weights": { "skill_steward_test_strike": 5, "skill_guard": 2, "skill_iron_wall": 1, "skill_venom_thrust": 2, "skill_silencing_needle": 2, "skill_taunt": 1 } },
-    { "aiPolicyId": "ai_aggressive", "mode": "weighted_skill", "fallbackSkillId": "skill_basic_strike", "weights": { "skill_double_slash": 5, "skill_bleeding_cut": 3, "skill_basic_strike": 2, "skill_sweeping_blade": 2, "skill_true_point": 1 } },
-    { "aiPolicyId": "ai_inner_demon", "mode": "weighted_skill", "fallbackSkillId": "skill_basic_strike", "weights": { "skill_basic_strike": 3, "skill_silencing_needle": 2, "skill_reflecting_mirror": 1, "skill_random_needle": 2, "skill_true_point": 1 } },
-    { "aiPolicyId": "ai_player_safe", "mode": "player_queue_then_basic", "fallbackSkillId": "skill_basic_strike", "weights": { "skill_basic_strike": 1 } }
+    { "aiPolicyId": "ai_balanced", "mode": "weighted_skill", "fallbackSkillId": "skill_steward_test_strike", "defaultWeight": 1, "weights": { "skill_steward_test_strike": 5, "skill_guard": 2, "skill_iron_wall": 1, "skill_venom_thrust": 2, "skill_silencing_needle": 2, "skill_taunt": 1 } },
+    { "aiPolicyId": "ai_aggressive", "mode": "weighted_skill", "fallbackSkillId": "skill_basic_strike", "defaultWeight": 1, "weights": { "skill_double_slash": 5, "skill_bleeding_cut": 3, "skill_basic_strike": 2, "skill_sweeping_blade": 2, "skill_true_point": 1 } },
+    { "aiPolicyId": "ai_inner_demon", "mode": "weighted_skill", "fallbackSkillId": "skill_basic_strike", "defaultWeight": 1, "weights": { "skill_basic_strike": 3, "skill_silencing_needle": 2, "skill_reflecting_mirror": 1, "skill_random_needle": 2, "skill_true_point": 1 } },
+    { "aiPolicyId": "ai_player_safe", "mode": "player_queue_then_basic", "fallbackSkillId": "skill_basic_strike", "defaultWeight": 0, "weights": { "skill_basic_strike": 1 } }
   ],
   "encounters": [
     {

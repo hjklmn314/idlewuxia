@@ -158,3 +158,24 @@ is absent, green-CI provenance is absent and no signed reproducible artifact or
 manual Android install evidence exists. Current authority is
 `REL_001_RELEASE_TOOLCHAIN_FOUNDATION_20260812.md` and
 `config/production/release_build_contract.json`.
+
+## 10. 2026-08-14 COMBAT-002 authority re-audit addendum
+
+The historical audit correctly separated runtime from presentation, but its
+remaining-blocker wording still grouped `COMBAT-002` with product art. The
+current machine authority now marks `COMBAT-002` done for the generic
+configuration/runtime boundary and keeps the product presentation dependency
+in the distinct blocked task `COMBAT-002B`.
+
+The re-audit closed missing explicit player targets, caller overrides of
+runtime-owned targets, taunt bypass for random targets, sort-comparator RNG,
+zero-weight AI corruption, permissive snapshot clamping, incomplete standalone
+runtime validation, unused pseudo-authority keys and first-enemy-only browser
+rendering. Focused positive/negative tests, full authored simulation and a
+three-size real-Edge player-action pass are recorded in
+`COMBAT_002_AUTHORITY_HARDENING_COMPLETION_20260814.md`.
+
+The product verdict does not change: current combat art still visibly fails
+the strict human gate, and physical Android, signing, Release, store and
+rollback evidence remain open. `FIRST_SESSION_SIMULATION_MISMATCH` remains a
+separate diagnostic; `REST-REPAIR-001` remains postponed.

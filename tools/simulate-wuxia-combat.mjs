@@ -48,7 +48,7 @@ function chooseAction(control, policy) {
   return {
     unitId: control.actorId,
     skillId: selected.skillId,
-    targetIds: target ? [target.unitId] : [],
+    targetIds: selected.targetSelection === "player_select" && target ? [target.unitId] : [],
   };
 }
 

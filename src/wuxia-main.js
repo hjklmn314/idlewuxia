@@ -179,7 +179,7 @@ function renderCombatBar(label, current, max, className) {
 function renderCombatRuntimeUnit(unit, side) {
   const buffs = Array.isArray(unit?.buffs) ? unit.buffs : [];
   return `
-    <article class="wuxia-runtime-unit ${side}" data-wuxia-combat-side="${escapeHtml(side)}">
+    <article class="wuxia-runtime-unit ${side}" data-wuxia-combat-side="${escapeHtml(side)}" data-wuxia-combat-unit-id="${escapeHtml(unit?.unitId || "")}">
       <header>
         <strong>${escapeHtml(unit?.name || "")}</strong>
         <small>${escapeHtml(unit?.roleLabel || "")}</small>
@@ -210,7 +210,7 @@ function renderCombatFighter(unit, side, activeKind = "", cueColor = "") {
     ? ` data-wuxia-character-composition-id="${escapeHtml(compositionId)}" data-wuxia-character-clip="${escapeHtml(clipId)}" data-wuxia-character-facing="${side === "left" ? "right" : "left"}" data-wuxia-character-label="${escapeHtml(unit?.name || "")}"`
     : "";
   return `
-    <div class="wuxia-runtime-fighter ${escapeHtml(side)} ${escapeHtml(visual.pose || "guard")} ${escapeHtml(activeKind ? `is-${activeKind}` : "")}" data-wuxia-fighter="${escapeHtml(side)}"${compositionAttributes} style="--combat-cue-color:${escapeHtml(cueColor || "#f3d28b")};--fighter-coat:${escapeHtml(palette.coat || (side === "left" ? "#234765" : "#5c2f33"))};--fighter-accent:${escapeHtml(palette.accent || (side === "left" ? "#d6a85c" : "#d08b6e"))};--fighter-skin:${escapeHtml(palette.skin || "#d99a6c")}">
+    <div class="wuxia-runtime-fighter ${escapeHtml(side)} ${escapeHtml(visual.pose || "guard")} ${escapeHtml(activeKind ? `is-${activeKind}` : "")}" data-wuxia-fighter="${escapeHtml(unit?.unitId || side)}" data-wuxia-combat-side="${escapeHtml(side)}"${compositionAttributes} style="--combat-cue-color:${escapeHtml(cueColor || "#f3d28b")};--fighter-coat:${escapeHtml(palette.coat || (side === "left" ? "#234765" : "#5c2f33"))};--fighter-accent:${escapeHtml(palette.accent || (side === "left" ? "#d6a85c" : "#d08b6e"))};--fighter-skin:${escapeHtml(palette.skin || "#d99a6c")}">
       <div class="wuxia-runtime-fighter-shadow" aria-hidden="true"></div>
       <div class="wuxia-runtime-fighter-body" aria-label="${escapeHtml(unit?.name || "")}">
         <span>${escapeHtml(visual.symbol || "")}</span>
@@ -351,8 +351,20 @@ function renderCombatRuntime(block, flowContract, snapshot) {
     ? (snapshot?.pendingCombat?.replaySnapshot || null)
     : (snapshot?.pendingCombat?.combatSnapshot || null);
   const liveUnits = Array.isArray(liveRuntime?.units) ? liveRuntime.units : [];
-  const liveLeft = liveUnits.find((unit) => liveRuntime?.playerUnitIds?.includes(unit.unitId)) || null;
-  const liveRight = liveUnits.find((unit) => liveRuntime?.enemyUnitIds?.includes(unit.unitId)) || null;
+  const previewUnits = Array.isArray(preview.units?.all) ? preview.units.all : [preview.units?.left, preview.units?.right].filter(Boolean);
+  const previewUnitById = new Map(previewUnits.filter((unit) => unit?.unitId).map((unit) => [unit.unitId, unit]));
+  const mergeRuntimeUnit = (unit) => ({ ...(previewUnitById.get(unit?.unitId) || {}), ...(unit || {}) });
+  const livePlayerIds = Array.isArray(liveRuntime?.playerUnitIds) && liveRuntime.playerUnitIds.length
+    ? liveRuntime.playerUnitIds
+    : (Array.isArray(preview.units?.players) ? preview.units.players.map((unit) => unit.unitId) : [preview.units?.left?.unitId].filter(Boolean));
+  const liveEnemyIds = Array.isArray(liveRuntime?.enemyUnitIds) && liveRuntime.enemyUnitIds.length
+    ? liveRuntime.enemyUnitIds
+    : (Array.isArray(preview.units?.enemies) ? preview.units.enemies.map((unit) => unit.unitId) : [preview.units?.right?.unitId].filter(Boolean));
+  const unitForId = (unitId) => mergeRuntimeUnit(liveUnits.find((unit) => unit.unitId === unitId) || previewUnitById.get(unitId));
+  const playerUnits = livePlayerIds.map(unitForId).filter((unit) => unit?.unitId);
+  const enemyUnits = liveEnemyIds.map(unitForId).filter((unit) => unit?.unitId);
+  const liveLeft = playerUnits[0] || null;
+  const liveRight = enemyUnits[0] || null;
   const left = liveLeft ? { ...(preview.units?.left || {}), ...liveLeft } : cloneData(preview.units?.left || {});
   const right = liveRight ? { ...(preview.units?.right || {}), ...liveRight } : cloneData(preview.units?.right || {});
   const visibleEvents = Array.isArray(liveRuntime?.events) ? liveRuntime.events : events;
@@ -369,8 +381,7 @@ function renderCombatRuntime(block, flowContract, snapshot) {
   const latestCueColor = latestEvent?.cue?.color || "";
   const latestEventSource = latestEvent?.sourceUnitId || "";
   const latestEventTarget = latestEvent?.targetUnitId || "";
-  const leftActiveKind = latestEventSource === left.unitId ? "attack" : latestEventTarget === left.unitId ? latestEvent?.kind || "hit" : "";
-  const rightActiveKind = latestEventSource === right.unitId ? "attack" : latestEventTarget === right.unitId ? latestEvent?.kind || "hit" : "";
+  const activeKindFor = (unitId) => latestEventSource === unitId ? "attack" : latestEventTarget === unitId ? latestEvent?.kind || "hit" : "";
   const scene = preview.scene || {};
   const referenceSceneUrl = referenceAssetUrlFor("scenes", scene.visualCueId || "");
   const stageClass = referenceSceneUrl ? "has-reference-scene" : "";
@@ -399,17 +410,25 @@ function renderCombatRuntime(block, flowContract, snapshot) {
         ? `${control.actorName}行动中……`
         : (block.waitingText || "战斗准备中……");
   return `
-    <section class="wuxia-combat-runtime" data-testid="combat-runtime" data-wuxia-preview-id="${escapeHtml(preview.previewId || block.previewId || "")}" data-wuxia-combat-status="${escapeHtml(liveRuntime?.status || "preview")}" data-wuxia-asset-mode="${escapeHtml(state.developmentAssetMode || (state.referenceAssetRegistry ? "reference-only-development" : "shipping-registry"))}">
+    <section class="wuxia-combat-runtime" data-testid="combat-runtime" data-wuxia-preview-id="${escapeHtml(preview.previewId || block.previewId || "")}" data-wuxia-combat-status="${escapeHtml(liveRuntime?.status || "preview")}" data-wuxia-combat-player-count="${playerUnits.length || (left.unitId ? 1 : 0)}" data-wuxia-combat-enemy-count="${enemyUnits.length || (right.unitId ? 1 : 0)}" data-wuxia-asset-mode="${escapeHtml(state.developmentAssetMode || (state.referenceAssetRegistry ? "reference-only-development" : "shipping-registry"))}">
       <div class="wuxia-combat-runtime-stage ${stageClass}" data-wuxia-scene-theme="${escapeHtml(scene.theme || "courtyard")}"${stageStyle}>
         <div class="wuxia-runtime-scene-backdrop" aria-hidden="true">
           ${referenceSceneUrl ? `<img class="wuxia-runtime-scene-reference" src="${escapeHtml(referenceSceneUrl)}" alt="" decoding="async" />` : ""}
           <i></i><b></b><em></em>
         </div>
-        ${renderCombatRuntimeUnit(left, "left")}
-        ${renderCombatFighter(left, "left", leftActiveKind, latestCueColor)}
+        <div class="wuxia-runtime-unit-roster left" aria-label="我方状态">
+          ${(playerUnits.length ? playerUnits : [left]).filter((unit) => unit?.unitId).map((unit) => renderCombatRuntimeUnit(unit, "left")).join("")}
+        </div>
+        <div class="wuxia-runtime-fighter-party left" aria-label="我方单位">
+          ${(playerUnits.length ? playerUnits : [left]).filter((unit) => unit?.unitId).map((unit) => renderCombatFighter(unit, "left", activeKindFor(unit.unitId), latestCueColor)).join("")}
+        </div>
         <div class="wuxia-runtime-hitline" aria-hidden="true"></div>
-        ${renderCombatRuntimeUnit(right, "right")}
-        ${renderCombatFighter(right, "right", rightActiveKind, latestCueColor)}
+        <div class="wuxia-runtime-unit-roster right" aria-label="敌方状态">
+          ${(enemyUnits.length ? enemyUnits : [right]).filter((unit) => unit?.unitId).map((unit) => renderCombatRuntimeUnit(unit, "right")).join("")}
+        </div>
+        <div class="wuxia-runtime-fighter-party right" aria-label="敌方单位">
+          ${(enemyUnits.length ? enemyUnits : [right]).filter((unit) => unit?.unitId).map((unit) => renderCombatFighter(unit, "right", activeKindFor(unit.unitId), latestCueColor)).join("")}
+        </div>
         <div class="wuxia-runtime-floaters">
           ${latestFloaters.map((event) => `<span class="${escapeHtml(event.kind || "event")}">${escapeHtml(event.floatText || event.text || "")}</span>`).join("")}
         </div>

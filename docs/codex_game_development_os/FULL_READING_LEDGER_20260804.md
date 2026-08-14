@@ -83,3 +83,15 @@
 - SAVE-001 的配置、Schema、Runtime、fixtures、验证器、单元测试、浏览器 runner 和恢复/回滚文档作为本次审计新增正式范围；其完成不改变生产资产与 Release Gate 的阻断事实。
 - OBS-001 的 `analytics_events.json`、三份 Schema、`runtimeObservability.js`、UI/automation 接线、validator、unit/replay divergence test、Edge runner 与完工手册已逐文件复核；当前事件数、隐私、顺序和 replay 证据来自 `outputs/obs001_browser_acceptance_20260809_final_current/`，不复用旧诊断输出。
 - 最终当前 Web shipping closure 为 29 个文件；新增的观测合同和 Runtime 进入运输闭包，三份开发 Schema、测试、runner 与 outputs 仍不进入 APK/Web 产品文件。
+
+## 2026-08-14 COMBAT-002 有界完整阅读附录
+
+本轮在修改前完整阅读了当前战斗权威包：
+
+- `src/combatSession.js`、完整战斗内容 JSON 与 JSON Schema；
+- Session、属性、生产语义、玩家回合、暂停/重播、章节、结果路由、审计策略与数值模拟测试/工具；
+- 相关 `chapterSession`、UI Adapter 与 `wuxia-main` 战斗数据链；
+- 战斗生产规范、既有完工记录、当前发布审计、Roadmap 与机器生产计划。
+
+本轮没有把源码/配置/Runtime 权威与生成的 Web/Android 闭包、浏览器证据或开发期参考 bytes 混为一类。新增覆盖范围与逐项结论见
+`COMBAT_002_AUTHORITY_HARDENING_COMPLETION_20260814.md`；截图、浏览器 profile 和可再生报告仍不进入 Git。G 盘内容没有作为可写项目权威。

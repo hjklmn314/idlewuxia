@@ -869,23 +869,29 @@
       "title": "真实配置驱动 CombatSession 与玩家回合闭环",
       "priority": "P0",
       "gate": "G5",
-      "status": "blocked",
+      "status": "done",
       "owner": "combat-system-designer",
       "dependsOn": [
-        "COMBAT-002A",
-        "COMBAT-002B"
+        "COMBAT-002A"
       ],
       "acceptance": [
         "Combat uses a deterministic real session rather than a fixed auto-win timeline.",
         "Every authored skill, buff, target, damage type, cooldown and control rule has positive and negative runtime assertions.",
         "Manual player turns and browser combat interaction pass at every production viewport.",
-        "Combat presentation references approved side-view character, clean scene, VFX and audio assets through configuration."
+        "Player-owned targets require an explicit legal target while runtime-owned target selectors reject caller overrides.",
+        "AI weights, seeded initiative ties and restored snapshots fail closed under invalid or ambiguous input.",
+        "Every configured unit in a multi-unit encounter reaches the generic presentation roster without hard-coded unit identities."
       ],
       "evidence": [
         "src/combatSession.js",
         "config/wuxia_combat_content.json",
+        "config/wuxia_combat_content.schema.json",
+        "tools/test-wuxia-combat-authority-hardening.mjs",
+        "tools/test-wuxia-combat-session.mjs",
         "tools/test-wuxia-combat-production-semantics.mjs",
-        "tools/run-wuxia-real-browser-flow.mjs"
+        "tools/run-wuxia-real-browser-flow.mjs",
+        "outputs/combat_002_authority_acceptance_20260814_v4",
+        "docs/codex_game_development_os/COMBAT_002_AUTHORITY_HARDENING_COMPLETION_20260814.md"
       ]
     },
     {

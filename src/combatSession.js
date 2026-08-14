@@ -3,6 +3,7 @@ import { cloneData } from "./dataClone.js";
 const EPSILON = 1e-9;
 
 export const COMBAT_CAPABILITIES = Object.freeze({
+  turnOrderPolicies: Object.freeze(["speed_then_seeded_tiebreak"]),
   skillKinds: Object.freeze(["direct_damage", "elemental_damage", "multi_hit", "heal", "heal_over_time", "shield", "control", "damage_over_time", "defensive_stance", "stat_modifier", "resource", "cleanse", "utility"]),
   effectKinds: Object.freeze(["damage", "heal", "shield", "applyBuff", "removeBuff", "resource", "statModifier", "multiHit"]),
   targetSelectors: Object.freeze(["self", "single_enemy", "single_ally", "lowest_hp_ally", "random_enemy", "all_enemies", "all_allies"]),
@@ -214,6 +215,7 @@ export function validateCombatContent(content) {
   const findings = [];
   if (source?.schemaVersion !== "idlewuxia.combat_content.v1") findings.push({ severity: "error", path: "schemaVersion", message: "unsupported combat content schema" });
   const replayRules = source.rules?.replay || {};
+  if (!COMBAT_CAPABILITIES.turnOrderPolicies.includes(source.rules?.turnOrder)) findings.push({ severity: "error", path: "rules.turnOrder", message: `unsupported or missing turn order policy ${source.rules?.turnOrder || "<empty>"}` });
   if (replayRules.schema !== "idlewuxia.combat_replay.v1") findings.push({ severity: "error", path: "rules.replay.schema", message: "combat replay contract is missing or unsupported" });
   if (replayRules.allowPause !== true || replayRules.allowReplay !== true) findings.push({ severity: "error", path: "rules.replay", message: "combat replay must allow pause and replay" });
   if (!Number.isInteger(Number(replayRules.maxCommands)) || Number(replayRules.maxCommands) < 1) findings.push({ severity: "error", path: "rules.replay.maxCommands", message: "maxCommands must be a positive integer" });
@@ -231,6 +233,7 @@ export function validateCombatContent(content) {
   const formulaArity = { sub: 2, div: 2, clamp: 3, round: 1, floor: 1, ceil: 1 };
   const baseAttributeIds = new Set(["level", ...Object.keys(source.rules?.attributeDefaults || {})]);
   const derivedAttributeIds = new Set(Object.keys(source.rules?.attributes || {}));
+  for (const attributeId of derivedAttributeIds) if (baseAttributeIds.has(attributeId)) findings.push({ severity: "error", path: `rules.attributes.${attributeId}`, message: "derived attributes must not shadow base attributes" });
   const formulaAttributeIds = new Set([...baseAttributeIds, ...derivedAttributeIds]);
   const effectFormulaIds = new Set([...formulaAttributeIds, "targetHp", "targetHpMax", "targetMp", "targetMpMax", "targetShield"]);
   const validateFormula = (formula, path) => {
@@ -278,27 +281,30 @@ export function validateCombatContent(content) {
     if (policy?.fallbackSkillId && !list(unit.skillIds).includes(policy.fallbackSkillId)) findings.push({ severity: "error", path: `units.${unitId}.skillIds`, message: `AI fallback skill ${policy.fallbackSkillId} is not equipped` });
   }
   for (const [skillId, skill] of maps.skills) {
-    if (skill.kind && !COMBAT_CAPABILITIES.skillKinds.includes(skill.kind)) findings.push({ severity: "error", path: `skills.${skillId}.kind`, message: `unsupported skill kind ${skill.kind}` });
-    if (skill.target && !COMBAT_CAPABILITIES.targetSelectors.includes(skill.target)) findings.push({ severity: "error", path: `skills.${skillId}.target`, message: `unsupported target selector ${skill.target}` });
+    if (!COMBAT_CAPABILITIES.skillKinds.includes(skill.kind)) findings.push({ severity: "error", path: `skills.${skillId}.kind`, message: `unsupported or missing skill kind ${skill.kind || "<empty>"}` });
+    if (!COMBAT_CAPABILITIES.targetSelectors.includes(skill.target)) findings.push({ severity: "error", path: `skills.${skillId}.target`, message: `unsupported or missing target selector ${skill.target || "<empty>"}` });
     if (!skill.presentationCueId) findings.push({ severity: "error", path: `skills.${skillId}.presentationCueId`, message: "skill requires a presentation cue" });
+    if (!list(skill.effects).length) findings.push({ severity: "error", path: `skills.${skillId}.effects`, message: "skill requires at least one effect" });
     for (const [resource, cost] of Object.entries(skill.cost || {})) {
       if (!Number.isFinite(Number(cost)) || Number(cost) < 0) findings.push({ severity: "error", path: `skills.${skillId}.cost.${resource}`, message: "skill cost must be a non-negative number" });
     }
     if (skill.cooldown !== undefined && (!Number.isFinite(Number(skill.cooldown)) || Number(skill.cooldown) < 0)) findings.push({ severity: "error", path: `skills.${skillId}.cooldown`, message: "skill cooldown must be a non-negative number" });
     const validateEffect = (effect, path) => {
-      if (effect.kind && !COMBAT_CAPABILITIES.effectKinds.includes(effect.kind)) findings.push({ severity: "error", path: `${path}.kind`, message: `unsupported effect kind ${effect.kind}` });
+      if (!COMBAT_CAPABILITIES.effectKinds.includes(effect.kind)) findings.push({ severity: "error", path: `${path}.kind`, message: `unsupported or missing effect kind ${effect.kind || "<empty>"}` });
       if (effect.kind === "applyBuff") validateReference(effect.buffId, maps.buffs, `${path}.buffId`, findings);
       if (effect.kind === "damage") {
+        if (!effect.damageType) findings.push({ severity: "error", path: `${path}.damageType`, message: "damage effect requires damageType" });
         if (!source.rules?.damageTypes?.includes(effect.damageType || "physical")) findings.push({ severity: "error", path: `${path}.damageType`, message: `damage type ${effect.damageType || "physical"} is not declared in rules.damageTypes` });
         if (!rulesDamageRule(source.rules, effect.damageType || "physical")) findings.push({ severity: "error", path: `${path}.damageType`, message: `damage type ${effect.damageType || "physical"} has no damage rule` });
       }
+      if (["damage", "heal", "shield", "resource"].includes(effect.kind) && effect.power === undefined) findings.push({ severity: "error", path: `${path}.power`, message: `${effect.kind} effect requires power` });
       validateFormula(effect.power, `${path}.power`);
       for (const ref of formulaReferences(effect.power)) if (!effectFormulaIds.has(ref)) findings.push({ severity: "error", path: `${path}.power`, message: `unknown formula reference ${ref}` });
       if (effect.chance !== undefined && (!Number.isFinite(Number(effect.chance)) || Number(effect.chance) < 0 || Number(effect.chance) > 1)) findings.push({ severity: "error", path: `${path}.chance`, message: "effect chance must be between 0 and 1" });
       if (effect.kind === "removeBuff" && effect.maxCount !== undefined && integer(effect.maxCount, 0) < 1) findings.push({ severity: "error", path: `${path}.maxCount`, message: "maxCount must be >= 1" });
-      if (effect.kind === "resource" && effect.resource !== undefined && !["hp", "mp"].includes(effect.resource)) findings.push({ severity: "error", path: `${path}.resource`, message: `unsupported resource ${effect.resource}` });
-      if (effect.kind === "statModifier" && (!formulaAttributeIds.has(effect.attribute) || !["add", "mul"].includes(effect.op || "add") || !Number.isFinite(Number(effect.value ?? 0)))) findings.push({ severity: "error", path, message: "statModifier requires a known attribute, add/mul op and numeric value" });
-      if (effect.kind === "multiHit" && integer(effect.hits, 0) < 1) findings.push({ severity: "error", path: `${path}.hits`, message: "multiHit requires hits >= 1" });
+      if (effect.kind === "resource" && !["hp", "mp"].includes(effect.resource)) findings.push({ severity: "error", path: `${path}.resource`, message: `unsupported or missing resource ${effect.resource || "<empty>"}` });
+      if (effect.kind === "statModifier" && (!formulaAttributeIds.has(effect.attribute) || !["add", "mul"].includes(effect.op) || !Number.isInteger(Number(effect.duration)) || Number(effect.duration) < 1 || (effect.power === undefined && !Number.isFinite(Number(effect.value))))) findings.push({ severity: "error", path, message: "statModifier requires a known attribute, explicit add/mul op, positive duration and numeric value or power" });
+      if (effect.kind === "multiHit" && (integer(effect.hits, 0) < 1 || !list(effect.effects).length)) findings.push({ severity: "error", path, message: "multiHit requires hits >= 1 and at least one nested effect" });
       if (effect.kind === "multiHit") for (const [nestedIndex, nested] of list(effect.effects).entries()) validateEffect(nested, `${path}.effects.${nestedIndex}`);
     };
     for (const [effectIndex, effect] of list(skill.effects).entries()) validateEffect(effect, `skills.${skillId}.effects.${effectIndex}`);
@@ -306,9 +312,11 @@ export function validateCombatContent(content) {
   }
   for (const [buffId, buff] of maps.buffs) {
     const policy = buff.stackPolicy || "refresh";
-    if (!["stack", "refresh", "replace", "unique"].includes(policy)) findings.push({ severity: "error", path: `buffs.${buffId}.stackPolicy`, message: `unsupported stack policy ${policy}` });
+    const allowedPolicies = list(source.rules?.buffRules?.stackPolicies);
+    if (!["stack", "refresh", "replace", "unique"].includes(policy) || !allowedPolicies.includes(policy)) findings.push({ severity: "error", path: `buffs.${buffId}.stackPolicy`, message: `unsupported or undeclared stack policy ${policy}` });
     if (integer(buff.duration, 0) < 1) findings.push({ severity: "error", path: `buffs.${buffId}.duration`, message: "buff duration must be >= 1" });
     if (buff.maxStacks !== undefined && integer(buff.maxStacks, 0) < 1) findings.push({ severity: "error", path: `buffs.${buffId}.maxStacks`, message: "buff maxStacks must be >= 1" });
+    if (integer(buff.maxStacks, 1) > integer(source.rules?.buffRules?.maxStacks, 0)) findings.push({ severity: "error", path: `buffs.${buffId}.maxStacks`, message: "buff maxStacks exceeds rules.buffRules.maxStacks" });
     if (buff.control && !COMBAT_CAPABILITIES.buffControls.includes(buff.control)) findings.push({ severity: "error", path: `buffs.${buffId}.control`, message: `unsupported control ${buff.control}` });
     if (buff.periodic?.kind && !COMBAT_CAPABILITIES.effectKinds.includes(buff.periodic.kind)) findings.push({ severity: "error", path: `buffs.${buffId}.periodic.kind`, message: `unsupported periodic effect ${buff.periodic.kind}` });
     if (buff.periodic?.trigger && !["turn_start", "turn_end"].includes(buff.periodic.trigger)) findings.push({ severity: "error", path: `buffs.${buffId}.periodic.trigger`, message: `unsupported trigger ${buff.periodic.trigger}` });
@@ -323,6 +331,7 @@ export function validateCombatContent(content) {
   }
   for (const [aiPolicyId, policy] of maps.aiPolicies) {
     if (!["weighted_skill", "player_queue_then_basic"].includes(policy.mode)) findings.push({ severity: "error", path: `aiPolicies.${aiPolicyId}.mode`, message: `unsupported AI mode ${policy.mode}` });
+    if (!Number.isFinite(Number(policy.defaultWeight)) || Number(policy.defaultWeight) < 0) findings.push({ severity: "error", path: `aiPolicies.${aiPolicyId}.defaultWeight`, message: "AI defaultWeight must be an explicit non-negative number" });
     for (const [skillId, weight] of Object.entries(policy.weights || {})) {
       validateReference(skillId, maps.skills, `aiPolicies.${aiPolicyId}.weights.${skillId}`, findings);
       if (!Number.isFinite(Number(weight)) || Number(weight) < 0) findings.push({ severity: "error", path: `aiPolicies.${aiPolicyId}.weights.${skillId}`, message: "AI weight must be non-negative" });
@@ -643,23 +652,22 @@ export function createCombatSession(content, options = {}) {
     return Boolean(unit && skillId && list(unit.skillIds).includes(skillId));
   }
 
-  function validateRequestedTargets(source, skill, targetIds) {
+  function validateRequestedTargets(source, skill, targetIds, options = {}) {
     const requestedIds = list(targetIds).filter((id) => typeof id === "string" && id.length > 0);
-    if (!requestedIds.length) return { accepted: true, targets: [] };
-    if (new Set(requestedIds).size !== requestedIds.length) return { accepted: false, reason: "duplicate_target" };
     const selector = skill?.target || "single_enemy";
-    const multiSelector = ["all_enemies", "all_allies"].includes(selector);
-    if (!multiSelector && requestedIds.length !== 1) return { accepted: false, reason: "target_count_mismatch" };
+    const playerSelected = ["single_enemy", "single_ally"].includes(selector);
+    if (!requestedIds.length) {
+      if (options.requirePlayerSelection && playerSelected) return { accepted: false, reason: "target_required" };
+      return { accepted: true, targets: [] };
+    }
+    if (!playerSelected) return { accepted: false, reason: "runtime_target_override_forbidden" };
+    if (new Set(requestedIds).size !== requestedIds.length) return { accepted: false, reason: "duplicate_target" };
+    if (requestedIds.length !== 1) return { accepted: false, reason: "target_count_mismatch" };
     const targets = requestedIds.map((id) => units.get(id));
     if (targets.some((target) => !target || !targetMatchesSkill(source, target, skill))) return { accepted: false, reason: "invalid_target" };
     if (selector === "single_enemy") {
       const taunters = activeTauntersFor(source);
       if (taunters.length && !taunters.some((target) => requestedIds.includes(target.unitId))) return { accepted: false, reason: "taunt_target_required" };
-    }
-    if (multiSelector) {
-      const expected = targetsFor(source, selector).map((target) => target.unitId).sort();
-      const requested = requestedIds.slice().sort();
-      if (expected.length !== requested.length || expected.some((unitId, index) => unitId !== requested[index])) return { accepted: false, reason: "target_set_mismatch" };
     }
     return { accepted: true, targets };
   }
@@ -672,7 +680,11 @@ export function createCombatSession(content, options = {}) {
     if (selector === "all_enemies") return enemies;
     if (selector === "all_allies") return allies;
     if (selector === "lowest_hp_ally") return [allies.sort((a, b) => (a.hp / a.hpMax) - (b.hp / b.hpMax))[0] || source];
-    if (selector === "random_enemy") return enemies.length ? [enemies[Math.floor(random.next() * enemies.length)]] : [];
+    if (selector === "random_enemy") {
+      const candidates = activeTauntersFor(source);
+      const pool = candidates.length ? candidates : enemies;
+      return pool.length ? [pool[Math.floor(random.next() * pool.length)]] : [];
+    }
     if (selector === "single_ally") return [allies.sort((a, b) => a.hp - b.hp)[0] || source];
     const taunter = activeTauntersFor(source)[0];
     return [taunter || enemies.sort((a, b) => a.hp - b.hp)[0]].filter(Boolean);
@@ -691,7 +703,10 @@ export function createCombatSession(content, options = {}) {
         const taunters = activeTauntersFor(source);
         return taunters.length ? taunters : enemies;
       }
-      case "random_enemy":
+      case "random_enemy": {
+        const taunters = activeTauntersFor(source);
+        return taunters.length ? taunters : enemies;
+      }
       case "all_enemies": return enemies;
       default: return enemies;
     }
@@ -917,15 +932,39 @@ export function createCombatSession(content, options = {}) {
     const available = unit.skillIds.map((skillId) => maps.skills.get(skillId)).filter((skill) => canUseSkill(unit, skill).accepted);
     if (!available.length) return { skillId: policy?.fallbackSkillId || rules.defaultActionId };
     if (policy?.mode === "player_queue_then_basic") return { skillId: available.find((skill) => skill.skillId === (policy.fallbackSkillId || rules.defaultActionId))?.skillId || available[0].skillId };
-    const weighted = available.flatMap((skill) => Array.from({ length: Math.max(1, integer(policy?.weights?.[skill.skillId], 1)) }, () => skill));
-    return { skillId: (weighted[Math.floor(random.next() * weighted.length)] || available[0]).skillId };
+    const weighted = available.map((skill) => ({
+      skill,
+      weight: Math.max(0, number(policy?.weights?.[skill.skillId], number(policy?.defaultWeight, 0))),
+    })).filter((entry) => entry.weight > 0);
+    const totalWeight = weighted.reduce((sum, entry) => sum + entry.weight, 0);
+    if (totalWeight <= 0) return { skillId: available.find((skill) => skill.skillId === (policy?.fallbackSkillId || rules.defaultActionId))?.skillId || available[0].skillId };
+    let roll = random.next() * totalWeight;
+    for (const entry of weighted) {
+      roll -= entry.weight;
+      if (roll < 0) return { skillId: entry.skill.skillId };
+    }
+    return { skillId: weighted[weighted.length - 1].skill.skillId };
   }
 
   function rebuildTurnOrder() {
-    state.turnOrder = [...units.values()].filter(alive).sort((left, right) => {
-      const speedDiff = number(effectiveAttributes(right).initiative, 0) - number(effectiveAttributes(left).initiative, 0);
-      return Math.abs(speedDiff) > EPSILON ? speedDiff : (random.next() < 0.5 ? -1 : 1);
-    }).map((unit) => unit.unitId);
+    const ordered = [...units.values()].filter(alive).map((unit) => ({
+      unit,
+      initiative: number(effectiveAttributes(unit).initiative, 0),
+    })).sort((left, right) => {
+      const speedDiff = right.initiative - left.initiative;
+      return Math.abs(speedDiff) > EPSILON ? speedDiff : left.unit.unitId.localeCompare(right.unit.unitId);
+    });
+    for (let start = 0; start < ordered.length;) {
+      let end = start + 1;
+      while (end < ordered.length && Math.abs(ordered[end].initiative - ordered[start].initiative) <= EPSILON) end += 1;
+      if (end - start > 1) {
+        const tied = ordered.slice(start, end).map((entry) => ({ ...entry, seededTieBreak: random.next() }));
+        tied.sort((left, right) => left.seededTieBreak - right.seededTieBreak || left.unit.unitId.localeCompare(right.unit.unitId));
+        ordered.splice(start, tied.length, ...tied);
+      }
+      start = end;
+    }
+    state.turnOrder = ordered.map((entry) => entry.unit.unitId);
     state.turnIndex = 0;
   }
 
@@ -1225,7 +1264,7 @@ export function createCombatSession(content, options = {}) {
     if (!skillBelongsToUnit(unit, skillId)) return { accepted: false, reason: "skill_not_equipped", control: combatControlState(), snapshot: snapshot() };
     const usable = canUseSkill(unit, skill);
     if (!usable.accepted) return { accepted: false, reason: usable.reason, control: combatControlState(), snapshot: snapshot() };
-    const targetValidation = validateRequestedTargets(unit, skill, targetIds);
+    const targetValidation = validateRequestedTargets(unit, skill, targetIds, { requirePlayerSelection: true });
     if (!targetValidation.accepted) return { accepted: false, reason: targetValidation.reason, control: combatControlState(), snapshot: snapshot() };
     const result = step({ skillId, targetIds: list(targetIds) });
     if (!result.accepted) return { ...result, control: combatControlState() };
@@ -1303,7 +1342,12 @@ export function createCombatSession(content, options = {}) {
       if (!restored || !Number.isFinite(Number(restored.hp)) || !Number.isFinite(Number(restored.mp)) || !Number.isFinite(Number(restored.hpMax)) || !Number.isFinite(Number(restored.mpMax))) {
         throw new Error(`combat snapshot unit invalid: ${unitId}`);
       }
-      if (number(restored.hpMax, 0) < 1 || number(restored.mpMax, -1) < 0 || number(restored.shield, -1) < 0) throw new Error(`combat snapshot unit ranges invalid: ${unitId}`);
+      const restoredHp = number(restored.hp, -1);
+      const restoredHpMax = number(restored.hpMax, 0);
+      const restoredMp = number(restored.mp, -1);
+      const restoredMpMax = number(restored.mpMax, -1);
+      if (restoredHpMax < 1 || restoredMpMax < 0 || restoredHp < 0 || restoredHp > restoredHpMax || restoredMp < 0 || restoredMp > restoredMpMax || number(restored.shield, -1) < 0) throw new Error(`combat snapshot unit ranges invalid: ${unitId}`);
+      if (typeof restored.alive !== "boolean" || restored.alive !== (restoredHp > 0)) throw new Error(`combat snapshot alive state invalid: ${unitId}`);
       const restoredBuffIds = list(restored.buffs).map((buff) => buff?.buffId);
       if (new Set(restoredBuffIds).size !== restoredBuffIds.length) throw new Error(`combat snapshot duplicate buff: ${unitId}`);
       for (const active of list(restored.buffs)) {
@@ -1312,12 +1356,12 @@ export function createCombatSession(content, options = {}) {
       }
       for (const [skillId, value] of Object.entries(record(restored.cooldowns) ? restored.cooldowns : {})) if (!list(unit.skillIds).includes(skillId) || !Number.isInteger(Number(value)) || number(value, -1) < 0) throw new Error(`combat snapshot cooldown invalid: ${unitId}:${skillId}`);
       for (const modifier of list(restored.runtimeModifiers)) if (!knownAttributes.has(modifier?.attribute) || !["add", "mul"].includes(modifier?.op) || !Number.isFinite(Number(modifier?.value)) || !Number.isInteger(Number(modifier?.duration)) || number(modifier?.duration, 0) < 1) throw new Error(`combat snapshot modifier invalid: ${unitId}`);
-      unit.hp = clamp(number(restored.hp, unit.hp), 0, Math.max(1, number(restored.hpMax, unit.hpMax)));
-      unit.hpMax = Math.max(1, number(restored.hpMax, unit.hpMax));
-      unit.mp = clamp(number(restored.mp, unit.mp), 0, Math.max(0, number(restored.mpMax, unit.mpMax)));
-      unit.mpMax = Math.max(0, number(restored.mpMax, unit.mpMax));
-      unit.shield = Math.max(0, number(restored.shield, 0));
-      unit.alive = restored.alive !== false && unit.hp > 0;
+      unit.hp = restoredHp;
+      unit.hpMax = restoredHpMax;
+      unit.mp = restoredMp;
+      unit.mpMax = restoredMpMax;
+      unit.shield = number(restored.shield, 0);
+      unit.alive = restored.alive;
       unit.buffs = cloneData(list(restored.buffs));
       unit.cooldowns = cloneData(record(restored.cooldowns) ? restored.cooldowns : {});
       unit.runtimeModifiers = cloneData(list(restored.runtimeModifiers));
@@ -1330,17 +1374,21 @@ export function createCombatSession(content, options = {}) {
     state.paused = Boolean(snapshotValue.paused);
     if (state.status !== "active" && state.paused) throw new Error("finished or idle combat cannot be paused");
     state.outcome = snapshotValue.outcome;
-    state.round = Math.max(0, integer(snapshotValue.round, 0));
+    if (!Number.isInteger(Number(snapshotValue.round)) || Number(snapshotValue.round) < 0) throw new Error("combat snapshot round invalid");
+    state.round = Number(snapshotValue.round);
     const restoredTurnOrder = list(snapshotValue.turnOrder);
     if (new Set(restoredTurnOrder).size !== restoredTurnOrder.length || restoredTurnOrder.some((unitId) => !units.has(unitId))) throw new Error("combat snapshot turn order invalid");
+    if (state.status === "active" && [...units.values()].some((unit) => alive(unit) && !restoredTurnOrder.includes(unit.unitId))) throw new Error("combat snapshot turn order omits a living unit");
     if (!Number.isInteger(Number(snapshotValue.turnIndex)) || number(snapshotValue.turnIndex, -1) < 0 || number(snapshotValue.turnIndex, 0) > restoredTurnOrder.length) throw new Error("combat snapshot turn index invalid");
     state.turnIndex = Number(snapshotValue.turnIndex);
     state.turnOrder = restoredTurnOrder;
     const restoredEvents = list(snapshotValue.events);
     const eventSeqs = restoredEvents.map((event) => event?.seq);
-    if (new Set(eventSeqs).size !== eventSeqs.length || restoredEvents.some((event) => !record(event) || !Number.isInteger(Number(event.seq)) || !Number.isFinite(Number(event.timeMs)))) throw new Error("combat snapshot events invalid");
+    if (restoredEvents.length > Math.max(32, integer(rules.maxEvents, 512)) || new Set(eventSeqs).size !== eventSeqs.length || restoredEvents.some((event) => !record(event) || !Number.isInteger(Number(event.seq)) || !Number.isFinite(Number(event.timeMs)))) throw new Error("combat snapshot events invalid");
+    const expectedEventSeq = restoredEvents.reduce((max, event) => Math.max(max, integer(event?.seq, -1) + 1), 0);
+    if (!Number.isInteger(Number(snapshotValue.eventSeq)) || Number(snapshotValue.eventSeq) !== expectedEventSeq) throw new Error("combat snapshot event sequence invalid");
     state.events = cloneData(restoredEvents);
-    state.eventSeq = Math.max(integer(snapshotValue.eventSeq, state.events.length), state.events.reduce((max, event) => Math.max(max, integer(event?.seq, -1) + 1), 0));
+    state.eventSeq = expectedEventSeq;
     state.eventLimitReached = Boolean(snapshotValue.eventLimitReached);
     const restoredQueue = record(snapshotValue.actionQueue) ? snapshotValue.actionQueue : {};
     for (const [unitId, actions] of Object.entries(restoredQueue)) {
@@ -1350,8 +1398,15 @@ export function createCombatSession(content, options = {}) {
     }
     state.actionQueue = cloneData(restoredQueue);
     const restoredCommands = list(snapshotValue.commandLog);
-    if (restoredCommands.some((command, index) => !record(command) || command.seq !== index || !["player_action", "runaway", "pause", "resume"].includes(command.kind))) {
+    if (restoredCommands.length > Math.max(1, integer(rules.replay?.maxCommands, 256)) || restoredCommands.some((command, index) => !record(command) || command.seq !== index || !["player_action", "runaway", "pause", "resume"].includes(command.kind))) {
       throw new Error("combat snapshot command log invalid");
+    }
+    for (const command of restoredCommands) {
+      if (command.kind === "player_action") {
+        const unit = units.get(command.unitId);
+        if (!unit || !list(unit.skillIds).includes(command.skillId) || list(command.targetIds).some((targetId) => !units.has(targetId))) throw new Error("combat snapshot player command invalid");
+      }
+      if (command.kind === "runaway" && !playerUnitIds.includes(command.unitId)) throw new Error("combat snapshot runaway command invalid");
     }
     state.commandLog = cloneData(restoredCommands);
     if (snapshotValue.replayId !== undefined && snapshotValue.replayId !== currentReplayId()) throw new Error("combat snapshot replay id mismatch");

@@ -182,6 +182,18 @@ async function capture(cdp, label) {
         labelHeight: node.querySelector("span")?.getBoundingClientRect().height || 0,
         valueHeight: node.querySelector("strong")?.getBoundingClientRect().height || 0,
       })),
+      combat: {
+        playerCount: Number(document.querySelector(".wuxia-combat-runtime")?.dataset?.wuxiaCombatPlayerCount || 0),
+        enemyCount: Number(document.querySelector(".wuxia-combat-runtime")?.dataset?.wuxiaCombatEnemyCount || 0),
+        unitIds: [...new Set([...document.querySelectorAll("[data-wuxia-combat-unit-id]")]
+          .map((node) => node.dataset.wuxiaCombatUnitId)
+          .filter(Boolean))],
+        fighterIds: [...document.querySelectorAll(".wuxia-runtime-fighter[data-wuxia-fighter]")]
+          .map((node) => node.dataset.wuxiaFighter)
+          .filter(Boolean),
+        availableSkillButtons: [...document.querySelectorAll(".wuxia-combat-skill:not(:disabled)")].length,
+        targetButtons: [...document.querySelectorAll(".wuxia-combat-skill[data-wuxia-combat-target-ids]:not([data-wuxia-combat-target-ids=''])")].length,
+      },
       activeElement: document.activeElement?.outerHTML?.slice(0, 300) || ""
     };
   })()`);
@@ -263,6 +275,7 @@ async function waitForStateAndCapture(cdp, label, expectedState, timeoutMs = 500
 async function playConfiguredCombatAndCapture(cdp, label, expectedState) {
   const deadline = Date.now() + 12000;
   let submittedActions = 0;
+  let capturedFirstAcceptedAction = false;
   while (Date.now() < deadline) {
     const actualState = await evalValue(cdp, "document.body.dataset.wuxiaState || ''");
     if (actualState === expectedState) {
@@ -283,7 +296,16 @@ async function playConfiguredCombatAndCapture(cdp, label, expectedState) {
       const result = window.__idleWuxiaAutomation?.submitCombatAction?.(control.actorId, skill.skillId, targetIds);
       return { accepted: result?.clicked === true, reason: result?.reason || "", actorId: control.actorId, skillId: skill.skillId, targetIds };
     })()`);
-    if (command?.accepted) submittedActions += 1;
+    if (command?.accepted) {
+      submittedActions += 1;
+      if (!capturedFirstAcceptedAction) {
+        capturedFirstAcceptedAction = true;
+        await delay(120);
+        const firstActionSummary = await capture(cdp, `${label}_after_player_action_1`);
+        firstActionSummary.combatCommand = command;
+        firstActionSummary.submittedPlayerActions = submittedActions;
+      }
+    }
     else if (!command?.waiting) {
       const summary = await capture(cdp, `${label}_player_command_failed`);
       summary.error = `configured player combat command failed: ${command?.reason || "unknown"}`;

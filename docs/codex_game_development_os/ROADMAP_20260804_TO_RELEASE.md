@@ -328,3 +328,27 @@ implemented and fail-closed as `CHARACTER-RUNTIME-001`; the live registry
 truthfully contains zero parts and zero compositions. The next program step is
 the DOM/Canvas layer adapter after approved part atlases exist. This runtime
 does not manufacture, approve, or ship missing art.
+
+## 2026-08-14 COMBAT-002 runtime authority closure
+
+`COMBAT-002` is now **done for functional/configuration/runtime scope**. The
+machine authority no longer makes it depend on `COMBAT-002B`: deterministic
+`CombatSession`, explicit player target ownership, runtime-owned target
+selectors, taunt-constrained random targeting, zero AI weights, seeded
+initiative ties, strict snapshot restoration, multi-unit presentation and real
+player-turn browser interaction are independent of final product art.
+
+Fresh focused and cascade tests pass. The final real-Edge matrix at 360×800,
+393×852 and 430×932 completed 16/16 steps per size with zero console problem,
+zero horizontal overflow, two configured units/fighters visible and a captured
+first accepted player action before terminal resolution. Human functional
+review passed; human product-art review still failed the geometric actors,
+placeholder stage, development-only references, missing authored VFX and
+missing owned/licensed OGG.
+
+The current serial path is therefore `ASSET-007`–`ASSET-010` → `COMBAT-002B` →
+`T05-01` → `REL-001`–`REL-003`. `G5` and the project remain blocked. The known
+`FIRST_SESSION_SIMULATION_MISMATCH` stays a separate diagnostic and
+`REST-REPAIR-001` stays postponed. Authority:
+`COMBAT_002_AUTHORITY_HARDENING_COMPLETION_20260814.md` and
+`config/production/production_stage_plan.json`.

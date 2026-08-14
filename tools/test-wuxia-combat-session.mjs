@@ -27,6 +27,10 @@ assert.ok(first.snapshot.events.some((event) => event.kind === "damage" && event
 
 const ambush = run("encounter_bandit_ambush", 190720);
 assert.ok(ambush.snapshot.events.some((event) => ["buff", "debuff", "heal", "shield", "miss", "block"].includes(event.kind)), "combat must expose non-damage feedback when the encounter uses it");
+const ambushPresentation = ambush.session.presentation({ previewId: "ambush_roster" });
+assert.equal(ambushPresentation.units.players.length, 1, "presentation must retain every configured player unit");
+assert.equal(ambushPresentation.units.enemies.length, 2, "presentation must retain every configured enemy instead of hiding secondary targets");
+assert.equal(ambushPresentation.units.all.length, 3, "presentation all-roster contract must be complete");
 
 const forced = createCombatSession(content, { encounterId: "encounter_first_session_old_steward", seed: 7 });
 assert.equal(forced.queueAction("unit_unnamed_girl", "skill_flame_palm").accepted, true);
@@ -142,7 +146,7 @@ const report = {
   validation,
   scenarios: {
     firstSession: { outcome: first.snapshot.outcome, rounds: first.snapshot.round, events: first.snapshot.events.length },
-    ambush: { outcome: ambush.snapshot.outcome, rounds: ambush.snapshot.round, events: ambush.snapshot.events.length },
+    ambush: { outcome: ambush.snapshot.outcome, rounds: ambush.snapshot.round, events: ambush.snapshot.events.length, visibleRoster: ambushPresentation.units.all.length },
     forcedEffects: { events: forcedEvents.length, hasBuffOrDebuff: forcedEvents.some((event) => ["buff", "debuff"].includes(event.kind)), hasHealOrShield: forcedEvents.some((event) => ["heal", "shield"].includes(event.kind)) },
     advancedMechanics: {
       reflect: true,

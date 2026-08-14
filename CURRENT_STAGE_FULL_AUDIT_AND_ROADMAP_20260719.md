@@ -968,3 +968,20 @@ uses controlled mirroring. The live registry deliberately remains zero parts,
 zero compositions and non-shipping. Therefore the program path passes focused
 tests, while real character visual acceptance remains BLOCKED / NOT TESTABLE
 and ASSET-007, COMBAT-002B and T05-01 remain unchanged.
+
+## Current authority pointer — COMBAT-002 runtime closure 2026-08-14
+
+Historical statements that `COMBAT-002` or the real `CombatSession` remain
+postponed are superseded. The functional/configuration/runtime task is now
+`done`; its authority record is
+`docs/codex_game_development_os/COMBAT_002_AUTHORITY_HARDENING_COMPLETION_20260814.md`.
+The task now covers strict player/runtime target ownership, taunt-safe random
+selection, deterministic initiative ties, real zero AI weights, fail-closed
+snapshots/runtime semantics, multi-unit presentation and captured real-browser
+player actions at 360×800, 393×852 and 430×932.
+
+This does not close the product presentation task. `ASSET-007`–`ASSET-010`,
+`COMBAT-002B`, `T05-01`, physical Android, signed Release, store and rollback
+gates remain blocked. Current CSS/geometric combat actors and placeholder art
+still fail human product-art review. `FIRST_SESSION_SIMULATION_MISMATCH` remains
+explicitly separate and `REST-REPAIR-001` remains postponed.
